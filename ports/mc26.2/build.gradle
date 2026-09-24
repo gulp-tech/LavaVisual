@@ -27,9 +27,17 @@ jar { from('LICENSE') }
 tasks.register('apiSignatures') {
     doLast {
         def names = [
-            'net.minecraft.client.renderer.ScreenEffectRenderer',
-            'net.minecraft.client.renderer.ItemInHandRenderer',
-            'net.minecraft.client.player.LocalPlayer'
+            'com.mojang.blaze3d.platform.Window',
+            'net.minecraft.client.multiplayer.PlayerInfo',
+            'net.minecraft.client.multiplayer.ServerData',
+            'net.minecraft.client.gui.screens.inventory.InventoryScreen',
+            'net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState',
+            'net.minecraft.client.renderer.state.gui.pip.GuiEntityRenderState',
+            'net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState',
+            'net.minecraft.client.MouseHandler',
+            'net.minecraft.client.KeyMapping',
+            'net.minecraft.client.renderer.RenderPipelines',
+            'net.minecraft.client.Minecraft'
         ]
         def result = new StringBuilder()
         names.each { name ->
