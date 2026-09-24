@@ -6,13 +6,29 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-      - uses: gradle/actions/setup-gradle@v4
-      - run: ./gradlew build --no-daemon
+      - uses: gradle/actions/setup-gradle@v5
+      - name: Build and report diagnostics
+        shell: bash
+        run: |
+          set +e
+          ./gradlew build --no-daemon > build.log 2>&1
+          result=$?
+          cat build.log
+          if [ "$result" -ne 0 ]; then
+            python3 - <<'PYTHON'
+          import pathlib
+          lines = pathlib.Path('build.log').read_text().splitlines()[-100:]
+          for i in range(0, len(lines), 15):
+              message = '\n'.join(lines[i:i+15]).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+              print('::error title=Gradle diagnostics::' + message)
+          PYTHON
+          fi
+          exit "$result"
       - uses: actions/upload-artifact@v4
         with:
           name: LavaVisual-mc1.20.4
