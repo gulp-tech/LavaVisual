@@ -91,9 +91,12 @@ gradlew.bat build
 `build` запускает JUnit-тесты палитры: контрольные цвета, границы и непрерывность
 интерполяции. Для dev-клиента: `./gradlew runClient`.
 
-Также подготовлен `.github/workflows/build.yml`: JDK 17, сборка и публикация
+Также подготовлен шаблон `docs/build-workflow.yml`: JDK 17, сборка и публикация
 артефакта `LavaVisual-mc1.20.4`. Для отправки этого файла подключению GitHub
-требуется разрешение **workflows**.
+требуется разрешение **workflows**. Через сайт GitHub можно самостоятельно
+создать `.github/workflows/build.yml` в ветке `arena/01a0d2b1-lavavisual`,
+скопировав туда шаблон. После сохранения push запускает сборку автоматически.
+Результат доступен в **Actions → Build LavaVisual → Artifacts**.
 
 ## Установка
 
