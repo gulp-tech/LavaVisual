@@ -86,6 +86,7 @@ public final class LavaVisualClient implements ClientModInitializer {
                     if (smokeTicks == 630) LavaVisual.LOGGER.info("LavaVisual smoke shot hat");
                     if (smokeTicks == 690) client.gui.setScreen(new tech.gulp.lavavisual.ui.WaypointScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MAP), null));
                     if (smokeTicks == 720) LavaVisual.LOGGER.info("LavaVisual smoke shot waypoint");
+                    if (smokeTicks == 770) { config().widgets.get("watermark").visible = true; config().widgets.get("coordinates").visible = true; }
                     if (smokeTicks == 780) client.gui.setScreen(new ClickGuiScreen());
                     if (smokeTicks == 820) LavaVisual.LOGGER.info("LavaVisual smoke shot menu");
                     if (smokeTicks == 870) LavaVisual.LOGGER.info("LavaVisual badge marker " + (tech.gulp.lavavisual.effects.Badge.marked(client.options.buildPlayerInformation()) ? "on" : "off"));

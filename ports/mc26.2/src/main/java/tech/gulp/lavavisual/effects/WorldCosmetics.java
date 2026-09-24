@@ -41,10 +41,10 @@ public final class WorldCosmetics {
     private record TrailNode(Vec3 position, int born) { }
     private record TrailPoint(Vec3 position, float alpha) { }
     private record SparkFrame(Vec3 origin, float size, float alpha, int shape, int color) { }
-    private record HatFrame(Vec3 base, float yaw, float pitch, float radius, float height, float opacity, float spin, int color, int style, float pivot) { }
+    private record HatFrame(Vec3 base, float yaw, float pitch, float radius, float height, float opacity, float spin, int color, int light, int style, float pivot) { }
     private record MarkerFrame(Vec3 origin, int shape, float size, float alpha) { }
     /** colors: jump, esp, kill, trail, marker (theme or per-element). */
-    private record Frame(List<RingFrame> rings, List<SparkFrame> sparks, List<MarkerFrame> markers, int[] colors, HatFrame hat, float spin, List<TrailPoint> trail, Vec3 esp, float espHeight, float espWidth, int espStyle, List<BeamFrame> beams, List<tech.gulp.lavavisual.map.WaypointOverlay.Beam> waypoints) { }
+    private record Frame(List<RingFrame> rings, List<SparkFrame> sparks, List<MarkerFrame> markers, int[] colors, int[] lights, HatFrame hat, float spin, List<TrailPoint> trail, Vec3 esp, float espHeight, float espWidth, int espStyle, List<BeamFrame> beams, List<tech.gulp.lavavisual.map.WaypointOverlay.Beam> waypoints) { }
     private static final RenderStateDataKey<Frame> DATA = RenderStateDataKey.create(() -> "lavavisual:cosmetics");
     private static final ArrayList<Ring> RINGS = new ArrayList<>();
     private static final ArrayList<Mark> MARKS = new ArrayList<>();
@@ -118,7 +118,7 @@ public final class WorldCosmetics {
                 float pitch = c.hatTilt ? (float) Math.toRadians(net.minecraft.util.Mth.lerp(partial, self.xRotO, self.getXRot())) : 0;
                 float pivot = (float) (self.getBbHeight() + 0.02 + c.hatLift - (self.getEyeHeight() - 0.2));
                 hat = new HatFrame(base, yaw, pitch, (float) (0.52 * c.hatSize), (float) (0.26 * c.hatSize * c.hatCone), (float) c.hatOpacity,
-                        (float) (now0 * 0.06 * c.hatSpin), c.color("hat") & 0xFFFFFF, c.hatStyle, pivot);
+                        (float) (now0 * 0.06 * c.hatSpin), c.color("hat") & 0xFFFFFF, c.color2("hat") & 0xFFFFFF, c.hatStyle, pivot);
             }
             var waypointBeams = tech.gulp.lavavisual.map.WaypointOverlay.extract(mc, context.levelState().cameraRenderState, partial);
             Vec3 esp = null;
@@ -162,7 +162,9 @@ public final class WorldCosmetics {
                 beams.add(new BeamFrame(b.origin(), (float) (1 - age * age), (float) age));
             }
             int[] colors = {c.color("jump") & 0xFFFFFF, c.color("esp") & 0xFFFFFF, killColor, c.color("trail") & 0xFFFFFF, c.color("marker") & 0xFFFFFF};
-            context.levelState().setData(DATA, new Frame(List.copyOf(rings), List.copyOf(sparks), List.copyOf(markers), colors, hat, (float) (now * 0.06),
+            // Second tones: the theme gradient (lava orange to amethyst by default) instead of a lighter shade.
+            int[] lights = {c.color2("jump") & 0xFFFFFF, c.color2("esp") & 0xFFFFFF, c.color2("kill") & 0xFFFFFF, c.color2("trail") & 0xFFFFFF, c.color2("marker") & 0xFFFFFF};
+            context.levelState().setData(DATA, new Frame(List.copyOf(rings), List.copyOf(sparks), List.copyOf(markers), colors, lights, hat, (float) (now * 0.06),
                     List.copyOf(trail), esp, espHeight, espWidth, c.espStyle, List.copyOf(beams), waypointBeams));
         });
         LevelRenderEvents.BEFORE_TRANSLUCENT_TERRAIN.register(WorldCosmetics::render);
@@ -252,7 +254,7 @@ public final class WorldCosmetics {
         try {
             // Camera-relative doubles are converted only after subtraction, avoiding far-coordinate jitter.
             context.submitNodeCollector().submitCustomGeometry(context.poseStack(), GLOW, (pose, out) -> {
-                int jump = frame.colors[0], jumpLight = brighten(jump);
+                int jump = frame.colors[0], jumpLight = frame.lights[0];
                 for (RingFrame ring : frame.rings) {
                     Vec3 p = ring.origin.subtract(camera);
                     float r = ring.radius, a = ring.alpha;
@@ -268,11 +270,11 @@ public final class WorldCosmetics {
                 if (frame.esp != null) {
                     Vec3 base = frame.esp.subtract(camera);
                     int esp = frame.colors[1];
-                    if (frame.espStyle == 1) circle(pose, out, base, frame.espHeight, frame.espWidth, esp, brighten(esp), frame.spin);
-                    else ghosts(pose, out, base, frame.espHeight, frame.espWidth, esp, brighten(esp), frame.spin, right, up);
+                    if (frame.espStyle == 1) circle(pose, out, base, frame.espHeight, frame.espWidth, esp, frame.lights[1], frame.spin);
+                    else ghosts(pose, out, base, frame.espHeight, frame.espWidth, esp, frame.lights[1], frame.spin, right, up);
                 }
-                for (BeamFrame beam : frame.beams) beam(pose, out, beam.origin().subtract(camera), beam.alpha(), beam.age(), frame.colors[2], brighten(frame.colors[2]), frame.spin);
-                trail(pose, out, frame.trail, camera, frame.colors[3], brighten(frame.colors[3]));
+                for (BeamFrame beam : frame.beams) beam(pose, out, beam.origin().subtract(camera), beam.alpha(), beam.age(), frame.colors[2], frame.lights[2], frame.spin);
+                trail(pose, out, frame.trail, camera, frame.colors[3], frame.lights[3]);
                 for (MarkerFrame mark : frame.markers) marker(pose, out, mark.origin().subtract(camera), mark, frame.colors[4], right, up);
                 for (var waypoint : frame.waypoints) waypointBeam(pose, out, waypoint.base().subtract(camera), waypoint.color(), frame.spin);
                 for (SparkFrame spark : frame.sparks) {
@@ -314,7 +316,7 @@ public final class WorldCosmetics {
     /** China Hat: level cone above the head (third person only); size, lift, cone height, opacity, spin, style and colour are configurable. */
     private static void hat(PoseStack.Pose pose, VertexConsumer out, HatFrame h, Vec3 camera) {
         int segments = PerformanceMode.quality() < 0.5 ? 24 : 36;
-        int color = h.color(), light = brighten(color);
+        int color = h.color(), light = h.light();
         double radius = h.radius(), height = h.height(), alpha = h.opacity();
         Vec3 base = h.base().subtract(camera);
         Vector3f tip = hatPoint(h, 0, height, 0);

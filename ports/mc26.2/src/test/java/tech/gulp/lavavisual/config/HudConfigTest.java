@@ -90,6 +90,24 @@ class HudConfigTest {
         assertFalse(c.widgets.get("minimap").visible);
     }
     @org.junit.jupiter.api.Test
+    void themesBecomeGradientsOnce() {
+        HudConfig old = new HudConfig();
+        old.rgb = 0x85F56A; old.styleVersion = 0; old.sanitize();
+        assertEquals(HudConfig.THEMES[0][0], old.rgb); assertEquals(HudConfig.THEMES[0][1], old.rgb2); assertEquals(1, old.styleVersion);
+        old.rgb = 0x85F56A; old.sanitize();
+        assertEquals(0x85F56A, old.rgb, "an explicit choice after the migration stays");
+        HudConfig lava = new HudConfig();
+        lava.rgb = 0xFF5A36; lava.sanitize();
+        assertEquals(0xFF5A36, lava.rgb); assertEquals(0xFFC233, lava.rgb2);
+        HudConfig fresh = new HudConfig();
+        assertEquals(0xFF000000 | HudConfig.THEMES[0][1], fresh.color2("target"));
+        assertEquals(0xFF111216, fresh.color2("hud_bg"));
+        fresh.colors.put("target", 0xFF0000);
+        assertNotEquals(0xFFFF0000, fresh.color2("target"));
+        assertEquals(0xFF808080, 0xFF000000 | ColorMath.companion(0x808080));
+        assertEquals(HudConfig.THEMES.length, HudConfig.THEME_NAMES.length);
+    }
+    @org.junit.jupiter.api.Test
     void colorMathRoundTrips() {
         for (int rgb : new int[]{0xFF5A36, 0x85F56A, 0x36C8FF, 0xB45CFF, 0x000000, 0xFFFFFF, 0x808080}) {
             double[] hsv = ColorMath.toHsv(rgb);

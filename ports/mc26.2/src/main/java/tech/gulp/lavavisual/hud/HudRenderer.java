@@ -105,7 +105,7 @@ public final class HudRenderer {
                 scaleAnim = 0.72 + 0.28 * (1 - Math.pow(1 - fade, 3));
             }
             int x = x(id, w, g.guiWidth()), y = y(id, w, g.guiHeight());
-            int bw = baseWidth(id), bh = baseHeight(id), accent = c.color(id);
+            int bw = baseWidth(id), bh = baseHeight(id), accent = c.color(id), accent2 = c.color2(id);
             boolean off = edit && !w.visible;
             g.pose().pushMatrix();
             try {
@@ -118,12 +118,12 @@ public final class HudRenderer {
                 }
                 if (edit && id.equals(selected)) g.outline(-3, -3, bw + 6, bh + 6, UiDraw.alpha(accent, 0.9));
                 switch (id) {
-                    case "target" -> target(g, mc, c, w, target, fade, accent, dt);
-                    case "keys" -> keys(g, mc, c, w, accent, dt);
-                    case "armor" -> armor(g, mc, c, w);
-                    case "watermark" -> watermark(g, mc, c, w, accent);
+                    case "target" -> target(g, mc, c, w, target, fade, accent, accent2, dt);
+                    case "keys" -> keys(g, mc, c, w, accent, accent2, dt);
+                    case "armor" -> armor(g, mc, c, w, accent, accent2);
+                    case "watermark" -> watermark(g, mc, c, w, accent, accent2);
                     case "minimap" -> tech.gulp.lavavisual.map.Minimap.draw(g, mc, c, w, accent, partial, edit);
-                    default -> info(g, mc, c, w, id, accent);
+                    default -> info(g, mc, c, w, id, accent, accent2);
                 }
                 if (off) {
                     UiDraw.round(g, 0, -12, 26, 10, 3, 0xCC111216);
@@ -133,18 +133,24 @@ public final class HudRenderer {
         }
     }
 
-    private static void panel(GuiGraphicsExtractor g, HudConfig c, int x, int y, int w, int h, int radius, double opacity) {
-        if (c.shadows) UiDraw.round(g, x + 1, y + 2, w, h, radius, UiDraw.alpha(0, opacity * 0.28));
-        UiDraw.round(g, x, y, w, h, radius, UiDraw.alpha(PANEL, opacity));
+    /** HUD panel: soft two-layer shadow, faint top-lit gradient and a hairline in the element's two colours. */
+    private static void panel(GuiGraphicsExtractor g, HudConfig c, int x, int y, int w, int h, int radius, double opacity, int accent, int accent2) {
+        if (c.shadows) {
+            UiDraw.round(g, x - 1, y + 1, w + 2, h + 2, radius + 1, UiDraw.alpha(0, opacity * 0.12));
+            UiDraw.round(g, x, y + 2, w, h, radius, UiDraw.alpha(0, opacity * 0.22));
+        }
+        UiDraw.roundV(g, x, y, w, h, radius, UiDraw.alpha(UiDraw.mix(PANEL, 0xFFFFFF, 0.05), opacity), UiDraw.alpha(PANEL, opacity));
+        double line = 0.9 * Math.max(0.45, opacity);
+        UiDraw.roundH(g, x + radius, y, w - radius * 2, 1, 0, UiDraw.alpha(accent, line), UiDraw.alpha(accent2, line));
     }
     private static int durability(double ratio) { return ratio > 0.5 ? 0xFF7ADB6A : ratio > 0.25 ? 0xFFE0C14C : 0xFFE06A4C; }
 
     /** Coordinates, FPS and totem counter: icon badge, small accent title and a bold value. */
-    private static void info(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, String id, int accent) {
+    private static void info(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, String id, int accent, int accent2) {
         int bw = 156, bh = 30;
         Font font = mc.font;
-        panel(g, c, 0, 0, bw, bh, 6, w.opacity);
-        UiDraw.round(g, 5, 5, 20, 20, 5, UiDraw.alpha(accent, 0.16));
+        panel(g, c, 0, 0, bw, bh, 6, w.opacity, accent, accent2);
+        UiDraw.roundV(g, 5, 5, 20, 20, 5, UiDraw.alpha(accent, 0.26), UiDraw.alpha(accent2, 0.14));
         String value;
         if (id.equals("totems")) {
             // Item components are bound only inside a world; the title-screen editor shows an icon instead.
@@ -155,7 +161,7 @@ public final class HudRenderer {
             UiFont.icon(g, font, id.equals("coordinates") ? Icons.MAP_PIN : Icons.GAUGE, 10, 10, UiDraw.alpha(accent, 1));
             value = id.equals("coordinates") ? LavaVisualClient.STATE.coordinates : LavaVisualClient.STATE.performance;
         }
-        UiFont.text(g, font, title(id), 31, 4, UiDraw.alpha(accent, 1), bw - 36, Face.SMALL);
+        UiFont.gradient(g, font, title(id), 31, 4, accent, accent2, 1, Face.SMALL);
         UiFont.text(g, font, value, 31, 15, UiDraw.alpha(TEXT, 1), bw - 36, Face.BOLD);
     }
 
@@ -172,7 +178,7 @@ public final class HudRenderer {
     }
 
     /** Keystrokes: separate keys, accent fill that eases in on press, real CPS under both mouse buttons. */
-    private static void keys(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, double dt) {
+    private static void keys(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2, double dt) {
         var o = mc.options;
         Font font = mc.font;
         boolean[] down = {o.keyUp.isDown(), o.keyLeft.isDown(), o.keyDown.isDown(), o.keyRight.isDown(), o.keyAttack.isDown(), o.keyUse.isDown(), o.keyJump.isDown()};
@@ -185,7 +191,8 @@ public final class HudRenderer {
             int inset = p > 0.5 ? 1 : 0;
             int x = r[i][0] + inset, y = r[i][1] + inset, kw = r[i][2] - inset * 2, kh = r[i][3] - inset * 2;
             if (c.shadows) UiDraw.round(g, x, y + 1, kw, kh, 5, UiDraw.alpha(0, w.opacity * 0.3 * (1 - p)));
-            UiDraw.round(g, x, y, kw, kh, 5, UiDraw.alpha(UiDraw.mix(PANEL, accent, p), w.opacity + (0.96 - w.opacity) * p));
+            double keyAlpha = w.opacity + (0.96 - w.opacity) * p;
+            UiDraw.roundV(g, x, y, kw, kh, 5, UiDraw.alpha(UiDraw.mix(UiDraw.mix(PANEL, 0xFFFFFF, 0.05), accent, p), keyAlpha), UiDraw.alpha(UiDraw.mix(PANEL, accent2, p), keyAlpha));
             if (p > 0.02) UiDraw.round(g, x, y, kw, Math.max(2, kh / 2), 5, UiDraw.alpha(0xFFFFFF, 0.10 * p));
             int fg = 0xFF000000 | UiDraw.mix(0xEEF0F4, 0x0E1014, p);
             int cx = r[i][0] + r[i][2] / 2;
@@ -198,10 +205,10 @@ public final class HudRenderer {
     }
 
     /** Armor: the actual pieces, durability strip and percent; vanilla slot silhouettes when empty. */
-    private static void armor(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w) {
+    private static void armor(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2) {
         int bw = 97, bh = 36;
         Font font = mc.font;
-        panel(g, c, 0, 0, bw, bh, 6, w.opacity);
+        panel(g, c, 0, 0, bw, bh, 6, w.opacity, accent, accent2);
         var player = mc.player;
         for (int i = 0; i < 4; i++) {
             int x = 4 + i * 23, y = 4;
@@ -241,30 +248,30 @@ public final class HudRenderer {
         Font font = mc.font;
         int text = Math.max(UiFont.width(font, "LavaVisual", Face.BOLD, scale), UiFont.width(font, subtitle(mc), Face.SMALL, scale));
         int stats = Math.max(UiFont.width(font, ping(mc) + " ms", Face.SMALL, scale), UiFont.width(font, mc.getFps() + " fps", Face.SMALL, scale));
-        return 27 + text + 15 + stats + 7;
+        return LOGO_LEAD + text + 15 + stats + 7;
     }
 
     /** Watermark in the spirit of PulseVisual's: logo, name, place and time, ping and FPS. */
-    private static void watermark(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent) {
+    /** Logo box of the watermark: 4 units padding, the LV logo, 5 units gap. */
+    private static final int LOGO_LEAD = 4 + tech.gulp.lavavisual.ui.Logo.width(true) + 5;
+    private static void watermark(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2) {
         Font font = mc.font;
         int scale = UiFont.pixelScale(g);
         String sub = subtitle(mc), ms = ping(mc) + " ms", fps = mc.getFps() + " fps";
         int textW = Math.max(UiFont.width(font, "LavaVisual", Face.BOLD, scale), UiFont.width(font, sub, Face.SMALL, scale));
         int statsW = Math.max(UiFont.width(font, ms, Face.SMALL, scale), UiFont.width(font, fps, Face.SMALL, scale));
-        int bw = 27 + textW + 15 + statsW + 7, bh = 26;
-        panel(g, c, 0, 0, bw, bh, 7, w.opacity);
-        g.fill(8, 0, bw - 8, 1, UiDraw.alpha(accent, 0.75));
-        UiDraw.round(g, 4, 4, 18, 18, 5, UiDraw.alpha(accent, 1));
-        g.fillGradient(5, 5, 21, 13, 0x48FFFFFF, 0x00FFFFFF);
-        UiFont.icon(g, font, Icons.FLAME, 8, 8, 0xFF13161C);
-        UiFont.text(g, font, "LavaVisual", 27, 4, UiDraw.alpha(TEXT, 1), textW + 2, Face.BOLD);
-        UiFont.text(g, font, sub, 27, 14, UiDraw.alpha(MUTED, 1), textW + 2, Face.SMALL);
-        int divider = 27 + textW + 7;
+        int bw = LOGO_LEAD + textW + 15 + statsW + 7, bh = 26;
+        panel(g, c, 0, 0, bw, bh, 7, w.opacity, accent, accent2);
+        UiDraw.roundH(g, 2, 3, LOGO_LEAD - 3, 20, 6, UiDraw.alpha(accent, 0.12), UiDraw.alpha(accent2, 0.12));
+        tech.gulp.lavavisual.ui.Logo.draw(g, true, 4, 5, 0xFFFFFFFF);
+        UiFont.gradient(g, font, "LavaVisual", LOGO_LEAD, 4, UiDraw.mix(accent, 0xFFFFFF, 0.12), UiDraw.mix(accent2, 0xFFFFFF, 0.12), 1, Face.BOLD);
+        UiFont.text(g, font, sub, LOGO_LEAD, 14, UiDraw.alpha(MUTED, 1), textW + 2, Face.SMALL);
+        int divider = LOGO_LEAD + textW + 7;
         g.fill(divider, 6, divider + 1, 20, 0xFF2A2E37);
         int right = divider + 8 + statsW, latency = ping(mc);
         int pingColor = latency < 80 ? 0xFF7ADB6A : latency < 160 ? 0xFFE0C14C : 0xFFE06A4C;
         UiFont.text(g, font, ms, right - UiFont.width(font, ms, Face.SMALL, scale), 3, pingColor, statsW + 2, Face.SMALL);
-        UiFont.text(g, font, fps, right - UiFont.width(font, fps, Face.SMALL, scale), 13, UiDraw.alpha(accent, 1), statsW + 2, Face.SMALL);
+        UiFont.text(g, font, fps, right - UiFont.width(font, fps, Face.SMALL, scale), 13, UiDraw.alpha(accent2, 1), statsW + 2, Face.SMALL);
     }
 
     /**
@@ -291,16 +298,18 @@ public final class HudRenderer {
         } finally { g.pose().popMatrix(); }
     }
 
-    private static void target(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, TargetSnapshot target, double fade, int accent, double dt) {
+    private static void target(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, TargetSnapshot target, double fade, int accent, int accent2, double dt) {
         int bw = 180, ph = 56;
         Font font = mc.font;
         if (target == null) target = new TargetSnapshot("Предпросмотр", 16, 20, 10, 3.2,
                 mc.player == null ? null : mc.player.getSkin().body().texturePath(), null, 0);
-        UiDraw.round(g, -2, -2, bw + 4, ph + 4, 8, UiDraw.alpha(accent, 0.14 * fade));
+        UiDraw.roundH(g, -3, -3, bw + 6, ph + 6, 9, UiDraw.alpha(accent, 0.08 * fade), UiDraw.alpha(accent2, 0.08 * fade));
+        UiDraw.roundH(g, -2, -2, bw + 4, ph + 4, 8, UiDraw.alpha(accent, 0.12 * fade), UiDraw.alpha(accent2, 0.12 * fade));
         if (c.shadows) UiDraw.round(g, 1, 2, bw, ph, 6, UiDraw.alpha(0, w.opacity * 0.25 * fade));
-        UiDraw.round(g, 0, 0, bw, ph, 6, UiDraw.alpha(PANEL, w.opacity * fade));
-        g.fillGradient(4, 1, bw - 4, 20, UiDraw.alpha(accent, 0.10 * fade), UiDraw.alpha(accent, 0));
-        UiDraw.round(g, 7, 7, 38, 38, 7, UiDraw.alpha(accent, 0.30 * fade));
+        UiDraw.roundV(g, 0, 0, bw, ph, 6, UiDraw.alpha(UiDraw.mix(PANEL, 0xFFFFFF, 0.05), w.opacity * fade), UiDraw.alpha(PANEL, w.opacity * fade));
+        UiDraw.roundH(g, 4, 1, bw - 8, 19, 5, UiDraw.alpha(accent, 0.10 * fade), UiDraw.alpha(accent2, 0.06 * fade));
+        UiDraw.roundH(g, 8, 0, bw - 16, 1, 0, UiDraw.alpha(accent, 0.9 * fade), UiDraw.alpha(accent2, 0.9 * fade));
+        UiDraw.roundV(g, 7, 7, 38, 38, 7, UiDraw.alpha(accent, 0.6 * fade), UiDraw.alpha(accent2, 0.6 * fade));
         UiDraw.round(g, 8, 8, 36, 36, 6, UiDraw.alpha(0x1B1E25, fade));
         int white = UiDraw.alpha(0xFFFFFF, fade);
         LivingEntity living = target.entity();
@@ -331,7 +340,7 @@ public final class HudRenderer {
         int tx = 52, tw = bw - tx - 8;
         int combo = WorldCosmetics.combo();
         if (combo >= 2) {
-            UiDraw.round(g, bw - 34, 6, 28, 12, 6, UiDraw.alpha(accent, 0.9 * fade));
+            UiDraw.roundH(g, bw - 34, 6, 28, 12, 6, UiDraw.alpha(accent, 0.95 * fade), UiDraw.alpha(accent2, 0.95 * fade));
             UiFont.centered(g, font, "x" + combo, bw - 20, 8, UiDraw.alpha(0x111216, fade), Face.BOLD);
         }
         UiFont.text(g, font, target.name(), tx, 8, UiDraw.alpha(TEXT, fade), tw - (combo >= 2 ? 32 : 0), Face.BOLD);
@@ -359,7 +368,7 @@ public final class HudRenderer {
         if (healthGhost > 0) UiDraw.round(g, barX, barY, Math.max(2, (int) (barW * healthGhost)), 5, 2, UiDraw.alpha(0xFFFFFF, 0.35 * fade));
         if (healthShown > 0) {
             int fill = Math.max(2, (int) (barW * healthShown));
-            UiDraw.round(g, barX, barY, fill, 5, 2, UiDraw.alpha(accent, fade));
+            UiDraw.roundH(g, barX, barY, fill, 5, 2, UiDraw.alpha(accent, fade), UiDraw.alpha(UiDraw.mix(accent, accent2, healthShown), fade));
             g.fillGradient(barX + 1, barY, barX + fill - 1, barY + 2, UiDraw.alpha(0xFFFFFF, 0.28 * fade), UiDraw.alpha(0xFFFFFF, 0));
         }
         // Equipment strip under the panel: helmet, chestplate, leggings, boots, main hand.
@@ -370,7 +379,7 @@ public final class HudRenderer {
             for (int i = 0; i < gear.length; i++) {
                 int sx = i * 21, sy = 60;
                 if (c.shadows) UiDraw.round(g, sx + 1, sy + 1, 19, 19, 4, UiDraw.alpha(0, w.opacity * 0.25 * fade));
-                UiDraw.round(g, sx, sy, 19, 19, 4, UiDraw.alpha(PANEL, w.opacity * fade));
+                UiDraw.roundV(g, sx, sy, 19, 19, 4, UiDraw.alpha(UiDraw.mix(PANEL, 0xFFFFFF, 0.05), w.opacity * fade), UiDraw.alpha(PANEL, w.opacity * fade));
                 ItemStack stack = gear[i];
                 if (stack.isEmpty()) {
                     if (i < 4) g.blitSprite(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath("minecraft", ARMOR_SPRITES[i]), sx + 2, sy + 2, 15, 15, UiDraw.alpha(0xFFFFFF, 0.3 * fade));
@@ -394,7 +403,7 @@ public final class HudRenderer {
         double fade = Math.min(1, Math.min(age / 120.0, (1500 - age) / 300.0));
         int tw = UiFont.width(g, mc.font, text, Face.REGULAR), w = tw + 20, x = (g.guiWidth() - w) / 2, y = g.guiHeight() - 78;
         UiDraw.round(g, x, y, w, 18, 6, UiDraw.alpha(PANEL, 0.88 * fade));
-        UiDraw.round(g, x + 6, y + 7, 4, 4, 2, UiDraw.alpha(LavaVisualClient.config().color("menu"), fade));
+        UiDraw.roundV(g, x + 6, y + 5, 3, 8, 1, UiDraw.alpha(LavaVisualClient.config().color("menu"), fade), UiDraw.alpha(LavaVisualClient.config().color2("menu"), fade));
         UiFont.text(g, mc.font, text, x + 14, y + 5, UiDraw.alpha(TEXT, Math.max(0.05, fade)), tw + 2);
     }
 

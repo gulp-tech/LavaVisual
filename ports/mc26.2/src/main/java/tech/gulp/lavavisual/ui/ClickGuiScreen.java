@@ -74,6 +74,21 @@ public final class ClickGuiScreen extends Screen {
     private void text(GuiGraphicsExtractor g, String value, int x, int y, int color, int width) { UiFont.text(g, font, value, x, y, color, Math.max(1, width)); }
     private void text(GuiGraphicsExtractor g, String value, int x, int y, int color, int width, UiFont.Face face) { UiFont.text(g, font, value, x, y, color, Math.max(1, width), face); }
     private int accent() { return LavaVisualClient.config().color("menu"); }
+    private int accent2() { return LavaVisualClient.config().color2("menu"); }
+    private static double frac(double v) { return v - Math.floor(v); }
+    /** Slow embers rising behind the menu in both theme colours; positions are pure functions of time (no state, no allocation). */
+    private void embers(GuiGraphicsExtractor g, int canvasW, int canvasH, long now, int ac, int ac2, double enter) {
+        double t = now / 1e9, span = canvasH + 24;
+        for (int i = 0; i < 34; i++) {
+            double r1 = frac(Math.sin(i * 12.9898) * 43758.5453), r2 = frac(Math.sin(i * 78.233) * 24634.6345), r3 = frac(Math.sin(i * 39.425) * 12345.6789);
+            double rise = (t * (5 + 13 * r2) + r3 * span) % span, life = rise / span;
+            int x = (int) (r1 * canvasW + Math.sin(t * (0.25 + r3 * 0.5) + i) * 7), y = (int) (canvasH + 12 - rise);
+            double a = Math.sin(Math.PI * life) * (0.22 + 0.4 * r3) * enter;
+            int color = UiDraw.mix(ac, ac2, r1), size = r2 > 0.72 ? 2 : 1;
+            if (size == 2) g.fill(x - 1, y - 1, x + 3, y + 3, UiDraw.alpha(color, a * 0.22));
+            g.fill(x, y, x + size, y + size, UiDraw.alpha(color, a));
+        }
+    }
     private double motion(String key, double goal) {
         double previous = motions.getOrDefault(key, goal);
         double next = previous + (goal - previous) * frameFactor;
@@ -89,7 +104,9 @@ public final class ClickGuiScreen extends Screen {
     private void action(GuiGraphicsExtractor g, String title, int x, int y, int width, Runnable callback) { action(g, null, title, x, y, width, callback); }
     private void action(GuiGraphicsExtractor g, String icon, String title, int x, int y, int width, Runnable callback) {
         boolean over = hover(x, y, width, 24);
-        UiDraw.round(g, x, y, width, 24, 6, over ? 0xFF30333B : 0xFF24272E);
+        UiDraw.roundV(g, x, y, width, 24, 6, over ? 0xFF353945 : 0xFF282B33, over ? 0xFF2B2F38 : 0xFF212329);
+        g.fill(x + 6, y, x + width - 6, y + 1, over ? 0x1CFFFFFF : 0x0DFFFFFF);
+        if (over) UiDraw.roundH(g, x + 7, y + 23, width - 14, 1, 0, UiDraw.alpha(accent(), 0.9), UiDraw.alpha(accent2(), 0.9));
         int tx = x + 9;
         if (icon != null) { UiFont.icon(g, font, icon, x + 8, y + 7, over ? accent() : 0xFFAEB6C4); tx = x + 23; }
         text(g, title, tx, y + 8, 0xFFE8EAF0, width - (tx - x) - 8); hit(x, y, width, 24, callback);
@@ -98,30 +115,36 @@ public final class ClickGuiScreen extends Screen {
     private void button(GuiGraphicsExtractor g, String icon, String title, Runnable callback) { action(g, icon, title, bodyX, cursor, bodyW, callback); cursor += 32; }
     private void note(GuiGraphicsExtractor g, String title) { text(g, title, bodyX + 1, cursor + 2, 0xFF838994, bodyW - 2); cursor += 22; }
     private void section(GuiGraphicsExtractor g, String title) {
-        UiDraw.round(g, bodyX + 1, cursor + 8, 4, 4, 2, accent());
-        text(g, title, bodyX + 10, cursor + 6, accent(), bodyW - 12);
-        g.fillGradient(bodyX, cursor + 21, bodyX + bodyW, cursor + 22, UiDraw.alpha(accent(), 0.25), UiDraw.alpha(accent(), 0.25));
+        int ac = accent(), ac2 = accent2();
+        UiDraw.roundV(g, bodyX + 1, cursor + 5, 3, 10, 1, ac, ac2);
+        UiFont.gradient(g, font, title, bodyX + 10, cursor + 6, UiDraw.mix(ac, 0xFFFFFF, 0.12), UiDraw.mix(ac2, 0xFFFFFF, 0.12), 1, UiFont.Face.BOLD);
+        UiDraw.roundH(g, bodyX, cursor + 21, bodyW, 1, 0, UiDraw.alpha(ac, 0.5), UiDraw.alpha(ac2, 0.02));
         cursor += 28;
     }
     private void tabIcon(GuiGraphicsExtractor g, int i, int x, int y, int color) { UiFont.icon(g, font, TAB_ICONS[i], x, y, color); }
     private void toggle(GuiGraphicsExtractor g, String key, String title, String description, boolean enabled, Runnable callback, Runnable settings) {
         int y = cursor;
-        double over = motion("hover:" + key, hover(bodyX, y, bodyW, 48) ? 1 : 0);
-        UiDraw.round(g, bodyX, y, bodyW, 48, 7, UiDraw.alpha(blend(0x191C22, 0x262B33, over), LavaVisualClient.config().menuOpacity));
+        double over = motion("hover:" + key, hover(bodyX, y, bodyW, 48) ? 1 : 0), op = LavaVisualClient.config().menuOpacity;
+        int ac = accent(), ac2 = accent2();
+        UiDraw.roundV(g, bodyX, y, bodyW, 48, 7, UiDraw.alpha(blend(0x1C1F26, 0x2A2F38, over), op), UiDraw.alpha(blend(0x16181E, 0x22262E, over), op));
+        g.fill(bodyX + 7, y, bodyX + bodyW - 7, y + 1, UiDraw.alpha(0xFFFFFF, 0.04 + 0.04 * over));
         double lit = motion("lit:" + key, enabled ? 1 : 0);
         if (lit > 0.01) {
-            UiDraw.round(g, bodyX, y, bodyW, 48, 7, UiDraw.alpha(accent(), 0.06 * lit));
-            UiDraw.round(g, bodyX + 1, y + 11, 2, 26, 1, UiDraw.alpha(accent(), lit));
+            UiDraw.roundH(g, bodyX, y, bodyW, 48, 7, UiDraw.alpha(ac, 0.13 * lit), UiDraw.alpha(ac2, 0.02 * lit));
+            UiDraw.roundV(g, bodyX + 1, y + 10, 2, 28, 1, UiDraw.alpha(ac, lit), UiDraw.alpha(ac2, lit));
         }
         String icon = CARD_ICONS.getOrDefault(key.startsWith("setting:") ? "setting" : key, Icons.SLIDERS_HORIZONTAL);
-        UiDraw.round(g, bodyX + 10, y + 12, 24, 24, 7, blend(0x262A33, accent() & 0xFFFFFF, lit * 0.3));
-        UiFont.icon(g, font, icon, bodyX + 17, y + 19, 0xFF000000 | UiDraw.mix(0xAEB6C4, accent() & 0xFFFFFF, lit));
+        UiDraw.roundV(g, bodyX + 10, y + 12, 24, 24, 7, blend(0x2B2F38, ac & 0xFFFFFF, lit * 0.42), blend(0x22252D, ac2 & 0xFFFFFF, lit * 0.36));
+        UiFont.icon(g, font, icon, bodyX + 17, y + 19, 0xFF000000 | UiDraw.mix(0xAEB6C4, UiDraw.mix(ac, 0xFFFFFF, 0.55), lit));
         text(g, title, bodyX + 44, y + 9, 0xFFE5E9F0, bodyW - 44 - (settings == null ? 51 : 73), UiFont.Face.BOLD);
         text(g, description, bodyX + 44, y + 28, 0xFF838994, bodyW - 44 - 12);
         double on = motion("toggle:" + key, enabled ? 1 : 0);
         int tx = bodyX + bodyW - (settings == null ? 43 : 65);
-        UiDraw.round(g, tx, y + 9, 30, 14, 7, blend(0x393E47, accent(), on));
-        UiDraw.round(g, tx + 2 + (int) Math.round(on * 16), y + 11, 10, 10, 5, 0xFFF5F7FA);
+        if (on > 0.02) UiDraw.roundH(g, tx - 2, y + 7, 34, 18, 9, UiDraw.alpha(ac, 0.2 * on), UiDraw.alpha(ac2, 0.2 * on));
+        UiDraw.roundH(g, tx, y + 9, 30, 14, 7, blend(0x393E47, ac, on), blend(0x393E47, ac2, on));
+        int knob = tx + 2 + (int) Math.round(on * 16);
+        UiDraw.round(g, knob, y + 12, 10, 10, 5, 0x50000000);
+        UiDraw.round(g, knob, y + 11, 10, 10, 5, 0xFFF7F8FB);
         hit(bodyX, y, bodyW - (settings == null ? 0 : 26), 48, callback);
         if (settings != null) {
             UiFont.icon(g, font, Icons.CHEVRON_RIGHT, bodyX + bodyW - 20, y + 11, hover(bodyX + bodyW - 26, y, 26, 48) ? accent() : 0xFFB3BAC7);
@@ -136,11 +159,12 @@ public final class ClickGuiScreen extends Screen {
         text(g, shown, bodyX + bodyW - 52, y + 2, 0xFFF2F4F8, 52);
         int x = bodyX + 4, w = bodyW - 8;
         double progress = Math.clamp((value - min) / (max - min), 0, 1);
-        UiDraw.round(g, x, y + 21, w, 4, 2, 0xFF353A43);
-        int filled = (int) Math.round(w * progress);
-        if (filled > 0) UiDraw.round(g, x, y + 21, filled, 4, 2, accent());
+        UiDraw.round(g, x, y + 21, w, 4, 2, 0xFF30343D);
+        int filled = (int) Math.round(w * progress), ac = accent(), tip = 0xFF000000 | UiDraw.mix(ac, accent2(), progress);
+        if (filled > 0) UiDraw.roundH(g, x, y + 21, filled, 4, 2, ac, tip);
         if (filled > 0) g.fillGradient(x, y + 21, x + filled, y + 22, 0x40FFFFFF, 0x00FFFFFF);
-        UiDraw.round(g, x + filled - 7, y + 16, 14, 14, 7, UiDraw.alpha(accent(), 0.22));
+        UiDraw.round(g, x + filled - 8, y + 15, 16, 16, 8, UiDraw.alpha(tip, 0.16));
+        UiDraw.round(g, x + filled - 6, y + 17, 12, 12, 6, UiDraw.alpha(tip, 0.28));
         UiDraw.round(g, x + filled - 4, y + 18, 8, 10, 4, 0xFFF2F5FA);
         sliders.add(new Slider(x, y + 14, w, min, max, setter)); cursor += 38;
     }
@@ -164,51 +188,64 @@ public final class ClickGuiScreen extends Screen {
         g.fill(0, 0, width, height, UiDraw.alpha(0x06090F, c.menuDim * enter));
         g.pose().pushMatrix();
         g.pose().scale((float) renderScale);
+        int ac = accent(), ac2 = accent2();
+        g.fillGradient(0, 0, canvasW, canvasH / 3, UiDraw.alpha(0x05070B, 0.28 * enter), 0x00000000);
+        g.fillGradient(0, canvasH * 2 / 3, canvasW, canvasH, 0x00000000, UiDraw.alpha(0x05070B, 0.38 * enter));
+        if (c.animations) embers(g, canvasW, canvasH, now, ac, ac2, enter);
         panelW = Math.min(600, canvasW - 24); panelH = Math.min(360, canvasH - 24);
         left = (canvasW - panelW) / 2; top = (canvasH - panelH) / 2 + (int) ((1 - enter) * 6);
         side = panelW < 440 ? 88 : 112; bodyX = left + side + 16; bodyW = panelW - side - 32;
         clipTop = top + 49; clipBottom = top + panelH - 33;
+        if (enter < 1) {
+            // Entrance: a short scale-in around the panel centre; exactly 1 afterwards, so text stays pixel-exact.
+            float grow = (float) (0.965 + 0.035 * enter);
+            g.pose().translate(left + panelW / 2f, top + panelH / 2f);
+            g.pose().scale(grow);
+            g.pose().translate(-(left + panelW / 2f), -(top + panelH / 2f));
+        }
         if (c.shadows) {
-            UiDraw.round(g, left - 3, top + 2, panelW + 6, panelH + 6, 13, 0x24000000);
-            UiDraw.round(g, left, top + 4, panelW, panelH, 11, 0x59000000);
+            UiDraw.shadow(g, left, top, panelW, panelH, 10, 7, 3, 0.5 * enter);
+            UiDraw.glow(g, left, top, panelW, panelH, 10, 6, ac, ac2, 0.2 * enter);
         }
         int menuBg = c.color("menu_bg") & 0xFFFFFF;
-        UiDraw.round(g, left, top, panelW, panelH, 10, UiDraw.alpha(menuBg, c.menuOpacity));
-        int ac = accent();
+        UiDraw.roundV(g, left, top, panelW, panelH, 10, UiDraw.alpha(UiDraw.mix(menuBg, 0xFFFFFF, 0.025), c.menuOpacity), UiDraw.alpha(UiDraw.mix(menuBg, 0x000000, 0.12), c.menuOpacity));
         UiDraw.round(g, left + 4, top + 4, side - 6, panelH - 8, 8, UiDraw.alpha(UiDraw.mix(menuBg, 0x000000, 0.35), c.menuOpacity * 0.75));
         g.fillGradient(left + side + 2, top + 1, left + panelW - 10, top + 46, UiDraw.alpha(ac, 0.09), UiDraw.alpha(ac, 0));
         for (int gx = 0; gx < panelW - 24; gx += 3) {
-            double t = gx / (double) (panelW - 24), pulse = 0.55 + 0.45 * Math.sin(now / 6e8 + t * 6);
-            g.fill(left + 12 + gx, top, left + 15 + gx, top + 1, UiDraw.alpha(ac, 0.8 * Math.sin(Math.PI * t) * pulse));
+            double t = gx / (double) (panelW - 24), pulse = 0.6 + 0.4 * Math.sin(now / 6e8 + t * 6);
+            g.fill(left + 12 + gx, top, left + 15 + gx, top + 1, UiDraw.alpha(UiDraw.mix(ac, ac2, t), 0.9 * Math.sin(Math.PI * t) * pulse));
         }
-        g.fillGradient(left + side, top + 15, left + side + 1, top + panelH - 15, UiDraw.alpha(ac, 0.45), 0xFF292D35);
-        UiDraw.round(g, left + 9, top + 11, 33, 33, 11, UiDraw.alpha(ac, 0.20));
-        UiDraw.round(g, left + 13, top + 15, 25, 25, 7, ac);
-        g.fillGradient(left + 15, top + 16, left + 36, top + 28, 0x45FFFFFF, 0x00FFFFFF);
-        UiFont.iconLarge(g, font, Icons.FLAME, left + 17, top + 19, 0xFF11181A);
-        text(g, "LavaVisual", left + 13, top + 47, 0xFFF1F4F8, side - 18, UiFont.Face.BOLD);
+        g.fillGradient(left + side, top + 15, left + side + 1, top + panelH - 15, UiDraw.alpha(ac, 0.5), UiDraw.alpha(ac2, 0.12));
+        // Brand: the LV logo (pixel-exact texture) over a warm glow, and the name in the theme gradient.
+        int sideCx = left + 4 + (side - 6) / 2, logoW = Logo.width(false);
+        UiDraw.roundV(g, left + 4, top + 4, side - 6, 62, 8, UiDraw.alpha(ac, 0.13), UiDraw.alpha(ac2, 0));
+        Logo.draw(g, false, sideCx - logoW / 2, top + 9, UiDraw.alpha(0xFFFFFF, Math.max(0.05, enter)));
+        UiFont.gradientCentered(g, font, "LavaVisual", sideCx, top + 45, UiDraw.mix(ac, 0xFFFFFF, 0.1), UiDraw.mix(ac2, 0xFFFFFF, 0.1), 1, UiFont.Face.BOLD);
         tabStep = Math.max(20, Math.min(29, (panelH - 72 - 30) / TABS.length));
         int tabH = Math.min(25, tabStep - 2), tabPad = (tabH - 11) / 2;
         if (indicator < 0) indicator = page * tabStep;
         indicator += (page * tabStep - indicator) * frameFactor;
-        UiDraw.round(g, left + 8, top + 72 + (int) indicator, side - 16, tabH, 6, UiDraw.alpha(accent(), 0.13));
-        UiDraw.round(g, left + 8, top + 72 + tabPad + (int) indicator, 2, 11, 1, accent());
+        int indicatorY = top + 72 + (int) indicator;
+        UiDraw.roundH(g, left + 8, indicatorY, side - 16, tabH, 6, UiDraw.alpha(ac, 0.26), UiDraw.alpha(ac2, 0.06));
+        UiDraw.roundV(g, left + 8, indicatorY + tabPad - 1, 2, 13, 1, ac, ac2);
         for (int i = 0; i < TABS.length; i++) {
             int next = i, y = top + 72 + i * tabStep;
-            int tabColor = page == i ? accent() : hover(left + 8, y, side - 16, tabH) ? 0xFFC9D0DA : 0xFF929BA9;
-            tabIcon(g, i, left + 17, y + tabPad, tabColor);
+            boolean active = page == i, overTab = hover(left + 8, y, side - 16, tabH);
+            if (overTab && !active) UiDraw.round(g, left + 8, y, side - 16, tabH, 6, 0x0CFFFFFF);
+            int tabColor = active ? 0xFFFFFFFF : overTab ? 0xFFD2D8E1 : 0xFF929BA9;
+            tabIcon(g, i, left + 17, y + tabPad, active ? 0xFF000000 | UiDraw.mix(ac, 0xFFFFFF, 0.2) : tabColor);
             text(g, TABS[i], left + 33, y + tabPad + 1, tabColor, side - 40);
             hit(left + 8, y, side - 16, tabH, () -> navigate(next));
         }
-        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.8", left + 13, top + panelH - 21, 0xFF586272, side - 18);
+        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.9", left + 13, top + panelH - 21, 0xFF586272, side - 18);
         String heading = selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : selected.equals("hat") ? "China Hat" : HudRenderer.title(selected);
         text(g, heading, bodyX, top + 17, 0xFFF0F3F7, bodyW - 28, UiFont.Face.HEADING);
         boolean overClose = mx >= left + panelW - 31 && mx < left + panelW - 7 && my >= top + 10 && my < top + 34;
         if (overClose) UiDraw.round(g, left + panelW - 31, top + 10, 24, 24, 6, 0xFF2A2E36);
         UiFont.icon(g, font, Icons.X, left + panelW - 24, top + 17, overClose ? 0xFFFFFFFF : 0xFFABB4C2);
         hit(left + panelW - 31, top + 10, 24, 24, this::onClose);
-        g.fill(bodyX, top + 39, bodyX + bodyW, top + 40, 0xFF2B303A);
-        g.fill(bodyX, top + 39, bodyX + (int) (bodyW * enter), top + 40, UiDraw.alpha(accent(), 0.32));
+        g.fill(bodyX, top + 39, bodyX + bodyW, top + 40, 0xFF262A33);
+        UiDraw.roundH(g, bodyX, top + 39, (int) (bodyW * enter), 1, 0, UiDraw.alpha(ac, 0.95), UiDraw.alpha(ac2, 0.05));
         cursor = clipTop + 3 - (int) scroll;
         g.enableScissor(bodyX - 1, clipTop, bodyX + bodyW + 1, clipBottom);
         clippingHits = true;
@@ -226,7 +263,7 @@ public final class ClickGuiScreen extends Screen {
         if (max > 0) {
             int h = Math.max(14, (clipBottom - clipTop) * (clipBottom - clipTop) / contentHeight);
             int y = clipTop + (int) ((clipBottom - clipTop - h) * scroll / max);
-            UiDraw.round(g, left + panelW - 8, y, 2, h, 1, UiDraw.alpha(accent(), 0.5));
+            UiDraw.roundV(g, left + panelW - 8, y, 2, h, 1, UiDraw.alpha(ac, 0.7), UiDraw.alpha(ac2, 0.7));
         }
         if (selected == null) text(g, Binds.keyName(Binds.Action.MENU) + " · меню    " + Binds.keyName(Binds.Action.DISABLE_ALL) + " · всё выкл    "
                 + Binds.keyName(Binds.Action.WAYPOINT_ADD) + " · метка", bodyX, top + panelH - 20, 0xFF818C9C, bodyW);
@@ -539,16 +576,18 @@ public final class ClickGuiScreen extends Screen {
     private void colors(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
         section(g, "Тема");
-        String[] themeNames = {"Лава", "Мята", "Океан", "Неон", "Золото", "Роза"};
-        int[] themes = {0xFF5A36, 0x85F56A, 0x36C8FF, 0xB45CFF, 0xFFC233, 0xFF5C9A};
         int tw = (bodyW - 16) / 3;
-        for (int i = 0; i < themes.length; i++) {
-            int theme = i, tx = bodyX + (i % 3) * (tw + 8);
-            action(g, themeNames[i], tx, cursor, tw, () -> { c.rgb = themes[theme]; hsvCache.remove("theme"); changed(); });
-            UiDraw.round(g, tx + tw - 16, cursor + 8, 8, 8, 4, 0xFF000000 | themes[i]);
-            if (i % 3 == 2) cursor += 32;
+        for (int i = 0; i < HudConfig.THEMES.length; i++) {
+            int[] pair = HudConfig.THEMES[i];
+            int tx = bodyX + (i % 3) * (tw + 8);
+            action(g, HudConfig.THEME_NAMES[i], tx, cursor, tw - 24, () -> { c.rgb = pair[0]; c.rgb2 = pair[1]; hsvCache.remove("theme"); hsvCache.remove("theme2"); changed(); });
+            UiDraw.roundH(g, tx + tw - 20, cursor + 2, 20, 20, 6, 0xFF000000 | pair[0], 0xFF000000 | pair[1]);
+            if (c.rgb == pair[0] && c.rgb2 == pair[1]) UiFont.icon(g, font, Icons.CHECK, tx + tw - 15, cursor + 7, 0xFF101217);
+            hit(tx + tw - 20, cursor + 2, 20, 20, () -> { c.rgb = pair[0]; c.rgb2 = pair[1]; hsvCache.remove("theme"); hsvCache.remove("theme2"); changed(); });
+            if (i % 3 == 2 || i == HudConfig.THEMES.length - 1) cursor += 32;
         }
         colorRow(g, "theme", "Цвет темы · для всего, где «как тема»");
+        colorRow(g, "theme2", "Второй цвет темы · градиенты");
         slider(g, "Скорость переливания", c.chromaSpeed, 0.2, 3, v -> c.chromaSpeed = v, false);
         section(g, "Интерфейс");
         colorRow(g, "menu", "Акцент меню");
@@ -565,24 +604,27 @@ public final class ClickGuiScreen extends Screen {
     }
     private int currentRgb(String key) {
         var c = LavaVisualClient.config();
-        return key.equals("theme") ? c.rgb : c.color(key) & 0xFFFFFF;
+        return key.equals("theme") ? c.rgb : key.equals("theme2") ? c.rgb2 : c.color(key) & 0xFFFFFF;
     }
     private void setColor(String key, int rgb) {
         var c = LavaVisualClient.config();
         if (key.equals("theme")) c.rgb = rgb & 0xFFFFFF;
+        else if (key.equals("theme2")) c.rgb2 = rgb & 0xFFFFFF;
         else { c.colors.put(key, rgb & 0xFFFFFF); c.chroma.remove(key); }
     }
     /** One element: swatch, name and state; click to open the picker below. */
     private void colorRow(GuiGraphicsExtractor g, String key, String title) {
         var c = LavaVisualClient.config();
         int y = cursor;
-        boolean open = key.equals(colorOpen), theme = key.equals("theme");
+        boolean open = key.equals(colorOpen), theme = key.equals("theme") || key.equals("theme2");
         boolean rainbow = !theme && c.chroma.contains(key), custom = theme || c.customColor(key);
-        int color = theme ? c.accent() : c.color(key);
+        int color = key.equals("theme") ? c.accent() : key.equals("theme2") ? c.accent2() : c.color(key);
+        int color2 = theme ? color : c.color2(key);
         double over = motion("hover:color:" + key, hover(bodyX, y, bodyW, 30) ? 1 : 0);
-        UiDraw.round(g, bodyX, y, bodyW, 30, 7, UiDraw.alpha(blend(0x191C22, 0x262B33, open ? 1 : over), c.menuOpacity));
+        double lift = open ? 1 : over;
+        UiDraw.roundV(g, bodyX, y, bodyW, 30, 7, UiDraw.alpha(blend(0x1C1F26, 0x2A2F38, lift), c.menuOpacity), UiDraw.alpha(blend(0x16181E, 0x22262E, lift), c.menuOpacity));
         UiDraw.round(g, bodyX + 8, y + 6, 18, 18, 6, 0x40FFFFFF);
-        UiDraw.round(g, bodyX + 9, y + 7, 16, 16, 5, color);
+        UiDraw.roundH(g, bodyX + 9, y + 7, 16, 16, 5, color, color2);
         String state = rainbow ? "переливание" : custom ? ColorMath.hex(color) : "как тема";
         int sw = UiFont.width(g, font, state, UiFont.Face.SMALL);
         text(g, title, bodyX + 34, y + 11, 0xFFE5E9F0, bodyW - 34 - sw - 34);
@@ -594,7 +636,7 @@ public final class ClickGuiScreen extends Screen {
     }
     private void picker(GuiGraphicsExtractor g, String key) {
         var c = LavaVisualClient.config();
-        boolean theme = key.equals("theme");
+        boolean theme = key.equals("theme") || key.equals("theme2");
         int rgb = currentRgb(key);
         double[] hsv = hsvCache.get(key);
         if (hsv == null || ColorMath.hsv(hsv[0], hsv[1], hsv[2]) != rgb) {

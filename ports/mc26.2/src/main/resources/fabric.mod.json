@@ -2,12 +2,16 @@
   "schemaVersion": 1,
   "id": "lavavisual",
   "version": "${version}",
-  "name": "LavaVisual HUD",
+  "name": "LavaVisual",
   "description": "Client-only HUD, RGB interface, depth-tested cosmetic effects, hand view and custom sounds. All modules start disabled.",
   "authors": [
     "gulp-tech"
   ],
   "license": "MIT",
+  "icon": "assets/lavavisual/icon.png",
+  "contact": {
+    "sources": "https://github.com/gulp-tech/LavaVisual"
+  },
   "environment": "client",
   "entrypoints": {
     "main": [

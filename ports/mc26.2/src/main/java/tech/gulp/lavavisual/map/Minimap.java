@@ -152,9 +152,13 @@ public final class Minimap {
         Font font = mc.font;
         int bw = baseWidth(), bh = baseHeight(), m = 4, size = 96;
         int bg = c.color("hud_bg") & 0xFFFFFF;
-        if (c.shadows) UiDraw.round(g, 1, 2, bw, bh, 7, UiDraw.alpha(0, w.opacity * 0.28));
-        UiDraw.round(g, 0, 0, bw, bh, 7, UiDraw.alpha(bg, w.opacity));
-        UiDraw.round(g, m - 1, m - 1, size + 2, size + 2, 3, UiDraw.alpha(accent, 0.35));
+        int accent2 = c.color2("minimap");
+        if (c.shadows) {
+            UiDraw.round(g, -1, 1, bw + 2, bh + 2, 8, UiDraw.alpha(0, w.opacity * 0.12));
+            UiDraw.round(g, 0, 2, bw, bh, 7, UiDraw.alpha(0, w.opacity * 0.22));
+        }
+        UiDraw.roundV(g, 0, 0, bw, bh, 7, UiDraw.alpha(UiDraw.mix(bg, 0xFFFFFF, 0.05), w.opacity), UiDraw.alpha(bg, w.opacity));
+        UiDraw.roundV(g, m - 1, m - 1, size + 2, size + 2, 3, UiDraw.alpha(accent, 0.75), UiDraw.alpha(accent2, 0.75));
         g.fill(m, m, m + size, m + size, 0xFF0B0D11);
         var player = mc.player;
         boolean live = player != null && mc.level != null && uploaded && valid && texture != null;

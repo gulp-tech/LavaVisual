@@ -29,6 +29,12 @@ public final class ColorMath {
         else h = ((r - g) / d + 4) / 6;
         return new double[]{h - Math.floor(h), max == 0 ? 0 : d / max, max};
     }
+    /** Second gradient colour for a custom colour: a slightly lighter neighbour hue; greys stay grey. */
+    public static int companion(int rgb) {
+        double[] hsv = toHsv(rgb & 0xFFFFFF);
+        if (hsv[1] < 0.08) return rgb & 0xFFFFFF;
+        return hsv(hsv[0] + 0.09, Math.min(1, hsv[1] * 0.92), Math.min(1, hsv[2] * 0.9 + 0.1));
+    }
     public static String hex(int rgb) { return String.format(java.util.Locale.ROOT, "#%06X", rgb & 0xFFFFFF); }
     /** Parses "#RRGGBB", "RRGGBB" or "#RGB"; returns -1 when invalid. */
     public static int parse(String text) {

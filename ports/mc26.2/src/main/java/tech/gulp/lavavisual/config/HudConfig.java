@@ -14,7 +14,13 @@ public final class HudConfig {
     public static final List<String> COLOR_KEYS = List.of("menu", "menu_bg", "hud_bg", "watermark", "target", "keys", "armor", "coordinates",
             "performance", "totems", "minimap", "badge", "crosshair", "jump", "particles", "ambient", "marker", "esp", "kill", "hat", "trail", "waypoint");
     public int schemaVersion = SCHEMA;
-    public int rgb = 0x85F56A;
+    /** Theme: accent and second gradient colour. Default = the logo's lava orange to amethyst. */
+    public int rgb = 0xFF6A2B, rgb2 = 0xA77BFF;
+    /** 0 = config from before 2.9 (single-colour themes); see {@link #sanitize()}. */
+    public int styleVersion;
+    public static final String[] THEME_NAMES = {"LavaVisual", "Лава", "Мята", "Океан", "Неон", "Золото", "Роза", "Закат", "Лёд"};
+    public static final int[][] THEMES = {{0xFF6A2B, 0xA77BFF}, {0xFF5A36, 0xFFC233}, {0x85F56A, 0x2CE0C8}, {0x36C8FF, 0x4C6BFF},
+            {0xB45CFF, 0xFF5C9A}, {0xFFC233, 0xFF7A3C}, {0xFF5C9A, 0xFFB36B}, {0xFF8A3C, 0xFF3D7F}, {0x9BE7FF, 0xC7B8FF}};
     public boolean shadows = true, animations = true;
     public boolean crosshairEnabled, jumpEnabled, particlesEnabled, ambientEnabled, viewModelEnabled;
     public int crosshairShape = 1;
@@ -62,6 +68,17 @@ public final class HudConfig {
         }
         Integer custom = colors == null ? null : colors.get(key);
         return 0xFF000000 | (custom != null ? custom : defaultColor(key, rgb));
+    }
+    public int accent2() { return 0xFF000000 | rgb2; }
+    /** Second gradient colour of an element: the theme's second colour, a companion of a custom colour, or a rainbow offset. */
+    public int color2(String key) {
+        if (chroma != null && chroma.contains(key)) {
+            double hue = (System.currentTimeMillis() % 1_000_000L) / 1000.0 * 0.12 * chromaSpeed + 0.16;
+            return 0xFF000000 | ColorMath.hsv(hue - Math.floor(hue), 0.72, 1);
+        }
+        Integer custom = colors == null ? null : colors.get(key);
+        if (custom != null) return 0xFF000000 | ColorMath.companion(custom);
+        return 0xFF000000 | (key.equals("menu_bg") || key.equals("hud_bg") ? defaultColor(key, rgb) : rgb2);
     }
     public boolean customColor(String key) { return colors != null && colors.containsKey(key); }
     public static final class Hand {
@@ -115,6 +132,16 @@ public final class HudConfig {
         widgets = clean;
         crosshairShape = Math.max(1, Math.min(3, crosshairShape));
         rgb = Math.max(0, Math.min(0xFFFFFF, rgb));
+        rgb2 = Math.max(0, Math.min(0xFFFFFF, rgb2));
+        if (styleVersion < 1) {
+            // 2.9: themes became two-colour gradients. The untouched old default moves to the new logo theme.
+            if (rgb == 0x85F56A) { rgb = THEMES[0][0]; rgb2 = THEMES[0][1]; }
+            else {
+                rgb2 = ColorMath.companion(rgb);
+                for (int[] theme : THEMES) if (theme[0] == rgb) rgb2 = theme[1];
+            }
+            styleVersion = 1;
+        }
         if (mainHand == null) mainHand = new Hand();
         if (offHand == null) offHand = new Hand();
         mainHand.sanitize(); offHand.sanitize();

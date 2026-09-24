@@ -44,6 +44,28 @@ public final class UiFont {
         FontDescription description = face(face, scale);
         return Component.literal(value).withStyle(style -> style.withFont(description));
     }
+    /** One component whose glyphs fade from {@code left} to {@code right} (RGB); drawn in a single text call. */
+    public static Component gradient(String value, Face face, int scale, int left, int right) {
+        FontDescription description = face(face, scale);
+        String shown = value == null ? "" : value;
+        int count = Math.max(1, shown.codePointCount(0, shown.length())), index = 0;
+        net.minecraft.network.chat.MutableComponent out = Component.literal("");
+        for (int i = 0; i < shown.length(); ) {
+            int cp = shown.codePointAt(i);
+            String glyph = new String(Character.toChars(cp));
+            i += Character.charCount(cp);
+            int rgb = UiDraw.mix(left, right, count <= 1 ? 0 : index++ / (double) (count - 1));
+            out.append(Component.literal(glyph).withStyle(style -> style.withFont(description).withColor(rgb)));
+        }
+        return out;
+    }
+    public static void gradient(GuiGraphicsExtractor g, Font font, String value, int x, int y, int left, int right, double opacity, Face face) {
+        g.text(font, gradient(value, face, pixelScale(g), left, right), x, y, UiDraw.alpha(0xFFFFFF, opacity), false);
+    }
+    public static void gradientCentered(GuiGraphicsExtractor g, Font font, String value, int centerX, int y, int left, int right, double opacity, Face face) {
+        Component text = gradient(value, face, pixelScale(g), left, right);
+        g.text(font, text, centerX - font.width(text) / 2, y, UiDraw.alpha(0xFFFFFF, opacity), false);
+    }
     public static int width(Font font, String value, Face face, int scale) { return font.width(component(value, face, scale)); }
     public static int width(GuiGraphicsExtractor g, Font font, String value, Face face) { return width(font, value, face, pixelScale(g)); }
     public static void text(GuiGraphicsExtractor g, Font font, String value, int x, int y, int color, int width) { text(g, font, value, x, y, color, width, Face.REGULAR); }
