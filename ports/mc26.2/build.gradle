@@ -10,6 +10,7 @@ dependencies {
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 processResources {
     inputs.property 'version', project.version
@@ -22,46 +23,3 @@ java {
 tasks.withType(JavaCompile).configureEach { options.release = 25; options.encoding = 'UTF-8' }
 test { useJUnitPlatform() }
 jar { from('LICENSE') }
-// Public signatures only, for reviewing the version-specific adapter against the real game API.
-tasks.register('apiSignatures') {
-    doLast {
-        def names = [
-            'net.minecraft.client.renderer.rendertype.RenderType',
-            'net.minecraft.client.renderer.rendertype.RenderSetup',
-            'net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder',
-            'net.minecraft.client.renderer.RenderPipelines',
-            'com.mojang.blaze3d.pipeline.RenderPipeline$Builder',
-            'net.minecraft.client.renderer.SubmitNodeCollector',
-            'net.minecraft.client.renderer.OrderedSubmitNodeCollector',
-            'com.mojang.blaze3d.pipeline.DepthStencilState',
-            'com.mojang.blaze3d.pipeline.ColorTargetState',
-            'com.mojang.blaze3d.pipeline.BlendFunction',
-            'net.minecraft.client.model.Model',
-            'net.minecraft.client.renderer.feature.ModelFeatureRenderer$CrumblingOverlay',
-            'com.mojang.blaze3d.PrimitiveTopology',
-            'net.minecraft.client.renderer.entity.LivingEntityRenderer',
-            'net.minecraft.client.renderer.entity.state.LivingEntityRenderState',
-            'net.minecraft.client.renderer.entity.state.EntityRenderState',
-            'net.minecraft.client.renderer.state.level.CameraRenderState',
-            'net.minecraft.client.Camera',
-            'net.minecraft.client.KeyMapping',
-            'net.minecraft.client.KeyMapping$Category',
-            'net.minecraft.client.model.EntityModel',
-            'com.mojang.blaze3d.vertex.VertexConsumer'
-        ]
-        def result = new StringBuilder()
-        names.each { name ->
-            def p = new ProcessBuilder('javap', '-classpath', configurations.compileClasspath.asPath, '-p', name).redirectErrorStream(true).start()
-            result.append(p.inputStream.text).append('\n')
-            p.waitFor()
-        }
-        file('build').mkdirs()
-        def p = new ProcessBuilder('javap', '-classpath', configurations.compileClasspath.asPath, '-c', 'net.minecraft.client.renderer.entity.LivingEntityRenderer').redirectErrorStream(true).start()
-        def code = p.inputStream.text
-        p.waitFor()
-        def start = code.indexOf('public void submit(S,')
-        def end = code.indexOf('protected boolean shouldRenderLayers', start)
-        if (start >= 0 && end > start) result.append(code.substring(start, end))
-        file('build/api-signatures.txt').text = result.toString()
-    }
-}
