@@ -31,6 +31,9 @@ jobs:
         run: |
           python3 - <<'PY'
           import json, zipfile
+          from pathlib import Path
+          log = Path('ports/mc26.2/build/client-smoke.log').read_text(errors='replace')
+          assert 'with Fabric Loader 0.19.3' in log, 'Wrong runtime loader version'
           with zipfile.ZipFile('ports/mc26.2/build/libs/lavavisual-1.1.1-mc26.2.jar') as jar:
               m = json.loads(jar.read('fabric.mod.json'))
               assert m['id'] == 'lavavisual'
