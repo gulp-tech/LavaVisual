@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
@@ -30,6 +29,7 @@ public final class WaypointScreen extends Screen {
     private final Screen parent;
     private final Waypoints.Point editing;
     private final List<Swatch> swatches = new ArrayList<>();
+    private final UiButtons buttons = new UiButtons();
     private EditBox name, x, y, z;
     private int color, panelX, panelY, panelW, panelH;
     private String error;
@@ -43,11 +43,13 @@ public final class WaypointScreen extends Screen {
         panelX = (width - panelW) / 2; panelY = (height - panelH) / 2;
         String n = name == null ? null : name.getValue(), vx = x == null ? null : x.getValue(), vy = y == null ? null : y.getValue(), vz = z == null ? null : z.getValue();
         int inner = panelW - 24, third = (inner - 16) / 3, top = panelY + 44;
-        name = new EditBox(font, panelX + 12, top + 12, inner, 18, Component.literal("Название"));
+        // Borderless boxes inside self-drawn rounded fields (see extractRenderState).
+        name = new EditBox(font, panelX + 18, top + 17, inner - 12, 10, Component.literal("Название"));
         name.setMaxLength(32);
-        x = new NumberBox(font, panelX + 12, top + 50, third, 18, Component.literal("X"));
-        y = new NumberBox(font, panelX + 12 + third + 8, top + 50, third, 18, Component.literal("Y"));
-        z = new NumberBox(font, panelX + 12 + (third + 8) * 2, top + 50, third, 18, Component.literal("Z"));
+        x = new NumberBox(font, panelX + 18, top + 55, third - 12, 10, Component.literal("X"));
+        y = new NumberBox(font, panelX + 18 + third + 8, top + 55, third - 12, 10, Component.literal("Y"));
+        z = new NumberBox(font, panelX + 18 + (third + 8) * 2, top + 55, third - 12, 10, Component.literal("Z"));
+        for (EditBox box : List.of(name, x, y, z)) { box.setBordered(false); box.setTextColor(0xFFE8EAF0); }
         if (!prepared) {
             prepared = true;
             var player = minecraft.player;
@@ -66,10 +68,6 @@ public final class WaypointScreen extends Screen {
         name.setValue(n); x.setValue(vx); y.setValue(vy); z.setValue(vz);
         name.setHint(UiFont.component("Название метки"));
         addRenderableWidget(name); addRenderableWidget(x); addRenderableWidget(y); addRenderableWidget(z);
-        int bw = (inner - 16) / 3, by = panelY + panelH - 32;
-        addRenderableWidget(Button.builder(UiFont.component("Сохранить"), b -> save()).pos(panelX + 12, by).size(bw, 20).build());
-        addRenderableWidget(Button.builder(UiFont.component("Моя позиция"), b -> here()).pos(panelX + 12 + bw + 8, by).size(bw, 20).build());
-        addRenderableWidget(Button.builder(UiFont.component("Отмена"), b -> onClose()).pos(panelX + 12 + (bw + 8) * 2, by).size(bw, 20).build());
         setInitialFocus(name);
     }
     private void here() {
@@ -108,6 +106,13 @@ public final class WaypointScreen extends Screen {
         UiFont.text(g, font, editing == null ? "Новая метка" : "Изменить метку", panelX + 42, panelY + 12, 0xFFF1F4F8, panelW - 54, UiFont.Face.BOLD);
         UiFont.text(g, font, "Мир: " + (minecraft.level == null ? "—" : Waypoints.dimension(minecraft).replace("minecraft:", "")), panelX + 42, panelY + 25, 0xFF8C93A1, panelW - 54, UiFont.Face.SMALL);
         int top = panelY + 44, inner = panelW - 24, third = (inner - 16) / 3;
+        buttons.clear();
+        field(g, name, panelX + 12, top + 12, inner, accent, c.color2("menu"));
+        for (int i = 0; i < 3; i++) field(g, i == 0 ? x : i == 1 ? y : z, panelX + 12 + i * (third + 8), top + 50, third, accent, c.color2("menu"));
+        int bw = (inner - 16) / 3, by = panelY + panelH - 32;
+        buttons.draw(g, font, Icons.SAVE, "Сохранить", panelX + 12, by, bw, 20, mx, my, true, this::save);
+        buttons.draw(g, font, Icons.LOCATE_FIXED, "Моя позиция", panelX + 12 + bw + 8, by, bw, 20, mx, my, false, this::here);
+        buttons.draw(g, font, Icons.X, "Отмена", panelX + 12 + (bw + 8) * 2, by, bw, 20, mx, my, false, this::onClose);
         UiFont.text(g, font, "Название", panelX + 12, top + 1, 0xFFB8C0CD, inner, UiFont.Face.SMALL);
         String[] labels = {"X", "Y · высота", "Z"};
         for (int i = 0; i < 3; i++) UiFont.text(g, font, labels[i], panelX + 12 + i * (third + 8), top + 39, 0xFFB8C0CD, third, UiFont.Face.SMALL);
@@ -131,7 +136,14 @@ public final class WaypointScreen extends Screen {
         UiFont.text(g, font, info, panelX + 12, top + 112, error != null ? 0xFFFF7A6B : 0xFF8C93A1, inner, UiFont.Face.SMALL);
         super.extractRenderState(g, mx, my, delta);
     }
+    /** Rounded input field behind a borderless EditBox; the focused one gets the theme underline. */
+    private static void field(GuiGraphicsExtractor g, EditBox box, int x, int y, int w, int accent, int accent2) {
+        boolean focused = box.isFocused();
+        UiDraw.round(g, x, y, w, 18, 6, focused ? 0xFF2A2E37 : 0xFF1E2128);
+        if (focused) UiDraw.roundH(g, x + 6, y + 17, w - 12, 1, 0, accent, accent2);
+    }
     @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == 0 && buttons.click(event.x(), event.y())) return true;
         if (event.button() == 0) for (Swatch s : swatches)
             if (event.x() >= s.x && event.x() < s.x + s.w && event.y() >= s.y && event.y() < s.y + 14) { color = s.color; return true; }
         return super.mouseClicked(event, doubleClick);

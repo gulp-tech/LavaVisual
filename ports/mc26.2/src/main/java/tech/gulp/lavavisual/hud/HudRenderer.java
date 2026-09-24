@@ -36,7 +36,7 @@ public final class HudRenderer {
             case "target" -> 180;
             case "keys" -> 76;
             case "armor" -> 97;
-            case "watermark" -> watermarkWidth(UiFont.guiScale());
+            case "watermark" -> watermarkWidth(2 * UiFont.guiScale());
             case "minimap" -> tech.gulp.lavavisual.map.Minimap.baseWidth();
             default -> 156;
         };
@@ -51,8 +51,10 @@ public final class HudRenderer {
             default -> 30;
         };
     }
-    /** Widget scale rounded to whole screen pixels, so HUD text stays sharp. */
+    /** Widget scale rounded to whole or half screen pixels per unit, so HUD text stays sharp. */
     public static double scale(HudConfig.Widget w) { return UiFont.crisp(w.scale); }
+    /** Nearest crisp scale (see {@link UiFont#crisp}); the editor stores it so the shown % matches. */
+    public static double snapScale(double scale) { return UiFont.crisp(scale); }
     public static int width(String id, HudConfig.Widget w) { return (int) Math.ceil(baseWidth(id) * scale(w)); }
     public static int height(String id, HudConfig.Widget w) { return (int) Math.ceil(baseHeight(id) * scale(w)); }
     public static int x(String id, HudConfig.Widget w, int screen) { return (int) Math.round(w.x * Math.max(0, screen - width(id, w))); }
@@ -256,7 +258,7 @@ public final class HudRenderer {
     private static final int LOGO_LEAD = 4 + tech.gulp.lavavisual.ui.Logo.width(true) + 5;
     private static void watermark(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2) {
         Font font = mc.font;
-        int scale = UiFont.pixelScale(g);
+        int scale = UiFont.halfScale(g);
         String sub = subtitle(mc), ms = ping(mc) + " ms", fps = mc.getFps() + " fps";
         int textW = Math.max(UiFont.width(font, "LavaVisual", Face.BOLD, scale), UiFont.width(font, sub, Face.SMALL, scale));
         int statsW = Math.max(UiFont.width(font, ms, Face.SMALL, scale), UiFont.width(font, fps, Face.SMALL, scale));

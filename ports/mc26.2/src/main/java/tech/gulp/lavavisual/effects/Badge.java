@@ -6,15 +6,16 @@ import net.minecraft.server.level.ClientInformation;
 import net.minecraft.world.entity.player.Player;
 import tech.gulp.lavavisual.LavaVisualClient;
 
-/** Server-free LavaVisual detection. Sets the unused 0x80 bit of the skin-parts byte that every
-    server already relays to other players; vanilla renders nothing for this bit. */
+/** Server-free LavaVisual detection. Opt-in (badgeShare): sets the unused 0x80 bit of the skin-parts byte that
+    servers relay to other players; vanilla renders nothing for this bit, but strict anti-bot filters may reject it,
+    so it is off by default. Reading other players' marks is always safe. */
 public final class Badge {
     public static final int BIT = 0x80;
     private static Field field;
     private static boolean searched;
     private Badge() { }
     public static ClientInformation mark(ClientInformation info) {
-        if (info == null || !LavaVisualClient.config().badgeEnabled) return info;
+        if (info == null || !LavaVisualClient.config().badgeShare) return info;
         try {
             var components = ClientInformation.class.getRecordComponents();
             Object[] values = new Object[components.length];

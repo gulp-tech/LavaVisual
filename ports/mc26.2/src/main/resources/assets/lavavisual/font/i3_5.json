@@ -1,0 +1,14 @@
+{
+ "providers": [
+  {
+   "type": "ttf",
+   "file": "lavavisual:icons.ttf",
+   "shift": [
+    0,
+    3.1429
+   ],
+   "size": 10,
+   "oversample": 3.5
+  }
+ ]
+}

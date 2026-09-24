@@ -46,7 +46,7 @@ public final class LavaVisualClient implements ClientModInitializer {
         var defaults = HudConfig.defaults();
         for (String id : HudConfig.IDS) {
             var widget = config.widgets.get(id); var fresh = defaults.get(id);
-            widget.x = fresh.x; widget.y = fresh.y;
+            widget.x = fresh.x; widget.y = fresh.y; widget.scale = fresh.scale;
         }
         save();
     }
@@ -55,6 +55,7 @@ public final class LavaVisualClient implements ClientModInitializer {
     @Override public void onInitializeClient() {
         save();
         tech.gulp.lavavisual.effects.WorldCosmetics.register();
+        tech.gulp.lavavisual.effects.AirParticles.register();
         tech.gulp.lavavisual.effects.PlayerTags.registerClient();
         var category = KeyMapping.Category.register(id("hud"));
         tech.gulp.lavavisual.input.Binds.register(category);
@@ -89,6 +90,7 @@ public final class LavaVisualClient implements ClientModInitializer {
                     if (smokeTicks == 770) { config().widgets.get("watermark").visible = true; config().widgets.get("coordinates").visible = true; }
                     if (smokeTicks == 780) client.gui.setScreen(new ClickGuiScreen());
                     if (smokeTicks == 820) LavaVisual.LOGGER.info("LavaVisual smoke shot menu");
+                    if (smokeTicks == 866) config().badgeShare = true;
                     if (smokeTicks == 870) LavaVisual.LOGGER.info("LavaVisual badge marker " + (tech.gulp.lavavisual.effects.Badge.marked(client.options.buildPlayerInformation()) ? "on" : "off"));
                     if (smokeTicks == 875) config().espStyle = 2;
                     if (smokeTicks == 880) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_EFFECTS));
@@ -113,6 +115,7 @@ public final class LavaVisualClient implements ClientModInitializer {
             if (!boostChecked && client.options != null) { boostChecked = true; if (config.fpsBoost) tech.gulp.lavavisual.effects.PerformanceMode.update(client); }
             tech.gulp.lavavisual.hud.TargetSnapshot.update(client);
             tech.gulp.lavavisual.effects.WorldCosmetics.tick(client);
+            tech.gulp.lavavisual.effects.AirParticles.tick(client);
             tech.gulp.lavavisual.effects.SwingStyles.tick(client);
             tech.gulp.lavavisual.map.Minimap.tick(client);
             if (client.player != null) {

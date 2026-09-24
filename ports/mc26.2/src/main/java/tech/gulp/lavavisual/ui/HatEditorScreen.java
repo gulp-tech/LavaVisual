@@ -111,8 +111,9 @@ public final class HatEditorScreen extends Screen {
         double progress = Math.clamp((value - min) / (max - min), 0, 1);
         int filled = (int) Math.round(w * progress);
         UiDraw.round(g, x, cursor + 12, w, 4, 2, 0xFF353A43);
-        if (filled > 0) UiDraw.round(g, x, cursor + 12, filled, 4, 2, accent());
-        UiDraw.round(g, x + filled - 4, cursor + 9, 8, 10, 4, 0xFFF2F5FA);
+        if (filled > 0) UiDraw.roundH(g, x, cursor + 12, filled, 4, 2, accent(), 0xFF000000 | UiDraw.mix(accent(), LavaVisualClient.config().color2("menu"), progress));
+        UiDraw.circle(g, x + filled, cursor + 14, 6, UiDraw.alpha(accent(), 0.25));
+        UiDraw.circle(g, x + filled, cursor + 14, 4, 0xFFF2F5FA);
         bars.add(new Bar(x, cursor + 6, w, min, max, setter));
         cursor += row;
     }
@@ -132,10 +133,19 @@ public final class HatEditorScreen extends Screen {
         for (int i = 0; i < w; i += step) g.fill(x + i, y, x + Math.min(w, i + step), y + h, 0xFF000000 | color.applyAsInt((int) (i * 1000L / Math.max(1, w - 1))));
     }
     private void button(GuiGraphicsExtractor g, int mx, int my, String title, int x, int w, Runnable action) {
-        boolean hover = over(mx, my, x, cursor, w, 20);
-        UiDraw.round(g, x, cursor, w, 20, 6, hover ? 0xFF30333B : 0xFF24272E);
-        int tw = Math.min(w - 8, UiFont.width(g, font, title, UiFont.Face.REGULAR));
-        UiFont.text(g, font, title, x + (w - tw) / 2, cursor + 6, 0xFFE8EAF0, tw + 2);
+        boolean hover = over(mx, my, x, cursor, w, 20), primary = title.equals("Готово");
+        var c = LavaVisualClient.config();
+        int ac = c.color("menu"), ac2 = c.color2("menu");
+        if (primary) {
+            UiDraw.roundH(g, x, cursor, w, 20, 6, ac, ac2);
+            g.fillGradient(x + 4, cursor + 1, x + w - 4, cursor + 10, 0x33FFFFFF, 0x00FFFFFF);
+        } else {
+            UiDraw.roundV(g, x, cursor, w, 20, 6, hover ? 0xFF353945 : 0xFF282B33, hover ? 0xFF2B2F38 : 0xFF212329);
+            if (hover) UiDraw.roundH(g, x + 7, cursor + 19, w - 14, 1, 0, UiDraw.alpha(ac, 0.9), UiDraw.alpha(ac2, 0.9));
+        }
+        UiFont.Face face = primary ? UiFont.Face.BOLD : UiFont.Face.REGULAR;
+        int tw = Math.min(w - 8, UiFont.width(g, font, title, face));
+        UiFont.text(g, font, title, x + (w - tw) / 2, cursor + 6, primary ? 0xFFFFFFFF : 0xFFE8EAF0, tw + 2, face);
         hits.add(new Hit(x, cursor, w, 20, action));
     }
     @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {

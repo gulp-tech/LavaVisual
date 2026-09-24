@@ -97,16 +97,23 @@ def faces():
         'r': ('inter-medium.ttf', 9, 0.5), 'b': ('inter-semibold.ttf', 9, 0.5), 's': ('inter-medium.ttf', 7, 0.0),
         'h': ('inter-semibold.ttf', 12, 2.0), 'i': ('icons.ttf', 10, 3.0), 'j': ('icons.ttf', 8, 2.0),
         'k': ('icons.ttf', 16, 9.0)}
+    # Whole and half pixel scales 1, 1.5 ... 8: resized HUD elements use the half steps (face r2_5 = 2.5 px/unit).
     for face, (file, size, dy) in spec.items():
-        for n in range(1, 9):
+        for half in range(2, 17):
+            n = half // 2 if half % 2 == 0 else half / 2
+            name = f'{face}{half // 2}' + ('' if half % 2 == 0 else '_5')
             providers = [{'type': 'ttf', 'file': 'lavavisual:' + file, 'shift': [0, shift(dy, n)], 'size': size, 'oversample': n}]
             if face in 'rbsh':
                 providers.append({'type': 'reference', 'id': 'minecraft:default'})
-            (OUT / f'{face}{n}.json').write_text(json.dumps({'providers': providers}, indent=1) + '\n')
+            (OUT / f'{name}.json').write_text(json.dumps({'providers': providers}, indent=1) + '\n')
     (OUT / 'ui.json').write_text((OUT / 'r2.json').read_text())
 
 if __name__ == '__main__':
+    import sys
     OUT.mkdir(parents=True, exist_ok=True)
+    if sys.argv[1:] == ['--faces']:  # only rewrite the face JSONs, keep the font binaries byte-identical
+        faces()
+        raise SystemExit
     instance(500, 'inter-medium.ttf')
     instance(620, 'inter-semibold.ttf')
     icons()

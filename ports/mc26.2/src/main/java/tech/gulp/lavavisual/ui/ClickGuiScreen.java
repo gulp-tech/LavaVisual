@@ -33,7 +33,7 @@ public final class ClickGuiScreen extends Screen {
     private static final Map<String, String> CARD_ICONS = Map.ofEntries(
             Map.entry("target", Icons.TARGET), Map.entry("coordinates", Icons.MAP_PIN), Map.entry("performance", Icons.GAUGE),
             Map.entry("keys", Icons.KEYBOARD), Map.entry("armor", Icons.SHIELD), Map.entry("totems", Icons.HEART_PULSE),
-            Map.entry("watermark", Icons.STAMP), Map.entry("badge", Icons.BADGE_CHECK), Map.entry("crosshair", Icons.CROSSHAIR),
+            Map.entry("watermark", Icons.STAMP), Map.entry("badge", Icons.BADGE_CHECK), Map.entry("badge_share", Icons.USER), Map.entry("crosshair", Icons.CROSSHAIR),
             Map.entry("jump", Icons.CIRCLE_DOT), Map.entry("particles", Icons.SPARKLE), Map.entry("ambient", Icons.SPARKLES),
             Map.entry("marker", Icons.TARGET), Map.entry("esp", Icons.SCAN_EYE), Map.entry("kill", Icons.SKULL),
             Map.entry("hat", Icons.TRIANGLE), Map.entry("trail", Icons.WIND), Map.entry("hands", Icons.HAND),
@@ -51,6 +51,10 @@ public final class ClickGuiScreen extends Screen {
     private double scroll, indicator, frameFactor, renderScale = 1;
     private String selected, colorOpen;
     private Slider dragging;
+    /** Menu drag from the header or the logo block: grab offset in menu units and the free space of the last frame. */
+    private boolean moving;
+    private double grabX, grabY;
+    private int freeW, freeH;
     private Binds.Action capturing;
     private Object confirmDelete;
     private long confirmAt;
@@ -84,9 +88,10 @@ public final class ClickGuiScreen extends Screen {
             double rise = (t * (5 + 13 * r2) + r3 * span) % span, life = rise / span;
             int x = (int) (r1 * canvasW + Math.sin(t * (0.25 + r3 * 0.5) + i) * 7), y = (int) (canvasH + 12 - rise);
             double a = Math.sin(Math.PI * life) * (0.22 + 0.4 * r3) * enter;
-            int color = UiDraw.mix(ac, ac2, r1), size = r2 > 0.72 ? 2 : 1;
-            if (size == 2) g.fill(x - 1, y - 1, x + 3, y + 3, UiDraw.alpha(color, a * 0.22));
-            g.fill(x, y, x + size, y + size, UiDraw.alpha(color, a));
+            int color = UiDraw.mix(ac, ac2, r1);
+            double radius = r2 > 0.72 ? 1.3 : 0.75;
+            UiDraw.circle(g, x, y, radius * 2.4, UiDraw.alpha(color, a * 0.2));
+            UiDraw.circle(g, x, y, radius, UiDraw.alpha(color, a));
         }
     }
     private double motion(String key, double goal) {
@@ -113,6 +118,7 @@ public final class ClickGuiScreen extends Screen {
     }
     private void button(GuiGraphicsExtractor g, String title, Runnable callback) { button(g, null, title, callback); }
     private static final String[] ESP_STYLES = {"Призраки", "Круг", "Кристаллы", "Маркер", "Орбиты"};
+    private static final String[] AIR_STYLES = {"Светлячки", "Снег", "Звёзды", "Угольки", "Сердечки"};
     /** One-of-N choice as a row of chips; the chosen one is filled with the theme gradient. */
     private void chips(GuiGraphicsExtractor g, String[] options, int current, java.util.function.IntConsumer pick) {
         int perRow = bodyW >= 380 ? options.length : 3, gap = 6, w = (bodyW - gap * (perRow - 1)) / perRow, ac = accent(), ac2 = accent2();
@@ -195,7 +201,7 @@ public final class ClickGuiScreen extends Screen {
         frameFactor = c.animations ? 1 - Math.exp(-Math.min(0.1, (now - lastFrame) / 1e9) * 16) : 1;
         lastFrame = now;
         double enter = c.animations ? 1 - Math.pow(1 - Math.clamp((now - opened) / 240_000_000.0, 0, 1), 3) : 1;
-        if (dragging == null) {
+        if (dragging == null && !moving) {
             // Whole screen pixels per menu unit: crisp text and icons instead of resampled glyphs.
             double fit = Math.min((width - 16) / 364.0, (height - 16) / 294.0);
             int gs = UiFont.guiScale(), k = Math.max(1, (int) Math.round(Math.min(c.menuScale, fit) * gs));
@@ -213,7 +219,8 @@ public final class ClickGuiScreen extends Screen {
         g.fillGradient(0, canvasH * 2 / 3, canvasW, canvasH, 0x00000000, UiDraw.alpha(0x05070B, 0.38 * enter));
         if (c.animations) embers(g, canvasW, canvasH, now, ac, ac2, enter);
         panelW = Math.min(600, canvasW - 24); panelH = Math.min(360, canvasH - 24);
-        left = (canvasW - panelW) / 2; top = (canvasH - panelH) / 2 + (int) ((1 - enter) * 6);
+        freeW = Math.max(0, canvasW - panelW); freeH = Math.max(0, canvasH - panelH);
+        left = (int) Math.round(freeW * c.menuX); top = (int) Math.round(freeH * c.menuY) + (int) ((1 - enter) * 6);
         side = panelW < 440 ? 88 : 112; bodyX = left + side + 16; bodyW = panelW - side - 32;
         clipTop = top + 49; clipBottom = top + panelH - 33;
         if (enter < 1) {
@@ -257,9 +264,11 @@ public final class ClickGuiScreen extends Screen {
             text(g, TABS[i], left + 33, y + tabPad + 1, tabColor, side - 40);
             hit(left + 8, y, side - 16, tabH, () -> navigate(next));
         }
-        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.9", left + 13, top + panelH - 21, 0xFF586272, side - 18);
+        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.10", left + 13, top + panelH - 21, 0xFF586272, side - 18);
         String heading = selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : selected.equals("hat") ? "China Hat" : HudRenderer.title(selected);
-        text(g, heading, bodyX, top + 17, 0xFFF0F3F7, bodyW - 28, UiFont.Face.HEADING);
+        text(g, heading, bodyX, top + 17, 0xFFF0F3F7, bodyW - 50, UiFont.Face.HEADING);
+        boolean grab = moving || grabZone(mx, my);
+        UiFont.icon(g, font, Icons.MOVE, left + panelW - 50, top + 17, grab ? 0xFF000000 | UiDraw.mix(ac, 0xFFFFFF, 0.3) : 0xFF4E5664);
         boolean overClose = mx >= left + panelW - 31 && mx < left + panelW - 7 && my >= top + 10 && my < top + 34;
         if (overClose) UiDraw.round(g, left + panelW - 31, top + 10, 24, 24, 6, 0xFF2A2E36);
         UiFont.icon(g, font, Icons.X, left + panelW - 24, top + 17, overClose ? 0xFFFFFFFF : 0xFFABB4C2);
@@ -312,8 +321,11 @@ public final class ClickGuiScreen extends Screen {
         }
         button(g, Icons.MOVE, "Редактор расположения", () -> minecraft.gui.setScreen(new HudEditorScreen(this)));
         var cfg = LavaVisualClient.config();
-        toggle(g, "badge", "Значок LavaVisual", "Иконка у ников игроков с модом; они видят ваш", cfg.badgeEnabled,
-                () -> { cfg.badgeEnabled = !cfg.badgeEnabled; changed(); if (minecraft != null) minecraft.options.broadcastOptions(); }, null);
+        toggle(g, "badge", "Значки LavaVisual", "Иконка у ников игроков, которые делятся значком", cfg.badgeEnabled,
+                () -> { cfg.badgeEnabled = !cfg.badgeEnabled; changed(); }, null);
+        toggle(g, "badge_share", "Показывать мой значок", "Может мешать входу на серверы с античитом", cfg.badgeShare,
+                () -> { cfg.badgeShare = !cfg.badgeShare; changed(); if (minecraft != null) minecraft.options.broadcastOptions(); }, null);
+        note(g, "По умолчанию выключено: мод ничего не отправляет серверу.");
     }
     private void effects(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
@@ -331,7 +343,12 @@ public final class ClickGuiScreen extends Screen {
         action(g, "Форма: " + shapes[c.particleShape], bodyX, cursor, half, () -> { c.particleShape = (c.particleShape + 1) % 3; changed(); });
         action(g, "Разлёт: " + patterns[c.particlePattern], bodyX + half + 8, cursor, half, () -> { c.particlePattern = (c.particlePattern + 1) % 3; changed(); });
         cursor += 32;
-        toggle(g, "ambient", "Звёздная пыль", "Декоративные огоньки рядом с вами", c.ambientEnabled, () -> { c.ambientEnabled = !c.ambientEnabled; changed(); }, null);
+        toggle(g, "ambient", "Частицы в воздухе", "Светлячки, снег, звёзды, угольки или сердечки вокруг вас", c.ambientEnabled, () -> { c.ambientEnabled = !c.ambientEnabled; changed(); }, null);
+        chips(g, AIR_STYLES, c.ambientStyle, i -> { c.ambientStyle = i; c.ambientEnabled = true; changed(); });
+        slider(g, "Количество", c.ambientCount, 10, 200, v -> c.ambientCount = (int) Math.round(v), true);
+        slider(g, "Размер частиц", c.ambientSize, 0.5, 2, v -> c.ambientSize = v, false);
+        slider(g, "Радиус вокруг вас · блоки", c.ambientRange, 4, 24, v -> c.ambientRange = v, false);
+        slider(g, "Скорость", c.ambientSpeed, 0.2, 3, v -> c.ambientSpeed = v, false);
         toggle(g, "marker", "Маркер удара", "В центре последней видимой цели", c.markerEnabled, () -> { c.markerEnabled = !c.markerEnabled; changed(); }, null);
         button(g, "Форма: " + (c.markerShape == 0 ? "круг" : "квадрат"), () -> { c.markerShape = 1 - c.markerShape; changed(); });
         slider(g, "Длительность · сек", c.markerDuration, 1, 3, v -> c.markerDuration = v, false);
@@ -488,7 +505,8 @@ public final class ClickGuiScreen extends Screen {
         toggle(g, "setting:" + selected, "Отображение", "Показывать на экране", cross ? c.crosshairEnabled : w.visible, () -> {
             if (cross) c.crosshairEnabled = !c.crosshairEnabled; else w.visible = !w.visible; changed();
         }, null);
-        slider(g, "Размер", cross ? c.crosshairScale : w.scale, 0.6, cross ? 2 : 1.6, v -> { if (cross) c.crosshairScale = v; else w.scale = v; }, false);
+        slider(g, "Размер", cross ? c.crosshairScale : w.scale, cross ? 0.6 : HudConfig.SCALE_MIN, cross ? 2 : HudConfig.SCALE_MAX,
+                v -> { if (cross) c.crosshairScale = v; else w.scale = HudRenderer.snapScale(v); }, false);
         slider(g, cross ? "Непрозрачность" : "Плотность фона", cross ? c.crosshairOpacity : w.opacity, 0.2, 1, v -> { if (cross) c.crosshairOpacity = v; else w.opacity = v; }, false);
         if (cross) button(g, "Форма: " + new String[]{"", "точка", "плюс", "квадрат"}[c.crosshairShape], () -> { c.crosshairShape = c.crosshairShape % 3 + 1; changed(); });
         else {
@@ -618,7 +636,7 @@ public final class ClickGuiScreen extends Screen {
         for (String id : List.of("watermark", "target", "keys", "armor", "coordinates", "performance", "totems", "minimap")) colorRow(g, id, HudRenderer.title(id));
         colorRow(g, "badge", "Значок у ников");
         section(g, "Эффекты");
-        String[][] effects = {{"crosshair", "Прицел"}, {"jump", "Jump Circle"}, {"particles", "Hit Particles"}, {"ambient", "Звёздная пыль"},
+        String[][] effects = {{"crosshair", "Прицел"}, {"jump", "Jump Circle"}, {"particles", "Hit Particles"}, {"ambient", "Частицы в воздухе"},
                 {"marker", "Маркер удара"}, {"esp", "Target ESP"}, {"kill", "Kill Effect"}, {"hat", "China Hat"}, {"trail", "Trails"}, {"waypoint", "Новые метки"}};
         for (String[] e : effects) colorRow(g, e[0], e[1]);
         button(g, Icons.ROTATE_CCW, "Все цвета — как тема", () -> { c.colors.clear(); c.chroma.clear(); hsvCache.clear(); changed(); });
@@ -750,13 +768,33 @@ public final class ClickGuiScreen extends Screen {
             if (hit.clipped && ((event.y() / renderScale) < clipTop || (event.y() / renderScale) >= clipBottom)) continue;
             if ((event.x() / renderScale) >= hit.x && (event.x() / renderScale) < hit.x + hit.w && (event.y() / renderScale) >= hit.y && (event.y() / renderScale) < hit.y + hit.h) { hit.action.run(); return true; }
         }
+        double ux = event.x() / renderScale, uy = event.y() / renderScale;
+        if (grabZone((int) ux, (int) uy)) {
+            var c = LavaVisualClient.config();
+            if (doubleClick) { c.menuX = 0.5; c.menuY = 0.5; changed(); return true; }
+            moving = true; grabX = ux - left; grabY = uy - top; return true;
+        }
         return super.mouseClicked(event, doubleClick);
     }
+    /** Header strip (without the close button) and the logo block move the menu; double-click centres it. */
+    private boolean grabZone(int x, int y) {
+        boolean header = x >= left + side && x < left + panelW - 34 && y >= top && y < top + 38;
+        boolean brand = x >= left + 4 && x < left + side - 2 && y >= top + 4 && y < top + 66;
+        return panelW > 0 && (header || brand);
+    }
     @Override public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        if (moving) {
+            var c = LavaVisualClient.config();
+            double nx = event.x() / renderScale - grabX, ny = event.y() / renderScale - grabY;
+            c.menuX = freeW > 0 ? Math.clamp(nx / freeW, 0, 1) : 0.5;
+            c.menuY = freeH > 0 ? Math.clamp(ny / freeH, 0, 1) : 0.5;
+            return true;
+        }
         if (dragging == null) return super.mouseDragged(event, dx, dy);
         dragging.set((event.x() / renderScale)); return true;
     }
     @Override public boolean mouseReleased(MouseButtonEvent event) {
+        if (moving) { moving = false; changed(); return true; }
         if (dragging != null) { dragging = null; changed(); return true; }
         return super.mouseReleased(event);
     }
@@ -767,6 +805,6 @@ public final class ClickGuiScreen extends Screen {
         }
         return super.mouseScrolled(x, y, horizontal, vertical);
     }
-    @Override public void onClose() { dragging = null; changed(); super.onClose(); }
+    @Override public void onClose() { dragging = null; moving = false; changed(); super.onClose(); }
     @Override public boolean isPauseScreen() { return false; }
 }

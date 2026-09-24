@@ -110,14 +110,21 @@ public final class WorldCosmetics {
             float partial = context.deltaTracker().getGameTimeDeltaPartialTick(false);
             HatFrame hat = null;
             double now0 = tick + partial;
-            if (c.hatEnabled && self != null && !self.isInvisible() && !self.isSpectator() && !self.isFallFlying() && !self.isSwimming()
-                    && context.levelState().cameraRenderState.pos.distanceToSqr(self.getEyePosition(partial)) > 0.36) {
+            // The hat follows the player's own render state (same position, crouch and head angles the model uses this
+            // frame), so it never trails the body; no state means first person or the player is not drawn.
+            net.minecraft.client.renderer.entity.state.AvatarRenderState me = null;
+            if (c.hatEnabled && self != null)
+                for (var state : context.levelState().entityRenderStates)
+                    if (state instanceof net.minecraft.client.renderer.entity.state.AvatarRenderState avatar && avatar.id == self.getId()) { me = avatar; break; }
+            if (me != null && !me.isInvisible && !me.isSpectator && !me.isFallFlying && !me.isVisuallySwimming && !me.isAutoSpinAttack) {
                 // Level by default ("stands straight"); optional tilt follows the head around the neck pivot.
-                Vec3 base = self.getPosition(partial).add(0, self.getBbHeight() + 0.02 + c.hatLift, 0);
-                float yaw = c.hatTilt ? (float) Math.toRadians(net.minecraft.util.Mth.lerp(partial, self.yHeadRotO, self.yHeadRot)) : 0;
-                float pitch = c.hatTilt ? (float) Math.toRadians(net.minecraft.util.Mth.lerp(partial, self.xRotO, self.getXRot())) : 0;
-                float pivot = (float) (self.getBbHeight() + 0.02 + c.hatLift - (self.getEyeHeight() - 0.2));
-                hat = new HatFrame(base, yaw, pitch, (float) (0.52 * c.hatSize), (float) (0.26 * c.hatSize * c.hatCone), (float) c.hatOpacity,
+                double top = me.boundingBoxHeight + (me.isCrouching ? 0.035 : 0.02) + c.hatLift;
+                Vec3 base = new Vec3(me.x, me.y + top, me.z);
+                float yaw = c.hatTilt ? (float) Math.toRadians(me.bodyRot + me.yRot) : 0;
+                float pitch = c.hatTilt ? (float) Math.toRadians(me.xRot) : 0;
+                float pivot = (float) (top - (me.eyeHeight - 0.2));
+                float size = Math.max(0.2f, me.scale);
+                hat = new HatFrame(base, yaw, pitch, (float) (0.52 * c.hatSize) * size, (float) (0.26 * c.hatSize * c.hatCone) * size, (float) c.hatOpacity,
                         (float) (now0 * 0.06 * c.hatSpin), c.color("hat") & 0xFFFFFF, c.color2("hat") & 0xFFFFFF, c.hatStyle, pivot);
             }
             var waypointBeams = tech.gulp.lavavisual.map.WaypointOverlay.extract(mc, context.levelState().cameraRenderState, partial);
@@ -238,11 +245,6 @@ public final class WorldCosmetics {
         }
         grounded = player.onGround(); ready = true;
         if (grounded) groundPosition = player.position();
-        if (c.ambientEnabled && tick % (PerformanceMode.active() ? 12 : 5) == 0 && !player.isSpectator()) {
-            double angle = RANDOM.nextDouble() * Math.PI * 2, radius = 1.2 + RANDOM.nextDouble() * 2.8;
-            Vec3 position = player.position().add(Math.cos(angle) * radius, .3 + RANDOM.nextDouble() * 2.5, Math.sin(angle) * radius);
-            add(new Spark(position, new Vec3(0, .008, 0), tick, 70, .055f, true, 0, false));
-        }
     }
     private static void render(LevelRenderContext context) {
         Frame frame = context.levelState().getData(DATA);

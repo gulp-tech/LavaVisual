@@ -1,7 +1,6 @@
 package tech.gulp.lavavisual.ui;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -13,17 +12,9 @@ public final class HandEditorScreen extends Screen {
     private final Screen parent;
     private boolean main = true;
     private int drag = -1;
+    private final UiButtons buttons = new UiButtons();
     public HandEditorScreen(Screen parent) { super(Component.literal("Редактор рук")); this.parent = parent; }
     private HudConfig.Hand hand() { var c = LavaVisualClient.config(); return main ? c.mainHand : c.offHand; }
-    @Override protected void init() {
-        addRenderableWidget(Button.builder(UiFont.component("Готово"), b -> onClose()).pos(width / 2 - 135, height - 26).size(80, 20).build());
-        addRenderableWidget(Button.builder(UiFont.component("Рука: " + (main ? "основная" : "вторая")), b -> main = !main).pos(width / 2 - 50, height - 26).size(100, 20).build());
-        addRenderableWidget(Button.builder(UiFont.component("Сброс"), b -> {
-            var c = LavaVisualClient.config();
-            if (main) c.mainHand = new HudConfig.Hand(); else c.offHand = new HudConfig.Hand();
-            LavaVisualClient.save();
-        }).pos(width / 2 + 55, height - 26).size(80, 20).build());
-    }
     private int barX() { return width / 2 - 160; }
     private double value(int index) {
         HudConfig.Hand h = hand();
@@ -38,10 +29,17 @@ public final class HandEditorScreen extends Screen {
     }
     @Override public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
         var c = LavaVisualClient.config();
-        g.fill(0, 0, width, height, 0x38000000);
-        String title = "Редактор рук · руки и предмет видны в игре";
-        int titleW = Math.min(width - 16, font.width(UiFont.component(title)));
-        UiFont.text(g, font, title, (width - titleW) / 2, 10, 0xFFE8EAF0, titleW + 2);
+        int ac = c.color("menu"), ac2 = c.color2("menu");
+        buttons.clear();
+        g.fill(0, 0, width, height, 0x30000000);
+        // Rounded panel behind the sliders; the real hands stay visible around it.
+        int px = barX() - 14, pw = 348, py = 4, ph = 34 + 3 * 34 + 30;
+        UiDraw.shadow(g, px, py, pw, ph, 10, 4, 2, 0.3);
+        UiDraw.round(g, px, py, pw, ph, 10, UiDraw.alpha(c.color("menu_bg") & 0xFFFFFF, 0.82));
+        UiDraw.roundH(g, px + 10, py, pw - 20, 1, 0, UiDraw.alpha(ac, 0.8), UiDraw.alpha(ac2, 0.8));
+        String title = "Редактор рук · " + (main ? "основная рука" : "вторая рука");
+        UiFont.icon(g, font, Icons.HAND, px + 10, py + 8, ac);
+        UiFont.text(g, font, title, px + 25, py + 9, 0xFFE8EAF0, pw - 35, UiFont.Face.BOLD);
         String[] labels = {"X · вправо / влево", "Y · выше / ниже", "Z · дальше от камеры", "Размер"};
         for (int i = 0; i < 4; i++) {
             int y = 34 + i * 34, x = barX();
@@ -50,12 +48,21 @@ public final class HandEditorScreen extends Screen {
             UiDraw.round(g, x, y + 12, 320, 4, 2, 0xFF353A43);
             double progress = Math.clamp((value(i) - min(i)) / (max(i) - min(i)), 0, 1);
             int filled = (int) Math.round(320 * progress);
-            if (filled > 0) UiDraw.round(g, x, y + 12, filled, 4, 2, c.color("menu"));
-            UiDraw.round(g, x + filled - 4, y + 9, 8, 10, 4, 0xFFF2F5FA);
+            if (filled > 0) UiDraw.roundH(g, x, y + 12, filled, 4, 2, ac, 0xFF000000 | UiDraw.mix(ac, ac2, progress));
+            UiDraw.circle(g, x + filled, y + 14, 6, UiDraw.alpha(ac, 0.25));
+            UiDraw.circle(g, x + filled, y + 14, 4, 0xFFF2F5FA);
         }
+        int bw = 100, bx = width / 2 - (bw * 3 + 12) / 2, by = height - 30;
+        buttons.draw(g, font, Icons.CHECK, "Готово", bx, by, bw, 20, mx, my, true, this::onClose);
+        buttons.draw(g, font, Icons.HAND, main ? "Рука: основная" : "Рука: вторая", bx + bw + 6, by, bw, 20, mx, my, false, () -> main = !main);
+        buttons.draw(g, font, Icons.ROTATE_CCW, "Сброс", bx + (bw + 6) * 2, by, bw, 20, mx, my, false, () -> {
+            if (main) c.mainHand = new HudConfig.Hand(); else c.offHand = new HudConfig.Hand();
+            LavaVisualClient.save();
+        });
         super.extractRenderState(g, mx, my, delta);
     }
     @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == 0 && buttons.click(event.x(), event.y())) return true;
         if (super.mouseClicked(event, doubleClick)) return true;
         if (event.button() != 0) return false;
         for (int i = 0; i < 4; i++) {

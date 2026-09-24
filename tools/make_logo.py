@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Builds LavaVisual logo assets from a logo drawn on a black background.
 
-    python3 tools/make_logo.py [tools/logo/logo-source.png]
+    python3 tools/make_logo.py [path/to/logo.jpeg]   (default: the original LV logo in tools/logo/)
 
 Outputs (mod resources):
   assets/lavavisual/icon.png                     128 x 128 mod icon (Mod Menu / mod list)
@@ -9,37 +9,45 @@ Outputs (mod resources):
   assets/lavavisual/textures/gui/logo/hud_<k>.png   watermark logo, HUD_H units tall
   ui/LogoSizes.java                              texture widths per pixel scale
 
-Minecraft samples GUI textures without filtering, so each size exists once per integer pixel scale (1..8) and is
+Minecraft samples GUI textures without filtering, so each size exists once per half pixel scale (1, 1.5 ... 8) and is
 downsampled here with Lanczos in premultiplied alpha; at draw time one texel covers exactly one screen pixel.
 """
 import sys
 from pathlib import Path
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[1]
 RES = ROOT / "ports/mc26.2/src/main/resources/assets/lavavisual"
 JAVA = ROOT / "ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LogoSizes.java"
-MENU_H, HUD_H, SCALES = 30, 16, range(1, 9)
+MENU_H, HUD_H, HALVES = 30, 16, range(2, 17)
+# Background threshold: the stone outline of the original logo is only ~0.15 bright, so it must stay above this.
+THRESHOLD = 0.08
+DEFAULT_SOURCE = ROOT / "tools/logo/seedream-4.5_b_убери_огонь_частицы_.jpeg"
 
 
 def extract(path):
+    """Logo on a dark background -> RGBA. The background is the dark area connected to the image border; everything
+    enclosed by the logo's outline (including the dark band between letters and outline) stays opaque. Faint JPEG
+    smudges further out get alpha 0, and the outline's outer edge keeps a smooth coverage ramp."""
     rgb = np.asarray(Image.open(path).convert("RGB"), dtype=np.float64) / 255.0
     lum = rgb.max(axis=2)
-    # Background = dark pixels connected to the border; dark details inside the letters stay opaque.
-    dark = Image.fromarray(((lum < 0.2) * 255).astype(np.uint8), "L").copy()
     h, w = lum.shape
+    dark = Image.fromarray(((lum < THRESHOLD) * 255).astype(np.uint8), "L").copy()
     for seed in ((0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)):
         if dark.getpixel(seed) == 255:
             ImageDraw.floodfill(dark, seed, 128)
-    outside = np.asarray(dark) == 128
-    alpha = np.where(outside, np.clip((lum - 0.025) / 0.175, 0, 1), 1.0)
-    # Un-multiply the black matte so glows and anti-aliased edges keep their colour on any background.
-    color = np.where(outside[..., None], np.clip(rgb / np.maximum(alpha, 1e-3)[..., None], 0, 1), rgb)
-    color = np.where(outside[..., None] & (alpha[..., None] < 1), np.minimum(color, np.maximum(rgb, color)), color)
+    inside = np.asarray(dark) != 128
+    # Drop small specks (JPEG noise) and keep a thin band around the logo for the anti-aliased rim.
+    core = Image.fromarray((inside * 255).astype(np.uint8), "L").filter(ImageFilter.MinFilter(5)).filter(ImageFilter.MaxFilter(5))
+    inside &= np.asarray(core.filter(ImageFilter.MaxFilter(3))) > 0
+    near = np.asarray(Image.fromarray((inside * 255).astype(np.uint8), "L").filter(ImageFilter.MaxFilter(9))) > 0
+    alpha = np.where(inside, 1.0, np.where(near, np.clip((lum - 0.02) / (THRESHOLD - 0.02), 0, 1), 0.0))
+    # Un-multiply the black matte on the rim so the edge keeps its colour on any background.
+    color = np.where(inside[..., None], rgb, np.clip(rgb / np.maximum(alpha, 1e-3)[..., None], 0, 1))
     rgba = np.dstack([color, alpha])
     ys, xs = np.nonzero(alpha > 0.03)
-    pad = int(0.02 * max(h, w))
+    pad = int(0.012 * max(h, w))
     y0, y1 = max(0, ys.min() - pad), min(h, ys.max() + pad + 1)
     x0, x1 = max(0, xs.min() - pad), min(w, xs.max() + pad + 1)
     return Image.fromarray((rgba[y0:y1, x0:x1] * 255 + 0.5).astype(np.uint8), "RGBA")
@@ -50,7 +58,7 @@ def resized(img, width, height):
 
 
 def main():
-    source = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "tools/logo/logo-source.png"
+    source = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_SOURCE
     logo = extract(source)
     aspect = logo.width / logo.height
     out = RES / "textures/gui/logo"
@@ -58,10 +66,11 @@ def main():
     widths = {}
     for name, units in (("menu", MENU_H), ("hud", HUD_H)):
         widths[name] = []
-        for k in SCALES:
-            th = units * k
+        for half in HALVES:  # 1, 1.5 ... 8 pixels per GUI unit; half steps serve resized HUD elements
+            th = units * half // 2
             tw = max(1, round(th * aspect))
-            resized(logo, tw, th).save(out / f"{name}_{k}.png", optimize=True)
+            suffix = f"{half // 2}" + ("" if half % 2 == 0 else "_5")
+            resized(logo, tw, th).save(out / f"{name}_{suffix}.png", optimize=True)
             widths[name].append(tw)
     # Square mod icon: logo centred with a small margin, transparent background.
     size, margin = 128, 6
@@ -72,7 +81,7 @@ def main():
     icon.save(RES / "icon.png", optimize=True)
     JAVA.write_text(
         "package tech.gulp.lavavisual.ui;\n\n"
-        "/** Generated by tools/make_logo.py: logo texture widths for pixel scales 1..8. */\n"
+        "/** Generated by tools/make_logo.py: logo texture widths for pixel scales 1, 1.5 ... 8 (index = 2 x scale - 2). */\n"
         "final class LogoSizes {\n"
         "    private LogoSizes() { }\n"
         f"    static final int MENU_H = {MENU_H}, HUD_H = {HUD_H};\n"

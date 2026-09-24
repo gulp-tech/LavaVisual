@@ -36,7 +36,13 @@ public final class HudConfig {
     public double killVolume = 0.65;
     public double menuScale = 0.8, menuOpacity = 0.9, menuDim = 0.12;
     public boolean markerEnabled, skyEnabled, fpsBoost;
-    public boolean badgeEnabled = true;
+    /** badgeEnabled: show other LavaVisual players' marks. badgeShare: mark your own skin (opt-in, servers may reject it). */
+    public boolean badgeEnabled = true, badgeShare;
+    /** Menu position as a fraction of the free space around the panel (0.5 = centred); set by dragging the header. */
+    public double menuX = 0.5, menuY = 0.5;
+    /** Air particles: style (fireflies, snow, stars, embers, hearts), count, size, radius around you, speed. */
+    public int ambientStyle, ambientCount = 60;
+    public double ambientSize = 1, ambientRange = 10, ambientSpeed = 1;
     public boolean hatEnabled, trailEnabled, espEnabled, killEffect;
     public int swingStyle, particleShape, particlePattern, espStyle;
     public double fireHeight = 1;
@@ -63,8 +69,7 @@ public final class HudConfig {
     /** Opaque ARGB colour of an element: rainbow, custom or the theme colour. */
     public int color(String key) {
         if (chroma != null && chroma.contains(key)) {
-            double hue = (System.currentTimeMillis() % 1_000_000L) / 1000.0 * 0.12 * chromaSpeed;
-            return 0xFF000000 | ColorMath.hsv(hue - Math.floor(hue), 0.72, 1);
+            return 0xFF000000 | ColorMath.hsv(ChromaClock.phase(chromaSpeed), 0.72, 1);
         }
         Integer custom = colors == null ? null : colors.get(key);
         return 0xFF000000 | (custom != null ? custom : defaultColor(key, rgb));
@@ -73,7 +78,7 @@ public final class HudConfig {
     /** Second gradient colour of an element: the theme's second colour, a companion of a custom colour, or a rainbow offset. */
     public int color2(String key) {
         if (chroma != null && chroma.contains(key)) {
-            double hue = (System.currentTimeMillis() % 1_000_000L) / 1000.0 * 0.12 * chromaSpeed + 0.16;
+            double hue = ChromaClock.phase(chromaSpeed) + 0.16;
             return 0xFF000000 | ColorMath.hsv(hue - Math.floor(hue), 0.72, 1);
         }
         Integer custom = colors == null ? null : colors.get(key);
@@ -125,7 +130,7 @@ public final class HudConfig {
             Widget widget = widgets.get(key);
             if (widget == null) continue;
             widget.x = clamp(widget.x); widget.y = clamp(widget.y);
-            widget.scale = bounded(widget.scale, 0.6, 1.6, 1);
+            widget.scale = bounded(widget.scale, SCALE_MIN, SCALE_MAX, 1);
             widget.opacity = bounded(widget.opacity, 0.2, 1, 0.9);
             clean.put(key, widget);
         }
@@ -171,6 +176,9 @@ public final class HudConfig {
         if (chroma == null) chroma = new ArrayList<>();
         chroma = new ArrayList<>(chroma.stream().filter(k -> k != null && COLOR_KEYS.contains(k)).distinct().toList());
         chromaSpeed = bounded(chromaSpeed, 0.2, 3, 1);
+        menuX = bounded(menuX, 0, 1, 0.5); menuY = bounded(menuY, 0, 1, 0.5);
+        ambientStyle = Math.floorMod(ambientStyle, 5); ambientCount = Math.max(10, Math.min(200, ambientCount));
+        ambientSize = bounded(ambientSize, 0.5, 2, 1); ambientRange = bounded(ambientRange, 4, 24, 10); ambientSpeed = bounded(ambientSpeed, 0.2, 3, 1);
         hatSize = bounded(hatSize, 0.5, 1.8, 1); hatLift = bounded(hatLift, -0.3, 0.6, 0); hatCone = bounded(hatCone, 0.3, 2.5, 1);
         hatOpacity = bounded(hatOpacity, 0.15, 1, 0.7); hatSpin = bounded(hatSpin, 0, 3, 0); hatStyle = Math.floorMod(hatStyle, 3);
         mapZoom = Math.floorMod(mapZoom, 3);
@@ -179,5 +187,7 @@ public final class HudConfig {
     public static double bounded(double value, double min, double max, double fallback) {
         return Double.isFinite(value) ? Math.max(min, Math.min(max, value)) : fallback;
     }
+    /** HUD element size range; the renderer snaps it to whole or half physical pixels per GUI unit. */
+    public static final double SCALE_MIN = 0.5, SCALE_MAX = 2.5;
     public static double clamp(double value) { return bounded(value, 0, 1, 0.02); }
 }
