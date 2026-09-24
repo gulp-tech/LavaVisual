@@ -19,7 +19,11 @@ public final class ClickGuiScreen extends Screen {
     private int left, top, panelW, panelH, side, bodyX, bodyW;
     private final long opened = System.nanoTime();
     public ClickGuiScreen() { this(0); }
-    public ClickGuiScreen(int page) { super(Component.literal("LavaVisual")); this.page = Math.max(0, Math.min(2, page)); }
+    public ClickGuiScreen(int page) { this(page, null); }
+    public ClickGuiScreen(int page, String selected) {
+        super(Component.literal("LavaVisual")); this.page = Math.max(0, Math.min(2, page));
+        this.selected = "crosshair".equals(selected) || HudConfig.IDS.contains(selected) ? selected : null;
+    }
     private void changed() { LavaVisualClient.save(); }
     private void hit(int x, int y, int w, int h, Runnable action) { hits.add(new Hit(x, y, w, h, action)); }
     private void text(GuiGraphicsExtractor g, String value, int x, int y, int color, int maxWidth) {
@@ -145,13 +149,14 @@ public final class ClickGuiScreen extends Screen {
         if (cross) action(g, "Форма: " + new String[]{"", "точка", "плюс", "квадрат"}[c.crosshairShape], bodyX, y, bodyW,
                 () -> { c.crosshairShape = c.crosshairShape % 3 + 1; changed(); });
         else action(g, "Переместить на экране", bodyX, y, bodyW, () -> minecraft.gui.setScreen(new HudEditorScreen(this, selected)));
-        y += 28;
-        if (selected.equals("stopwatch") && y + 24 < top + panelH - 32) {
-            action(g, "Пуск / пауза", bodyX, y, bodyW / 2 - 4, LavaVisualClient.STATE::toggleTimer);
-            action(g, "Сброс", bodyX + bodyW / 2 + 4, y, bodyW / 2 - 4, LavaVisualClient.STATE::reset);
-        }
-        action(g, "‹ Назад", bodyX, top + panelH - 30, bodyW, () -> selected = null);
+        if (selected.equals("stopwatch")) {
+            int w = (bodyW - 8) / 3, footer = top + panelH - 30;
+            action(g, "‹ Назад", bodyX, footer, w, () -> selected = null);
+            action(g, "Пуск/пауза", bodyX + w + 4, footer, w, LavaVisualClient.STATE::toggleTimer);
+            action(g, "Сброс", bodyX + 2 * (w + 4), footer, w, LavaVisualClient.STATE::reset);
+        } else action(g, "‹ Назад", bodyX, top + panelH - 30, bodyW, () -> selected = null);
     }
+
     private void adjust(GuiGraphicsExtractor g, String name, double value, int y, Runnable minus, Runnable plus) {
         text(g, name + " " + Math.round(value * 100) + "%", bodyX, y + 7, 0xFFA1A3AE, bodyW - 70);
         action(g, "−", bodyX + bodyW - 60, y, 26, minus);

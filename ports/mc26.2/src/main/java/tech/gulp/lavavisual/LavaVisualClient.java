@@ -26,8 +26,15 @@ public final class LavaVisualClient implements ClientModInitializer {
     private final boolean uiSmoke = Boolean.getBoolean("lavavisual.uiSmoke");
     private int smokeTicks = -1;
     public static HudConfig config() { return config; }
-    public static void save() { if (!STORE.save(config, 0)) STATE.notify("Settings could not be saved"); }
-    public static void resetLayout() { for (String id : HudConfig.IDS) { var old = config.widgets.get(id); var fresh = HudConfig.defaults().get(id); old.x = fresh.x; old.y = fresh.y; } save(); STATE.notify("Layout reset"); }
+    public static void save() { if (!STORE.save(config, 0)) STATE.notify("Не удалось сохранить настройки"); }
+    public static void resetLayout() {
+        var defaults = HudConfig.defaults();
+        for (String id : HudConfig.IDS) {
+            var widget = config.widgets.get(id); var fresh = defaults.get(id);
+            widget.x = fresh.x; widget.y = fresh.y;
+        }
+        save(); STATE.notify("Расположение сброшено");
+    }
     private static Identifier id(String path) { return Identifier.fromNamespaceAndPath("lavavisual", path); }
 
     @Override public void onInitializeClient() {
@@ -45,12 +52,14 @@ public final class LavaVisualClient implements ClientModInitializer {
                     if (smokeTicks == 20) client.gui.setScreen(new ClickGuiScreen());
                     if (smokeTicks == 60) client.gui.setScreen(new ClickGuiScreen(1));
                     if (smokeTicks == 100) client.gui.setScreen(new ClickGuiScreen(2));
-                    if (smokeTicks == 140) client.gui.setScreen(new tech.gulp.lavavisual.ui.HudEditorScreen(new ClickGuiScreen()));
-                    if (smokeTicks == 180) LavaVisual.LOGGER.info("LavaVisual UI smoke complete");
+                    if (smokeTicks == 140) client.gui.setScreen(new ClickGuiScreen(0, "target"));
+                    if (smokeTicks == 180) client.gui.setScreen(new ClickGuiScreen(1, "crosshair"));
+                    if (smokeTicks == 220) client.gui.setScreen(new tech.gulp.lavavisual.ui.HudEditorScreen(new ClickGuiScreen()));
+                    if (smokeTicks == 260) LavaVisual.LOGGER.info("LavaVisual UI smoke complete");
                 }
             }
             while (menu.consumeClick()) if (client.gui.screen() == null) client.gui.setScreen(new ClickGuiScreen());
-            while (toggle.consumeClick()) if (client.gui.screen() == null) { config.enabled = !config.enabled; save(); }
+            while (toggle.consumeClick()) if (client.gui.screen() == null) { config.disableAll(); save(); }
             while (timer.consumeClick()) if (client.gui.screen() == null && client.player != null) STATE.toggleTimer();
             if (previousWorld != client.level) {
                 previousWorld = client.level;
@@ -59,10 +68,7 @@ public final class LavaVisualClient implements ClientModInitializer {
             long now = System.nanoTime();
             if (now >= nextSample) {
                 nextSample = now + 1_000_000_000L;
-
-
                 STATE.performance = client.getFps() + " FPS";
-
             }
             tech.gulp.lavavisual.hud.TargetSnapshot.update(client);
             if (client.player != null) {
@@ -73,7 +79,7 @@ public final class LavaVisualClient implements ClientModInitializer {
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, id("widgets"), (g, delta) -> HudRenderer.draw(g, false, null));
         HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, original -> (g, delta) -> {
             Minecraft client = Minecraft.getInstance();
-            if (!config.enabled || !config.crosshairEnabled || client.player == null || client.player.isSpectator()
+            if (!config.crosshairEnabled || client.player == null || client.player.isSpectator()
                     || !client.options.getCameraType().isFirstPerson()) original.extractRenderState(g, delta);
             else HudRenderer.crosshair(g);
         });

@@ -12,7 +12,7 @@ public record TargetSnapshot(String name, float health, float maximum, int armor
     public static void update(Minecraft client) {
         current = null;
         var config = LavaVisualClient.config();
-        if (!config.enabled || !config.widgets.get("target").visible || client.player == null || client.level == null
+        if (!config.widgets.get("target").visible || client.player == null || client.level == null
                 || client.gui.screen() != null) return;
         if (!(client.hitResult instanceof EntityHitResult hit) || !(hit.getEntity() instanceof LivingEntity living)) return;
         if (living == client.player || !living.isAlive() || living.isInvisible()

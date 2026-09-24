@@ -9,7 +9,6 @@ public final class HudConfig {
     public static final int[] COLORS = {0xFFFF853A, 0xFF65D6C2, 0xFF82B4FF, 0xFFC5A1FF, 0xFFFFD479, 0xFFF0F0F0};
     public static final List<String> IDS = List.of("coordinates", "performance", "stopwatch", "island", "target");
     public int schemaVersion = SCHEMA;
-    public boolean enabled = true;
     public boolean shadows = true;
     public boolean animations = true;
     public boolean crosshairEnabled = false;

@@ -24,7 +24,6 @@ public final class HudRenderer {
     }
     public static void draw(GuiGraphicsExtractor g, boolean edit, String selected) {
         HudConfig c = LavaVisualClient.config();
-        if (!c.enabled && !edit) return;
         Minecraft mc = Minecraft.getInstance();
         if (!edit && (mc.player == null || mc.gui.screen() instanceof tech.gulp.lavavisual.ui.HudEditorScreen)) return;
         SessionState state = LavaVisualClient.STATE;
