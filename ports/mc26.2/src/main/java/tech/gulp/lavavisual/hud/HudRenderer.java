@@ -29,6 +29,9 @@ public final class HudRenderer {
     private static long lastNs;
     private static TargetSnapshot lastTarget;
     private static String lastName = "";
+    private record HudParticle(double x, double y, double vx, double vy, long born, int color) { }
+    private static final java.util.ArrayList<HudParticle> HUD_PARTICLES = new java.util.ArrayList<>();
+    private static float lastHealth = -1;
     public static void draw(GuiGraphicsExtractor g, boolean edit, String selected) {
         HudConfig c = LavaVisualClient.config();
         long now = System.nanoTime();
@@ -81,6 +84,35 @@ public final class HudRenderer {
                             UiFont.text(g, mc.font, target.name().isEmpty() ? "?" : target.name().substring(0, 1).toUpperCase(java.util.Locale.ROOT), 21, 21, UiDraw.alpha(accent, fade), 26);
                         }
                     } else UiFont.text(g, mc.font, target.name().isEmpty() ? "?" : target.name().substring(0, 1).toUpperCase(java.util.Locale.ROOT), 21, 21, UiDraw.alpha(accent, fade), 26);
+                    var living = target.entity();
+                    if (living != null && living.hurtTime > 0)
+                        UiDraw.round(g, 9, 9, 32, 32, 3, UiDraw.alpha(0xFF2A2A, 0.5 * living.hurtTime / 10.0 * fade));
+                    if (lastHealth >= 0 && target.health() < lastHealth - 0.01 && target.name().equals(lastName) && HUD_PARTICLES.size() < 60) {
+                        long born = System.nanoTime();
+                        for (int i = 0; i < 12; i++) {
+                            double angle = Math.random() * Math.PI * 2, speed = 40 + Math.random() * 70;
+                            HUD_PARTICLES.add(new HudParticle(25, 25, Math.cos(angle) * speed, Math.sin(angle) * speed - 40, born, i % 3 == 0 ? 0xFFFFFF : accent & 0xFFFFFF));
+                        }
+                    }
+                    lastHealth = target.health();
+                    long particleNow = System.nanoTime();
+                    HUD_PARTICLES.removeIf(pt -> particleNow - pt.born() > 700_000_000L);
+                    for (HudParticle pt : HUD_PARTICLES) {
+                        double age = (particleNow - pt.born()) / 1e9, life = 1 - age / 0.7;
+                        int px = (int) (pt.x() + pt.vx() * age), py = (int) (pt.y() + pt.vy() * age + 160 * age * age);
+                        UiDraw.round(g, px - 1, py - 1, 3, 3, 1, UiDraw.alpha(pt.color(), life * fade));
+                    }
+                    if (living != null && fade > 0.7) {
+                        net.minecraft.world.item.ItemStack[] gear = {
+                                living.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD), living.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST),
+                                living.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.LEGS), living.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.FEET),
+                                living.getMainHandItem() };
+                        g.pose().pushMatrix();
+                        g.pose().translate(bw - 8 - 5 * 11, 34);
+                        g.pose().scale(0.625f);
+                        for (int i = 0; i < gear.length; i++) if (!gear[i].isEmpty()) g.item(gear[i], i * 18, 0);
+                        g.pose().popMatrix();
+                    }
                     int combo = tech.gulp.lavavisual.effects.WorldCosmetics.combo();
                     if (combo >= 2) {
                         UiDraw.round(g, bw - 30, 6, 24, 12, 6, UiDraw.alpha(accent, 0.85 * fade));
@@ -88,7 +120,7 @@ public final class HudRenderer {
                     }
                     UiFont.text(g, mc.font, target.name(), 49, 8, UiDraw.alpha(accent, fade), bw - 57);
                     UiFont.text(g, mc.font, String.format(java.util.Locale.ROOT, "HP %.1f / %.1f", target.health(), target.maximum()), 49, 22, UiDraw.alpha(0xE8E8EB, fade), bw - 57);
-                    UiFont.text(g, mc.font, String.format(java.util.Locale.ROOT, "Броня %d · %.1f м", target.armor(), target.distance()), 49, 36, UiDraw.alpha(0x9698A3, fade), bw - 57);
+                    UiFont.text(g, mc.font, String.format(java.util.Locale.ROOT, "Броня %d · %.1f м", target.armor(), target.distance()), 49, 36, UiDraw.alpha(0x9698A3, fade), living != null ? bw - 57 - 60 : bw - 57);
                     double ratio = target.maximum() > 0 ? Math.max(0, Math.min(1, target.health() / target.maximum())) : 0;
                     if (!target.name().equals(lastName)) { lastName = target.name(); healthShown = healthGhost = ratio; }
                     healthShown += (ratio - healthShown) * Math.min(1, dt * 12);

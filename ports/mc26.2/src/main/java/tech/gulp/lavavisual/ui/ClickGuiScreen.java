@@ -164,7 +164,7 @@ public final class ClickGuiScreen extends Screen {
             text(g, TABS[i], left + 33, y + 8, tabColor, side - 40);
             hit(left + 8, y, side - 16, 25, () -> navigate(next));
         }
-        if (panelH > 300) text(g, "26.2 · 2.5", left + 13, top + panelH - 21, 0xFF586272, side - 18);
+        if (panelH > 300) text(g, "26.2 · 2.6", left + 13, top + panelH - 21, 0xFF586272, side - 18);
         text(g, selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : HudRenderer.title(selected), bodyX, top + 20, 0xFFF0F3F7, bodyW - 28);
         text(g, "×", left + panelW - 26, top + 17, 0xFFABB4C2, 16);
         hit(left + panelW - 31, top + 10, 24, 24, this::onClose);
@@ -216,11 +216,20 @@ public final class ClickGuiScreen extends Screen {
         toggle(g, "particles", "Hit Particles", "Искры при ручной атаке", c.particlesEnabled, () -> { c.particlesEnabled = !c.particlesEnabled; changed(); }, null);
         slider(g, "Число искр", c.particleCount, 4, 24, v -> c.particleCount = (int) Math.round(v), true);
         slider(g, "Размер искр", c.particleSize, 0.04, 0.25, v -> c.particleSize = v, false);
+        String[] shapes = {"искры", "звёзды", "сердечки"}, patterns = {"взрыв", "кольцо", "фонтан"};
+        int half = (bodyW - 8) / 2;
+        action(g, "Форма: " + shapes[c.particleShape], bodyX, cursor, half, () -> { c.particleShape = (c.particleShape + 1) % 3; changed(); });
+        action(g, "Разлёт: " + patterns[c.particlePattern], bodyX + half + 8, cursor, half, () -> { c.particlePattern = (c.particlePattern + 1) % 3; changed(); });
+        cursor += 32;
         toggle(g, "ambient", "Звёздная пыль", "Декоративные огоньки рядом с вами", c.ambientEnabled, () -> { c.ambientEnabled = !c.ambientEnabled; changed(); }, null);
         toggle(g, "marker", "Маркер удара", "В центре последней видимой цели", c.markerEnabled, () -> { c.markerEnabled = !c.markerEnabled; changed(); }, null);
         button(g, "Форма: " + (c.markerShape == 0 ? "круг" : "квадрат"), () -> { c.markerShape = 1 - c.markerShape; changed(); });
         slider(g, "Длительность · сек", c.markerDuration, 1, 3, v -> c.markerDuration = v, false);
         slider(g, "Размер маркера", c.markerSize, 0.15, 0.9, v -> c.markerSize = v, false);
+        toggle(g, "esp", "Target ESP", "Вокруг цели, только если она видна", c.espEnabled, () -> { c.espEnabled = !c.espEnabled; changed(); }, null);
+        button(g, "Стиль ESP: " + (c.espStyle == 0 ? "призраки" : "кольцо"), () -> { c.espStyle = 1 - c.espStyle; changed(); });
+        toggle(g, "kill", "Kill Effect", "Столб света и искры, когда ваша цель погибает", c.killEffect, () -> { c.killEffect = !c.killEffect; changed(); }, null);
+        slider(g, "Огонь на экране · %", c.fireHeight * 100, 0, 100, v -> c.fireHeight = v / 100, true);
         toggle(g, "hat", "China Hat", "Вращающаяся шляпа, вид от 3-го лица", c.hatEnabled, () -> { c.hatEnabled = !c.hatEnabled; changed(); }, null);
         toggle(g, "trail", "Trails", "Светящийся след за вами", c.trailEnabled, () -> { c.trailEnabled = !c.trailEnabled; changed(); }, null);
         note(g, "Эффекты не видны сквозь блоки.");
@@ -229,6 +238,23 @@ public final class ClickGuiScreen extends Screen {
         var c = LavaVisualClient.config();
         toggle(g, "hands", "Положение рук", "Только вид от первого лица", c.viewModelEnabled, () -> { c.viewModelEnabled = !c.viewModelEnabled; changed(); }, null);
         button(g, "Редактировать в игре", () -> minecraft.gui.setScreen(new HandEditorScreen(this)));
+        var swingNames = tech.gulp.lavavisual.effects.SwingStyles.NAMES;
+        button(g, "Анимация удара: " + swingNames[c.swingStyle], () -> { c.swingStyle = (c.swingStyle + 1) % swingNames.length; changed(); });
+        section(g, "Пресеты рук");
+        String[] presetNames = {"Ваниль", "Компакт", "Низко", "PvP"};
+        double[][] presetValues = {{0, 0, 0, 1}, {.06, .04, .12, .8}, {0, -.14, .05, 1}, {.1, -.06, .18, .85}};
+        int pw = (bodyW - 24) / 4;
+        for (int i = 0; i < presetNames.length; i++) {
+            int preset = i;
+            action(g, presetNames[i], bodyX + i * (pw + 8), cursor, pw, () -> {
+                double[] v = presetValues[preset];
+                c.mainHand.x = v[0]; c.mainHand.y = v[1]; c.mainHand.z = v[2]; c.mainHand.scale = v[3];
+                c.offHand.x = -v[0]; c.offHand.y = v[1]; c.offHand.z = v[2]; c.offHand.scale = v[3];
+                if (preset != 0) c.viewModelEnabled = true;
+                changed();
+            });
+        }
+        cursor += 32;
         note(g, "Редактор оставляет центр и руки видимыми.");
         note(g, "Дальность — от камеры, не дальность удара.");
         button(g, "Сбросить обе руки", () -> { c.mainHand = new HudConfig.Hand(); c.offHand = new HudConfig.Hand(); changed(); });
@@ -282,6 +308,15 @@ public final class ClickGuiScreen extends Screen {
             cursor -= 6;
         }
         note(g, "Один цвет для меню, HUD и эффектов.");
+        String[] themeNames = {"Лава", "Мята", "Океан", "Неон", "Золото", "Роза"};
+        int[] themes = {0xFF5A36, 0x85F56A, 0x36C8FF, 0xB45CFF, 0xFFC233, 0xFF5C9A};
+        int tw = (bodyW - 16) / 3;
+        for (int i = 0; i < themes.length; i++) {
+            int theme = i, tx = bodyX + (i % 3) * (tw + 8);
+            action(g, themeNames[i], tx, cursor, tw, () -> { c.rgb = themes[theme]; changed(); });
+            UiDraw.round(g, tx + tw - 16, cursor + 8, 8, 8, 4, 0xFF000000 | themes[i]);
+            if (i % 3 == 2) cursor += 32;
+        }
         toggle(g, "shadows", "Тени панелей", "Мягкая глубина интерфейса", c.shadows, () -> { c.shadows = !c.shadows; changed(); }, null);
         toggle(g, "animations", "Анимации", "Плавные вкладки и переключатели", c.animations, () -> { c.animations = !c.animations; changed(); }, null);
         section(g, "Конфиги");

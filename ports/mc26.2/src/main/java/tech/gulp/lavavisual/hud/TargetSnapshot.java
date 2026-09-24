@@ -26,7 +26,7 @@ public record TargetSnapshot(String name, float health, float maximum, int armor
                 fresh = new TargetSnapshot(living.getName().getString(), living.getHealth(), living.getMaxHealth(),
                         living.getArmorValue(), distance,
                         living instanceof net.minecraft.client.player.AbstractClientPlayer clientPlayer ? clientPlayer.getSkin().body().texturePath() : null,
-                        living instanceof Player ? null : living, tick);
+                        living, tick);
             }
         }
         if (fresh != null) current = fresh;

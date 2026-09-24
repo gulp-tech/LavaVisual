@@ -99,6 +99,7 @@ public final class LavaVisualClient implements ClientModInitializer {
             if (!boostChecked && client.options != null) { boostChecked = true; if (config.fpsBoost) tech.gulp.lavavisual.effects.PerformanceMode.update(client); }
             tech.gulp.lavavisual.hud.TargetSnapshot.update(client);
             tech.gulp.lavavisual.effects.WorldCosmetics.tick(client);
+            tech.gulp.lavavisual.effects.SwingStyles.tick(client);
             if (client.player != null) {
                 var pos = client.player.blockPosition();
                 STATE.coordinates = "X " + pos.getX() + "  Y " + pos.getY() + "  Z " + pos.getZ();

@@ -34,18 +34,23 @@ import tech.gulp.lavavisual.ui.UiDraw;
 public final class WorldCosmetics {
     private record Ring(Vec3 origin, int born) { }
     private record Mark(Vec3 origin, long born, int shape) { }
-    private record Spark(Vec3 origin, Vec3 velocity, int born, int life, float size, boolean ambient) { }
+    private record Spark(Vec3 origin, Vec3 velocity, int born, int life, float size, boolean ambient, int shape, boolean kill) { }
+    private record Beam(Vec3 origin, int born) { }
+    private record BeamFrame(Vec3 origin, float alpha, float age) { }
     private record RingFrame(Vec3 origin, float radius, float alpha, boolean echo) { }
     private record TrailNode(Vec3 position, int born) { }
     private record TrailPoint(Vec3 position, float alpha) { }
-    private record SparkFrame(Vec3 origin, float size, float alpha) { }
+    private record SparkFrame(Vec3 origin, float size, float alpha, int shape) { }
     private record MarkerFrame(Vec3 origin, int shape, float size, float alpha) { }
-    private record Frame(List<RingFrame> rings, List<SparkFrame> sparks, List<MarkerFrame> markers, int color, Vec3 hat, float spin, List<TrailPoint> trail) { }
+    private record Frame(List<RingFrame> rings, List<SparkFrame> sparks, List<MarkerFrame> markers, int color, Vec3 hat, float spin, List<TrailPoint> trail, Vec3 esp, float espHeight, float espWidth, int espStyle, List<BeamFrame> beams) { }
     private static final RenderStateDataKey<Frame> DATA = RenderStateDataKey.create(() -> "lavavisual:cosmetics");
     private static final ArrayList<Ring> RINGS = new ArrayList<>();
     private static final ArrayList<Mark> MARKS = new ArrayList<>();
     private static final ArrayList<Spark> SPARKS = new ArrayList<>();
     private static final ArrayDeque<TrailNode> TRAIL = new ArrayDeque<>();
+    private static final ArrayList<Beam> BEAMS = new ArrayList<>();
+    private static boolean espVisible;
+    private static int lastKillId = -1;
     private static final Random RANDOM = new Random();
     private static int tick, lastHitTick = -100, combo, lastComboTick = -100;
     private static Object comboTarget;
@@ -72,8 +77,13 @@ public final class WorldCosmetics {
                 lastHitTick = tick;
                 Vec3 origin = aimed.getLocation();
                 for (int i = 0, n = (int) Math.max(3, Math.round(c.particleCount * PerformanceMode.quality())); i < n; i++) {
-                    Vec3 velocity = new Vec3((RANDOM.nextDouble() - .5) * .16, .015 + RANDOM.nextDouble() * .08, (RANDOM.nextDouble() - .5) * .16);
-                    add(new Spark(origin, velocity, tick, 14 + RANDOM.nextInt(9), (float) c.particleSize, false));
+                    double angle = i * Math.PI * 2 / n;
+                    Vec3 velocity = switch (c.particlePattern) {
+                        case 1 -> new Vec3(Math.cos(angle) * .13, .01 + RANDOM.nextDouble() * .02, Math.sin(angle) * .13);
+                        case 2 -> new Vec3((RANDOM.nextDouble() - .5) * .06, .1 + RANDOM.nextDouble() * .08, (RANDOM.nextDouble() - .5) * .06);
+                        default -> new Vec3((RANDOM.nextDouble() - .5) * .16, .015 + RANDOM.nextDouble() * .08, (RANDOM.nextDouble() - .5) * .16);
+                    };
+                    add(new Spark(origin, velocity, tick, 14 + RANDOM.nextInt(9), (float) c.particleSize, false, c.particleShape, false));
                 }
             }
             if (c.markerEnabled && player == mc.player && level == mc.level && !player.isSpectator()
@@ -100,7 +110,15 @@ public final class WorldCosmetics {
             if (c.hatEnabled && self != null && !self.isInvisible() && !self.isSpectator() && !self.isFallFlying() && !self.isSwimming()
                     && context.levelState().cameraRenderState.pos.distanceToSqr(self.getEyePosition(partial)) > 0.36)
                 hat = self.getPosition(partial).add(0, self.getBbHeight() + 0.02, 0);
-            if (RINGS.isEmpty() && SPARKS.isEmpty() && MARKS.isEmpty() && TRAIL.isEmpty() && hat == null) { context.levelState().setData(DATA, null); return; }
+            Vec3 esp = null;
+            float espHeight = 0, espWidth = 0;
+            var snapshot = tech.gulp.lavavisual.hud.TargetSnapshot.current;
+            if (c.espEnabled && espVisible && snapshot != null && snapshot.entity() != null && snapshot.entity().isAlive() && !snapshot.entity().isRemoved()) {
+                esp = snapshot.entity().getPosition(partial);
+                espHeight = snapshot.entity().getBbHeight();
+                espWidth = snapshot.entity().getBbWidth();
+            }
+            if (RINGS.isEmpty() && SPARKS.isEmpty() && MARKS.isEmpty() && TRAIL.isEmpty() && BEAMS.isEmpty() && hat == null && esp == null) { context.levelState().setData(DATA, null); return; }
             double now = tick + context.deltaTracker().getGameTimeDeltaPartialTick(false);
             var rings = new ArrayList<RingFrame>(); var sparks = new ArrayList<SparkFrame>();
             if (c.jumpEnabled) for (Ring r : RINGS) {
@@ -110,11 +128,11 @@ public final class WorldCosmetics {
                 if (now - r.born > 5) rings.add(new RingFrame(r.origin, (float) (c.jumpRadius * 0.85 * (0.2 + 0.8 * (1 - Math.pow(1 - echo, 2)))), (float) ((1 - echo) * 0.6), true));
             }
             for (Spark s : SPARKS) {
-                if (s.ambient ? !c.ambientEnabled : !c.particlesEnabled) continue;
+                if (s.ambient ? !c.ambientEnabled : s.kill ? !c.killEffect : !c.particlesEnabled) continue;
                 double age = Math.clamp(now - s.born, 0, s.life);
                 double alpha = Math.sin(Math.PI * age / s.life);
                 Vec3 position = s.origin.add(s.velocity.scale(age)).add(0, s.ambient ? 0 : -0.0015 * age * age, 0);
-                sparks.add(new SparkFrame(position, s.size, (float) alpha));
+                sparks.add(new SparkFrame(position, s.size, (float) alpha, s.shape));
             }
             var markers = new ArrayList<MarkerFrame>();
             if (c.markerEnabled) for (Mark m : MARKS) {
@@ -126,7 +144,13 @@ public final class WorldCosmetics {
                 for (TrailNode node : TRAIL) trail.add(new TrailPoint(node.position(), (float) Math.clamp(1 - (now - node.born()) / 22.0, 0, 1)));
                 trail.add(new TrailPoint(self.getPosition(partial), 1f));
             }
-            context.levelState().setData(DATA, new Frame(List.copyOf(rings), List.copyOf(sparks), List.copyOf(markers), c.accent(), hat, (float) (now * 0.06), List.copyOf(trail)));
+            var beams = new ArrayList<BeamFrame>();
+            if (c.killEffect) for (Beam b : BEAMS) {
+                double age = Math.clamp((now - b.born()) / 26.0, 0, 1);
+                beams.add(new BeamFrame(b.origin(), (float) (1 - age * age), (float) age));
+            }
+            context.levelState().setData(DATA, new Frame(List.copyOf(rings), List.copyOf(sparks), List.copyOf(markers), c.accent(), hat, (float) (now * 0.06),
+                    List.copyOf(trail), esp, espHeight, espWidth, c.espStyle, List.copyOf(beams)));
         });
         LevelRenderEvents.BEFORE_TRANSLUCENT_TERRAIN.register(WorldCosmetics::render);
     }
@@ -155,7 +179,7 @@ public final class WorldCosmetics {
         return count;
     }
     public static void clear() {
-        RINGS.clear(); SPARKS.clear(); MARKS.clear(); CLICKS.clear(); TRAIL.clear(); ready = false; grounded = false; tick = 0; lastHitTick = -100; groundPosition = Vec3.ZERO; combo = 0; comboTarget = null;
+        RINGS.clear(); SPARKS.clear(); MARKS.clear(); CLICKS.clear(); TRAIL.clear(); BEAMS.clear(); espVisible = false; lastKillId = -1; ready = false; grounded = false; tick = 0; lastHitTick = -100; groundPosition = Vec3.ZERO; combo = 0; comboTarget = null;
     }
     public static void tick(Minecraft mc) {
         if (mc.player == null || mc.level == null) { clear(); return; }
@@ -165,7 +189,22 @@ public final class WorldCosmetics {
         var player = mc.player;
         RINGS.removeIf(r -> !c.jumpEnabled || tick - r.born >= 24);
         MARKS.removeIf(m -> !c.markerEnabled || tick - m.born >= (long) (c.markerDuration * 20));
-        SPARKS.removeIf(s -> (s.ambient ? !c.ambientEnabled : !c.particlesEnabled) || tick - s.born >= s.life);
+        SPARKS.removeIf(s -> (s.ambient ? !c.ambientEnabled : s.kill ? !c.killEffect : !c.particlesEnabled) || tick - s.born >= s.life);
+        BEAMS.removeIf(b -> !c.killEffect || tick - b.born() >= 26);
+        var snapshot = tech.gulp.lavavisual.hud.TargetSnapshot.current;
+        espVisible = c.espEnabled && snapshot != null && snapshot.entity() != null && snapshot.entity().isAlive()
+                && player.distanceTo(snapshot.entity()) <= 16 && player.hasLineOfSight(snapshot.entity());
+        if (c.killEffect && comboTarget instanceof LivingEntity victim && tick - lastComboTick <= 60 && victim.isDeadOrDying() && victim.getId() != lastKillId) {
+            lastKillId = victim.getId();
+            Vec3 at = victim.position();
+            if (BEAMS.size() >= 3) BEAMS.removeFirst();
+            BEAMS.add(new Beam(at, tick));
+            Vec3 chest = at.add(0, victim.getBbHeight() * 0.55, 0);
+            for (int i = 0; i < 28; i++) {
+                Vec3 velocity = new Vec3((RANDOM.nextDouble() - .5) * .24, .03 + RANDOM.nextDouble() * .12, (RANDOM.nextDouble() - .5) * .24);
+                add(new Spark(chest, velocity, tick, 18 + RANDOM.nextInt(10), (float) c.particleSize * 1.25f, false, c.particleShape, true));
+            }
+        }
         TRAIL.removeIf(n -> !c.trailEnabled || tick - n.born() >= 22);
         if (c.trailEnabled && !player.isSpectator() && !player.isInvisible()) {
             Vec3 here = player.position();
@@ -184,7 +223,7 @@ public final class WorldCosmetics {
         if (c.ambientEnabled && tick % (PerformanceMode.active() ? 12 : 5) == 0 && !player.isSpectator()) {
             double angle = RANDOM.nextDouble() * Math.PI * 2, radius = 1.2 + RANDOM.nextDouble() * 2.8;
             Vec3 position = player.position().add(Math.cos(angle) * radius, .3 + RANDOM.nextDouble() * 2.5, Math.sin(angle) * radius);
-            add(new Spark(position, new Vec3(0, .008, 0), tick, 70, .055f, true));
+            add(new Spark(position, new Vec3(0, .008, 0), tick, 70, .055f, true, 0, false));
         }
     }
     private static void render(LevelRenderContext context) {
@@ -210,13 +249,23 @@ public final class WorldCosmetics {
                     ripple(pose, out, p, r, r * 1.14f, frame.color, light, a * .75f, 0, frame.spin);
                 }
                 if (frame.hat != null) hat(pose, out, frame.hat.subtract(camera), frame.color, light, frame.spin);
+                if (frame.esp != null) {
+                    Vec3 base = frame.esp.subtract(camera);
+                    if (frame.espStyle == 1) circle(pose, out, base, frame.espHeight, frame.espWidth, frame.color, light, frame.spin);
+                    else ghosts(pose, out, base, frame.espHeight, frame.espWidth, frame.color, light, frame.spin, right, up);
+                }
+                for (BeamFrame beam : frame.beams) beam(pose, out, beam.origin().subtract(camera), beam.alpha(), beam.age(), frame.color, light, frame.spin);
                 trail(pose, out, frame.trail, camera, frame.color, light);
                 for (MarkerFrame mark : frame.markers) marker(pose, out, mark.origin().subtract(camera), mark, frame.color(), right, up);
                 for (SparkFrame spark : frame.sparks) {
                     Vec3 p = spark.origin.subtract(camera);
                     glow(pose, out, p, right, up, spark.size * 2.7f, frame.color, spark.alpha * .35f, 12);
-                    glow(pose, out, p, right, up, spark.size, frame.color, spark.alpha, 8);
-                    glow(pose, out, p, right, up, spark.size * .38f, 0xFFFFFFFF, spark.alpha, 4);
+                    if (spark.shape == 1) star(pose, out, p, right, up, spark.size * 1.6f, spark.size * .34f, frame.spin * 3, 0xFFFFFFFF, spark.alpha);
+                    else if (spark.shape == 2) heart(pose, out, p, right, up, spark.size * 1.15f, frame.color, spark.alpha);
+                    else {
+                        glow(pose, out, p, right, up, spark.size, frame.color, spark.alpha, 8);
+                        glow(pose, out, p, right, up, spark.size * .38f, 0xFFFFFFFF, spark.alpha, 4);
+                    }
                 }
             });
         } finally { context.poseStack().popPose(); }
@@ -320,6 +369,80 @@ public final class WorldCosmetics {
         billboardVertex(pose, out, p, right, up, x1, y0, color);
         billboardVertex(pose, out, p, right, up, x1, y1, color);
         billboardVertex(pose, out, p, right, up, x0, y1, color);
+    }
+    /** Target ESP "ghosts": three glowing orbs with tails orbiting the target (visible targets only). */
+    private static void ghosts(PoseStack.Pose pose, VertexConsumer out, Vec3 base, float height, float width, int color, int light, float time, Vector3f right, Vector3f up) {
+        double radius = width * 0.75 + 0.3;
+        int tail = PerformanceMode.quality() < 0.5 ? 8 : 14;
+        for (int k = 0; k < 3; k++) {
+            for (int j = tail - 1; j >= 0; j--) {
+                double t = time * 2.2 - j * 0.09 + k * Math.PI * 2 / 3;
+                double y = height * (0.5 + 0.32 * Math.sin(time * 1.6 + k * 2.1 - j * 0.09));
+                Vec3 p = base.add(Math.cos(t) * radius, y, Math.sin(t) * radius);
+                float fade = 1 - j / (float) tail;
+                glow(pose, out, p, right, up, 0.2f * fade + 0.04f, j == 0 ? light : color, 0.55f * fade, 10);
+                if (j == 0) glow(pose, out, p, right, up, 0.07f, 0xFFFFFFFF, 0.9f, 8);
+            }
+        }
+    }
+    /** Target ESP "circle": a ring gliding up and down the body with a fading curtain. */
+    private static void circle(PoseStack.Pose pose, VertexConsumer out, Vec3 base, float height, float width, int color, int light, float time) {
+        float radius = width * 0.72f + 0.12f;
+        double phase = (Math.sin(time * 1.4) + 1) / 2, direction = Math.cos(time * 1.4);
+        Vec3 p = base.add(0, height * (0.08 + 0.84 * phase), 0);
+        ripple(pose, out, p, radius - 0.02f, radius + 0.02f, light, color, 0.95f, 0.95f, time * 2);
+        double drop = -Math.signum(direction) * 0.35 * Math.min(1, Math.abs(direction) * 1.5 + 0.2);
+        int segments = PerformanceMode.quality() < 0.5 ? 32 : 56, top = UiDraw.alpha(color, 0.45), fadeOut = color & 0xFFFFFF;
+        for (int i = 0; i < segments; i++) {
+            double a = i * Math.PI * 2 / segments, b = (i + 1) * Math.PI * 2 / segments;
+            vertex(pose, out, p.x + Math.cos(a) * radius, p.y, p.z + Math.sin(a) * radius, top);
+            vertex(pose, out, p.x + Math.cos(b) * radius, p.y, p.z + Math.sin(b) * radius, top);
+            vertex(pose, out, p.x + Math.cos(b) * radius, p.y + drop, p.z + Math.sin(b) * radius, fadeOut);
+            vertex(pose, out, p.x + Math.cos(a) * radius, p.y + drop, p.z + Math.sin(a) * radius, fadeOut);
+        }
+    }
+    /** Kill effect: light pillar plus an expanding ground wave. */
+    private static void beam(PoseStack.Pose pose, VertexConsumer out, Vec3 p, float alpha, float age, int color, int light, float spin) {
+        double height = 5.5;
+        for (int k = 0; k < 2; k++) {
+            double a = spin + k * Math.PI / 2, dx = Math.cos(a), dz = Math.sin(a);
+            for (int layer = 0; layer < 2; layer++) {
+                double w = layer == 0 ? 0.45 : 0.12;
+                int tint = layer == 0 ? color : 0xFFFFFF;
+                int bottom = UiDraw.alpha(tint, alpha * (layer == 0 ? 0.55 : 0.85)), top = tint & 0xFFFFFF;
+                vertex(pose, out, p.x - dx * w, p.y, p.z - dz * w, bottom);
+                vertex(pose, out, p.x + dx * w, p.y, p.z + dz * w, bottom);
+                vertex(pose, out, p.x + dx * w, p.y + height, p.z + dz * w, top);
+                vertex(pose, out, p.x - dx * w, p.y + height, p.z - dz * w, top);
+            }
+        }
+        float r = 0.3f + age * 2.4f;
+        Vec3 ground = p.add(0, 0.05, 0);
+        ripple(pose, out, ground, r * .82f, r, color, light, 0, alpha, spin);
+        ripple(pose, out, ground, r, r * 1.08f, light, color, alpha, 0, spin);
+    }
+    private static void star(PoseStack.Pose pose, VertexConsumer out, Vec3 p, Vector3f right, Vector3f up, float length, float width, float spin, int color, float alpha) {
+        int c = UiDraw.alpha(color, alpha);
+        for (int k = 0; k < 2; k++) {
+            double a = spin + k * Math.PI / 2, cs = Math.cos(a), sn = Math.sin(a);
+            billboardVertex(pose, out, p, right, up, -cs * length, -sn * length, c);
+            billboardVertex(pose, out, p, right, up, -sn * width, cs * width, c);
+            billboardVertex(pose, out, p, right, up, cs * length, sn * length, c);
+            billboardVertex(pose, out, p, right, up, sn * width, -cs * width, c);
+        }
+    }
+    private static void heart(PoseStack.Pose pose, VertexConsumer out, Vec3 p, Vector3f right, Vector3f up, float size, int color, float alpha) {
+        int c = UiDraw.alpha(color, alpha), n = 24;
+        double s = size / 17.0;
+        for (int i = 0; i < n; i++) {
+            double t0 = i * Math.PI * 2 / n, t1 = (i + 1) * Math.PI * 2 / n;
+            double x0 = 16 * Math.pow(Math.sin(t0), 3) * s, y0 = (13 * Math.cos(t0) - 5 * Math.cos(2 * t0) - 2 * Math.cos(3 * t0) - Math.cos(4 * t0)) * s;
+            double x1 = 16 * Math.pow(Math.sin(t1), 3) * s, y1 = (13 * Math.cos(t1) - 5 * Math.cos(2 * t1) - 2 * Math.cos(3 * t1) - Math.cos(4 * t1)) * s;
+            billboardVertex(pose, out, p, right, up, 0, 0, c);
+            billboardVertex(pose, out, p, right, up, x0, y0, c);
+            billboardVertex(pose, out, p, right, up, x1, y1, c);
+            billboardVertex(pose, out, p, right, up, 0, 0, c);
+        }
     }
     private static void billboardVertex(PoseStack.Pose pose, VertexConsumer out, Vec3 p, Vector3f r, Vector3f u, double x, double y, int color) {
         vertex(pose, out, p.x + r.x * x + u.x * y, p.y + r.y * x + u.y * y, p.z + r.z * x + u.z * y, color);

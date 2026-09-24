@@ -22,7 +22,9 @@ public final class HudConfig {
     public double menuScale = 0.8, menuOpacity = 0.9, menuDim = 0.12;
     public boolean markerEnabled, skyEnabled, fpsBoost;
     public boolean badgeEnabled = true;
-    public boolean hatEnabled, trailEnabled;
+    public boolean hatEnabled, trailEnabled, espEnabled, killEffect;
+    public int swingStyle, particleShape, particlePattern, espStyle;
+    public double fireHeight = 1;
     public int markerShape, skyRgb = 0x83B9FF;
     public double markerDuration = 2, markerSize = 0.45, skyStrength = 0.65, targetHold = 3;
     public int savedRenderDistance = -1, savedParticles = -1;
@@ -59,7 +61,8 @@ public final class HudConfig {
         crosshairEnabled = jumpEnabled = particlesEnabled = ambientEnabled = viewModelEnabled = false;
         hitSoundEnabled = critSoundEnabled = totemSoundEnabled = false;
         markerEnabled = skyEnabled = fpsBoost = false;
-        hatEnabled = trailEnabled = false;
+        hatEnabled = trailEnabled = espEnabled = killEffect = false;
+        swingStyle = 0;
     }
     public void sanitize() {
         if (widgets == null) widgets = defaults();
@@ -87,6 +90,8 @@ public final class HudConfig {
         crosshairOpacity = bounded(crosshairOpacity, 0.2, 1, 1);
         menuScale = bounded(menuScale, 0.6, 1.2, 0.8);
         menuOpacity = bounded(menuOpacity, 0.25, 1, 0.9); menuDim = bounded(menuDim, 0, 0.65, 0.12);
+        swingStyle = Math.floorMod(swingStyle, 7); particleShape = Math.floorMod(particleShape, 3); particlePattern = Math.floorMod(particlePattern, 3);
+        espStyle = Math.floorMod(espStyle, 2); fireHeight = bounded(fireHeight, 0, 1, 1);
         markerShape = Math.floorMod(markerShape, 2); markerDuration = bounded(markerDuration, 1, 3, 2);
         markerSize = bounded(markerSize, 0.15, 0.9, 0.45); targetHold = bounded(targetHold, 0.5, 10, 3);
         skyRgb = Math.clamp(skyRgb, 0, 0xFFFFFF); skyStrength = bounded(skyStrength, 0, 1, 0.65);
