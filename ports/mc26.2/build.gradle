@@ -27,21 +27,19 @@ jar { from('LICENSE') }
 tasks.register('apiSignatures') {
     doLast {
         def names = [
-            'net.minecraft.client.renderer.ItemInHandRenderer',
-            'net.minecraft.client.sounds.SoundManager',
-            'net.minecraft.client.resources.sounds.SoundInstance',
-            'net.minecraft.client.resources.sounds.SimpleSoundInstance',
-            'net.minecraft.client.gui.GuiGraphicsExtractor',
-            'net.minecraft.client.gui.Font',
-            'net.minecraft.network.chat.Style',
-            'net.minecraft.client.player.AbstractClientPlayer',
-            'net.minecraft.world.entity.player.PlayerSkin',
-            'net.minecraft.network.chat.FontDescription$Resource',
-            'com.mojang.blaze3d.PrimitiveTopology',
-            'com.mojang.blaze3d.platform.CompareOp',
-            'net.minecraft.client.gui.components.PlayerFaceRenderer',
-            'net.minecraft.network.protocol.game.ClientboundEntityEventPacket',
-            'net.minecraft.client.multiplayer.ClientPacketListener'
+            'net.minecraft.client.renderer.state.level.LevelRenderState',
+            'net.minecraft.client.renderer.state.level.SkyRenderState',
+            'net.minecraft.client.gui.screens.inventory.InventoryScreen',
+            'net.minecraft.client.gui.screens.Screen',
+            'net.minecraft.client.Options',
+            'net.minecraft.client.Minecraft',
+            'net.minecraft.server.packs.repository.PackRepository',
+            'net.minecraft.WorldVersion',
+            'net.minecraft.server.packs.PackType',
+            'net.minecraft.server.packs.metadata.pack.PackFormat',
+            'net.minecraft.util.Util',
+            'net.minecraft.client.renderer.entity.EntityRenderDispatcher',
+            'net.minecraft.client.gui.GuiGraphicsExtractor'
         ]
         def result = new StringBuilder()
         names.each { name ->
