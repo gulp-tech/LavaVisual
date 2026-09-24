@@ -98,6 +98,15 @@ gradlew.bat build
 скопировав туда шаблон. После сохранения push запускает сборку автоматически.
 Результат доступен в **Actions → Build LavaVisual → Artifacts**.
 
+## Запуск сборки через сайт GitHub
+
+[Создать workflow с уже заполненным содержимым](https://github.com/gulp-tech/LavaVisual/new/arena/01a0d2b1-lavavisual?filename=.github%2Fworkflows%2Fbuild.yml&value=name%3A+Build+LavaVisual%0Aon%3A+%5Bpush%2C+workflow_dispatch%5D%0Apermissions%3A%0A++contents%3A+read%0Ajobs%3A%0A++build%3A%0A++++runs-on%3A+ubuntu-latest%0A++++steps%3A%0A++++++-+uses%3A+actions%2Fcheckout%40v4%0A++++++-+uses%3A+actions%2Fsetup-java%40v4%0A++++++++with%3A%0A++++++++++distribution%3A+temurin%0A++++++++++java-version%3A+%2717%27%0A++++++-+uses%3A+gradle%2Factions%2Fsetup-gradle%40v4%0A++++++-+run%3A+.%2Fgradlew+build+--no-daemon%0A++++++-+uses%3A+actions%2Fupload-artifact%40v4%0A++++++++with%3A%0A++++++++++name%3A+LavaVisual-mc1.20.4%0A++++++++++path%3A+build%2Flibs%2F%2A.jar%0A++++++++++if-no-files-found%3A+error%0A).
+Нажмите **Commit changes** и сохраните в текущую ветку
+`arena/01a0d2b1-lavavisual` (не в новую ветку). Затем откройте **Actions**.
+Это действие выполняется под вашей учётной записью GitHub; передавать
+токены или пароли не нужно. Если GitHub предлагает включить Actions,
+разрешите их для этого репозитория.
+
 ## Установка
 
 1. Установите Fabric Loader для **Minecraft 1.20.4**.
