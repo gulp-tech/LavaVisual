@@ -73,7 +73,7 @@ public final class PlayerTags {
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> TAGGED.clear());
         LevelExtractionEvents.END_EXTRACTION.register(context -> {
             var mc = Minecraft.getInstance();
-            if (TAGGED.isEmpty() || mc.level == null || mc.player == null || mc.options.hideGui) {
+            if (TAGGED.isEmpty() || mc.level == null || mc.player == null) {
                 context.levelState().setData(DATA, null);
                 return;
             }
