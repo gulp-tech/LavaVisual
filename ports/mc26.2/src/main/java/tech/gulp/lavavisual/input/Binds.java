@@ -52,7 +52,9 @@ public final class Binds {
     public static boolean conflicts(Action action, Minecraft mc) {
         KeyMapping mapping = MAPPINGS.get(action);
         if (mapping == null || mapping.isUnbound() || mc.options == null) return false;
-        for (KeyMapping other : mc.options.keyMappings) if (other != mapping && other.same(mapping)) return true;
+        // Debug hotkeys (F3 + B, F3 + V, ...) only fire with the debug modifier held; they are not real conflicts.
+        for (KeyMapping other : mc.options.keyMappings)
+            if (other != mapping && other.same(mapping) && !other.getName().startsWith("key.debug.")) return true;
         return false;
     }
     public static void set(Action action, InputConstants.Key key, Minecraft mc) {
@@ -74,9 +76,16 @@ public final class Binds {
 
     /** Edge-triggered: vanilla counts presses, so each press runs once. Only while no screen is open. */
     public static void tick(Minecraft mc) {
+        boolean debug = debugHeld(mc);
         for (var entry : MAPPINGS.entrySet()) {
-            while (entry.getValue().consumeClick()) if (mc.gui.screen() == null) run(entry.getKey(), mc);
+            while (entry.getValue().consumeClick()) if (mc.gui.screen() == null && !debug) run(entry.getKey(), mc);
         }
+    }
+    /** F3 held: the press belongs to a vanilla debug combo (F3 + B hitboxes, F3 + V version), not to us. */
+    private static boolean debugHeld(Minecraft mc) {
+        KeyMapping modifier = KeyMapping.get("key.debug.modifier");
+        if (modifier != null && modifier.isDown()) return true;
+        try { return InputConstants.isKeyDown(mc.getWindow(), GLFW.GLFW_KEY_F3); } catch (RuntimeException e) { return false; }
     }
     private static void run(Action action, Minecraft mc) {
         var c = LavaVisualClient.config();

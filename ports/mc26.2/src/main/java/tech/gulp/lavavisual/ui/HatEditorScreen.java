@@ -31,7 +31,7 @@ public final class HatEditorScreen extends Screen {
     private Bar dragging;
     private CameraType previous;
     private boolean front = true;
-    private int px, py, pw, cursor;
+    private int px, py, pw, cursor, row = 24, buttonRow = 24;
     public HatEditorScreen(Screen parent) { super(UiFont.component("China Hat")); this.parent = parent; }
 
     @Override protected void init() {
@@ -57,7 +57,10 @@ public final class HatEditorScreen extends Screen {
         hits.clear(); bars.clear();
         var c = LavaVisualClient.config();
         pw = Math.min(196, width - 16); px = 8; py = 8;
-        int ph = Math.min(height - 16, 262);
+        // Compact rows on short screens (phones with a large GUI scale).
+        boolean compact = height < 290;
+        row = compact ? 20 : 24; buttonRow = compact ? 22 : 24;
+        int ph = Math.min(height - 16, 34 + row * 6 + 18 + buttonRow * 3 + 6);
         UiDraw.round(g, px, py, pw, ph, 9, UiDraw.alpha(c.color("menu_bg") & 0xFFFFFF, 0.9));
         UiDraw.round(g, px + 8, py + 8, 18, 18, 6, accent());
         UiFont.icon(g, font, Icons.CONE, px + 12, py + 12, 0xFF11181A);
@@ -84,13 +87,13 @@ public final class HatEditorScreen extends Screen {
         String[] styles = {"полосы", "сплошной", "градиент"};
         button(g, mx, my, "Стиль: " + styles[c.hatStyle], px + 8, half, () -> c.hatStyle = (c.hatStyle + 1) % 3);
         button(g, mx, my, "Наклон: " + (c.hatTilt ? "с головой" : "ровно"), px + 12 + half, half, () -> c.hatTilt = !c.hatTilt);
-        cursor += 24;
+        cursor += buttonRow;
         button(g, mx, my, c.customColor("hat") || c.chroma.contains("hat") ? "Цвет темы" : "Цвет: тема", px + 8, half, () -> { c.colors.remove("hat"); c.chroma.remove("hat"); });
         button(g, mx, my, "Вид: " + (front ? "спереди" : "сзади"), px + 12 + half, half, () -> {
             front = !front;
             if (previous != null) minecraft.options.setCameraType(front ? CameraType.THIRD_PERSON_FRONT : CameraType.THIRD_PERSON_BACK);
         });
-        cursor += 24;
+        cursor += buttonRow;
         button(g, mx, my, "Сброс", px + 8, half, () -> {
             HudConfig d = new HudConfig();
             c.hatSize = d.hatSize; c.hatLift = d.hatLift; c.hatCone = d.hatCone; c.hatOpacity = d.hatOpacity; c.hatSpin = d.hatSpin;
@@ -111,7 +114,7 @@ public final class HatEditorScreen extends Screen {
         if (filled > 0) UiDraw.round(g, x, cursor + 12, filled, 4, 2, accent());
         UiDraw.round(g, x + filled - 4, cursor + 9, 8, 10, 4, 0xFFF2F5FA);
         bars.add(new Bar(x, cursor + 6, w, min, max, setter));
-        cursor += 24;
+        cursor += row;
     }
     private void hueBar(GuiGraphicsExtractor g, int mx, int my, double[] hsv, HudConfig c) {
         int x = px + 10, w = pw - 20;
@@ -121,7 +124,7 @@ public final class HatEditorScreen extends Screen {
         UiDraw.round(g, knob - 3, cursor + 9, 6, 10, 3, 0xFFFFFFFF);
         double s = Math.max(0.55, hsv[1]), v = Math.max(0.6, hsv[2]);
         bars.add(new Bar(x, cursor + 6, w, 0, 1, h -> { c.colors.put("hat", ColorMath.hsv(Math.min(0.999, h), s, v)); c.chroma.remove("hat"); }));
-        cursor += 24;
+        cursor += row;
     }
     /** Horizontal gradient from vertical strips; colour(t) gets t in 0..1000. */
     static void gradient(GuiGraphicsExtractor g, int x, int y, int w, int h, IntUnaryOperator color) {

@@ -32,6 +32,8 @@ public final class WaypointOverlay {
         List<Label> out = new ArrayList<>();
         Quaternionf inverse = camera.orientation == null ? null : new Quaternionf(camera.orientation).conjugate();
         double tanHalf = Math.tan(Math.toRadians(mc.options.fov().get()) / 2);
+        float aspect = (float) mc.getWindow().getWidth() / Math.max(1, mc.getWindow().getHeight());
+        boolean perspective = camera.projectionMatrix != null && Math.abs(camera.projectionMatrix.m23() + 1) < 0.2f;
         for (Waypoints.Point p : points) {
             if (!p.visible) continue;
             double wx = p.x + 0.5, wy = p.y, wz = p.z + 0.5;
@@ -41,21 +43,22 @@ public final class WaypointOverlay {
             double ax = wx - cam.x, ay = wy + 1.3 - cam.y, az = wz - cam.z;
             double length = Math.sqrt(ax * ax + ay * ay + az * az);
             if (length > 512) { ax *= 512 / length; ay *= 512 / length; az *= 512 / length; }
-            float nx, ny; boolean front;
-            if (camera.projectionMatrix != null && camera.viewRotationMatrix != null) {
-                Vector4f v = new Vector4f((float) ax, (float) ay, (float) az, 1f);
-                camera.viewRotationMatrix.transform(v);
-                camera.projectionMatrix.transform(v);
-                front = v.w > 0.01f;
-                float w = Math.max(0.01f, Math.abs(v.w));
-                nx = v.x / w; ny = v.y / w;
-            } else if (inverse != null) {
-                Vector3f v = new Vector3f((float) ax, (float) ay, (float) az).rotate(inverse);
-                front = v.z < -0.01f;
-                float depth = Math.max(0.01f, Math.abs(v.z));
-                float aspect = (float) mc.getWindow().getWidth() / Math.max(1, mc.getWindow().getHeight());
-                nx = (float) (v.x / depth / tanHalf / aspect); ny = (float) (v.y / depth / tanHalf);
-            } else continue;
+            // View rotation from the camera orientation (valid during extraction); projection from the frame when it is a real perspective matrix.
+            Vector3f view = new Vector3f((float) ax, (float) ay, (float) az);
+            if (inverse != null) view.rotate(inverse);
+            else if (camera.viewRotationMatrix != null) camera.viewRotationMatrix.transformDirection(view);
+            else continue;
+            boolean front = view.z < -0.01f;
+            float nx, ny;
+            if (perspective) {
+                Vector4f clip = new Vector4f(view, 1f);
+                camera.projectionMatrix.transform(clip);
+                float w = Math.max(0.01f, Math.abs(clip.w));
+                nx = clip.x / w; ny = clip.y / w;
+            } else {
+                float depth = Math.max(0.01f, Math.abs(view.z));
+                nx = (float) (view.x / depth / tanHalf / aspect); ny = (float) (view.y / depth / tanHalf);
+            }
             out.add(new Label(nx, ny, front, p.name, Waypoints.distance(distance), p.color));
         }
         labels = List.copyOf(out);
