@@ -50,7 +50,7 @@ public final class HudRenderer {
                         g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, target.skin(), 9, 9, 40, 8, 32, 32, 8, 8, 64, 64);
                     } else if (target.entity() != null && !target.entity().isRemoved()) {
                         try {
-                            net.minecraft.client.gui.screens.inventory.InventoryScreen.extractEntityInInventoryFollowsMouse(g, 9, 9, 32, 32, 0, 25, 25, 14, target.entity());
+                            net.minecraft.client.gui.screens.inventory.InventoryScreen.extractEntityInInventoryFollowsMouse(g, 9, 9, 32, 32, 0, 25f, 25f, 14f, target.entity());
                         } catch (RuntimeException ignored) {
                             UiFont.text(g, mc.font, target.name().isEmpty() ? "?" : target.name().substring(0, 1).toUpperCase(java.util.Locale.ROOT), 21, 21, accent, 26);
                         }
