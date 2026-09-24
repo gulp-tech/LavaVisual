@@ -32,7 +32,8 @@ public final class LavaVisualClient implements ClientModInitializer {
     public static boolean loadProfile(int slot) {
         if (!STORE.exists(slot)) return false;
         config = STORE.load(slot);
-        return save();
+        save();
+        return true;
     }
     public static void resetLayout() {
         var defaults = HudConfig.defaults();

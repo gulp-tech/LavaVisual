@@ -111,8 +111,8 @@ public final class HudRenderer {
         var player = mc.player;
         net.minecraft.world.item.ItemStack[] stacks = new net.minecraft.world.item.ItemStack[4];
         if (player != null) {
-            var it = player.getArmorSlots().iterator();
-            for (int i = 0; i < 4 && it.hasNext(); i++) stacks[3 - i] = it.next();
+            var armor = player.getInventory().armor;
+            for (int i = 0; i < 4 && i < armor.size(); i++) stacks[3 - i] = armor.get(i);
         }
         for (int i = 0; i < 4; i++) {
             int x = 8 + i * 20;

@@ -51,7 +51,7 @@ jobs:
                   assert data[header + 11] == 1, 'Positional audio must be mono'
               assert m['mixins'] == ['lavavisual.mixins.json']
               mixins = json.loads(jar.read('lavavisual.mixins.json'))
-              assert set(mixins['client']) == {'HandViewMixin', 'SoundManagerMixin'}
+              assert set(mixins['client']) == {'HandViewMixin', 'SoundManagerMixin', 'MouseHandlerMixin'}
               forbidden = ('BoxEsp', 'Tracers', 'Chams', 'LivingEntityRendererMixin', 'LavaRenderLayers')
               assert not any(any(word in path for word in forbidden) for path in jar.namelist())
           PY
