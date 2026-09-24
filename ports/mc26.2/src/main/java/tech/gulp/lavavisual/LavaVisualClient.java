@@ -44,7 +44,7 @@ public final class LavaVisualClient implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             // Explicit CI-only switch; never enabled by normal game or server settings.
             if (uiSmoke) {
-                if (smokeTicks < 0 && client.gui.screen() instanceof net.minecraft.client.gui.screens.TitleScreen) smokeTicks = 0;
+                if (smokeTicks < 0 && client.gui.screen() != null) smokeTicks = 0;
                 if (smokeTicks >= 0) {
                     smokeTicks++;
                     if (smokeTicks == 20) client.gui.setScreen(new ClickGuiScreen());
