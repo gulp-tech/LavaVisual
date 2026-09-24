@@ -415,7 +415,75 @@ public abstract class net.minecraft.client.player.AbstractClientPlayer extends n
   public boolean showExtraEars();
 }
 
-Error: class not found: net.minecraft.client.resources.PlayerSkin
+Compiled from "PlayerSkin.java"
+public final class net.minecraft.world.entity.player.PlayerSkin extends java.lang.Record {
+  private final net.minecraft.core.ClientAsset$Texture body;
+  private final net.minecraft.core.ClientAsset$Texture cape;
+  private final net.minecraft.core.ClientAsset$Texture elytra;
+  private final net.minecraft.world.entity.player.PlayerModelType model;
+  private final boolean secure;
+  public net.minecraft.world.entity.player.PlayerSkin(net.minecraft.core.ClientAsset$Texture, net.minecraft.core.ClientAsset$Texture, net.minecraft.core.ClientAsset$Texture, net.minecraft.world.entity.player.PlayerModelType, boolean);
+  public static net.minecraft.world.entity.player.PlayerSkin insecure(net.minecraft.core.ClientAsset$Texture, net.minecraft.core.ClientAsset$Texture, net.minecraft.core.ClientAsset$Texture, net.minecraft.world.entity.player.PlayerModelType);
+  public net.minecraft.world.entity.player.PlayerSkin with(net.minecraft.world.entity.player.PlayerSkin$Patch);
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public net.minecraft.core.ClientAsset$Texture body();
+  public net.minecraft.core.ClientAsset$Texture cape();
+  public net.minecraft.core.ClientAsset$Texture elytra();
+  public net.minecraft.world.entity.player.PlayerModelType model();
+  public boolean secure();
+}
+
+Compiled from "FontDescription.java"
+public final class net.minecraft.network.chat.FontDescription$Resource extends java.lang.Record implements net.minecraft.network.chat.FontDescription {
+  private final net.minecraft.resources.Identifier id;
+  public net.minecraft.network.chat.FontDescription$Resource(net.minecraft.resources.Identifier);
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public net.minecraft.resources.Identifier id();
+}
+
+Compiled from "PrimitiveTopology.java"
+public final class com.mojang.blaze3d.PrimitiveTopology extends java.lang.Enum<com.mojang.blaze3d.PrimitiveTopology> {
+  public static final com.mojang.blaze3d.PrimitiveTopology LINES;
+  public static final com.mojang.blaze3d.PrimitiveTopology DEBUG_LINES;
+  public static final com.mojang.blaze3d.PrimitiveTopology DEBUG_LINE_STRIP;
+  public static final com.mojang.blaze3d.PrimitiveTopology POINTS;
+  public static final com.mojang.blaze3d.PrimitiveTopology TRIANGLES;
+  public static final com.mojang.blaze3d.PrimitiveTopology TRIANGLE_STRIP;
+  public static final com.mojang.blaze3d.PrimitiveTopology TRIANGLE_FAN;
+  public static final com.mojang.blaze3d.PrimitiveTopology QUADS;
+  public final int primitiveLength;
+  public final int primitiveStride;
+  public final boolean connectedPrimitives;
+  private static final com.mojang.blaze3d.PrimitiveTopology[] $VALUES;
+  public static com.mojang.blaze3d.PrimitiveTopology[] values();
+  public static com.mojang.blaze3d.PrimitiveTopology valueOf(java.lang.String);
+  private com.mojang.blaze3d.PrimitiveTopology(int, int, boolean);
+  public int indexCount(int);
+  private static com.mojang.blaze3d.PrimitiveTopology[] $values();
+  static {};
+}
+
+Compiled from "CompareOp.java"
+public final class com.mojang.blaze3d.platform.CompareOp extends java.lang.Enum<com.mojang.blaze3d.platform.CompareOp> {
+  public static final com.mojang.blaze3d.platform.CompareOp ALWAYS_PASS;
+  public static final com.mojang.blaze3d.platform.CompareOp LESS_THAN;
+  public static final com.mojang.blaze3d.platform.CompareOp LESS_THAN_OR_EQUAL;
+  public static final com.mojang.blaze3d.platform.CompareOp EQUAL;
+  public static final com.mojang.blaze3d.platform.CompareOp NOT_EQUAL;
+  public static final com.mojang.blaze3d.platform.CompareOp GREATER_THAN_OR_EQUAL;
+  public static final com.mojang.blaze3d.platform.CompareOp GREATER_THAN;
+  public static final com.mojang.blaze3d.platform.CompareOp NEVER_PASS;
+  private static final com.mojang.blaze3d.platform.CompareOp[] $VALUES;
+  public static com.mojang.blaze3d.platform.CompareOp[] values();
+  public static com.mojang.blaze3d.platform.CompareOp valueOf(java.lang.String);
+  private com.mojang.blaze3d.platform.CompareOp();
+  private static com.mojang.blaze3d.platform.CompareOp[] $values();
+  static {};
+}
 
 Error: class not found: net.minecraft.client.gui.components.PlayerFaceRenderer
 
