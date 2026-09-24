@@ -1,0 +1,852 @@
+Compiled from "EntityRenderState.java"
+public class net.minecraft.client.renderer.entity.state.EntityRenderState implements net.fabricmc.fabric.api.client.rendering.v1.FabricRenderState {
+  public static final int NO_OUTLINE;
+  public net.minecraft.world.entity.EntityType<?> entityType;
+  public double x;
+  public double y;
+  public double z;
+  public float ageInTicks;
+  public float boundingBoxWidth;
+  public float boundingBoxHeight;
+  public float eyeHeight;
+  public double distanceToCameraSq;
+  public boolean isInvisible;
+  public boolean isDiscrete;
+  public boolean displayFireAnimation;
+  public int lightCoords;
+  public int outlineColor;
+  public net.minecraft.world.phys.Vec3 passengerOffset;
+  public net.minecraft.network.chat.Component nameTag;
+  public net.minecraft.network.chat.Component scoreText;
+  public net.minecraft.world.phys.Vec3 nameTagAttachment;
+  public java.util.List<net.minecraft.client.renderer.entity.state.EntityRenderState$LeashState> leashStates;
+  public float shadowRadius;
+  public final java.util.List<net.minecraft.client.renderer.entity.state.EntityRenderState$ShadowPiece> shadowPieces;
+  public net.minecraft.client.renderer.entity.state.EntityRenderState();
+  public boolean appearsGlowing();
+  public void fillCrashReportCategory(net.minecraft.CrashReportCategory);
+}
+
+Compiled from "LivingEntityRenderState.java"
+public class net.minecraft.client.renderer.entity.state.LivingEntityRenderState extends net.minecraft.client.renderer.entity.state.EntityRenderState {
+  public float bodyRot;
+  public float yRot;
+  public float xRot;
+  public float deathTime;
+  public float walkAnimationPos;
+  public float walkAnimationSpeed;
+  public float scale;
+  public float ageScale;
+  public float ticksSinceKineticHitFeedback;
+  public boolean isUpsideDown;
+  public boolean isFullyFrozen;
+  public boolean isBaby;
+  public boolean isInWater;
+  public boolean isAutoSpinAttack;
+  public boolean hasRedOverlay;
+  public boolean isInvisibleToPlayer;
+  public net.minecraft.core.Direction bedOrientation;
+  public net.minecraft.world.entity.Pose pose;
+  public final net.minecraft.client.renderer.item.ItemStackRenderState headItem;
+  public float wornHeadAnimationPos;
+  public net.minecraft.world.level.block.SkullBlock$Type wornHeadType;
+  public net.minecraft.world.item.component.ResolvableProfile wornHeadProfile;
+  public net.minecraft.client.renderer.entity.state.LivingEntityRenderState();
+  public boolean hasPose(net.minecraft.world.entity.Pose);
+}
+
+Compiled from "HumanoidRenderState.java"
+public class net.minecraft.client.renderer.entity.state.HumanoidRenderState extends net.minecraft.client.renderer.entity.state.ArmedEntityRenderState {
+  public float swimAmount;
+  public float speedValue;
+  public float maxCrossbowChargeDuration;
+  public float ticksUsingItem;
+  public net.minecraft.world.InteractionHand useItemHand;
+  public boolean isCrouching;
+  public boolean isFallFlying;
+  public boolean isVisuallySwimming;
+  public boolean isPassenger;
+  public boolean isUsingItem;
+  public float elytraRotX;
+  public float elytraRotY;
+  public float elytraRotZ;
+  public net.minecraft.world.item.ItemStack headEquipment;
+  public net.minecraft.world.item.ItemStack chestEquipment;
+  public net.minecraft.world.item.ItemStack legsEquipment;
+  public net.minecraft.world.item.ItemStack feetEquipment;
+  public net.minecraft.client.renderer.entity.state.HumanoidRenderState();
+  public float ticksUsingItem(net.minecraft.world.entity.HumanoidArm);
+}
+
+Compiled from "AvatarRenderState.java"
+public class net.minecraft.client.renderer.entity.state.AvatarRenderState extends net.minecraft.client.renderer.entity.state.HumanoidRenderState {
+  public net.minecraft.world.entity.player.PlayerSkin skin;
+  public float capeFlap;
+  public float capeLean;
+  public float capeLean2;
+  public int arrowCount;
+  public int stingerCount;
+  public boolean isSpectator;
+  public boolean showHat;
+  public boolean showJacket;
+  public boolean showLeftPants;
+  public boolean showRightPants;
+  public boolean showLeftSleeve;
+  public boolean showRightSleeve;
+  public boolean showCape;
+  public float fallFlyingTimeInTicks;
+  public boolean shouldApplyFlyingYRot;
+  public float flyingYRot;
+  public net.minecraft.world.entity.animal.parrot.Parrot$Variant parrotOnLeftShoulder;
+  public net.minecraft.world.entity.animal.parrot.Parrot$Variant parrotOnRightShoulder;
+  public int id;
+  public boolean showExtraEars;
+  public final net.minecraft.client.renderer.item.ItemStackRenderState heldOnHead;
+  public net.minecraft.client.renderer.entity.state.AvatarRenderState();
+  public float fallFlyingScale();
+}
+
+Error: class not found: net.minecraft.client.renderer.entity.state.PlayerRenderState
+
+Compiled from "RenderLayer.java"
+public abstract class net.minecraft.client.renderer.entity.layers.RenderLayer<S extends net.minecraft.client.renderer.entity.state.EntityRenderState, M extends net.minecraft.client.model.EntityModel<? super S>> {
+  private final net.minecraft.client.renderer.entity.RenderLayerParent<S, M> renderer;
+  public net.minecraft.client.renderer.entity.layers.RenderLayer(net.minecraft.client.renderer.entity.RenderLayerParent<S, M>);
+  protected static <S extends net.minecraft.client.renderer.entity.state.LivingEntityRenderState> void coloredCutoutModelCopyLayerRender(net.minecraft.client.model.Model<? super S>, net.minecraft.resources.Identifier, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, int, S, int, int);
+  protected static <S extends net.minecraft.client.renderer.entity.state.LivingEntityRenderState> void renderColoredCutoutModel(net.minecraft.client.model.Model<? super S>, net.minecraft.resources.Identifier, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, int, S, int, int);
+  public M getParentModel();
+  public abstract void submit(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, int, S, float, float);
+}
+
+Compiled from "CustomHeadLayer.java"
+public class net.minecraft.client.renderer.entity.layers.CustomHeadLayer<S extends net.minecraft.client.renderer.entity.state.LivingEntityRenderState, M extends net.minecraft.client.model.EntityModel<S> & net.minecraft.client.model.HeadedModel> extends net.minecraft.client.renderer.entity.layers.RenderLayer<S, M> {
+  private static final float ITEM_SCALE;
+  private static final float SKULL_SCALE;
+  private final net.minecraft.client.renderer.entity.layers.CustomHeadLayer$Transforms transforms;
+  private final java.util.function.Function<net.minecraft.world.level.block.SkullBlock$Type, net.minecraft.client.model.object.skull.SkullModelBase> skullModels;
+  private final net.minecraft.client.renderer.PlayerSkinRenderCache playerSkinRenderCache;
+  public net.minecraft.client.renderer.entity.layers.CustomHeadLayer(net.minecraft.client.renderer.entity.RenderLayerParent<S, M>, net.minecraft.client.model.geom.EntityModelSet, net.minecraft.client.renderer.PlayerSkinRenderCache);
+  public net.minecraft.client.renderer.entity.layers.CustomHeadLayer(net.minecraft.client.renderer.entity.RenderLayerParent<S, M>, net.minecraft.client.model.geom.EntityModelSet, net.minecraft.client.renderer.PlayerSkinRenderCache, net.minecraft.client.renderer.entity.layers.CustomHeadLayer$Transforms);
+  public void submit(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, int, S, float, float);
+  private net.minecraft.client.renderer.rendertype.RenderType resolveSkullRenderType(net.minecraft.client.renderer.entity.state.LivingEntityRenderState, net.minecraft.world.level.block.SkullBlock$Type);
+  public static void translateToHead(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.entity.layers.CustomHeadLayer$Transforms);
+  public void submit(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, int, net.minecraft.client.renderer.entity.state.EntityRenderState, float, float);
+  private static net.minecraft.client.model.object.skull.SkullModelBase lambda$new$0(net.minecraft.client.model.geom.EntityModelSet, net.minecraft.world.level.block.SkullBlock$Type);
+}
+
+Compiled from "LivingEntityRenderer.java"
+public abstract class net.minecraft.client.renderer.entity.LivingEntityRenderer<T extends net.minecraft.world.entity.LivingEntity, S extends net.minecraft.client.renderer.entity.state.LivingEntityRenderState, M extends net.minecraft.client.model.EntityModel<? super S>> extends net.minecraft.client.renderer.entity.EntityRenderer<T, S> implements net.minecraft.client.renderer.entity.RenderLayerParent<S, M> {
+  private static final float EYE_BED_OFFSET;
+  protected M model;
+  protected final net.minecraft.client.renderer.item.ItemModelResolver itemModelResolver;
+  protected final java.util.List<net.minecraft.client.renderer.entity.layers.RenderLayer<S, M>> layers;
+  public net.minecraft.client.renderer.entity.LivingEntityRenderer(net.minecraft.client.renderer.entity.EntityRendererProvider$Context, M, float);
+  protected final boolean addLayer(net.minecraft.client.renderer.entity.layers.RenderLayer<S, M>);
+  public M getModel();
+  protected net.minecraft.world.phys.AABB getBoundingBoxForCulling(T);
+  public void submit(S, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, net.minecraft.client.renderer.state.level.CameraRenderState);
+  protected boolean shouldRenderLayers(S);
+  protected int getModelTint(S);
+  public abstract net.minecraft.resources.Identifier getTextureLocation(S);
+  protected net.minecraft.client.renderer.rendertype.RenderType getRenderType(S, boolean, boolean, boolean);
+  public static int getOverlayCoords(net.minecraft.client.renderer.entity.state.LivingEntityRenderState, float);
+  protected boolean isBodyVisible(S);
+  private static float sleepDirectionToRotation(net.minecraft.core.Direction);
+  protected boolean isShaking(S);
+  protected void setupRotations(S, com.mojang.blaze3d.vertex.PoseStack, float, float);
+  protected float getFlipDegrees();
+  protected float getWhiteOverlayProgress(S);
+  protected void scale(S, com.mojang.blaze3d.vertex.PoseStack);
+  protected boolean shouldShowName(T, double);
+  public boolean isEntityUpsideDown(T);
+  protected static boolean isUpsideDownName(java.lang.String);
+  protected float getShadowRadius(S);
+  public void extractRenderState(T, S, float);
+  protected void extractNameTags(T, S, float);
+  private static float solveBodyRot(net.minecraft.world.entity.LivingEntity, float, float);
+  protected void extractNameTags(net.minecraft.world.entity.Entity, net.minecraft.client.renderer.entity.state.EntityRenderState, float);
+  public void extractRenderState(net.minecraft.world.entity.Entity, net.minecraft.client.renderer.entity.state.EntityRenderState, float);
+  protected float getShadowRadius(net.minecraft.client.renderer.entity.state.EntityRenderState);
+  protected boolean shouldShowName(net.minecraft.world.entity.Entity, double);
+  public void submit(net.minecraft.client.renderer.entity.state.EntityRenderState, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, net.minecraft.client.renderer.state.level.CameraRenderState);
+  protected net.minecraft.world.phys.AABB getBoundingBoxForCulling(net.minecraft.world.entity.Entity);
+}
+
+Compiled from "AvatarRenderer.java"
+public class net.minecraft.client.renderer.entity.player.AvatarRenderer<AvatarlikeEntity extends net.minecraft.world.entity.Avatar & net.minecraft.client.entity.ClientAvatarEntity> extends net.minecraft.client.renderer.entity.LivingEntityRenderer<AvatarlikeEntity, net.minecraft.client.renderer.entity.state.AvatarRenderState, net.minecraft.client.model.player.PlayerModel> {
+  public net.minecraft.client.renderer.entity.player.AvatarRenderer(net.minecraft.client.renderer.entity.EntityRendererProvider$Context, boolean);
+  protected boolean shouldRenderLayers(net.minecraft.client.renderer.entity.state.AvatarRenderState);
+  public net.minecraft.world.phys.Vec3 getRenderOffset(net.minecraft.client.renderer.entity.state.AvatarRenderState);
+  private static net.minecraft.client.model.HumanoidModel$ArmPose getArmPose(net.minecraft.world.entity.Avatar, net.minecraft.world.entity.HumanoidArm);
+  private static net.minecraft.client.model.HumanoidModel$ArmPose getArmPose(net.minecraft.world.entity.Avatar, net.minecraft.world.item.ItemStack, net.minecraft.world.InteractionHand);
+  public net.minecraft.resources.Identifier getTextureLocation(net.minecraft.client.renderer.entity.state.AvatarRenderState);
+  protected void scale(net.minecraft.client.renderer.entity.state.AvatarRenderState, com.mojang.blaze3d.vertex.PoseStack);
+  protected void submitNameDisplay(net.minecraft.client.renderer.entity.state.AvatarRenderState, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, net.minecraft.client.renderer.state.level.CameraRenderState);
+  public net.minecraft.client.renderer.entity.state.AvatarRenderState createRenderState();
+  public void extractRenderState(AvatarlikeEntity, net.minecraft.client.renderer.entity.state.AvatarRenderState, float);
+  protected boolean shouldShowName(AvatarlikeEntity, double);
+  private void extractFlightData(AvatarlikeEntity, net.minecraft.client.renderer.entity.state.AvatarRenderState, float);
+  private void extractCapeState(AvatarlikeEntity, net.minecraft.client.renderer.entity.state.AvatarRenderState, float);
+  public void renderRightHand(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, int, net.minecraft.resources.Identifier, boolean);
+  public void renderLeftHand(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, int, net.minecraft.resources.Identifier, boolean);
+  private void renderHand(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, int, net.minecraft.resources.Identifier, net.minecraft.client.model.geom.ModelPart, boolean);
+  protected void setupRotations(net.minecraft.client.renderer.entity.state.AvatarRenderState, com.mojang.blaze3d.vertex.PoseStack, float, float);
+  public boolean isEntityUpsideDown(AvatarlikeEntity);
+  public static boolean isPlayerUpsideDown(net.minecraft.world.entity.player.Player);
+  public void extractRenderState(net.minecraft.world.entity.LivingEntity, net.minecraft.client.renderer.entity.state.LivingEntityRenderState, float);
+  public boolean isEntityUpsideDown(net.minecraft.world.entity.LivingEntity);
+  protected boolean shouldShowName(net.minecraft.world.entity.LivingEntity, double);
+  protected void scale(net.minecraft.client.renderer.entity.state.LivingEntityRenderState, com.mojang.blaze3d.vertex.PoseStack);
+  protected void setupRotations(net.minecraft.client.renderer.entity.state.LivingEntityRenderState, com.mojang.blaze3d.vertex.PoseStack, float, float);
+  public net.minecraft.resources.Identifier getTextureLocation(net.minecraft.client.renderer.entity.state.LivingEntityRenderState);
+  protected boolean shouldRenderLayers(net.minecraft.client.renderer.entity.state.LivingEntityRenderState);
+  public void extractRenderState(net.minecraft.world.entity.Entity, net.minecraft.client.renderer.entity.state.EntityRenderState, float);
+  public net.minecraft.client.renderer.entity.state.EntityRenderState createRenderState();
+  protected void submitNameDisplay(net.minecraft.client.renderer.entity.state.EntityRenderState, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, net.minecraft.client.renderer.state.level.CameraRenderState);
+  protected boolean shouldShowName(net.minecraft.world.entity.Entity, double);
+  public net.minecraft.world.phys.Vec3 getRenderOffset(net.minecraft.client.renderer.entity.state.EntityRenderState);
+  private static net.minecraft.client.model.player.PlayerModel lambda$new$0(boolean, net.minecraft.client.model.geom.ModelPart);
+}
+
+Compiled from "HumanoidModel.java"
+public class net.minecraft.client.model.HumanoidModel<T extends net.minecraft.client.renderer.entity.state.HumanoidRenderState> extends net.minecraft.client.model.EntityModel<T> implements net.minecraft.client.model.ArmedModel<T>, net.minecraft.client.model.HeadedModel {
+  public static final net.minecraft.client.model.geom.builders.MeshTransformer BABY_TRANSFORMER;
+  public static final float OVERLAY_SCALE;
+  public static final float HAT_OVERLAY_SCALE;
+  public static final float LEGGINGS_OVERLAY_SCALE;
+  private static final float DUCK_WALK_ROTATION;
+  private static final float SPYGLASS_ARM_ROT_Y;
+  private static final float SPYGLASS_ARM_ROT_X;
+  private static final float SPYGLASS_ARM_CROUCH_ROT_X;
+  private static final float HIGHEST_SHIELD_BLOCKING_ANGLE;
+  private static final float LOWEST_SHIELD_BLOCKING_ANGLE;
+  private static final float HORIZONTAL_SHIELD_MOVEMENT_LIMIT;
+  public static final float TOOT_HORN_XROT_BASE;
+  public static final float TOOT_HORN_YROT_BASE;
+  protected static final java.util.Map<net.minecraft.world.entity.EquipmentSlot, java.util.Set<java.lang.String>> ADULT_ARMOR_PARTS_PER_SLOT;
+  protected static final java.util.Map<net.minecraft.world.entity.EquipmentSlot, java.util.Set<java.lang.String>> BABY_ARMOR_PARTS_PER_SLOT;
+  public final net.minecraft.client.model.geom.ModelPart head;
+  public final net.minecraft.client.model.geom.ModelPart hat;
+  public final net.minecraft.client.model.geom.ModelPart body;
+  public final net.minecraft.client.model.geom.ModelPart rightArm;
+  public final net.minecraft.client.model.geom.ModelPart leftArm;
+  public final net.minecraft.client.model.geom.ModelPart rightLeg;
+  public final net.minecraft.client.model.geom.ModelPart leftLeg;
+  public net.minecraft.client.model.HumanoidModel(net.minecraft.client.model.geom.ModelPart);
+  public net.minecraft.client.model.HumanoidModel(net.minecraft.client.model.geom.ModelPart, java.util.function.Function<net.minecraft.resources.Identifier, net.minecraft.client.renderer.rendertype.RenderType>);
+  public static net.minecraft.client.model.geom.builders.MeshDefinition createMesh(net.minecraft.client.model.geom.builders.CubeDeformation, float);
+  public static net.minecraft.client.renderer.entity.ArmorModelSet<net.minecraft.client.model.geom.builders.MeshDefinition> createArmorMeshSet(net.minecraft.client.model.geom.builders.CubeDeformation, net.minecraft.client.model.geom.builders.CubeDeformation);
+  public static net.minecraft.client.renderer.entity.ArmorModelSet<net.minecraft.client.model.geom.builders.MeshDefinition> createBabyArmorMeshSet(net.minecraft.client.model.geom.builders.CubeDeformation, net.minecraft.client.model.geom.builders.CubeDeformation, net.minecraft.client.model.geom.PartPose);
+  protected static net.minecraft.client.renderer.entity.ArmorModelSet<net.minecraft.client.model.geom.builders.MeshDefinition> createArmorMeshSet(java.util.function.Function<net.minecraft.client.model.geom.builders.CubeDeformation, net.minecraft.client.model.geom.builders.MeshDefinition>, java.util.Map<net.minecraft.world.entity.EquipmentSlot, java.util.Set<java.lang.String>>, net.minecraft.client.model.geom.builders.CubeDeformation, net.minecraft.client.model.geom.builders.CubeDeformation);
+  private static net.minecraft.client.model.geom.builders.MeshDefinition createBaseArmorMesh(net.minecraft.client.model.geom.builders.CubeDeformation);
+  private static net.minecraft.client.model.geom.builders.MeshDefinition createBabyArmorMesh(net.minecraft.client.model.geom.builders.CubeDeformation, net.minecraft.client.model.geom.PartPose);
+  public void setupAnim(T);
+  private void poseRightArm(T);
+  private void poseLeftArm(T);
+  private void poseBlockingArm(net.minecraft.client.model.geom.ModelPart, boolean);
+  protected void setupAttackAnimation(T);
+  private float quadraticArmUpdate(float);
+  public void translateToHand(net.minecraft.client.renderer.entity.state.HumanoidRenderState, net.minecraft.world.entity.HumanoidArm, com.mojang.blaze3d.vertex.PoseStack);
+  public net.minecraft.client.model.geom.ModelPart getArm(net.minecraft.world.entity.HumanoidArm);
+  public net.minecraft.client.model.geom.ModelPart getHead();
+  public void setupAnim(java.lang.Object);
+  public void translateToHand(net.minecraft.client.renderer.entity.state.EntityRenderState, net.minecraft.world.entity.HumanoidArm, com.mojang.blaze3d.vertex.PoseStack);
+  private static net.minecraft.client.model.geom.builders.MeshDefinition lambda$createBabyArmorMeshSet$0(net.minecraft.client.model.geom.PartPose, net.minecraft.client.model.geom.builders.CubeDeformation);
+  static {};
+}
+
+Compiled from "ModelPart.java"
+public final class net.minecraft.client.model.geom.ModelPart {
+  public static final float DEFAULT_SCALE;
+  public float x;
+  public float y;
+  public float z;
+  public float xRot;
+  public float yRot;
+  public float zRot;
+  public float xScale;
+  public float yScale;
+  public float zScale;
+  public boolean visible;
+  public boolean skipDraw;
+  private final java.util.List<net.minecraft.client.model.geom.ModelPart$Cube> cubes;
+  private final java.util.Map<java.lang.String, net.minecraft.client.model.geom.ModelPart> children;
+  private net.minecraft.client.model.geom.PartPose initialPose;
+  public net.minecraft.client.model.geom.ModelPart(java.util.List<net.minecraft.client.model.geom.ModelPart$Cube>, java.util.Map<java.lang.String, net.minecraft.client.model.geom.ModelPart>);
+  public net.minecraft.client.model.geom.PartPose storePose();
+  public net.minecraft.client.model.geom.PartPose getInitialPose();
+  public void setInitialPose(net.minecraft.client.model.geom.PartPose);
+  public void resetPose();
+  public void loadPose(net.minecraft.client.model.geom.PartPose);
+  public boolean hasChild(java.lang.String);
+  public net.minecraft.client.model.geom.ModelPart getChild(java.lang.String);
+  public void setPos(float, float, float);
+  public void setRotation(float, float, float);
+  public void render(com.mojang.blaze3d.vertex.PoseStack, com.mojang.blaze3d.vertex.VertexConsumer, int, int);
+  public void render(com.mojang.blaze3d.vertex.PoseStack, com.mojang.blaze3d.vertex.VertexConsumer, int, int, int);
+  public void rotateBy(org.joml.Quaternionf);
+  public void getExtentsForGui(com.mojang.blaze3d.vertex.PoseStack, java.util.function.Consumer<org.joml.Vector3fc>);
+  public void visit(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.model.geom.ModelPart$Visitor);
+  private void visit(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.model.geom.ModelPart$Visitor, java.lang.String);
+  public void translateAndRotate(com.mojang.blaze3d.vertex.PoseStack);
+  private void compile(com.mojang.blaze3d.vertex.PoseStack$Pose, com.mojang.blaze3d.vertex.VertexConsumer, int, int, int);
+  public net.minecraft.client.model.geom.ModelPart$Cube getRandomCube(net.minecraft.util.RandomSource);
+  public boolean isEmpty();
+  public void offsetPos(org.joml.Vector3f);
+  public void offsetRotation(org.joml.Vector3f);
+  public void offsetScale(org.joml.Vector3f);
+  public java.util.List<net.minecraft.client.model.geom.ModelPart> getAllParts();
+  public java.util.function.Function<java.lang.String, net.minecraft.client.model.geom.ModelPart> createPartLookup();
+  private void addAllChildren(java.util.function.BiConsumer<java.lang.String, net.minecraft.client.model.geom.ModelPart>);
+  private static void lambda$getAllParts$0(java.util.List, java.lang.String, net.minecraft.client.model.geom.ModelPart);
+  private static void lambda$visit$0(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.model.geom.ModelPart$Visitor, java.lang.String, java.lang.String, net.minecraft.client.model.geom.ModelPart);
+  private static void lambda$getExtentsForGui$0(java.util.function.Consumer, com.mojang.blaze3d.vertex.PoseStack$Pose, java.lang.String, int, net.minecraft.client.model.geom.ModelPart$Cube);
+}
+
+Compiled from "GuiGraphicsExtractor.java"
+public class net.minecraft.client.gui.GuiGraphicsExtractor {
+  private static final int EXTRA_SPACE_AFTER_FIRST_TOOLTIP_LINE;
+  private final net.minecraft.client.Minecraft minecraft;
+  private final org.joml.Matrix3x2fStack pose;
+  public final net.minecraft.client.gui.GuiGraphicsExtractor$ScissorStack scissorStack;
+  private final net.minecraft.client.resources.model.sprite.SpriteGetter sprites;
+  private final net.minecraft.client.renderer.texture.TextureAtlas guiSprites;
+  public final net.minecraft.client.renderer.state.gui.GuiRenderState guiRenderState;
+  private com.mojang.blaze3d.platform.cursor.CursorType pendingCursor;
+  private final int mouseX;
+  private final int mouseY;
+  private java.lang.Runnable deferredTooltip;
+  private net.minecraft.network.chat.Style hoveredTextStyle;
+  private net.minecraft.network.chat.Style clickableTextStyle;
+  private net.minecraft.client.gui.components.Renderable preeditOverlay;
+  private net.minecraft.client.gui.GuiGraphicsExtractor(net.minecraft.client.Minecraft, org.joml.Matrix3x2fStack, net.minecraft.client.renderer.state.gui.GuiRenderState, int, int);
+  public net.minecraft.client.gui.GuiGraphicsExtractor(net.minecraft.client.Minecraft, net.minecraft.client.renderer.state.gui.GuiRenderState, int, int);
+  public void requestCursor(com.mojang.blaze3d.platform.cursor.CursorType);
+  public void applyCursor(com.mojang.blaze3d.platform.Window);
+  public int guiWidth();
+  public int guiHeight();
+  public org.joml.Matrix3x2fStack pose();
+  public void nextStratum();
+  public void blurBeforeThisStratum();
+  public void enableScissor(int, int, int, int);
+  public void disableScissor();
+  public boolean containsPointInScissor(int, int);
+  public void horizontalLine(int, int, int, int);
+  public void verticalLine(int, int, int, int);
+  public void fill(int, int, int, int, int);
+  public void fill(com.mojang.blaze3d.pipeline.RenderPipeline, int, int, int, int, int);
+  public void fillGradient(int, int, int, int, int, int);
+  public void fill(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.client.gui.render.TextureSetup, int, int, int, int);
+  public void outline(int, int, int, int, int);
+  private void innerFill(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.client.gui.render.TextureSetup, int, int, int, int, int, java.lang.Integer);
+  public void textHighlight(int, int, int, int, boolean);
+  public void text(net.minecraft.client.gui.Font, java.lang.String, int, int, int);
+  public void text(net.minecraft.client.gui.Font, java.lang.String, int, int, int, boolean);
+  public void text(net.minecraft.client.gui.Font, net.minecraft.util.FormattedCharSequence, int, int, int);
+  public void text(net.minecraft.client.gui.Font, net.minecraft.util.FormattedCharSequence, int, int, int, boolean);
+  public void text(net.minecraft.client.gui.Font, net.minecraft.network.chat.Component, int, int, int);
+  public void text(net.minecraft.client.gui.Font, net.minecraft.network.chat.Component, int, int, int, boolean);
+  public void centeredText(net.minecraft.client.gui.Font, java.lang.String, int, int, int);
+  public void centeredText(net.minecraft.client.gui.Font, net.minecraft.network.chat.Component, int, int, int);
+  public void centeredText(net.minecraft.client.gui.Font, net.minecraft.util.FormattedCharSequence, int, int, int);
+  public void textWithWordWrap(net.minecraft.client.gui.Font, net.minecraft.network.chat.FormattedText, int, int, int, int);
+  public void textWithWordWrap(net.minecraft.client.gui.Font, net.minecraft.network.chat.FormattedText, int, int, int, int, boolean);
+  public void textWithBackdrop(net.minecraft.client.gui.Font, net.minecraft.network.chat.Component, int, int, int, int);
+  public void blit(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.resources.Identifier, int, int, float, float, int, int, int, int, int);
+  public void blit(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.resources.Identifier, int, int, float, float, int, int, int, int);
+  public void blit(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.resources.Identifier, int, int, float, float, int, int, int, int, int, int);
+  public void blit(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.resources.Identifier, int, int, float, float, int, int, int, int, int, int, int);
+  public void blit(net.minecraft.resources.Identifier, int, int, int, int, float, float, float, float);
+  public void blit(com.mojang.blaze3d.textures.GpuTextureView, com.mojang.blaze3d.textures.GpuSampler, int, int, int, int, float, float, float, float);
+  public void blitSprite(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.resources.Identifier, int, int, int, int);
+  public void blitSprite(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.resources.Identifier, int, int, int, int, float);
+  public void blitSprite(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.resources.Identifier, int, int, int, int, int);
+  public void blitSprite(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.resources.Identifier, int, int, int, int, int, int, int, int);
+  public void blitSprite(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.resources.Identifier, int, int, int, int, int, int, int, int, int);
+  public void blitSprite(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.client.renderer.texture.TextureAtlasSprite, int, int, int, int);
+  public void blitSprite(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.client.renderer.texture.TextureAtlasSprite, int, int, int, int, int);
+  private void blitSprite(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.client.renderer.texture.TextureAtlasSprite, int, int, int, int, int, int, int, int, int);
+  private void blitNineSlicedSprite(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.client.renderer.texture.TextureAtlasSprite, net.minecraft.client.resources.metadata.gui.GuiSpriteScaling$NineSlice, int, int, int, int, int);
+  private void blitNineSliceInnerSegment(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.client.resources.metadata.gui.GuiSpriteScaling$NineSlice, net.minecraft.client.renderer.texture.TextureAtlasSprite, int, int, int, int, int, int, int, int, int, int, int);
+  private void blitTiledSprite(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.client.renderer.texture.TextureAtlasSprite, int, int, int, int, int, int, int, int, int, int, int);
+  private void innerBlit(com.mojang.blaze3d.pipeline.RenderPipeline, net.minecraft.resources.Identifier, int, int, int, int, float, float, float, float, int);
+  private void innerBlit(com.mojang.blaze3d.pipeline.RenderPipeline, com.mojang.blaze3d.textures.GpuTextureView, com.mojang.blaze3d.textures.GpuSampler, int, int, int, int, float, float, float, float, int);
+  private void innerTiledBlit(com.mojang.blaze3d.pipeline.RenderPipeline, com.mojang.blaze3d.textures.GpuTextureView, com.mojang.blaze3d.textures.GpuSampler, int, int, int, int, int, int, float, float, float, float, int);
+  private static net.minecraft.client.resources.metadata.gui.GuiSpriteScaling getSpriteScaling(net.minecraft.client.renderer.texture.TextureAtlasSprite);
+  public void item(net.minecraft.world.item.ItemStack, int, int);
+  public void item(net.minecraft.world.item.ItemStack, int, int, int);
+  public void item(net.minecraft.world.entity.LivingEntity, net.minecraft.world.item.ItemStack, int, int, int);
+  private void item(net.minecraft.world.entity.LivingEntity, net.minecraft.world.level.Level, net.minecraft.world.item.ItemStack, int, int, int);
+  public void fakeItem(net.minecraft.world.item.ItemStack, int, int);
+  public void fakeItem(net.minecraft.world.item.ItemStack, int, int, int);
+  public void itemDecorations(net.minecraft.client.gui.Font, net.minecraft.world.item.ItemStack, int, int);
+  public void itemDecorations(net.minecraft.client.gui.Font, net.minecraft.world.item.ItemStack, int, int, java.lang.String);
+  private void itemBar(net.minecraft.world.item.ItemStack, int, int);
+  private void itemCount(net.minecraft.client.gui.Font, net.minecraft.world.item.ItemStack, int, int, java.lang.String);
+  private void itemCooldown(net.minecraft.world.item.ItemStack, int, int);
+  public void map(net.minecraft.client.renderer.state.MapRenderState);
+  public void entity(net.minecraft.client.renderer.entity.state.EntityRenderState, float, org.joml.Vector3fc, org.joml.Quaternionfc, org.joml.Quaternionfc, int, int, int, int);
+  public void skin(net.minecraft.client.model.Model$Simple, net.minecraft.resources.Identifier, float, float, float, float, int, int, int, int);
+  public void book(net.minecraft.client.model.object.book.BookModel, net.minecraft.resources.Identifier, float, float, float, int, int, int, int);
+  public void bannerPattern(net.minecraft.client.model.object.banner.BannerFlagModel, net.minecraft.world.item.DyeColor, net.minecraft.world.level.block.entity.BannerPatternLayers, int, int, int, int);
+  public void profilerChart(java.util.List<net.minecraft.util.profiling.ResultField>, int, int, int, int);
+  public void setTooltipForNextFrame(net.minecraft.network.chat.Component, int, int);
+  public void setTooltipForNextFrame(java.util.List<net.minecraft.util.FormattedCharSequence>, int, int);
+  public void setTooltipForNextFrame(net.minecraft.client.gui.Font, net.minecraft.world.item.ItemStack, int, int);
+  public void setTooltipForNextFrame(net.minecraft.client.gui.Font, java.util.List<net.minecraft.network.chat.Component>, java.util.Optional<net.minecraft.world.inventory.tooltip.TooltipComponent>, int, int);
+  public void setTooltipForNextFrame(net.minecraft.client.gui.Font, java.util.List<net.minecraft.network.chat.Component>, java.util.Optional<net.minecraft.world.inventory.tooltip.TooltipComponent>, int, int, net.minecraft.resources.Identifier);
+  public void setTooltipForNextFrame(net.minecraft.client.gui.Font, java.util.List<net.minecraft.util.FormattedCharSequence>, java.util.Optional<net.minecraft.world.inventory.tooltip.TooltipComponent>, net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner, int, int, boolean, net.minecraft.resources.Identifier);
+  public void setTooltipForNextFrame(net.minecraft.client.gui.Font, net.minecraft.network.chat.Component, int, int);
+  public void setTooltipForNextFrame(net.minecraft.client.gui.Font, net.minecraft.network.chat.Component, int, int, net.minecraft.resources.Identifier);
+  public void setComponentTooltipForNextFrame(net.minecraft.client.gui.Font, java.util.List<net.minecraft.network.chat.Component>, int, int);
+  public void setComponentTooltipForNextFrame(net.minecraft.client.gui.Font, java.util.List<net.minecraft.network.chat.Component>, int, int, net.minecraft.resources.Identifier);
+  public void setTooltipForNextFrame(net.minecraft.client.gui.Font, java.util.List<? extends net.minecraft.util.FormattedCharSequence>, int, int);
+  public void setTooltipForNextFrame(net.minecraft.client.gui.Font, java.util.List<? extends net.minecraft.util.FormattedCharSequence>, int, int, net.minecraft.resources.Identifier);
+  public void setTooltipForNextFrame(net.minecraft.client.gui.Font, java.util.List<net.minecraft.util.FormattedCharSequence>, net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner, int, int, boolean);
+  private void setTooltipForNextFrameInternal(net.minecraft.client.gui.Font, java.util.List<net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent>, int, int, net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner, net.minecraft.resources.Identifier, boolean);
+  public void tooltip(net.minecraft.client.gui.Font, java.util.List<net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent>, int, int, net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner, net.minecraft.resources.Identifier);
+  public void setPreeditOverlay(net.minecraft.client.gui.components.Renderable);
+  public void extractDeferredElements(int, int, float);
+  private void componentHoverEffect(net.minecraft.client.gui.Font, net.minecraft.network.chat.Style, int, int);
+  public net.minecraft.client.renderer.texture.TextureAtlasSprite getSprite(net.minecraft.client.resources.model.sprite.SpriteId);
+  public net.minecraft.client.gui.ActiveTextCollector textRendererForWidget(net.minecraft.client.gui.components.AbstractWidget, net.minecraft.client.gui.GuiGraphicsExtractor$HoveredTextEffects);
+  public net.minecraft.client.gui.ActiveTextCollector textRenderer();
+  public net.minecraft.client.gui.ActiveTextCollector textRenderer(net.minecraft.client.gui.GuiGraphicsExtractor$HoveredTextEffects);
+  public net.minecraft.client.gui.ActiveTextCollector textRenderer(net.minecraft.client.gui.GuiGraphicsExtractor$HoveredTextEffects, java.util.function.Consumer<net.minecraft.network.chat.Style>);
+  private net.minecraft.client.gui.ActiveTextCollector$Parameters createDefaultTextParameters(float);
+  private void lambda$setTooltipForNextFrameInternal$0(net.minecraft.client.gui.Font, java.util.List, int, int, net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner, net.minecraft.resources.Identifier);
+  private static void lambda$setTooltipForNextFrame$1(java.util.List, net.minecraft.world.inventory.tooltip.TooltipComponent);
+  private static void lambda$setTooltipForNextFrame$0(java.util.List, net.minecraft.world.inventory.tooltip.TooltipComponent);
+  private static java.lang.String lambda$item$2(net.minecraft.world.item.ItemStack) throws java.lang.Exception;
+  private static java.lang.String lambda$item$1(net.minecraft.world.item.ItemStack) throws java.lang.Exception;
+  private static java.lang.String lambda$item$0(net.minecraft.world.item.ItemStack) throws java.lang.Exception;
+}
+
+Compiled from "AbstractWidget.java"
+public abstract class net.minecraft.client.gui.components.AbstractWidget implements net.minecraft.client.gui.layouts.LayoutElement,net.minecraft.client.gui.components.Renderable,net.minecraft.client.gui.components.events.GuiEventListener,net.minecraft.client.gui.narration.NarratableEntry {
+  protected int width;
+  protected int height;
+  private int x;
+  private int y;
+  protected net.minecraft.network.chat.Component message;
+  protected boolean isHovered;
+  public boolean active;
+  public boolean visible;
+  protected float alpha;
+  private int tabOrderGroup;
+  private boolean focused;
+  private final net.minecraft.client.gui.components.WidgetTooltipHolder tooltip;
+  public net.minecraft.client.gui.components.AbstractWidget(int, int, int, int, net.minecraft.network.chat.Component);
+  public int getHeight();
+  public final void extractRenderState(net.minecraft.client.gui.GuiGraphicsExtractor, int, int, float);
+  protected void extractTooltipForNextRenderPass(net.minecraft.client.gui.GuiGraphicsExtractor, int, int);
+  protected void handleCursor(net.minecraft.client.gui.GuiGraphicsExtractor);
+  public void setTooltip(net.minecraft.client.gui.components.Tooltip);
+  public void setTooltipDelay(java.time.Duration);
+  protected net.minecraft.network.chat.MutableComponent createNarrationMessage();
+  public static net.minecraft.network.chat.MutableComponent wrapDefaultNarrationMessage(net.minecraft.network.chat.Component);
+  protected abstract void extractWidgetRenderState(net.minecraft.client.gui.GuiGraphicsExtractor, int, int, float);
+  protected void extractScrollingStringOverContents(net.minecraft.client.gui.ActiveTextCollector, net.minecraft.network.chat.Component, int);
+  public void onClick(net.minecraft.client.input.MouseButtonEvent, boolean);
+  public void onRelease(net.minecraft.client.input.MouseButtonEvent);
+  protected void onDrag(net.minecraft.client.input.MouseButtonEvent, double, double);
+  public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent, boolean);
+  public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent);
+  protected boolean isValidClickButton(net.minecraft.client.input.MouseButtonInfo);
+  public boolean mouseDragged(net.minecraft.client.input.MouseButtonEvent, double, double);
+  public net.minecraft.client.gui.ComponentPath nextFocusPath(net.minecraft.client.gui.navigation.FocusNavigationEvent);
+  public boolean isMouseOver(double, double);
+  public void playDownSound(net.minecraft.client.sounds.SoundManager);
+  public static void playButtonClickSound(net.minecraft.client.sounds.SoundManager);
+  public int getWidth();
+  public void setWidth(int);
+  public void setHeight(int);
+  public void setAlpha(float);
+  public float getAlpha();
+  public void setMessage(net.minecraft.network.chat.Component);
+  public net.minecraft.network.chat.Component getMessage();
+  public boolean isFocused();
+  public boolean isHovered();
+  public boolean isHoveredOrFocused();
+  public boolean isActive();
+  public void setFocused(boolean);
+  public net.minecraft.client.gui.narration.NarratableEntry$NarrationPriority narrationPriority();
+  public final void updateNarration(net.minecraft.client.gui.narration.NarrationElementOutput);
+  protected abstract void updateWidgetNarration(net.minecraft.client.gui.narration.NarrationElementOutput);
+  protected void defaultButtonNarrationText(net.minecraft.client.gui.narration.NarrationElementOutput);
+  public int getX();
+  public void setX(int);
+  public int getY();
+  public void setY(int);
+  public int getRight();
+  public int getBottom();
+  public void visitWidgets(java.util.function.Consumer<net.minecraft.client.gui.components.AbstractWidget>);
+  public void setSize(int, int);
+  public net.minecraft.client.gui.navigation.ScreenRectangle getRectangle();
+  private boolean areCoordinatesInRectangle(double, double);
+  public void setRectangle(int, int, int, int);
+  public int getTabOrderGroup();
+  public void setTabOrderGroup(int);
+}
+
+Compiled from "AbstractButton.java"
+public abstract class net.minecraft.client.gui.components.AbstractButton extends net.minecraft.client.gui.components.AbstractWidget$WithInactiveMessage {
+  protected static final int TEXT_MARGIN;
+  private static final net.minecraft.client.gui.components.WidgetSprites SPRITES;
+  private java.util.function.Supplier<java.lang.Boolean> overrideRenderHighlightedSprite;
+  public net.minecraft.client.gui.components.AbstractButton(int, int, int, int, net.minecraft.network.chat.Component);
+  public abstract void onPress(net.minecraft.client.input.InputWithModifiers);
+  protected final void extractWidgetRenderState(net.minecraft.client.gui.GuiGraphicsExtractor, int, int, float);
+  protected abstract void extractContents(net.minecraft.client.gui.GuiGraphicsExtractor, int, int, float);
+  protected void extractDefaultLabel(net.minecraft.client.gui.ActiveTextCollector);
+  protected final void extractDefaultSprite(net.minecraft.client.gui.GuiGraphicsExtractor);
+  public void onClick(net.minecraft.client.input.MouseButtonEvent, boolean);
+  public boolean keyPressed(net.minecraft.client.input.KeyEvent);
+  public void setOverrideRenderHighlightedSprite(java.util.function.Supplier<java.lang.Boolean>);
+  static {};
+}
+
+Compiled from "Button.java"
+public abstract class net.minecraft.client.gui.components.Button extends net.minecraft.client.gui.components.AbstractButton {
+  public static final int SMALL_WIDTH;
+  public static final int DEFAULT_WIDTH;
+  public static final int BIG_WIDTH;
+  public static final int DEFAULT_HEIGHT;
+  public static final int DEFAULT_SPACING;
+  protected static final net.minecraft.client.gui.components.Button$CreateNarration DEFAULT_NARRATION;
+  protected final net.minecraft.client.gui.components.Button$OnPress onPress;
+  protected final net.minecraft.client.gui.components.Button$CreateNarration createNarration;
+  public static net.minecraft.client.gui.components.Button$Builder builder(net.minecraft.network.chat.Component, net.minecraft.client.gui.components.Button$OnPress);
+  protected net.minecraft.client.gui.components.Button(int, int, int, int, net.minecraft.network.chat.Component, net.minecraft.client.gui.components.Button$OnPress, net.minecraft.client.gui.components.Button$CreateNarration);
+  public void onPress(net.minecraft.client.input.InputWithModifiers);
+  protected net.minecraft.network.chat.MutableComponent createNarrationMessage();
+  public void updateWidgetNarration(net.minecraft.client.gui.narration.NarrationElementOutput);
+  private net.minecraft.network.chat.MutableComponent lambda$createNarrationMessage$0();
+  private static net.minecraft.network.chat.MutableComponent lambda$static$0(java.util.function.Supplier);
+  static {};
+}
+
+Compiled from "SubmitNodeCollector.java"
+public interface net.minecraft.client.renderer.SubmitNodeCollector extends net.minecraft.client.renderer.OrderedSubmitNodeCollector {
+  public abstract net.minecraft.client.renderer.OrderedSubmitNodeCollector order(int);
+}
+
+Compiled from "DeltaTracker.java"
+public interface net.minecraft.client.DeltaTracker {
+  public static final net.minecraft.client.DeltaTracker ZERO;
+  public static final net.minecraft.client.DeltaTracker ONE;
+  public abstract float getGameTimeDeltaTicks();
+  public abstract float getGameTimeDeltaPartialTick(boolean);
+  public abstract float getRealtimeDeltaTicks();
+  static {};
+}
+
+Compiled from "DeltaTracker.java"
+public class net.minecraft.client.DeltaTracker$Timer implements net.minecraft.client.DeltaTracker {
+  private float deltaTicks;
+  private float deltaTickResidual;
+  private float realtimeDeltaTicks;
+  private float pausedDeltaTickResidual;
+  private long lastMs;
+  private long lastUiMs;
+  private final float msPerTick;
+  private final it.unimi.dsi.fastutil.floats.FloatUnaryOperator targetMsptProvider;
+  private boolean paused;
+  private boolean frozen;
+  public net.minecraft.client.DeltaTracker$Timer(float, long, it.unimi.dsi.fastutil.floats.FloatUnaryOperator);
+  public int advanceGameTime(long);
+  public void advanceRealTime(long);
+  public void updatePauseState(boolean);
+  private void pause();
+  private void unPause();
+  public void updateFrozenState(boolean);
+  public float getGameTimeDeltaTicks();
+  public float getGameTimeDeltaPartialTick(boolean);
+  public float getRealtimeDeltaTicks();
+}
+
+Compiled from "AbstractTexture.java"
+public abstract class net.minecraft.client.renderer.texture.AbstractTexture implements java.lang.AutoCloseable {
+  protected com.mojang.blaze3d.textures.GpuTexture texture;
+  protected com.mojang.blaze3d.textures.GpuTextureView textureView;
+  protected com.mojang.blaze3d.textures.GpuSampler sampler;
+  public net.minecraft.client.renderer.texture.AbstractTexture();
+  public void close();
+  protected void releaseTextures();
+  public com.mojang.blaze3d.textures.GpuTexture getTexture();
+  public com.mojang.blaze3d.textures.GpuTextureView getTextureView();
+  public com.mojang.blaze3d.textures.GpuSampler getSampler();
+}
+
+Compiled from "LivingEntityRenderLayerRegistrationCallback.java"
+public interface net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback {
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback> EVENT;
+  public abstract void registerLayers(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.LivingEntity>, net.minecraft.client.renderer.entity.LivingEntityRenderer<?, ?, ?>, net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback$RegistrationHelper, net.minecraft.client.renderer.entity.EntityRendererProvider$Context);
+  private static net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback lambda$static$0(net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback[]);
+  private static void lambda$static$1(net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback[], net.minecraft.world.entity.EntityType, net.minecraft.client.renderer.entity.LivingEntityRenderer, net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback$RegistrationHelper, net.minecraft.client.renderer.entity.EntityRendererProvider$Context);
+  static {};
+}
+
+Compiled from "LivingEntityRenderLayerRegistrationCallback.java"
+public interface net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback$RegistrationHelper {
+  public abstract <T extends net.minecraft.client.renderer.entity.state.EntityRenderState> void register(net.minecraft.client.renderer.entity.layers.RenderLayer<T, ? extends net.minecraft.client.model.EntityModel<T>>);
+}
+
+Error: class not found: net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback
+
+Compiled from "LevelExtractionContext.java"
+public interface net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext extends net.fabricmc.fabric.api.client.rendering.v1.level.AbstractLevelRenderContext {
+  public abstract net.minecraft.client.multiplayer.ClientLevel level();
+  public abstract net.minecraft.client.Camera camera();
+  public abstract net.minecraft.client.DeltaTracker deltaTracker();
+}
+
+Compiled from "LevelRenderContext.java"
+public interface net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext extends net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext {
+  public abstract net.minecraft.client.renderer.SubmitNodeCollector submitNodeCollector();
+  public abstract com.mojang.blaze3d.vertex.PoseStack poseStack();
+}
+
+Compiled from "LevelExtractionEvents.java"
+public class net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents {
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents$AfterBlockOutlineExtraction> AFTER_BLOCK_OUTLINE_EXTRACTION;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents$EndExtraction> END_EXTRACTION;
+  public net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents();
+  private static net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents$EndExtraction lambda$static$2(net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents$EndExtraction[]);
+  private static void lambda$static$3(net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents$EndExtraction[], net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext);
+  private static net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents$AfterBlockOutlineExtraction lambda$static$0(net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents$AfterBlockOutlineExtraction[]);
+  private static void lambda$static$1(net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents$AfterBlockOutlineExtraction[], net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionContext, net.minecraft.world.phys.HitResult);
+  static {};
+}
+
+Compiled from "LevelRenderEvents.java"
+public final class net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents {
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$StartMain> START_MAIN;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterOpaqueTerrain> AFTER_OPAQUE_TERRAIN;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$CollectSubmits> COLLECT_SUBMITS;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterSolidFeatures> AFTER_SOLID_FEATURES;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterTranslucentFeatures> AFTER_TRANSLUCENT_FEATURES;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$BeforeBlockOutline> BEFORE_BLOCK_OUTLINE;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$BeforeGizmos> BEFORE_GIZMOS;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$BeforeTranslucentTerrain> BEFORE_TRANSLUCENT_TERRAIN;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterTranslucentTerrain> AFTER_TRANSLUCENT_TERRAIN;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$EndMain> END_MAIN;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents$AfterBlockOutlineExtraction> AFTER_BLOCK_OUTLINE_EXTRACTION;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents$EndExtraction> END_EXTRACTION;
+  private net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents();
+  private static net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$EndMain lambda$static$18(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$EndMain[]);
+  private static void lambda$static$19(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$EndMain[], net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext);
+  private static net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterTranslucentTerrain lambda$static$16(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterTranslucentTerrain[]);
+  private static void lambda$static$17(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterTranslucentTerrain[], net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext);
+  private static net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$BeforeTranslucentTerrain lambda$static$14(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$BeforeTranslucentTerrain[]);
+  private static void lambda$static$15(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$BeforeTranslucentTerrain[], net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext);
+  private static net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$BeforeGizmos lambda$static$12(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$BeforeGizmos[]);
+  private static void lambda$static$13(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$BeforeGizmos[], net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext);
+  private static net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$BeforeBlockOutline lambda$static$10(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$BeforeBlockOutline[]);
+  private static boolean lambda$static$11(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$BeforeBlockOutline[], net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext, net.minecraft.client.renderer.state.level.BlockOutlineRenderState);
+  private static net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterTranslucentFeatures lambda$static$8(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterTranslucentFeatures[]);
+  private static void lambda$static$9(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterTranslucentFeatures[], net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext);
+  private static net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterSolidFeatures lambda$static$6(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterSolidFeatures[]);
+  private static void lambda$static$7(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterSolidFeatures[], net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext);
+  private static net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$CollectSubmits lambda$static$4(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$CollectSubmits[]);
+  private static void lambda$static$5(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$CollectSubmits[], net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext);
+  private static net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterOpaqueTerrain lambda$static$2(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterOpaqueTerrain[]);
+  private static void lambda$static$3(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterOpaqueTerrain[], net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext);
+  private static net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$StartMain lambda$static$0(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$StartMain[]);
+  private static void lambda$static$1(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$StartMain[], net.fabricmc.fabric.api.client.rendering.v1.level.LevelTerrainRenderContext);
+  static {};
+}
+
+== class index ==
+net/minecraft/client/model/HumanoidModel
+net/minecraft/client/model/player/PlayerModel
+net/minecraft/client/renderer/blockentity/state/
+net/minecraft/client/renderer/blockentity/state/BannerRenderState
+net/minecraft/client/renderer/blockentity/state/BeaconRenderState
+net/minecraft/client/renderer/blockentity/state/BedRenderState
+net/minecraft/client/renderer/blockentity/state/BellRenderState
+net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState
+net/minecraft/client/renderer/blockentity/state/BlockEntityWithBoundingBoxRenderState
+net/minecraft/client/renderer/blockentity/state/BrushableBlockRenderState
+net/minecraft/client/renderer/blockentity/state/CampfireRenderState
+net/minecraft/client/renderer/blockentity/state/ConduitRenderState
+net/minecraft/client/renderer/blockentity/state/CopperGolemStatueRenderState
+net/minecraft/client/renderer/blockentity/state/DecoratedPotRenderState
+net/minecraft/client/renderer/blockentity/state/EnchantTableRenderState
+net/minecraft/client/renderer/blockentity/state/EndGatewayRenderState
+net/minecraft/client/renderer/blockentity/state/EndPortalRenderState
+net/minecraft/client/renderer/blockentity/state/HangingSignRenderState
+net/minecraft/client/renderer/blockentity/state/LecternRenderState
+net/minecraft/client/renderer/blockentity/state/PistonHeadRenderState
+net/minecraft/client/renderer/blockentity/state/ShulkerBoxRenderState
+net/minecraft/client/renderer/blockentity/state/SignRenderState
+net/minecraft/client/renderer/blockentity/state/SkullBlockRenderState
+net/minecraft/client/renderer/blockentity/state/SpawnerRenderState
+net/minecraft/client/renderer/blockentity/state/StandingSignRenderState
+net/minecraft/client/renderer/blockentity/state/TestInstanceRenderState
+net/minecraft/client/renderer/blockentity/state/VaultRenderState
+net/minecraft/client/renderer/blockentity/state/package-info
+net/minecraft/client/renderer/blockentity/state/ChestRenderState
+net/minecraft/client/renderer/blockentity/state/ShelfRenderState
+net/minecraft/client/renderer/entity/layers/
+net/minecraft/client/renderer/entity/layers/ArrowLayer
+net/minecraft/client/renderer/entity/layers/BeeStingerLayer
+net/minecraft/client/renderer/entity/layers/BlockDecorationLayer
+net/minecraft/client/renderer/entity/layers/BreezeEyesLayer
+net/minecraft/client/renderer/entity/layers/BreezeWindLayer
+net/minecraft/client/renderer/entity/layers/CarriedBlockLayer
+net/minecraft/client/renderer/entity/layers/CapeLayer
+net/minecraft/client/renderer/entity/layers/CatCollarLayer
+net/minecraft/client/renderer/entity/layers/CreeperPowerLayer
+net/minecraft/client/renderer/entity/layers/CrossedArmsItemLayer
+net/minecraft/client/renderer/entity/layers/Deadmau5EarsLayer
+net/minecraft/client/renderer/entity/layers/CustomHeadLayer
+net/minecraft/client/renderer/entity/layers/DrownedOuterLayer
+net/minecraft/client/renderer/entity/layers/EnderEyesLayer
+net/minecraft/client/renderer/entity/layers/EnergySwirlLayer
+net/minecraft/client/renderer/entity/layers/EyesLayer
+net/minecraft/client/renderer/entity/layers/FoxHeldItemLayer
+net/minecraft/client/renderer/entity/layers/HorseMarkingLayer
+net/minecraft/client/renderer/entity/layers/HumanoidArmorLayer
+net/minecraft/client/renderer/entity/layers/IronGolemCrackinessLayer
+net/minecraft/client/renderer/entity/layers/DolphinCarryingItemLayer
+net/minecraft/client/renderer/entity/layers/IronGolemFlowerLayer
+net/minecraft/client/renderer/entity/layers/ItemInHandLayer
+net/minecraft/client/renderer/entity/layers/LivingEntityEmissiveLayer
+net/minecraft/client/renderer/entity/layers/LlamaDecorLayer
+net/minecraft/client/renderer/entity/layers/PandaHoldsItemLayer
+net/minecraft/client/renderer/entity/layers/MushroomCowMushroomLayer
+net/minecraft/client/renderer/entity/layers/PhantomEyesLayer
+net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer
+net/minecraft/client/renderer/entity/layers/RenderLayer
+net/minecraft/client/renderer/entity/layers/ParrotOnShoulderLayer
+net/minecraft/client/renderer/entity/layers/PlayerItemInHandLayer
+net/minecraft/client/renderer/entity/layers/SheepWoolUndercoatLayer
+net/minecraft/client/renderer/entity/layers/SheepWoolLayer
+net/minecraft/client/renderer/entity/layers/SimpleEquipmentLayer
+net/minecraft/client/renderer/entity/layers/SkeletonClothingLayer
+net/minecraft/client/renderer/entity/layers/SlimeOuterLayer
+net/minecraft/client/renderer/entity/layers/SnowGolemHeadLayer
+net/minecraft/client/renderer/entity/layers/SpiderEyesLayer
+net/minecraft/client/renderer/entity/layers/SpinAttackEffectLayer
+net/minecraft/client/renderer/entity/layers/StuckInBodyLayer
+net/minecraft/client/renderer/entity/layers/SulfurCubeInnerLayer
+net/minecraft/client/renderer/entity/layers/TropicalFishPatternLayer
+net/minecraft/client/renderer/entity/layers/WingsLayer
+net/minecraft/client/renderer/entity/layers/WitchItemLayer
+net/minecraft/client/renderer/entity/layers/WitherArmorLayer
+net/minecraft/client/renderer/entity/layers/VillagerProfessionLayer
+net/minecraft/client/renderer/entity/layers/package-info
+net/minecraft/client/renderer/entity/layers/RopesLayer
+net/minecraft/client/renderer/entity/player/
+net/minecraft/client/renderer/entity/player/package-info
+net/minecraft/client/renderer/entity/state/
+net/minecraft/client/renderer/entity/state/AllayRenderState
+net/minecraft/client/renderer/entity/state/ArmadilloRenderState
+net/minecraft/client/renderer/entity/state/ArmedEntityRenderState
+net/minecraft/client/renderer/entity/state/ArmorStandRenderState
+net/minecraft/client/renderer/entity/layers/WolfArmorLayer
+net/minecraft/client/renderer/entity/state/AvatarRenderState
+net/minecraft/client/renderer/entity/player/AvatarRenderer
+net/minecraft/client/renderer/entity/state/BatRenderState
+net/minecraft/client/renderer/entity/state/AxolotlRenderState
+net/minecraft/client/renderer/entity/state/BeeRenderState
+net/minecraft/client/renderer/entity/state/BlockDisplayEntityRenderState
+net/minecraft/client/renderer/entity/state/BoatRenderState
+net/minecraft/client/renderer/entity/state/ArrowRenderState
+net/minecraft/client/renderer/entity/layers/WolfCollarLayer
+net/minecraft/client/renderer/entity/state/BreezeRenderState
+net/minecraft/client/renderer/entity/state/CatRenderState
+net/minecraft/client/renderer/entity/state/CamelRenderState
+net/minecraft/client/renderer/entity/state/CopperGolemRenderState
+net/minecraft/client/renderer/entity/state/CowRenderState
+net/minecraft/client/renderer/entity/state/CreakingRenderState
+net/minecraft/client/renderer/entity/state/CreeperRenderState
+net/minecraft/client/renderer/entity/state/DisplayEntityRenderState
+net/minecraft/client/renderer/entity/state/DolphinRenderState
+net/minecraft/client/renderer/entity/state/ChickenRenderState
+net/minecraft/client/renderer/entity/state/EndCrystalRenderState
+net/minecraft/client/renderer/entity/state/EnderDragonRenderState
+net/minecraft/client/renderer/entity/state/EndermanRenderState
+net/minecraft/client/renderer/entity/state/EntityRenderState
+net/minecraft/client/renderer/entity/state/EquineRenderState
+net/minecraft/client/renderer/entity/state/EvokerFangsRenderState
+net/minecraft/client/renderer/entity/state/EvokerRenderState
+net/minecraft/client/renderer/entity/state/ExperienceOrbRenderState
+net/minecraft/client/renderer/entity/state/FallingBlockRenderState
+net/minecraft/client/renderer/entity/state/FelineRenderState
+net/minecraft/client/renderer/entity/state/FireworkRocketRenderState
+net/minecraft/client/renderer/entity/state/FishingHookRenderState
+net/minecraft/client/renderer/entity/state/DonkeyRenderState
+net/minecraft/client/renderer/entity/state/FoxRenderState
+net/minecraft/client/renderer/entity/state/FrogRenderState
+net/minecraft/client/renderer/entity/state/GhastRenderState
+net/minecraft/client/renderer/entity/state/GoatRenderState
+net/minecraft/client/renderer/entity/state/BoggedRenderState
+net/minecraft/client/renderer/entity/state/HappyGhastRenderState
+net/minecraft/client/renderer/entity/state/HoglinRenderState
+net/minecraft/client/renderer/entity/state/HitboxRenderState
+net/minecraft/client/renderer/entity/state/HoldingEntityRenderState
+net/minecraft/client/renderer/entity/state/HorseRenderState
+net/minecraft/client/renderer/entity/state/HumanoidRenderState
+net/minecraft/client/renderer/entity/state/IllagerRenderState
+net/minecraft/client/renderer/entity/state/IllusionerRenderState
+net/minecraft/client/renderer/entity/state/IronGolemRenderState
+net/minecraft/client/renderer/entity/state/ItemDisplayEntityRenderState
+net/minecraft/client/renderer/entity/state/ItemClusterRenderState
+net/minecraft/client/renderer/entity/state/ItemEntityRenderState
+net/minecraft/client/renderer/entity/state/LightningBoltRenderState
+net/minecraft/client/renderer/entity/state/ItemFrameRenderState
+net/minecraft/client/renderer/entity/state/LlamaRenderState
+net/minecraft/client/renderer/entity/state/LivingEntityRenderState
+net/minecraft/client/renderer/entity/state/LlamaSpitRenderState
+net/minecraft/client/renderer/entity/state/MinecartRenderState
+net/minecraft/client/renderer/entity/state/MinecartTntRenderState
+net/minecraft/client/renderer/entity/state/MushroomCowRenderState
+net/minecraft/client/renderer/entity/state/NautilusRenderState
+net/minecraft/client/renderer/entity/state/PaintingRenderState
+net/minecraft/client/renderer/entity/state/PandaRenderState
+net/minecraft/client/renderer/entity/state/ParrotRenderState
+net/minecraft/client/renderer/entity/state/PhantomRenderState
+net/minecraft/client/renderer/entity/state/PigRenderState
+net/minecraft/client/renderer/entity/state/PiglinRenderState
+net/minecraft/client/renderer/entity/state/PolarBearRenderState
+net/minecraft/client/renderer/entity/state/PufferfishRenderState
+net/minecraft/client/renderer/entity/state/RabbitRenderState
+net/minecraft/client/renderer/entity/state/RavagerRenderState
+net/minecraft/client/renderer/entity/state/SalmonRenderState
+net/minecraft/client/renderer/entity/state/ShulkerBulletRenderState
+net/minecraft/client/renderer/entity/state/SkeletonRenderState
+net/minecraft/client/renderer/entity/state/SlimeRenderState
+net/minecraft/client/renderer/entity/state/SheepRenderState
+net/minecraft/client/renderer/entity/state/ShulkerRenderState
+net/minecraft/client/renderer/entity/state/GuardianRenderState
+net/minecraft/client/renderer/entity/state/SquidRenderState
+net/minecraft/client/renderer/entity/state/StriderRenderState
+net/minecraft/client/renderer/entity/state/SulfurCubeRenderState
+net/minecraft/client/renderer/entity/state/ThrownItemRenderState
+net/minecraft/client/renderer/entity/state/SnifferRenderState
+net/minecraft/client/renderer/entity/state/TextDisplayEntityRenderState
+net/minecraft/client/renderer/entity/state/SnowGolemRenderState
+net/minecraft/client/renderer/entity/state/ThrownTridentRenderState
+net/minecraft/client/renderer/entity/state/TippableArrowRenderState
+net/minecraft/client/renderer/entity/state/TurtleRenderState
+net/minecraft/client/renderer/entity/state/UndeadRenderState
+net/minecraft/client/renderer/entity/state/VexRenderState
+net/minecraft/client/renderer/entity/state/VillagerDataHolderRenderState
+net/minecraft/client/renderer/entity/state/VillagerRenderState
+net/minecraft/client/renderer/entity/state/WardenRenderState
+net/minecraft/client/renderer/entity/state/WitchRenderState
+net/minecraft/client/renderer/entity/state/WitherRenderState
+net/minecraft/client/renderer/entity/state/WitherSkullRenderState
+net/minecraft/client/renderer/entity/state/ZombieRenderState
+net/minecraft/client/renderer/entity/state/WolfRenderState
+net/minecraft/client/renderer/entity/state/ZombieVillagerRenderState
+net/minecraft/client/renderer/entity/state/ZombifiedPiglinRenderState
+net/minecraft/client/renderer/entity/state/package-info
+net/minecraft/client/renderer/entity/state/TntRenderState
+net/minecraft/client/renderer/entity/state/TropicalFishRenderState
+net/fabricmc/fabric/api/client/rendering/v1/FeatureRendererRegistry
+net/fabricmc/fabric/api/client/rendering/v1/LivingEntityFeatureRenderEvents
+net/fabricmc/fabric/api/client/rendering/v1/LivingEntityRenderLayerRegistrationCallback
+net/fabricmc/fabric/api/client/rendering/v1/ModelLayerRegistry
