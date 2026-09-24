@@ -68,11 +68,13 @@ public final class LavaVisualClient implements ClientModInitializer {
                     // "smoke shot" lines ask tools/client_smoke.py for a screenshot; each screen then stays for 3 s.
                     if (smokeTicks == 20) client.gui.setScreen(new ClickGuiScreen(1));
                     if (smokeTicks == 50) client.gui.setScreen(new ClickGuiScreen(2));
+                    if (smokeTicks == 72) LavaVisual.LOGGER.info("LavaVisual smoke shot hands");
                     if (smokeTicks == 80) client.gui.setScreen(new ClickGuiScreen(0, "target"));
                     if (smokeTicks == 110) client.gui.setScreen(new ClickGuiScreen(1, "crosshair"));
                     if (smokeTicks == 140) client.gui.setScreen(new tech.gulp.lavavisual.ui.HudEditorScreen(new ClickGuiScreen()));
                     if (smokeTicks == 170) LavaVisual.LOGGER.info("LavaVisual smoke shot hud");
                     if (smokeTicks == 230) client.gui.setScreen(new ClickGuiScreen(3));
+                    if (smokeTicks == 246) LavaVisual.LOGGER.info("LavaVisual smoke shot sounds");
                     if (smokeTicks == 250) tech.gulp.lavavisual.effects.AudioRegression.run(client);
                     if (smokeTicks == 270) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MAP));
                     if (smokeTicks == 300) LavaVisual.LOGGER.info("LavaVisual smoke shot map");
@@ -95,7 +97,9 @@ public final class LavaVisualClient implements ClientModInitializer {
                     if (smokeTicks == 875) config().espStyle = 2;
                     if (smokeTicks == 880) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_EFFECTS));
                     if (smokeTicks == 910) LavaVisual.LOGGER.info("LavaVisual smoke shot effects");
-                    if (smokeTicks == 970) LavaVisual.LOGGER.info("LavaVisual UI smoke complete");
+                    if (smokeTicks == 930) client.gui.setScreen(new ClickGuiScreen().withSearch("удар"));
+                    if (smokeTicks == 960) LavaVisual.LOGGER.info("LavaVisual smoke shot search");
+                    if (smokeTicks == 990) LavaVisual.LOGGER.info("LavaVisual UI smoke complete");
                 }
             }
             tech.gulp.lavavisual.input.Binds.tick(client);

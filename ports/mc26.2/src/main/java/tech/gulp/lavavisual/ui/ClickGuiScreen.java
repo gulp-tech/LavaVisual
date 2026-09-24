@@ -2,12 +2,16 @@ package tech.gulp.lavavisual.ui;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.DoubleConsumer;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -41,7 +45,7 @@ public final class ClickGuiScreen extends Screen {
             Map.entry("sound3", Icons.SKULL), Map.entry("shadows", Icons.LAYERS), Map.entry("animations", Icons.WAND_SPARKLES),
             Map.entry("sky", Icons.CLOUD_SUN), Map.entry("boost", Icons.ROCKET), Map.entry("setting", Icons.EYE),
             Map.entry("minimap", Icons.MAP), Map.entry("beams", Icons.SIGNPOST), Map.entry("labels", Icons.NAVIGATION),
-            Map.entry("mapcoords", Icons.LOCATE_FIXED), Map.entry("mapmarks", Icons.MAP_PINNED), Map.entry("tilt", Icons.MOVE_VERTICAL));
+            Map.entry("mapcoords", Icons.LOCATE_FIXED), Map.entry("mapmarks", Icons.MAP_PINNED), Map.entry("tilt", Icons.MOVE_VERTICAL), Map.entry("cooldown", Icons.TIMER));
     private final List<Hit> hits = new ArrayList<>();
     private final List<Slider> sliders = new ArrayList<>();
     private final Map<String, Double> motions = new HashMap<>();
@@ -61,6 +65,14 @@ public final class ClickGuiScreen extends Screen {
     private int tabStep = 29;
     private final Map<String, double[]> hsvCache = new HashMap<>();
     private long opened = System.nanoTime(), lastFrame = opened;
+    /** Menu search: every row of every page, collected once by running the pages without drawing (see buildIndex). */
+    private record Entry(String title, String context, int page, String sub, int offset, String key, String haystack) { }
+    private List<Entry> searchIndex, results = List.of();
+    private boolean collecting, searchFocused;
+    private String query = "", resultsFor, indexSection, indexContext, indexSub, highlight, highlightSub;
+    private int indexPage, highlightPage, searchX, searchY, searchW;
+    private long caretAt, highlightAt;
+    private static final String LAYOUT_EN = "qwertyuiop[]asdfghjkl;'zxcvbnm,.`", LAYOUT_RU = "йцукенгшщзхъфывапролджэячсмитьбюё";
     public ClickGuiScreen() { this(0); }
     public ClickGuiScreen(int page) { this(page, null); }
     public ClickGuiScreen(int page, String selected) {
@@ -72,7 +84,10 @@ public final class ClickGuiScreen extends Screen {
     private long flashAt;
     private void flash(String message) { flash = message; flashAt = System.currentTimeMillis(); }
     private void changed() { LavaVisualClient.save(); }
-    private void navigate(int next) { page = next; selected = null; colorOpen = null; capturing = null; scroll = 0; dragging = null; hits.clear(); sliders.clear(); }
+    private void navigate(int next) {
+        page = next; selected = null; colorOpen = null; capturing = null; scroll = 0; dragging = null; hits.clear(); sliders.clear();
+        query = ""; resultsFor = null; results = List.of(); searchFocused = false;
+    }
     private void select(String id) { selected = id; scroll = 0; }
     private void hit(int x, int y, int w, int h, Runnable action) { hits.add(new Hit(x, y, w, h, action, clippingHits)); }
     private void text(GuiGraphicsExtractor g, String value, int x, int y, int color, int width) { UiFont.text(g, font, value, x, y, color, Math.max(1, width)); }
@@ -108,6 +123,8 @@ public final class ClickGuiScreen extends Screen {
     private boolean hover(int x, int y, int w, int h) { return mx >= x && mx < x + w && my >= y && my < y + h && my >= clipTop && my < clipBottom; }
     private void action(GuiGraphicsExtractor g, String title, int x, int y, int width, Runnable callback) { action(g, null, title, x, y, width, callback); }
     private void action(GuiGraphicsExtractor g, String icon, String title, int x, int y, int width, Runnable callback) {
+        if (collecting) { index(title, null, y); return; }
+        mark(g, title, x, y, width, 24);
         boolean over = hover(x, y, width, 24);
         UiDraw.roundV(g, x, y, width, 24, 6, over ? 0xFF353945 : 0xFF282B33, over ? 0xFF2B2F38 : 0xFF212329);
         g.fill(x + 6, y, x + width - 6, y + 1, over ? 0x1CFFFFFF : 0x0DFFFFFF);
@@ -121,10 +138,17 @@ public final class ClickGuiScreen extends Screen {
     private static final String[] AIR_STYLES = {"Светлячки", "Снег", "Звёзды", "Угольки", "Сердечки"};
     /** One-of-N choice as a row of chips; the chosen one is filled with the theme gradient. */
     private void chips(GuiGraphicsExtractor g, String[] options, int current, java.util.function.IntConsumer pick) {
+        if (collecting) {
+            int rowSize = bodyW >= 380 ? options.length : 3;
+            for (String option : options) index(option, null, cursor);
+            cursor += (options.length + rowSize - 1) / rowSize * 30 + 4;
+            return;
+        }
         int perRow = bodyW >= 380 ? options.length : 3, gap = 6, w = (bodyW - gap * (perRow - 1)) / perRow, ac = accent(), ac2 = accent2();
         for (int i = 0; i < options.length; i++) {
             int column = i % perRow, x = bodyX + column * (w + gap), y = cursor, index = i;
             boolean on = i == current, over = hover(x, y, w, 24);
+            mark(g, options[i], x, y, w, 24);
             if (on) {
                 UiDraw.roundH(g, x - 1, y - 1, w + 2, 26, 7, UiDraw.alpha(ac, 0.25), UiDraw.alpha(ac2, 0.25));
                 UiDraw.roundH(g, x, y, w, 24, 6, ac, ac2);
@@ -139,8 +163,10 @@ public final class ClickGuiScreen extends Screen {
         cursor += 4;
     }
     private void button(GuiGraphicsExtractor g, String icon, String title, Runnable callback) { action(g, icon, title, bodyX, cursor, bodyW, callback); cursor += 32; }
-    private void note(GuiGraphicsExtractor g, String title) { text(g, title, bodyX + 1, cursor + 2, 0xFF838994, bodyW - 2); cursor += 22; }
+    private void note(GuiGraphicsExtractor g, String title) { if (collecting) { cursor += 22; return; } text(g, title, bodyX + 1, cursor + 2, 0xFF838994, bodyW - 2); cursor += 22; }
     private void section(GuiGraphicsExtractor g, String title) {
+        if (collecting) { indexContext = null; index(title, null, cursor); indexSection = indexContext = title; cursor += 28; return; }
+        mark(g, title, bodyX, cursor, bodyW, 22);
         int ac = accent(), ac2 = accent2();
         UiDraw.roundV(g, bodyX + 1, cursor + 5, 3, 10, 1, ac, ac2);
         UiFont.gradient(g, font, title, bodyX + 10, cursor + 6, UiDraw.mix(ac, 0xFFFFFF, 0.12), UiDraw.mix(ac2, 0xFFFFFF, 0.12), 1, UiFont.Face.BOLD);
@@ -149,7 +175,9 @@ public final class ClickGuiScreen extends Screen {
     }
     private void tabIcon(GuiGraphicsExtractor g, int i, int x, int y, int color) { UiFont.icon(g, font, TAB_ICONS[i], x, y, color); }
     private void toggle(GuiGraphicsExtractor g, String key, String title, String description, boolean enabled, Runnable callback, Runnable settings) {
+        if (collecting) { indexContext = indexSection; index(title, description, cursor); indexContext = title; cursor += 56; return; }
         int y = cursor;
+        mark(g, title, bodyX, y, bodyW, 48);
         double over = motion("hover:" + key, hover(bodyX, y, bodyW, 48) ? 1 : 0), op = LavaVisualClient.config().menuOpacity;
         int ac = accent(), ac2 = accent2();
         UiDraw.roundV(g, bodyX, y, bodyW, 48, 7, UiDraw.alpha(blend(0x1C1F26, 0x2A2F38, over), op), UiDraw.alpha(blend(0x16181E, 0x22262E, over), op));
@@ -179,7 +207,9 @@ public final class ClickGuiScreen extends Screen {
         cursor += 56;
     }
     private void slider(GuiGraphicsExtractor g, String label, double value, double min, double max, DoubleConsumer setter, boolean integer) {
+        if (collecting) { index(label, null, cursor); cursor += 38; return; }
         int y = cursor;
+        mark(g, label, bodyX, y, bodyW, 32);
         String shown = integer ? Long.toString(Math.round(value)) : String.format(Locale.ROOT, "%.2f", value);
         text(g, label, bodyX + 2, y + 2, 0xFFB8C0CD, bodyW - 60);
         text(g, shown, bodyX + bodyW - 52, y + 2, 0xFFF2F4F8, 52);
@@ -264,9 +294,12 @@ public final class ClickGuiScreen extends Screen {
             text(g, TABS[i], left + 33, y + tabPad + 1, tabColor, side - 40);
             hit(left + 8, y, side - 16, tabH, () -> navigate(next));
         }
-        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.10", left + 13, top + panelH - 21, 0xFF586272, side - 18);
-        String heading = selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : selected.equals("hat") ? "China Hat" : HudRenderer.title(selected);
-        text(g, heading, bodyX, top + 17, 0xFFF0F3F7, bodyW - 50, UiFont.Face.HEADING);
+        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.11", left + 13, top + panelH - 21, 0xFF586272, side - 18);
+        boolean searching = !query.isBlank();
+        String heading = searching ? "Поиск" : selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : selected.equals("hat") ? "China Hat" : HudRenderer.title(selected);
+        searchW = Math.max(70, Math.min(150, bodyW / 2 - 20)); searchX = left + panelW - 58 - searchW; searchY = top + 11;
+        text(g, heading, bodyX, top + 17, 0xFFF0F3F7, searchX - bodyX - 10, UiFont.Face.HEADING);
+        searchField(g, ac, ac2);
         boolean grab = moving || grabZone(mx, my);
         UiFont.icon(g, font, Icons.MOVE, left + panelW - 50, top + 17, grab ? 0xFF000000 | UiDraw.mix(ac, 0xFFFFFF, 0.3) : 0xFF4E5664);
         boolean overClose = mx >= left + panelW - 31 && mx < left + panelW - 7 && my >= top + 10 && my < top + 34;
@@ -275,10 +308,12 @@ public final class ClickGuiScreen extends Screen {
         hit(left + panelW - 31, top + 10, 24, 24, this::onClose);
         g.fill(bodyX, top + 39, bodyX + bodyW, top + 40, 0xFF262A33);
         UiDraw.roundH(g, bodyX, top + 39, (int) (bodyW * enter), 1, 0, UiDraw.alpha(ac, 0.95), UiDraw.alpha(ac2, 0.05));
+        if (searching && searchIndex == null) buildIndex(g);
         cursor = clipTop + 3 - (int) scroll;
         g.enableScissor(bodyX - 1, clipTop, bodyX + bodyW + 1, clipBottom);
         clippingHits = true;
-        if (selected != null) settings(g);
+        if (searching) searchResults(g);
+        else if (selected != null) settings(g);
         else switch (page) {
             case PAGE_HUD -> hud(g); case PAGE_EFFECTS -> effects(g); case PAGE_HANDS -> hands(g); case PAGE_SOUNDS -> audio(g);
             case PAGE_MAP -> map(g); case PAGE_BINDS -> binds(g); case PAGE_COLORS -> colors(g); case PAGE_WORLD -> world(g);
@@ -294,14 +329,175 @@ public final class ClickGuiScreen extends Screen {
             int y = clipTop + (int) ((clipBottom - clipTop - h) * scroll / max);
             UiDraw.roundV(g, left + panelW - 8, y, 2, h, 1, UiDraw.alpha(ac, 0.7), UiDraw.alpha(ac2, 0.7));
         }
-        if (selected == null) text(g, Binds.keyName(Binds.Action.MENU) + " · меню    " + Binds.keyName(Binds.Action.DISABLE_ALL) + " · всё выкл    "
+        if (searching) text(g, "Enter · открыть первое    Esc · очистить    Ctrl+F · поиск", bodyX, top + panelH - 20, 0xFF818C9C, bodyW);
+        else if (selected == null) text(g, Binds.keyName(Binds.Action.MENU) + " · меню    " + Binds.keyName(Binds.Action.DISABLE_ALL) + " · всё выкл    "
                 + Binds.keyName(Binds.Action.WAYPOINT_ADD) + " · метка", bodyX, top + panelH - 20, 0xFF818C9C, bodyW);
         else {
             UiFont.icon(g, font, Icons.CHEVRON_LEFT, bodyX - 2, top + panelH - 21, 0xFFB3BAC7);
             text(g, "Назад к модулям", bodyX + 11, top + panelH - 20, 0xFFB3BAC7, bodyW - 11);
         }
-        if (selected != null) hit(bodyX, clipBottom + 2, bodyW, 27, () -> select(null));
+        if (selected != null && !searching) hit(bodyX, clipBottom + 2, bodyW, 27, () -> select(null));
         g.pose().popMatrix();
+    }
+    private static String norm(String value) { return value.toLowerCase(Locale.ROOT).replace('ё', 'е'); }
+    /** Search box in the header: click, Ctrl+F or just start typing. */
+    private void searchField(GuiGraphicsExtractor g, int ac, int ac2) {
+        int x = searchX, y = searchY, w = searchW, h = 22;
+        boolean over = mx >= x && mx < x + w && my >= y && my < y + h;
+        double focus = motion("search:focus", searchFocused ? 1 : 0);
+        if (focus > 0.02) UiDraw.roundH(g, x - 1, y - 1, w + 2, h + 2, 8, UiDraw.alpha(ac, 0.75 * focus), UiDraw.alpha(ac2, 0.75 * focus));
+        UiDraw.round(g, x, y, w, h, 7, searchFocused ? 0xFF16181E : over ? 0xFF262A32 : 0xFF1D2026);
+        boolean active = searchFocused || !query.isEmpty();
+        UiFont.icon(g, font, Icons.SEARCH, x + 7, y + 6, active ? 0xFF000000 | UiDraw.mix(ac, 0xFFFFFF, 0.35) : over ? 0xFFAEB6C4 : 0xFF6B7280);
+        int tx = x + 22, room = w - 22 - (query.isEmpty() ? 6 : 20), caretX = tx;
+        if (query.isEmpty()) {
+            String hint = searchFocused ? "Что найти?" : room > 84 ? "Поиск · Ctrl+F" : "Поиск";
+            text(g, hint, tx, y + 7, searchFocused ? 0xFF7C8594 : 0xFF6B7280, room);
+        } else {
+            String shown = query;
+            while (shown.length() > 1 && UiFont.width(g, font, shown, UiFont.Face.REGULAR) > room - 3) shown = shown.substring(1);
+            text(g, shown, tx, y + 7, 0xFFE8EAF0, room);
+            caretX = tx + UiFont.width(g, font, shown, UiFont.Face.REGULAR);
+            boolean overClear = mx >= x + w - 20 && mx < x + w && my >= y && my < y + h;
+            UiFont.iconSmall(g, font, Icons.X, x + w - 14, y + 7, overClear ? 0xFFFFFFFF : 0xFF8A93A1);
+            hit(x + w - 20, y, 20, h, () -> { setQuery(""); searchFocused = true; });
+        }
+        if (searchFocused && (System.currentTimeMillis() - caretAt) % 1060 < 560) g.fill(caretX + 1, y + 6, caretX + 2, y + 16, UiDraw.alpha(ac, 0.95));
+        hit(x, y, w - (query.isEmpty() ? 0 : 20), h, () -> { searchFocused = true; caretAt = System.currentTimeMillis(); });
+    }
+    /**
+     * Runs every page once with drawing switched off: the row helpers record their titles instead of drawing, so the index
+     * always matches the real menu. Direct draws of a page go into an empty scissor; hits and sliders are dropped afterwards.
+     */
+    private void buildIndex(GuiGraphicsExtractor g) {
+        searchIndex = new ArrayList<>();
+        int savedPage = page, savedMx = mx, savedMy = my, hitCount = hits.size(), sliderCount = sliders.size();
+        String savedSelected = selected, savedColor = colorOpen;
+        Binds.Action savedCapture = capturing;
+        collecting = true; mx = my = -100000; colorOpen = null; capturing = null;
+        g.enableScissor(-4, -4, -3, -3);
+        try {
+            for (int i = 0; i < TABS.length; i++) {
+                indexPage = i; indexSub = null; indexSection = indexContext = null;
+                index(TABS[i], "вкладка раздел", clipTop + 3);
+            }
+            for (int i = 0; i < TABS.length; i++) collect(g, i, null);
+            collect(g, PAGE_EFFECTS, "crosshair");
+            collect(g, PAGE_EFFECTS, "hat");
+        } finally {
+            g.disableScissor();
+            collecting = false; page = savedPage; selected = savedSelected; colorOpen = savedColor; capturing = savedCapture; mx = savedMx; my = savedMy;
+            hits.subList(hitCount, hits.size()).clear(); sliders.subList(sliderCount, sliders.size()).clear();
+        }
+    }
+    private void collect(GuiGraphicsExtractor g, int target, String sub) {
+        page = target; selected = sub; indexPage = target; indexSub = sub; indexSection = indexContext = null; cursor = clipTop + 3;
+        try {
+            if (sub != null) settings(g);
+            else switch (target) {
+                case PAGE_HUD -> hud(g); case PAGE_EFFECTS -> effects(g); case PAGE_HANDS -> hands(g); case PAGE_SOUNDS -> audio(g);
+                case PAGE_MAP -> map(g); case PAGE_BINDS -> binds(g); case PAGE_COLORS -> colors(g); case PAGE_WORLD -> world(g);
+                default -> appearance(g);
+            }
+        } catch (RuntimeException error) {
+            tech.gulp.lavavisual.LavaVisual.LOGGER.warn("LavaVisual search: cannot index page {}", target, error);
+        }
+    }
+    private void index(String title, String extra, int y) {
+        if (title == null || title.isBlank()) return;
+        String context = indexContext == null || indexContext.equals(title) ? null : indexContext;
+        String where = TABS[indexPage] + (indexSub == null ? "" : indexSub.equals("hat") ? " china hat шляпа" : " прицел");
+        String haystack = norm(title + " " + (extra == null ? "" : extra) + " " + (context == null ? "" : context) + " " + where);
+        searchIndex.add(new Entry(title, context, indexPage, indexSub, Math.max(0, y - (clipTop + 3)), norm(title), haystack));
+    }
+    /** All words must match; title prefix first. Typed in the wrong keyboard layout? The swapped layout is tried too. */
+    private List<Entry> search(String raw) {
+        String q = norm(raw.trim()).replaceAll("\\s+", " ");
+        if (q.isEmpty() || searchIndex == null) return List.of();
+        List<Entry> found = match(q);
+        if (found.isEmpty()) {
+            StringBuilder swapped = new StringBuilder(q.length());
+            for (char ch : q.toCharArray()) {
+                int en = LAYOUT_EN.indexOf(ch), ru = LAYOUT_RU.indexOf(ch);
+                swapped.append(en >= 0 ? LAYOUT_RU.charAt(en) : ru >= 0 ? LAYOUT_EN.charAt(ru) : ch);
+            }
+            found = match(norm(swapped.toString()));
+        }
+        return found;
+    }
+    private List<Entry> match(String q) {
+        String[] words = q.split(" ");
+        List<List<Entry>> ranks = List.of(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        Set<String> seen = new HashSet<>();
+        for (Entry e : searchIndex) {
+            boolean all = true;
+            for (String word : words) if (!e.haystack().contains(word)) { all = false; break; }
+            if (!all || !seen.add(e.page() + "|" + e.sub() + "|" + e.key() + "|" + e.context())) continue;
+            int rank = e.key().startsWith(q) ? 0 : (" " + e.key()).contains(" " + words[0]) ? 1 : e.key().contains(words[0]) ? 2 : 3;
+            ranks.get(rank).add(e);
+        }
+        List<Entry> out = new ArrayList<>();
+        for (List<Entry> rank : ranks) out.addAll(rank);
+        return out.size() > 40 ? List.copyOf(out.subList(0, 40)) : out;
+    }
+    private void searchResults(GuiGraphicsExtractor g) {
+        String q = query.trim();
+        if (!q.equals(resultsFor)) { results = search(q); resultsFor = q; scroll = 0; cursor = clipTop + 3; }
+        var c = LavaVisualClient.config();
+        int cx = bodyX + bodyW / 2;
+        if (results.isEmpty()) {
+            int y = cursor + 14;
+            UiDraw.round(g, cx - 18, y, 36, 36, 10, UiDraw.alpha(0x1C1F26, c.menuOpacity));
+            UiFont.icon(g, font, Icons.SEARCH, cx - 5, y + 13, 0xFF6B7280);
+            UiFont.centered(g, font, "Ничего не найдено", cx, y + 48, 0xFFE5E9F0, UiFont.Face.BOLD);
+            UiFont.centered(g, font, "Попробуйте: шляпа, звук, цвет, карта, прицел", cx, y + 64, 0xFF838994, UiFont.Face.REGULAR);
+            cursor = y + 84;
+            return;
+        }
+        int ac = accent(), ac2 = accent2();
+        for (int i = 0; i < results.size(); i++) {
+            Entry e = results.get(i);
+            int y = cursor;
+            boolean first = i == 0;
+            double over = motion("hover:result:" + i, hover(bodyX, y, bodyW, 36) ? 1 : 0);
+            UiDraw.roundV(g, bodyX, y, bodyW, 36, 7, UiDraw.alpha(blend(0x1C1F26, 0x2A2F38, over), c.menuOpacity), UiDraw.alpha(blend(0x16181E, 0x22262E, over), c.menuOpacity));
+            if (first) {
+                UiDraw.roundH(g, bodyX, y, bodyW, 36, 7, UiDraw.alpha(ac, 0.12), UiDraw.alpha(ac2, 0.02));
+                UiDraw.roundV(g, bodyX + 1, y + 9, 2, 18, 1, ac, ac2);
+            }
+            double lit = first ? 1 : over;
+            UiDraw.roundV(g, bodyX + 9, y + 7, 22, 22, 6, blend(0x2B2F38, ac & 0xFFFFFF, 0.42 * lit), blend(0x22252D, ac2 & 0xFFFFFF, 0.36 * lit));
+            UiFont.icon(g, font, TAB_ICONS[e.page()], bodyX + 15, y + 13, 0xFF000000 | UiDraw.mix(0xAEB6C4, UiDraw.mix(ac, 0xFFFFFF, 0.55), lit));
+            text(g, e.title(), bodyX + 40, y + 6, 0xFFE5E9F0, bodyW - 40 - 34, UiFont.Face.BOLD);
+            text(g, path(e), bodyX + 40, y + 21, 0xFF838994, bodyW - 40 - 34, UiFont.Face.SMALL);
+            UiFont.icon(g, font, first ? Icons.CORNER_DOWN_LEFT : Icons.CHEVRON_RIGHT, bodyX + bodyW - 22, y + 13, first || over > 0.5 ? accent() : 0xFF9AA3B2);
+            hit(bodyX, y, bodyW, 36, () -> openResult(e));
+            cursor += 40;
+        }
+        note(g, results.size() >= 40 ? "Показаны первые 40 — уточните запрос." : "Найдено: " + results.size() + " · нажмите, чтобы перейти");
+    }
+    private String path(Entry e) {
+        if (e.context() == null && e.sub() == null && e.title().equals(TABS[e.page()])) return "Открыть вкладку";
+        String where = TABS[e.page()];
+        if ("hat".equals(e.sub())) where += " · China Hat";
+        else if ("crosshair".equals(e.sub())) where += " · Прицел";
+        if (e.context() != null) where += " · " + e.context();
+        return where;
+    }
+    private void openResult(Entry e) {
+        navigate(e.page());
+        if (e.sub() != null) selected = e.sub();
+        scroll = Math.max(0, e.offset() - 10);
+        highlight = e.key(); highlightPage = e.page(); highlightSub = e.sub(); highlightAt = System.currentTimeMillis();
+    }
+    /** After a jump from the search the found row glows for a moment. */
+    private void mark(GuiGraphicsExtractor g, String title, int x, int y, int w, int h) {
+        if (highlight == null || title == null) return;
+        long age = System.currentTimeMillis() - highlightAt;
+        if (age > 1900) { highlight = null; return; }
+        if (page != highlightPage || !Objects.equals(selected, highlightSub) || !highlight.equals(norm(title))) return;
+        double a = (age < 1100 ? 1 : 1 - (age - 1100) / 800.0) * (0.7 + 0.3 * Math.sin(age / 95.0));
+        UiDraw.roundH(g, x - 3, y - 3, w + 6, h + 6, 9, UiDraw.alpha(accent(), 0.6 * a), UiDraw.alpha(accent2(), 0.6 * a));
     }
     private void hud(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
@@ -362,6 +558,8 @@ public final class ClickGuiScreen extends Screen {
     }
     private void hands(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
+        toggle(g, "cooldown", "Без анимации перезарядки", "Оружие не опускается после удара · линия у прицела остаётся", c.noCooldownDip,
+                () -> { c.noCooldownDip = !c.noCooldownDip; changed(); }, null);
         toggle(g, "hands", "Положение рук", "Только вид от первого лица", c.viewModelEnabled, () -> { c.viewModelEnabled = !c.viewModelEnabled; changed(); }, null);
         button(g, Icons.PENCIL, "Редактировать в игре", () -> minecraft.gui.setScreen(new HandEditorScreen(this)));
         var swingNames = tech.gulp.lavavisual.effects.SwingStyles.NAMES;
@@ -422,12 +620,23 @@ public final class ClickGuiScreen extends Screen {
             iconButton(g, Icons.CHEVRON_RIGHT, nx + nameW + 4, y, () -> step(group, 1));
             action(g, Icons.PLAY, "Слушать", bodyX + bodyW - listen, y, listen, () -> CustomAudio.preview(group));
             cursor += 32;
+            if (group < 2) {
+                // 2.11: the saturated sounds one click away (they are also in the full list above).
+                String[] rich = group == 0 ? new String[]{"Сочный", "Панч", "Хлёсткий", "Бум"} : new String[]{"Клинок", "Взрыв", "Молния", "Сияние"};
+                int base = CustomAudio.RICH + group * 4, chosen = CustomAudio.selected(group) - base;
+                chips(g, rich, chosen >= 0 && chosen < 4 ? chosen : -1, k -> {
+                    CustomAudio.select(group, base + k);
+                    if (group == 0) c.hitSoundEnabled = true; else c.critSoundEnabled = true;
+                    changed(); CustomAudio.preview(group);
+                });
+            }
             slider(g, "Громкость · %", volume * 100, 0, 100, v -> {
                 switch (group) { case 0 -> c.hitVolume = v / 100; case 1 -> c.critVolume = v / 100; case 2 -> c.totemVolume = v / 100; default -> c.killVolume = v / 100; }
             }, true);
             cursor += 8;
         }
-        note(g, CustomAudio.IDS.length + " звуков: 21 собственный синтез LavaVisual и 6 Kenney CC0.");
+        if (collecting) { indexContext = "Библиотека звуков"; for (String name : CustomAudio.NAMES) index(name, "звук", clipTop + 3 + 56); }
+        note(g, CustomAudio.IDS.length + " звуков: " + (CustomAudio.IDS.length - 6) + " своих LavaVisual и 6 Kenney CC0.");
         button(g, Icons.REFRESH_CW, "Свои звуки: " + tech.gulp.lavavisual.effects.CustomSounds.names().size() + " · обновить", () -> tech.gulp.lavavisual.effects.CustomSounds.refresh(minecraft));
         note(g, "Папка: config/lavavisual-hud/sounds, файлы .ogg");
         note(g, "После обновления в списке появится «Свой файл».");
@@ -587,6 +796,7 @@ public final class ClickGuiScreen extends Screen {
         int keyW = Math.min(130, bodyW / 3);
         for (Binds.Action action : Binds.Action.values()) {
             int y = cursor;
+            if (collecting) index(action.title, "бинд клавиша", y);
             boolean listening = capturing == action, conflict = Binds.conflicts(action, minecraft);
             UiDraw.round(g, bodyX, y, bodyW, 30, 7, UiDraw.alpha(0x191C22, LavaVisualClient.config().menuOpacity));
             UiFont.icon(g, font, action.icon, bodyX + 10, y + 10, listening ? accent() : 0xFFAEB6C4);
@@ -653,8 +863,10 @@ public final class ClickGuiScreen extends Screen {
     }
     /** One element: swatch, name and state; click to open the picker below. */
     private void colorRow(GuiGraphicsExtractor g, String key, String title) {
+        if (collecting) { index(title, "цвет", cursor); cursor += 34; return; }
         var c = LavaVisualClient.config();
         int y = cursor;
+        mark(g, title, bodyX, y, bodyW, 30);
         boolean open = key.equals(colorOpen), theme = key.equals("theme") || key.equals("theme2");
         boolean rainbow = !theme && c.chroma.contains(key), custom = theme || c.customColor(key);
         int color = key.equals("theme") ? c.accent() : key.equals("theme2") ? c.accent2() : c.color(key);
@@ -749,16 +961,63 @@ public final class ClickGuiScreen extends Screen {
             else { Binds.set(capturing, InputConstants.getKey(event), minecraft); capturing = null; }
             return true;
         }
+        int key = event.key();
+        boolean ctrl = (event.modifiers() & (GLFW.GLFW_MOD_CONTROL | GLFW.GLFW_MOD_SUPER)) != 0;
+        if (ctrl && key == GLFW.GLFW_KEY_F) { searchFocused = true; caretAt = System.currentTimeMillis(); return true; }
+        if (key == GLFW.GLFW_KEY_ESCAPE && (searchFocused || !query.isEmpty())) {
+            if (!query.isEmpty()) setQuery(""); else searchFocused = false;
+            return true;
+        }
+        if ((key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER) && !query.isBlank()) {
+            if (!results.isEmpty() && query.trim().equals(resultsFor)) openResult(results.getFirst());
+            return true;
+        }
+        if (searchFocused) {
+            if (key == GLFW.GLFW_KEY_BACKSPACE) {
+                if (ctrl) setQuery(""); else if (!query.isEmpty()) setQuery(query.substring(0, query.length() - 1));
+                return true;
+            }
+            if (ctrl && key == GLFW.GLFW_KEY_V) { paste(); return true; }
+            if (key < 256 && !ctrl) return true; // printable keys arrive in charTyped; a letter bound to the menu must not close it
+        }
         var menuKey = Binds.mapping(Binds.Action.MENU);
         if (menuKey != null && !menuKey.isUnbound() && menuKey.matches(event) && dragging == null) { onClose(); return true; }
         return super.keyPressed(event);
     }
+    /** Typing anywhere in the menu starts a search. */
+    @Override public boolean charTyped(CharacterEvent event) {
+        if (capturing != null) return true;
+        int cp = event.codepoint();
+        if (Character.isISOControl(cp) || !Character.isDefined(cp)) return false;
+        if (!searchFocused) {
+            if (Character.isWhitespace(cp) || dragging != null || moving) return false;
+            searchFocused = true;
+        }
+        setQuery(query + Character.toString(cp));
+        return true;
+    }
+    private void paste() {
+        String clip = minecraft == null ? null : minecraft.keyboardHandler.getClipboard();
+        if (clip == null) return;
+        StringBuilder text = new StringBuilder();
+        clip.codePoints().forEach(cp -> { if (!Character.isISOControl(cp)) text.appendCodePoint(cp); else if (cp == '\n' || cp == '\t') text.append(' '); });
+        setQuery((query + text).replaceAll("\\s+", " "));
+    }
+    private void setQuery(String value) {
+        query = value.length() > 48 ? value.substring(0, 48) : value;
+        caretAt = System.currentTimeMillis();
+        if (query.isBlank()) { resultsFor = null; results = List.of(); }
+    }
+    /** Opens the menu with a search already typed (UI smoke test). */
+    public ClickGuiScreen withSearch(String text) { setQuery(text); searchFocused = true; return this; }
     @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         if (capturing != null) {
             if (event.button() >= 2) { Binds.set(capturing, InputConstants.Type.MOUSE.getOrCreate(event.button()), minecraft); capturing = null; return true; }
             if (event.button() == 1) { capturing = null; return true; }
         }
         if (event.button() != 0) return super.mouseClicked(event, doubleClick);
+        double ux = event.x() / renderScale, uy = event.y() / renderScale;
+        if (!(ux >= searchX && ux < searchX + searchW && uy >= searchY && uy < searchY + 22)) searchFocused = false;
         if ((event.y() / renderScale) >= clipTop && (event.y() / renderScale) < clipBottom) for (Slider slider : sliders) {
             if ((event.x() / renderScale) >= slider.x - 4 && (event.x() / renderScale) <= slider.x + slider.width + 4 && (event.y() / renderScale) >= slider.y && (event.y() / renderScale) < slider.y + 20) {
                 dragging = slider; slider.set((event.x() / renderScale)); return true;
@@ -768,7 +1027,6 @@ public final class ClickGuiScreen extends Screen {
             if (hit.clipped && ((event.y() / renderScale) < clipTop || (event.y() / renderScale) >= clipBottom)) continue;
             if ((event.x() / renderScale) >= hit.x && (event.x() / renderScale) < hit.x + hit.w && (event.y() / renderScale) >= hit.y && (event.y() / renderScale) < hit.y + hit.h) { hit.action.run(); return true; }
         }
-        double ux = event.x() / renderScale, uy = event.y() / renderScale;
         if (grabZone((int) ux, (int) uy)) {
             var c = LavaVisualClient.config();
             if (doubleClick) { c.menuX = 0.5; c.menuY = 0.5; changed(); return true; }
@@ -778,7 +1036,8 @@ public final class ClickGuiScreen extends Screen {
     }
     /** Header strip (without the close button) and the logo block move the menu; double-click centres it. */
     private boolean grabZone(int x, int y) {
-        boolean header = x >= left + side && x < left + panelW - 34 && y >= top && y < top + 38;
+        boolean header = x >= left + side && x < left + panelW - 34 && y >= top && y < top + 38
+                && !(x >= searchX - 3 && x < searchX + searchW + 3 && y >= searchY - 3 && y < searchY + 25);
         boolean brand = x >= left + 4 && x < left + side - 2 && y >= top + 4 && y < top + 66;
         return panelW > 0 && (header || brand);
     }

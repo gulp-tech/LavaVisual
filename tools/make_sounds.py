@@ -157,9 +157,84 @@ def sounds():
     return s
 
 
+def sat(x, drive=2.0):
+    """Soft saturation: dense, loud transients without hard clipping."""
+    return np.tanh(x * drive) / np.tanh(drive)
+
+
+def room(x, d=0.08, mix=0.12, lo=250, hi=7500):
+    """A very short diffuse room so hits feel solid instead of dry clicks."""
+    n = int(SR * d)
+    t = np.arange(n) / SR
+    ir = band(RNG.standard_normal(n), lo, hi) * np.exp(-t / (d / 5))
+    size = 1 << int(np.ceil(np.log2(len(x) + n)))
+    wet = np.fft.irfft(np.fft.rfft(x, size) * np.fft.rfft(ir, size), size)[:len(x)]
+    return x + mix * wet / (np.max(np.abs(wet)) + 1e-9) * np.max(np.abs(x))
+
+
+def crackle(d, count, spread, lo=2500, hi=10000, tau=0.0025, amp=1.0):
+    out = np.zeros(int(SR * d))
+    for _ in range(count):
+        i = int(SR * RNG.uniform(0, spread))
+        k = band(RNG.standard_normal(int(SR * .02)), lo, hi) * env(.02, tau, 0) * RNG.uniform(.4, 1) * amp
+        n = min(len(k), len(out) - i)
+        out[i:i + n] += k[:n]
+    return out
+
+
+def rich():
+    """2.11: saturated hits and crits - sub thump, body knock, noise smack and crack, soft saturation, short room."""
+    global RNG
+    RNG = np.random.default_rng(2611)
+    s = {}
+    d = .26
+    x = sweep(175, 46, d, .55) * env(d, .07, .0006) * 1.15 + sweep(560, 190, d, .35) * env(d, .028, .0004) * .5 \
+        + band(noise(d), 650, 3200) * env(d, .02, 0) * .85 + band(noise(d), 3800, 12000) * env(d, .005, 0) * .55
+    s['juicy'] = finish(room(sat(x, 2.6), .07, .12), .34, .02)
+    d = .32
+    x = sweep(128, 38, d, .75) * env(d, .1, .0008) * 1.25 + sweep(330, 115, d, .3) * env(d, .024, .0004) * .7 \
+        + band(noise(d), 280, 2300) * env(d, .03, 0) * .95 + band(noise(d), 2500, 9000) * env(d, .007, 0) * .45
+    s['power'] = finish(room(sat(x, 3.2), .09, .1), .36, .03)
+    d = .2
+    x = band(noise(d), 1700, 9800) * env(d, .013, .0003) + partials([930, 1860, 2790], [1, .45, .2], [.032, .018, .01], d, .0005) * .5 \
+        + sweep(210, 72, d, .45) * env(d, .032, .0006) * .7
+    s['whip'] = finish(room(sat(x, 2.2), .06, .1), .3, .015)
+    d = .36
+    x = sweep(108, 34, d, .85) * env(d, .13, .0015) * 1.35 + band(noise(d), 60, 850) * env(d, .03, 0) * .95 \
+        + band(noise(d), 4200, 11000) * env(d, .0028, 0) * .4
+    s['boom'] = finish(sat(x, 2.8), .36, .04)
+    d = .62
+    t = T(d)
+    hit = sat(sweep(215, 58, d, .5) * env(d, .06, .0008) + band(noise(d), 1400, 7000) * env(d, .012, 0) * .75, 2.4)
+    shing = partials([1870, 2995, 4410, 6120, 8150], [1, .8, .55, .35, .2], [.34, .26, .18, .12, .07], d, .002) * .5
+    swoosh = band(noise(d), 4000, 13000) * np.minimum(1, t / .025) * np.exp(-np.maximum(0, t - .025) / .06) * .3
+    s['blade'] = finish(room(hit + shing + swoosh, .14, .16), .28, .06)
+    d = .7
+    x = sweep(150, 36, d, .8) * env(d, .15, .0008) * 1.2 + band(noise(d), 180, 6000) * env(d, .065, .0005) * .9 \
+        + crackle(d, 14, .28, 2200, 10000, .003, .8) * .6
+    spark = at(d, (.015, exp_sweep(1700, 5400, .22) * env(.22, .07, .002) * .16))
+    s['burst'] = finish(sat(x, 2.8) + spark, .32, .08)
+    d = .56
+    t = T(d)
+    zap = band(noise(d) * (np.sign(np.sin(2 * np.pi * 95 * t)) * .5 + .7), 1500, 9500) * env(d, .085, .0008)
+    fall = np.sin(2 * np.pi * np.cumsum(3300 * (650 / 3300) ** np.minimum(1, t / .16)) / SR) * env(d, .09, .001) * .45
+    x = sweep(185, 50, d, .55) * env(d, .065, .0008) * 1.1 + zap + crackle(d, 10, .12, 2500, 11000, .002, .9)
+    s['storm'] = finish(room(sat(x, 2.5) + fall, .1, .12), .3, .06)
+    d = .82
+    punch = sat(sweep(195, 54, d, .55) * env(d, .065, .0008) + band(noise(d), 800, 5200) * env(d, .014, 0) * .65, 2.3)
+    chord = at(d, *[(i * .018, partials([f, f * 2.0, f * 3.01], [1, .3, .12], [.42 - i * .04, .2, .1], d - i * .018, .002))
+                    for i, f in enumerate([1046.5, 1318.5, 1568, 2093])]) * .32
+    shimmer = band(noise(d), 6000, 15000) * env(d, .16, .012) * .07
+    s['radiant'] = finish(punch + chord + shimmer, .26, .08)
+    return s
+
+
 if __name__ == '__main__':
+    import sys
     OUT.mkdir(parents=True, exist_ok=True)
-    for name, data in sounds().items():
+    # --new writes only the 2.11 sounds and keeps the older files byte-identical.
+    batch = rich() if sys.argv[1:] == ['--new'] else {**sounds(), **rich()}
+    for name, data in batch.items():
         path = OUT / f'{name}.ogg'
         sf.write(path, data, SR, format='OGG', subtype='VORBIS')
         print(f'{name:8s} {len(data) / SR:5.2f}s peak {np.max(np.abs(data)):.2f} rms {np.sqrt(np.mean(data[:int(SR * .12)] ** 2)):.3f} {path.stat().st_size} B')

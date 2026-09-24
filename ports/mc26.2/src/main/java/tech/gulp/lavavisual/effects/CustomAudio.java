@@ -10,15 +10,19 @@ import tech.gulp.lavavisual.config.HudConfig;
 
 /** One shared sound library for hits, crits, totems and kills; each event may use any sound or a custom file. */
 public final class CustomAudio {
-    /** Sound event paths (see sounds.json): 21 synthesised in tools/make_sounds.py, 6 Kenney CC0. */
+    /** Sound event paths (see sounds.json): 29 synthesised in tools/make_sounds.py (8 saturated hits/crits since 2.11), 6 Kenney CC0. */
     public static final String[] IDS = {"lib.bell", "lib.bubble", "lib.click", "lib.tick", "lib.punch", "lib.metal", "lib.glass",
             "lib.laser", "lib.coin", "lib.crystal", "lib.retro", "lib.bass", "lib.snap", "lib.drop", "lib.wood", "lib.zap",
             "lib.sparkle", "lib.double", "lib.thunder", "lib.fanfare", "lib.magic",
-            "hit_soft", "hit_heavy", "crit_metal", "crit_arcade", "totem_chime", "totem_arcade"};
+            "hit_soft", "hit_heavy", "crit_metal", "crit_arcade", "totem_chime", "totem_arcade",
+            "lib.juicy", "lib.power", "lib.whip", "lib.boom", "lib.blade", "lib.burst", "lib.storm", "lib.radiant"};
     public static final String[] NAMES = {"Колокол", "Пузырь", "Щелчок", "Хитмаркер", "Панч", "Металл", "Стекло",
             "Лазер", "Монетка", "Кристалл", "Ретро", "Бас", "Хлопок", "Капля", "Дерево", "Электро",
             "Искра", "Двойной звон", "Гром", "Фанфары", "Магия",
-            "Мягкий взмах", "Тяжёлый удар", "Лязг", "Аркада", "Колокольчик", "Power Up"};
+            "Мягкий взмах", "Тяжёлый удар", "Лязг", "Аркада", "Колокольчик", "Power Up",
+            "Сочный удар", "Мощный панч", "Хлёсткий удар", "Глухой бум", "Крит · Клинок", "Крит · Взрыв", "Крит · Молния", "Крит · Сияние"};
+    /** First index of the 2.11 saturated sounds: 4 hits, then 4 crits. */
+    public static final int RICH = 27;
     public static final int CUSTOM = IDS.length;
     private static final int[] FALLBACK = {3, 16, 19, 17};
     static {

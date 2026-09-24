@@ -33,7 +33,8 @@ ICONS = ['layout-dashboard', 'sparkles', 'hand', 'volume-2', 'palette', 'earth',
          'ghost', 'headphones', 'audio-lines', 'volume-x', 'paintbrush', 'refresh-cw', 'folder', 'info', 'shield-half',
          'medal', 'pencil', 'stamp', 'droplet', 'map', 'map-pinned', 'navigation', 'navigation-2', 'compass', 'flag',
          'trash-2', 'eye-off', 'pipette', 'locate-fixed', 'mountain', 'command', 'rainbow', 'paint-bucket', 'swatch-book',
-         'keyboard-off', 'signpost', 'cone', 'rotate-cw', 'move-vertical', 'scaling', 'square-pen']
+         'keyboard-off', 'signpost', 'cone', 'rotate-cw', 'move-vertical', 'scaling', 'square-pen', 'search',
+         'corner-down-left']
 
 def instance(weight, name):
     font = TTFont(SRC / 'InterVariable.ttf')
@@ -113,6 +114,9 @@ if __name__ == '__main__':
     OUT.mkdir(parents=True, exist_ok=True)
     if sys.argv[1:] == ['--faces']:  # only rewrite the face JSONs, keep the font binaries byte-identical
         faces()
+        raise SystemExit
+    if sys.argv[1:] == ['--icons']:  # only rebuild icons.ttf and Icons.java, keep the Inter binaries byte-identical
+        icons()
         raise SystemExit
     instance(500, 'inter-medium.ttf')
     instance(620, 'inter-semibold.ttf')

@@ -8,7 +8,11 @@ import java.util.Map;
 public final class HudConfig {
     public static final int SCHEMA = 3;
     /** Built-in sounds in CustomAudio.IDS; index SOUND_LIBRARY means the user's own file. */
-    public static final int SOUND_LIBRARY = 27;
+    public static final int SOUND_LIBRARY = 35;
+    /** Before 2.11 the library had 27 sounds and index 27 meant «Свой файл»; ConfigStore migrates such files. */
+    public static final int OLD_CUSTOM_SOUND = 27;
+    /** Written to every saved file; files without it come from before 2.11 (see ConfigStore). */
+    public int soundVersion = 1;
     public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark", "minimap");
     /** Every element with its own colour. Missing from {@link #colors} means "follow the theme colour". */
     public static final List<String> COLOR_KEYS = List.of("menu", "menu_bg", "hud_bg", "watermark", "target", "keys", "armor", "coordinates",
@@ -31,7 +35,9 @@ public final class HudConfig {
     public boolean hitSoundEnabled, critSoundEnabled, totemSoundEnabled;
     public int hitPreset, critPreset, totemPreset;
     public double hitVolume = 0.65, critVolume = 0.65, totemVolume = 0.65;
-    public int hitSound = 3, critSound = 16, totemSound = 19, killSound = 17;
+    public int hitSound = 27, critSound = 31, totemSound = 19, killSound = 17;
+    /** 2.11: the held item does not dip while the attack cooldown recharges; the crosshair indicator stays vanilla. */
+    public boolean noCooldownDip = true;
     public boolean killSoundEnabled;
     public double killVolume = 0.65;
     public double menuScale = 0.8, menuOpacity = 0.9, menuDim = 0.12;
@@ -122,6 +128,7 @@ public final class HudConfig {
         markerEnabled = skyEnabled = fpsBoost = false;
         hatEnabled = trailEnabled = espEnabled = killEffect = false;
         swingStyle = 0;
+        noCooldownDip = false;
     }
     public void sanitize() {
         if (widgets == null) widgets = defaults();

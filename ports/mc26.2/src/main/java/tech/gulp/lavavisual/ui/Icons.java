@@ -107,4 +107,6 @@ public final class Icons {
     public static final String MOVE_VERTICAL = "\uE1C7";
     public static final String SCALING = "\uE2EC";
     public static final String SQUARE_PEN = "\uE172";
+    public static final String SEARCH = "\uE151";
+    public static final String CORNER_DOWN_LEFT = "\uE0A1";
 }

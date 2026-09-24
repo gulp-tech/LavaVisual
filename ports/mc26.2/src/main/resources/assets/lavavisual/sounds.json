@@ -133,5 +133,45 @@
     "sounds": [
       "lavavisual:lib/magic"
     ]
+  },
+  "lib.juicy": {
+    "sounds": [
+      "lavavisual:lib/juicy"
+    ]
+  },
+  "lib.power": {
+    "sounds": [
+      "lavavisual:lib/power"
+    ]
+  },
+  "lib.whip": {
+    "sounds": [
+      "lavavisual:lib/whip"
+    ]
+  },
+  "lib.boom": {
+    "sounds": [
+      "lavavisual:lib/boom"
+    ]
+  },
+  "lib.blade": {
+    "sounds": [
+      "lavavisual:lib/blade"
+    ]
+  },
+  "lib.burst": {
+    "sounds": [
+      "lavavisual:lib/burst"
+    ]
+  },
+  "lib.storm": {
+    "sounds": [
+      "lavavisual:lib/storm"
+    ]
+  },
+  "lib.radiant": {
+    "sounds": [
+      "lavavisual:lib/radiant"
+    ]
   }
 }
