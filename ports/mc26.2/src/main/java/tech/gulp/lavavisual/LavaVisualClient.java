@@ -26,23 +26,23 @@ public final class LavaVisualClient implements ClientModInitializer {
     private final boolean uiSmoke = Boolean.getBoolean("lavavisual.uiSmoke");
     private int smokeTicks = -1;
     public static HudConfig config() { return config; }
-    public static void save() { if (!STORE.save(config, 0)) STATE.notify("Не удалось сохранить настройки"); }
+    public static void save() { if (!STORE.save(config, 0)) LavaVisual.LOGGER.error("Could not save LavaVisual settings"); }
     public static void resetLayout() {
         var defaults = HudConfig.defaults();
         for (String id : HudConfig.IDS) {
             var widget = config.widgets.get(id); var fresh = defaults.get(id);
             widget.x = fresh.x; widget.y = fresh.y;
         }
-        save(); STATE.notify("Расположение сброшено");
+        save();
     }
     private static Identifier id(String path) { return Identifier.fromNamespaceAndPath("lavavisual", path); }
 
     @Override public void onInitializeClient() {
         save();
+        tech.gulp.lavavisual.effects.WorldCosmetics.register();
         var category = KeyMapping.Category.register(id("hud"));
         var menu = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.lavavisual.menu", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, category));
         var toggle = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.lavavisual.toggle", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, category));
-        var timer = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.lavavisual.timer", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F8, category));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             // Explicit CI-only switch; never enabled by normal game or server settings.
             if (uiSmoke) {
@@ -55,15 +55,17 @@ public final class LavaVisualClient implements ClientModInitializer {
                     if (smokeTicks == 140) client.gui.setScreen(new ClickGuiScreen(0, "target"));
                     if (smokeTicks == 180) client.gui.setScreen(new ClickGuiScreen(1, "crosshair"));
                     if (smokeTicks == 220) client.gui.setScreen(new tech.gulp.lavavisual.ui.HudEditorScreen(new ClickGuiScreen()));
-                    if (smokeTicks == 260) LavaVisual.LOGGER.info("LavaVisual UI smoke complete");
+                    if (smokeTicks == 260) client.gui.setScreen(new ClickGuiScreen(3));
+                    if (smokeTicks == 300) client.gui.setScreen(new ClickGuiScreen(4));
+                    if (smokeTicks == 340) LavaVisual.LOGGER.info("LavaVisual UI smoke complete");
                 }
             }
             while (menu.consumeClick()) if (client.gui.screen() == null) client.gui.setScreen(new ClickGuiScreen());
             while (toggle.consumeClick()) if (client.gui.screen() == null) { config.disableAll(); save(); }
-            while (timer.consumeClick()) if (client.gui.screen() == null && client.player != null) STATE.toggleTimer();
             if (previousWorld != client.level) {
                 previousWorld = client.level;
-                if (client.level == null) STATE.leave(); else STATE.joined();
+                STATE.coordinates = "X —   Y —   Z —";
+                tech.gulp.lavavisual.effects.WorldCosmetics.clear();
             }
             long now = System.nanoTime();
             if (now >= nextSample) {
@@ -71,6 +73,7 @@ public final class LavaVisualClient implements ClientModInitializer {
                 STATE.performance = client.getFps() + " FPS";
             }
             tech.gulp.lavavisual.hud.TargetSnapshot.update(client);
+            tech.gulp.lavavisual.effects.WorldCosmetics.tick(client);
             if (client.player != null) {
                 var pos = client.player.blockPosition();
                 STATE.coordinates = "X " + pos.getX() + "  Y " + pos.getY() + "  Z " + pos.getZ();

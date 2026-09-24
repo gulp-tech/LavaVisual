@@ -1,6 +1,5 @@
 {
   "key.category.lavavisual.hud": "LavaVisual HUD",
   "key.lavavisual.menu": "Open HUD settings",
-  "key.lavavisual.toggle": "Disable all modules",
-  "key.lavavisual.timer": "Start/pause stopwatch"
+  "key.lavavisual.toggle": "Disable all modules"
 }

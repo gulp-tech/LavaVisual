@@ -19,8 +19,4 @@ public final class UiDraw {
         }
     }
     public static int alpha(int rgb, double opacity) { return ((int) Math.round(255 * opacity) << 24) | (rgb & 0xFFFFFF); }
-    public static void toggle(GuiGraphicsExtractor g, int x, int y, boolean enabled) {
-        round(g, x, y, 22, 11, 5, enabled ? 0xFFFF853A : 0xFF36383D);
-        round(g, x + (enabled ? 13 : 2), y + 2, 7, 7, 3, enabled ? 0xFFFFFFFF : 0xFF96989F);
-    }
 }

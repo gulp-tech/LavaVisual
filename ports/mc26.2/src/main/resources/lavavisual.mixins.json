@@ -1,0 +1,7 @@
+{
+  "required": true,
+  "package": "tech.gulp.lavavisual.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": ["HandViewMixin", "SoundManagerMixin"],
+  "injectors": {"defaultRequire": 1}
+}

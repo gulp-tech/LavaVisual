@@ -7,7 +7,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import tech.gulp.lavavisual.LavaVisualClient;
 
 /** A snapshot of the current vanilla crosshair hit, never a remembered or searched-for target. */
-public record TargetSnapshot(String name, float health, float maximum, int armor, double distance) {
+public record TargetSnapshot(String name, float health, float maximum, int armor, double distance, net.minecraft.resources.Identifier skin) {
     public static TargetSnapshot current;
     public static void update(Minecraft client) {
         current = null;
@@ -19,6 +19,6 @@ public record TargetSnapshot(String name, float health, float maximum, int armor
                 || living instanceof Player player && player.isSpectator()) return;
         double distance = client.player.distanceTo(living);
         if (distance > 6 || !client.player.hasLineOfSight(living)) return;
-        current = new TargetSnapshot(living.getName().getString(), living.getHealth(), living.getMaxHealth(), living.getArmorValue(), distance);
+        current = new TargetSnapshot(living.getName().getString(), living.getHealth(), living.getMaxHealth(), living.getArmorValue(), distance, living instanceof net.minecraft.client.player.AbstractClientPlayer player ? player.getSkin().body().texturePath() : null);
     }
 }

@@ -17,13 +17,11 @@ public final class HudEditorScreen extends Screen {
     public HudEditorScreen(Screen parent) { this(parent, null); }
     public HudEditorScreen(Screen parent, String selected) { super(Component.literal("Редактор HUD")); this.parent = parent; this.selected = selected; }
     @Override protected void init() {
-        addRenderableWidget(Button.builder(Component.literal("Сохранить"), b -> onClose()).pos(width / 2 - 125, height - 25).size(95, 20).build());
-        addRenderableWidget(Button.builder(Component.literal("Вкл / выкл"), b -> {
+        addRenderableWidget(Button.builder(UiFont.component("Сохранить"), b -> onClose()).pos(width / 2 - 125, height - 25).size(95, 20).build());
+        addRenderableWidget(Button.builder(UiFont.component("Вкл / выкл"), b -> {
             if (selected != null) { var w = LavaVisualClient.config().widgets.get(selected); w.visible = !w.visible; LavaVisualClient.save(); }
         }).pos(width / 2 - 25, height - 25).size(85, 20).build());
-        addRenderableWidget(Button.builder(Component.literal("Цвет"), b -> {
-            if (selected != null) { var w = LavaVisualClient.config().widgets.get(selected); w.color = (w.color + 1) % HudConfig.COLORS.length; LavaVisualClient.save(); }
-        }).pos(width / 2 + 65, height - 25).size(60, 20).build());
+
     }
     @Override public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
         g.fill(0, 0, width, height, 0x50000000);

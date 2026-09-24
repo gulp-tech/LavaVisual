@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import tech.gulp.lavavisual.LavaVisualClient;
 import tech.gulp.lavavisual.config.HudConfig;
 import tech.gulp.lavavisual.ui.UiDraw;
+import tech.gulp.lavavisual.ui.UiFont;
 
 public final class HudRenderer {
     public static int baseWidth(String id) { return id.equals("target") ? 180 : 156; }
@@ -17,9 +18,8 @@ public final class HudRenderer {
         return switch (id) {
             case "coordinates" -> "Координаты";
             case "performance" -> "FPS";
-            case "stopwatch" -> "Секундомер";
             case "target" -> "Target HUD";
-            default -> "Уведомления";
+            default -> "HUD";
         };
     }
     public static void draw(GuiGraphicsExtractor g, boolean edit, String selected) {
@@ -30,11 +30,10 @@ public final class HudRenderer {
         for (String id : HudConfig.IDS) {
             HudConfig.Widget w = c.widgets.get(id);
             if (!w.visible && !edit) continue;
-            SessionState.Notice notice = id.equals("island") ? state.currentNotice() : null;
             TargetSnapshot target = TargetSnapshot.current;
-            if (!edit && (id.equals("island") && notice == null || id.equals("target") && target == null)) continue;
+            if (!edit && id.equals("target") && target == null) continue;
             int x = x(id, w, g.guiWidth()), y = y(id, w, g.guiHeight());
-            int bw = baseWidth(id), bh = baseHeight(id), accent = HudConfig.COLORS[w.color];
+            int bw = baseWidth(id), bh = baseHeight(id), accent = c.accent();
             g.pose().pushMatrix();
             try {
                 g.pose().translate(x, y);
@@ -43,10 +42,16 @@ public final class HudRenderer {
                 UiDraw.round(g, 0, 0, bw, bh, 5, UiDraw.alpha(0x111216, w.opacity));
                 if (id.equals(selected)) g.fill(5, bh - 1, bw - 5, bh, accent);
                 if (id.equals("target")) {
-                    if (target == null) target = new TargetSnapshot("Предпросмотр", 16, 20, 10, 3.2);
-                    g.text(mc.font, mc.font.plainSubstrByWidth(target.name(), bw - 18), 9, 7, accent);
-                    g.text(mc.font, String.format(java.util.Locale.ROOT, "HP %.1f / %.1f", target.health(), target.maximum()), 9, 22, 0xFFE8E8EB);
-                    g.text(mc.font, String.format(java.util.Locale.ROOT, "Броня %d   %.1f м", target.armor(), target.distance()), 9, 36, 0xFF9698A3);
+                    if (target == null) target = new TargetSnapshot("Предпросмотр", 16, 20, 10, 3.2,
+                            mc.player == null ? null : mc.player.getSkin().body().texturePath());
+                    UiDraw.round(g, 8, 8, 34, 34, 5, UiDraw.alpha(accent, 0.18));
+                    if (target.skin() != null) {
+                        g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, target.skin(), 9, 9, 8, 8, 32, 32, 8, 8, 64, 64);
+                        g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, target.skin(), 9, 9, 40, 8, 32, 32, 8, 8, 64, 64);
+                    } else UiFont.text(g, mc.font, "LV", 17, 21, accent, 26);
+                    UiFont.text(g, mc.font, target.name(), 49, 8, accent, bw - 57);
+                    UiFont.text(g, mc.font, String.format(java.util.Locale.ROOT, "HP %.1f / %.1f", target.health(), target.maximum()), 49, 22, 0xFFE8E8EB, bw - 57);
+                    UiFont.text(g, mc.font, String.format(java.util.Locale.ROOT, "Броня %d · %.1f м", target.armor(), target.distance()), 49, 36, 0xFF9698A3, bw - 57);
                     double ratio = target.maximum() > 0 ? Math.max(0, Math.min(1, target.health() / target.maximum())) : 0;
                     UiDraw.round(g, 9, 51, bw - 18, 3, 1, 0xFF303137);
                     if (ratio > 0) UiDraw.round(g, 9, 51, Math.max(1, (int) ((bw - 18) * ratio)), 3, 1, accent);
@@ -54,18 +59,17 @@ public final class HudRenderer {
                     String value = switch (id) {
                         case "coordinates" -> state.coordinates;
                         case "performance" -> state.performance;
-                        case "stopwatch" -> state.stopwatch() + (state.running() ? "  ▶" : "  ▌▌");
-                        default -> notice == null ? "Предпросмотр уведомления" : notice.text();
+                        default -> "";
                     };
-                    g.text(mc.font, title(id) + (edit && !w.visible ? " · выкл" : ""), 8, 4, accent);
-                    g.text(mc.font, mc.font.plainSubstrByWidth(value, bw - 16), 8, 17, 0xFFEAEAF0);
+                    UiFont.text(g, mc.font, title(id) + (edit && !w.visible ? " · выкл" : ""), 8, 4, accent, bw - 16);
+                    UiFont.text(g, mc.font, value, 8, 17, 0xFFEAEAF0, bw - 16);
                 }
             } finally { g.pose().popMatrix(); }
         }
     }
     public static void crosshair(GuiGraphicsExtractor g) {
         HudConfig c = LavaVisualClient.config();
-        int color = UiDraw.alpha(HudConfig.COLORS[c.crosshairColor], c.crosshairOpacity);
+        int color = UiDraw.alpha(c.accent(), c.crosshairOpacity);
         g.pose().pushMatrix();
         try {
             g.pose().translate(g.guiWidth() / 2f, g.guiHeight() / 2f);

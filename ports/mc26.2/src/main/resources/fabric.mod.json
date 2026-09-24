@@ -3,7 +3,7 @@
   "id": "lavavisual",
   "version": "${version}",
   "name": "LavaVisual HUD",
-  "description": "Configurable HUD, compact ClickGUI and visible crosshair Target HUD. All modules off by default. No ESP or combat automation.",
+  "description": "Client-only HUD, RGB interface, depth-tested cosmetic effects, hand view and custom sounds. All modules start disabled.",
   "authors": [
     "gulp-tech"
   ],
@@ -22,5 +22,8 @@
     "minecraft": "26.2",
     "java": ">=25",
     "fabric-api": ">=0.161.0+26.2"
-  }
+  },
+  "mixins": [
+    "lavavisual.mixins.json"
+  ]
 }

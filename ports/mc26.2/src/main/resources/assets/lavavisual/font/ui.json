@@ -2,7 +2,7 @@
   "providers": [
     {
       "type": "ttf",
-      "file": "lavavisual:font/inter.ttf",
+      "file": "lavavisual:inter.ttf",
       "shift": [
         0,
         0

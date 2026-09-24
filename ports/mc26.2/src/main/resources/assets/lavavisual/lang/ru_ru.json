@@ -1,6 +1,5 @@
 {
   "key.category.lavavisual.hud": "LavaVisual HUD",
   "key.lavavisual.menu": "Настройки HUD",
-  "key.lavavisual.toggle": "Выключить все модули",
-  "key.lavavisual.timer": "Запустить/остановить секундомер"
+  "key.lavavisual.toggle": "Выключить все модули"
 }
