@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "lavavisual",
+  "version": "${version}",
+  "name": "LavaVisual",
+  "description": "Lava gradient ESP, tracers and model chams for Minecraft 26.2.",
+  "authors": [
+    "gulp-tech"
+  ],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "tech.gulp.lavavisual.LavaVisual"
+    ],
+    "client": [
+      "tech.gulp.lavavisual.LavaVisualClient"
+    ]
+  },
+  "mixins": [
+    "lavavisual.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "26.2",
+    "java": ">=25",
+    "fabric-api": ">=0.161.0+26.2"
+  }
+}
