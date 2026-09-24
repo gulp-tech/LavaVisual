@@ -124,7 +124,7 @@ public final class WorldCosmetics {
         int r = (int) (((from >> 16 & 255) * (1 - t)) + ((to >> 16 & 255) * t));
         int g = (int) (((from >> 8 & 255) * (1 - t)) + ((to >> 8 & 255) * t));
         int b = (int) (((from & 255) * (1 - t)) + (to & 255) * t);
-        return r << 16 | g << 8 | b;
+        return 0xFF000000 | r << 16 | g << 8 | b;
     }
     private static void add(Spark spark) {
         if (SPARKS.size() >= (PerformanceMode.active() ? 48 : 96)) SPARKS.removeFirst();

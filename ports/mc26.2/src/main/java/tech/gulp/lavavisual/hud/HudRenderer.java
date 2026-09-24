@@ -24,8 +24,10 @@ public final class HudRenderer {
             default -> "HUD";
         };
     }
-    private static double targetAnim = 1;
+    private static double targetAnim, healthShown, healthGhost;
     private static long lastNs;
+    private static TargetSnapshot lastTarget;
+    private static String lastName = "";
     public static void draw(GuiGraphicsExtractor g, boolean edit, String selected) {
         HudConfig c = LavaVisualClient.config();
         long now = System.nanoTime();
@@ -39,42 +41,65 @@ public final class HudRenderer {
             TargetSnapshot target = TargetSnapshot.current;
             double fade = 1, scaleAnim = 1;
             if (id.equals("target") && !edit) {
-                double goal = target == null ? 0 : 1;
-                targetAnim += (goal - targetAnim) * (c.animations ? Math.min(1, dt * 12) : 1);
-                if (goal == 0 && targetAnim <= 0.02) { targetAnim = 0; continue; }
-                fade = targetAnim; scaleAnim = 0.82 + 0.18 * targetAnim;
+                if (target != null) lastTarget = target; else target = lastTarget;
+                double goal = TargetSnapshot.current == null ? 0 : 1;
+                targetAnim += (goal - targetAnim) * (c.animations ? Math.min(1, dt * 9) : 1);
+                if (goal == 0 && (targetAnim <= 0.03 || target == null)) { targetAnim = 0; lastTarget = null; continue; }
+                fade = Math.clamp(targetAnim, 0, 1);
+                scaleAnim = 0.72 + 0.28 * (1 - Math.pow(1 - fade, 3));
             }
             int x = x(id, w, g.guiWidth()), y = y(id, w, g.guiHeight());
             int bw = baseWidth(id), bh = baseHeight(id), accent = c.accent();
             g.pose().pushMatrix();
             try {
                 g.pose().translate(x, y);
-                g.pose().scale((float) (w.scale * scaleAnim));
+                g.pose().scale((float) w.scale);
+                if (scaleAnim != 1) {
+                    g.pose().translate(bw / 2f, bh / 2f);
+                    g.pose().scale((float) scaleAnim);
+                    g.pose().translate(-bw / 2f, -bh / 2f);
+                }
+                if (id.equals("target")) UiDraw.round(g, -2, -2, bw + 4, bh + 4, 7, UiDraw.alpha(accent, 0.14 * fade));
                 if (c.shadows) UiDraw.round(g, 1, 2, bw, bh, 5, UiDraw.alpha(0x000000, w.opacity * 0.25 * fade));
                 UiDraw.round(g, 0, 0, bw, bh, 5, UiDraw.alpha(0x111216, w.opacity * fade));
                 if (id.equals(selected)) g.fill(5, bh - 1, bw - 5, bh, accent);
                 if (id.equals("target")) {
                     if (target == null) target = new TargetSnapshot("Предпросмотр", 16, 20, 10, 3.2,
                             mc.player == null ? null : mc.player.getSkin().body().texturePath(), null, 0);
-                    UiDraw.round(g, 8, 8, 34, 34, 5, UiDraw.alpha(accent, 0.18));
+                    g.fillGradient(4, 1, bw - 4, 20, UiDraw.alpha(accent, 0.10 * fade), UiDraw.alpha(accent, 0));
+                    UiDraw.round(g, 7, 7, 36, 36, 6, UiDraw.alpha(accent, 0.30 * fade));
+                    UiDraw.round(g, 8, 8, 34, 34, 5, UiDraw.alpha(0x1B1E25, fade));
+                    int white = UiDraw.alpha(0xFFFFFF, fade);
                     if (target.skin() != null) {
-                        g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, target.skin(), 9, 9, 8, 8, 32, 32, 8, 8, 64, 64);
-                        g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, target.skin(), 9, 9, 40, 8, 32, 32, 8, 8, 64, 64);
-                    } else if (target.entity() != null && !target.entity().isRemoved()) {
+                        g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, target.skin(), 9, 9, 8, 8, 32, 32, 8, 8, 64, 64, white);
+                        g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, target.skin(), 9, 9, 40, 8, 32, 32, 8, 8, 64, 64, white);
+                    } else if (fade > 0.6 && target.entity() != null && !target.entity().isRemoved()) {
                         try {
                             net.minecraft.client.gui.screens.inventory.InventoryScreen.extractEntityInInventoryFollowsMouse(g, 9, 9, 32, 32, 0, 25f, 25f, 14f, target.entity());
                         } catch (RuntimeException ignored) {
-                            UiFont.text(g, mc.font, target.name().isEmpty() ? "?" : target.name().substring(0, 1).toUpperCase(java.util.Locale.ROOT), 21, 21, accent, 26);
+                            UiFont.text(g, mc.font, target.name().isEmpty() ? "?" : target.name().substring(0, 1).toUpperCase(java.util.Locale.ROOT), 21, 21, UiDraw.alpha(accent, fade), 26);
                         }
-                    } else UiFont.text(g, mc.font, target.name().isEmpty() ? "?" : target.name().substring(0, 1).toUpperCase(java.util.Locale.ROOT), 21, 21, accent, 26);
+                    } else UiFont.text(g, mc.font, target.name().isEmpty() ? "?" : target.name().substring(0, 1).toUpperCase(java.util.Locale.ROOT), 21, 21, UiDraw.alpha(accent, fade), 26);
                     int combo = tech.gulp.lavavisual.effects.WorldCosmetics.combo();
-                    if (combo >= 2) UiFont.text(g, mc.font, "x" + combo, bw - 26, 8, accent, 24);
+                    if (combo >= 2) {
+                        UiDraw.round(g, bw - 30, 6, 24, 12, 6, UiDraw.alpha(accent, 0.85 * fade));
+                        UiFont.text(g, mc.font, "x" + combo, bw - 26, 8, UiDraw.alpha(0x111216, fade), 20);
+                    }
                     UiFont.text(g, mc.font, target.name(), 49, 8, UiDraw.alpha(accent, fade), bw - 57);
-                    UiFont.text(g, mc.font, String.format(java.util.Locale.ROOT, "HP %.1f / %.1f", target.health(), target.maximum()), 49, 22, 0xFFE8E8EB, bw - 57);
-                    UiFont.text(g, mc.font, String.format(java.util.Locale.ROOT, "Броня %d · %.1f м", target.armor(), target.distance()), 49, 36, 0xFF9698A3, bw - 57);
+                    UiFont.text(g, mc.font, String.format(java.util.Locale.ROOT, "HP %.1f / %.1f", target.health(), target.maximum()), 49, 22, UiDraw.alpha(0xE8E8EB, fade), bw - 57);
+                    UiFont.text(g, mc.font, String.format(java.util.Locale.ROOT, "Броня %d · %.1f м", target.armor(), target.distance()), 49, 36, UiDraw.alpha(0x9698A3, fade), bw - 57);
                     double ratio = target.maximum() > 0 ? Math.max(0, Math.min(1, target.health() / target.maximum())) : 0;
-                    UiDraw.round(g, 9, 51, bw - 18, 3, 1, 0xFF303137);
-                    if (ratio > 0) UiDraw.round(g, 9, 51, Math.max(1, (int) ((bw - 18) * ratio)), 3, 1, accent);
+                    if (!target.name().equals(lastName)) { lastName = target.name(); healthShown = healthGhost = ratio; }
+                    healthShown += (ratio - healthShown) * Math.min(1, dt * 12);
+                    healthGhost = ratio > healthGhost ? ratio : Math.max(healthShown, healthGhost - dt * 0.5);
+                    int barW = bw - 18;
+                    UiDraw.round(g, 9, 50, barW, 5, 2, UiDraw.alpha(0x2A2C33, fade));
+                    if (healthGhost > 0) UiDraw.round(g, 9, 50, Math.max(2, (int) (barW * healthGhost)), 5, 2, UiDraw.alpha(0xFFFFFF, 0.35 * fade));
+                    if (healthShown > 0) {
+                        int fill = Math.max(2, (int) (barW * healthShown));
+                        UiDraw.round(g, 9, 50, fill, 5, 2, UiDraw.alpha(accent, fade));
+                        g.fillGradient(10, 50, 9 + fill - 1, 52, UiDraw.alpha(0xFFFFFF, 0.28 * fade), UiDraw.alpha(0xFFFFFF, 0));
+                    }
                 } else if (id.equals("keys")) {
                     keys(g, mc, fade, accent, edit && !w.visible);
                 } else if (id.equals("armor")) {
@@ -111,8 +136,10 @@ public final class HudRenderer {
         var player = mc.player;
         net.minecraft.world.item.ItemStack[] stacks = new net.minecraft.world.item.ItemStack[4];
         if (player != null) {
-            var armor = player.getInventory().armor;
-            for (int i = 0; i < 4 && i < armor.size(); i++) stacks[3 - i] = armor.get(i);
+            var slots = new net.minecraft.world.entity.EquipmentSlot[] {
+                    net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.entity.EquipmentSlot.CHEST,
+                    net.minecraft.world.entity.EquipmentSlot.LEGS, net.minecraft.world.entity.EquipmentSlot.FEET };
+            for (int i = 0; i < 4; i++) stacks[i] = player.getItemBySlot(slots[i]);
         }
         for (int i = 0; i < 4; i++) {
             int x = 8 + i * 20;

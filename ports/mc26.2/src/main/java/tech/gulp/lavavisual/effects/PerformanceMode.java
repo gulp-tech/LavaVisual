@@ -25,8 +25,8 @@ public final class PerformanceMode {
                 c.savedEntityShadows = options.entityShadows().get();
                 c.boostApplied = true;
             }
-            options.renderDistance().set(Math.min(options.renderDistance().get(), 8));
-            if (options.particles().get().ordinal() < ParticleStatus.MINIMAL.ordinal()) options.particles().set(ParticleStatus.MINIMAL);
+            options.renderDistance().set(Math.min(options.renderDistance().get(), 12));
+            if (options.particles().get() == ParticleStatus.ALL) options.particles().set(ParticleStatus.DECREASED);
             options.entityShadows().set(false);
         } else if (c.boostApplied) {
             if (c.savedRenderDistance >= 0) options.renderDistance().set(c.savedRenderDistance);

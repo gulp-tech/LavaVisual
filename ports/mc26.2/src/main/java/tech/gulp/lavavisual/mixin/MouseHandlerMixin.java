@@ -4,30 +4,26 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 
-/** Always-on correction for faulty scroll wheels: a lone opposite tick right after a
-    steady direction streak is dropped instead of scrolling the wrong way. */
+/** Always-on fix for a chattering wheel: a single opposite tick within 150 ms of steady
+    scrolling is dropped; a real reversal (two opposite ticks or a pause) passes through. */
 @Mixin(MouseHandler.class)
 public abstract class MouseHandlerMixin {
-    private static long lavaLastTime;
-    private static double lavaLastY;
-    private static int lavaStreak;
+    @Unique private static long lava$last, lava$pending;
+    @Unique private static double lava$direction;
     @WrapMethod(method = "onScroll")
-    private void lava$wheel(long handle, double x, double y, Operation<Void> operation) {
-        long now = System.currentTimeMillis();
+    private void lava$wheel(long handle, double x, double y, Operation<Void> original) {
         if (y != 0) {
-            if (lavaLastY != 0 && Math.signum(y) != Math.signum(lavaLastY)) {
-                if (now - lavaLastTime < 90 && lavaStreak >= 2) {
-                    lavaStreak = 0;
-                    return;
-                }
-                lavaStreak = 1;
-            } else {
-                lavaStreak++;
+            long now = System.currentTimeMillis();
+            double direction = Math.signum(y);
+            if (lava$direction != 0 && direction != lava$direction && now - lava$last < 150
+                    && (lava$pending == 0 || now - lava$pending > 150)) {
+                lava$pending = now;
+                return;
             }
-            lavaLastTime = now;
-            lavaLastY = y;
+            lava$pending = 0; lava$direction = direction; lava$last = now;
         }
-        operation.call(handle, x, y);
+        original.call(handle, x, y);
     }
 }

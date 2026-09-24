@@ -61,11 +61,32 @@ public final class ClickGuiScreen extends Screen {
     }
     private void button(GuiGraphicsExtractor g, String title, Runnable callback) { action(g, title, bodyX, cursor, bodyW, callback); cursor += 32; }
     private void note(GuiGraphicsExtractor g, String title) { text(g, title, bodyX + 1, cursor + 2, 0xFF838994, bodyW - 2); cursor += 22; }
-    private void section(GuiGraphicsExtractor g, String title) { text(g, title, bodyX + 1, cursor + 6, accent(), bodyW - 2); cursor += 28; }
+    private void section(GuiGraphicsExtractor g, String title) {
+        UiDraw.round(g, bodyX + 1, cursor + 8, 4, 4, 2, accent());
+        text(g, title, bodyX + 10, cursor + 6, accent(), bodyW - 12);
+        g.fillGradient(bodyX, cursor + 21, bodyX + bodyW, cursor + 22, UiDraw.alpha(accent(), 0.25), UiDraw.alpha(accent(), 0.25));
+        cursor += 28;
+    }
+    private void tabIcon(GuiGraphicsExtractor g, int i, int x, int y, int color) {
+        int soft = UiDraw.alpha(color & 0xFFFFFF, 0.35);
+        switch (i) {
+            case 0 -> { g.fill(x, y, x + 10, y + 1, color); g.fill(x, y + 8, x + 10, y + 9, color); g.fill(x, y, x + 1, y + 9, color); g.fill(x + 9, y, x + 10, y + 9, color); g.fill(x + 2, y + 2, x + 6, y + 4, color); }
+            case 1 -> { g.fill(x + 4, y - 1, x + 6, y + 10, color); g.fill(x, y + 4, x + 10, y + 6, color); g.fill(x + 2, y + 2, x + 8, y + 8, soft); }
+            case 2 -> { UiDraw.round(g, x + 1, y + 3, 8, 6, 3, color); g.fill(x + 1, y, x + 3, y + 4, color); g.fill(x + 4, y - 1, x + 6, y + 4, color); g.fill(x + 7, y, x + 9, y + 4, color); }
+            case 3 -> { g.fill(x, y + 5, x + 2, y + 9, color); g.fill(x + 4, y + 2, x + 6, y + 9, color); g.fill(x + 8, y - 1, x + 10, y + 9, color); }
+            case 4 -> { UiDraw.round(g, x, y + 3, 5, 5, 2, 0xFFE0524A); UiDraw.round(g, x + 3, y - 1, 5, 5, 2, 0xFF4AE07A); UiDraw.round(g, x + 6, y + 3, 5, 5, 2, 0xFF4A8AE0); }
+            default -> { UiDraw.round(g, x, y - 1, 10, 10, 5, color); UiDraw.round(g, x + 2, y + 1, 6, 6, 3, 0xFF12151B); g.fill(x + 4, y, x + 6, y + 8, color); }
+        }
+    }
     private void toggle(GuiGraphicsExtractor g, String key, String title, String description, boolean enabled, Runnable callback, Runnable settings) {
         int y = cursor;
         double over = motion("hover:" + key, hover(bodyX, y, bodyW, 48) ? 1 : 0);
         UiDraw.round(g, bodyX, y, bodyW, 48, 7, UiDraw.alpha(blend(0x191C22, 0x262B33, over), LavaVisualClient.config().menuOpacity));
+        double lit = motion("lit:" + key, enabled ? 1 : 0);
+        if (lit > 0.01) {
+            UiDraw.round(g, bodyX, y, bodyW, 48, 7, UiDraw.alpha(accent(), 0.06 * lit));
+            UiDraw.round(g, bodyX + 1, y + 11, 2, 26, 1, UiDraw.alpha(accent(), lit));
+        }
         text(g, title, bodyX + 11, y + 9, 0xFFE5E9F0, bodyW - 84);
         text(g, description, bodyX + 11, y + 29, 0xFF838994, bodyW - 22);
         double on = motion("toggle:" + key, enabled ? 1 : 0);
@@ -89,6 +110,8 @@ public final class ClickGuiScreen extends Screen {
         UiDraw.round(g, x, y + 21, w, 4, 2, 0xFF353A43);
         int filled = (int) Math.round(w * progress);
         if (filled > 0) UiDraw.round(g, x, y + 21, filled, 4, 2, accent());
+        if (filled > 0) g.fillGradient(x, y + 21, x + filled, y + 22, 0x40FFFFFF, 0x00FFFFFF);
+        UiDraw.round(g, x + filled - 7, y + 16, 14, 14, 7, UiDraw.alpha(accent(), 0.22));
         UiDraw.round(g, x + filled - 4, y + 18, 8, 10, 4, 0xFFF2F5FA);
         sliders.add(new Slider(x, y + 14, w, min, max, setter)); cursor += 38;
     }
@@ -115,8 +138,17 @@ public final class ClickGuiScreen extends Screen {
             UiDraw.round(g, left, top + 4, panelW, panelH, 11, 0x59000000);
         }
         UiDraw.round(g, left, top, panelW, panelH, 10, UiDraw.alpha(0x12151B, c.menuOpacity));
-        g.fill(left + side, top + 15, left + side + 1, top + panelH - 15, 0xFF292D35);
-        UiDraw.round(g, left + 13, top + 15, 25, 25, 7, accent());
+        int ac = accent();
+        UiDraw.round(g, left + 4, top + 4, side - 6, panelH - 8, 8, UiDraw.alpha(0x0C0F14, c.menuOpacity * 0.75));
+        g.fillGradient(left + side + 2, top + 1, left + panelW - 10, top + 46, UiDraw.alpha(ac, 0.09), UiDraw.alpha(ac, 0));
+        for (int gx = 0; gx < panelW - 24; gx += 3) {
+            double t = gx / (double) (panelW - 24), pulse = 0.55 + 0.45 * Math.sin(now / 6e8 + t * 6);
+            g.fill(left + 12 + gx, top, left + 15 + gx, top + 1, UiDraw.alpha(ac, 0.8 * Math.sin(Math.PI * t) * pulse));
+        }
+        g.fillGradient(left + side, top + 15, left + side + 1, top + panelH - 15, UiDraw.alpha(ac, 0.45), 0xFF292D35);
+        UiDraw.round(g, left + 9, top + 11, 33, 33, 11, UiDraw.alpha(ac, 0.20));
+        UiDraw.round(g, left + 13, top + 15, 25, 25, 7, ac);
+        g.fillGradient(left + 15, top + 16, left + 36, top + 28, 0x45FFFFFF, 0x00FFFFFF);
         text(g, "LV", left + 17, top + 23, 0xFF11181A, 23);
         text(g, "LavaVisual", left + 13, top + 47, 0xFFF1F4F8, side - 18);
         indicator += (page * 29 - indicator) * frameFactor;
@@ -124,10 +156,12 @@ public final class ClickGuiScreen extends Screen {
         UiDraw.round(g, left + 8, top + 79 + (int) indicator, 2, 11, 1, accent());
         for (int i = 0; i < TABS.length; i++) {
             int next = i, y = top + 72 + i * 29;
-            text(g, TABS[i], left + 19, y + 8, page == i ? accent() : 0xFF929BA9, side - 26);
+            int tabColor = page == i ? accent() : hover(left + 8, y, side - 16, 25) ? 0xFFC9D0DA : 0xFF929BA9;
+            tabIcon(g, i, left + 18, y + 8, tabColor);
+            text(g, TABS[i], left + 33, y + 8, tabColor, side - 40);
             hit(left + 8, y, side - 16, 25, () -> navigate(next));
         }
-        if (panelH > 300) text(g, "26.2 · 2.3", left + 13, top + panelH - 21, 0xFF586272, side - 18);
+        if (panelH > 300) text(g, "26.2 · 2.4", left + 13, top + panelH - 21, 0xFF586272, side - 18);
         text(g, selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : HudRenderer.title(selected), bodyX, top + 20, 0xFFF0F3F7, bodyW - 28);
         text(g, "×", left + panelW - 26, top + 17, 0xFFABB4C2, 16);
         hit(left + panelW - 31, top + 10, 24, 24, this::onClose);
@@ -257,9 +291,11 @@ public final class ClickGuiScreen extends Screen {
         String[] channels = {"Небо · R", "Небо · G", "Небо · B"};
         for (int i = 0; i < 3; i++) {
             int shift = (2 - i) * 8;
-            slider(g, channels[i], c.skyRgb >> shift & 255, 0, 255, v -> c.skyRgb = c.skyRgb & ~(255 << shift) | (int) Math.round(v) << shift, true);
+            slider(g, channels[i], c.skyRgb >> shift & 255, 0, 255, v -> { c.skyRgb = c.skyRgb & ~(255 << shift) | (int) Math.round(v) << shift; c.skyEnabled = true; }, true);
         }
-        slider(g, "Смешивание оттенка", c.skyStrength, 0, 1, v -> c.skyStrength = v, false);
+        slider(g, "Смешивание оттенка", c.skyStrength, 0, 1, v -> { c.skyStrength = v; c.skyEnabled = true; }, false);
+        UiDraw.round(g, bodyX, cursor, bodyW, 10, 5, 0xFF000000 | c.skyRgb);
+        cursor += 18;
         int pw = (bodyW - 16) / 3;
         int[][] presets = {{0x83B9FF, 0}, {0xFF8A3C, 100}, {0x8A4CFF, 100}, {0x2CE08A, 100}, {0xFF4C6A, 100}, {0x0A0E18, 100}};
         String[] presetNames = {"Ваниль", "Закат", "Неон", "Изумруд", "Алый", "Бездна"};
@@ -272,9 +308,8 @@ public final class ClickGuiScreen extends Screen {
             if (i % 3 == 2) cursor += 32;
         }
         if (presets.length % 3 != 0) cursor += 32;
-        toggle(g, "boost", "FPS Boost", "8 чанков, меньше частиц, без теней сущностей", c.fpsBoost, () -> { c.fpsBoost = !c.fpsBoost; tech.gulp.lavavisual.effects.PerformanceMode.update(minecraft); changed(); }, null);
+        toggle(g, "boost", "FPS Boost", "Тихая оптимизация без заметной потери картинки", c.fpsBoost, () -> { c.fpsBoost = !c.fpsBoost; tech.gulp.lavavisual.effects.PerformanceMode.update(minecraft); changed(); }, null);
         note(g, "Выключение возвращает прежние настройки.");
-        note(g, "Также уменьшает число наших искр и колец.");
     }
     private void settings(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config(); boolean cross = selected.equals("crosshair");

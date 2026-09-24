@@ -27,7 +27,8 @@ import org.joml.Vector3f;
 import tech.gulp.lavavisual.LavaVisualClient;
 import tech.gulp.lavavisual.ui.UiDraw;
 
-/** Shows a small badge above players who also run LavaVisual, when the server routes the channel. */
+/** LavaVisual badge next to the name tag of other LavaVisual users. Needs a server/LAN host
+    that also runs LavaVisual to relay the channel; otherwise nothing is shown. */
 public final class PlayerTags {
     public record TagPayload(UUID id) implements CustomPacketPayload {
         public static final Type<TagPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath("lavavisual", "tag"));
@@ -37,22 +38,26 @@ public final class PlayerTags {
         };
         @Override public Type<TagPayload> type() { return TYPE; }
     }
-    private static final RenderStateDataKey<List<Vec3>> DATA = RenderStateDataKey.create(() -> "lavavisual:tags");
+    private record Tag(Vec3 anchor, float half) { }
+    private static final RenderStateDataKey<List<Tag>> DATA = RenderStateDataKey.create(() -> "lavavisual:tags");
     private static final Set<UUID> KNOWN = ConcurrentHashMap.newKeySet();
     private static final Set<UUID> TAGGED = ConcurrentHashMap.newKeySet();
     private PlayerTags() { }
     public static void registerCommon() {
-        PayloadTypeRegistry.playC2S().register(TagPayload.TYPE, TagPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(TagPayload.TYPE, TagPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(TagPayload.TYPE, TagPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(TagPayload.TYPE, TagPayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(TagPayload.TYPE, (payload, context) -> {
-            var sender = context.player().getUUID();
-            KNOWN.add(sender);
-            context.server().execute(() -> {
-                for (var player : context.server().getPlayerList().getPlayers()) {
-                    if (!player.getUUID().equals(sender)) ServerPlayNetworking.send(player, payload);
-                    for (UUID known : KNOWN) if (!known.equals(player.getUUID()))
-                        ServerPlayNetworking.send(player, new TagPayload(known));
+            var sender = context.player();
+            UUID id = sender.getUUID();
+            if (!KNOWN.add(id)) return;
+            var server = context.server();
+            server.execute(() -> {
+                for (var player : server.getPlayerList().getPlayers()) {
+                    if (player.getUUID().equals(id) || !ServerPlayNetworking.canSend(player, TagPayload.TYPE)) continue;
+                    ServerPlayNetworking.send(player, new TagPayload(id));
                 }
+                if (ServerPlayNetworking.canSend(sender, TagPayload.TYPE))
+                    for (UUID known : KNOWN) if (!known.equals(id)) ServerPlayNetworking.send(sender, new TagPayload(known));
             });
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> KNOWN.remove(handler.getPlayer().getUUID()));
@@ -62,47 +67,77 @@ public final class PlayerTags {
                 context.client().execute(() -> TAGGED.add(payload.id())));
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             TAGGED.clear();
-            if (client.player != null) sender.sendPacket(new TagPayload(client.player.getUUID()));
+            if (client.player != null && ClientPlayNetworking.canSend(TagPayload.TYPE))
+                sender.sendPacket(new TagPayload(client.player.getUUID()));
         });
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> { TAGGED.clear(); KNOWN.clear(); });
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> TAGGED.clear());
         LevelExtractionEvents.END_EXTRACTION.register(context -> {
-            var level = Minecraft.getInstance().level;
-            if (TAGGED.isEmpty() || level == null) { context.levelState().setData(DATA, null); return; }
-            var positions = new ArrayList<Vec3>();
-            for (var player : level.players()) {
-                if (TAGGED.contains(player.getUUID()) && !player.isInvisible()) {
-                    positions.add(player.getEyePosition().add(0, 0.55, 0));
-                    if (positions.size() >= 24) break;
-                }
+            var mc = Minecraft.getInstance();
+            if (TAGGED.isEmpty() || mc.level == null || mc.player == null || mc.options.hideGui) {
+                context.levelState().setData(DATA, null);
+                return;
             }
-            context.levelState().setData(DATA, positions.isEmpty() ? null : List.copyOf(positions));
+            float partial = context.deltaTracker().getGameTimeDeltaPartialTick(false);
+            var tags = new ArrayList<Tag>();
+            for (var player : mc.level.players()) {
+                if (player == mc.player || player.isInvisible() || !TAGGED.contains(player.getUUID())) continue;
+                if (player.distanceToSqr(mc.player) > 48 * 48) continue;
+                Vec3 anchor = player.getPosition(partial).add(0, player.getBbHeight() + 0.39, 0);
+                tags.add(new Tag(anchor, mc.font.width(player.getDisplayName()) * 0.0125f));
+                if (tags.size() >= 24) break;
+            }
+            context.levelState().setData(DATA, tags.isEmpty() ? null : List.copyOf(tags));
         });
         LevelRenderEvents.BEFORE_TRANSLUCENT_TERRAIN.register(PlayerTags::render);
     }
     private static void render(LevelRenderContext context) {
-        List<Vec3> positions = context.levelState().getData(DATA);
-        if (positions == null || positions.isEmpty()) return;
+        List<Tag> tags = context.levelState().getData(DATA);
+        if (tags == null || tags.isEmpty()) return;
         Vec3 camera = context.levelState().cameraRenderState.pos;
         Quaternionf orientation = new Quaternionf(context.levelState().cameraRenderState.orientation);
         Vector3f right = new Vector3f(1, 0, 0).rotate(orientation), up = new Vector3f(0, 1, 0).rotate(orientation);
         int accent = LavaVisualClient.config().accent();
+        float spin = (System.currentTimeMillis() % 4000L) / 4000f * (float) (Math.PI * 2);
         context.poseStack().pushPose();
         try {
             context.submitNodeCollector().submitCustomGeometry(context.poseStack(), WorldCosmetics.GLOW, (pose, out) -> {
-                for (Vec3 origin : positions) {
-                    Vec3 p = origin.subtract(camera);
-                    diamond(pose, out, p, right, up, 0.24f, UiDraw.alpha(accent, 0.28));
-                    diamond(pose, out, p, right, up, 0.15f, UiDraw.alpha(accent, 0.9));
-                    diamond(pose, out, p, right, up, 0.06f, 0xFFFFFFFF);
+                for (Tag tag : tags) {
+                    float shift = -(tag.half() + 0.17f);
+                    Vec3 p = tag.anchor().subtract(camera).add(right.x() * shift, right.y() * shift, right.z() * shift);
+                    ring(pose, out, p, right, up, 0.10f, 0.19f, UiDraw.alpha(accent, 0.38), UiDraw.alpha(accent, 0));
+                    ring(pose, out, p, right, up, 0f, 0.10f, 0xFF000000 | brighten(accent), 0xFF000000 | accent);
+                    ring(pose, out, p, right, up, 0.078f, 0.10f, UiDraw.alpha(0xFFFFFF, 0.55), UiDraw.alpha(0xFFFFFF, 0.55));
+                    star(pose, out, p, right, up, spin, 0.068f, 0.017f, 0xFFFFFFFF);
                 }
             });
         } finally { context.poseStack().popPose(); }
     }
-    private static void diamond(PoseStack.Pose pose, VertexConsumer out, Vec3 p, Vector3f right, Vector3f up, float s, int color) {
-        vertex(pose, out, p, right, up, 0, s, color);
-        vertex(pose, out, p, right, up, s, 0, color);
-        vertex(pose, out, p, right, up, 0, -s, color);
-        vertex(pose, out, p, right, up, -s, 0, color);
+    private static int brighten(int rgb) {
+        int r = rgb >> 16 & 255, g = rgb >> 8 & 255, b = rgb & 255;
+        return (r + (255 - r) / 3) << 16 | (g + (255 - g) / 3) << 8 | (b + (255 - b) / 3);
+    }
+    /** Counter-clockwise ring/disc in camera space; inner==0 draws a filled disc. */
+    private static void ring(PoseStack.Pose pose, VertexConsumer out, Vec3 p, Vector3f r, Vector3f u, float inner, float outer, int innerColor, int outerColor) {
+        int segments = 20;
+        for (int i = 0; i < segments; i++) {
+            float a = (float) (Math.PI * 2 * i / segments), b = (float) (Math.PI * 2 * (i + 1) / segments);
+            float ca = (float) Math.cos(a), sa = (float) Math.sin(a), cb = (float) Math.cos(b), sb = (float) Math.sin(b);
+            vertex(pose, out, p, r, u, ca * inner, sa * inner, innerColor);
+            vertex(pose, out, p, r, u, ca * outer, sa * outer, outerColor);
+            vertex(pose, out, p, r, u, cb * outer, sb * outer, outerColor);
+            vertex(pose, out, p, r, u, cb * inner, sb * inner, innerColor);
+        }
+    }
+    /** Four-point sparkle, slowly rotating. */
+    private static void star(PoseStack.Pose pose, VertexConsumer out, Vec3 p, Vector3f r, Vector3f u, float spin, float length, float width, int color) {
+        for (int k = 0; k < 2; k++) {
+            float a = spin + k * (float) (Math.PI / 2), c = (float) Math.cos(a), s = (float) Math.sin(a);
+            float lx = c * length, ly = s * length, wx = -s * width, wy = c * width;
+            vertex(pose, out, p, r, u, -lx, -ly, color);
+            vertex(pose, out, p, r, u, wx, wy, color);
+            vertex(pose, out, p, r, u, lx, ly, color);
+            vertex(pose, out, p, r, u, -wx, -wy, color);
+        }
     }
     private static void vertex(PoseStack.Pose pose, VertexConsumer out, Vec3 p, Vector3f r, Vector3f u, float x, float y, int color) {
         out.addVertex(pose, (float) (p.x + r.x * x + u.x * y), (float) (p.y + r.y * x + u.y * y), (float) (p.z + r.z * x + u.z * y)).setColor(color);
