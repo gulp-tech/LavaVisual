@@ -202,13 +202,14 @@ public final class ClickGuiScreen extends Screen {
     }
     private void appearance(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
-        UiDraw.round(g, bodyX, cursor, bodyW, 36, 7, accent());
+        UiDraw.round(g, bodyX, cursor, bodyW, 24, 7, accent());
         int luminance = (c.rgb >> 16 & 255) * 3 + (c.rgb >> 8 & 255) * 6 + (c.rgb & 255);
-        text(g, String.format(Locale.ROOT, "RGB  #%06X", c.rgb), bodyX + 10, cursor + 13, luminance > 1350 ? 0xFF101820 : 0xFFFFFFFF, bodyW - 20); cursor += 48;
+        text(g, String.format(Locale.ROOT, "RGB  #%06X", c.rgb), bodyX + 10, cursor + 8, luminance > 1350 ? 0xFF101820 : 0xFFFFFFFF, bodyW - 20); cursor += 32;
         String[] names = {"R · Красный", "G · Зелёный", "B · Синий"};
         for (int i = 0; i < 3; i++) {
             int shift = (2 - i) * 8;
             slider(g, names[i], c.rgb >> shift & 255, 0, 255, v -> c.rgb = c.rgb & ~(255 << shift) | (int) Math.round(v) << shift, true);
+            cursor -= 6;
         }
         note(g, "Один цвет для меню, HUD и эффектов.");
         toggle(g, "shadows", "Тени панелей", "Мягкая глубина интерфейса", c.shadows, () -> { c.shadows = !c.shadows; changed(); }, null);
