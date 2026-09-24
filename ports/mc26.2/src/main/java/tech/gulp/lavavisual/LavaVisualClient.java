@@ -69,6 +69,7 @@ public final class LavaVisualClient implements ClientModInitializer {
                     if (smokeTicks == 350) client.gui.setScreen(new ClickGuiScreen(5));
                     if (smokeTicks == 370) client.gui.setScreen(new tech.gulp.lavavisual.ui.HandEditorScreen(new ClickGuiScreen()));
                     if (smokeTicks == 320) tech.gulp.lavavisual.effects.AudioRegression.run(client);
+                    if (smokeTicks == 390) LavaVisual.LOGGER.info("LavaVisual badge marker " + (tech.gulp.lavavisual.effects.Badge.marked(client.options.buildPlayerInformation()) ? "on" : "off"));
                     if (smokeTicks == 400) LavaVisual.LOGGER.info("LavaVisual UI smoke complete");
                 }
             }

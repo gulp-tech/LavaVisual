@@ -161,7 +161,7 @@ public final class ClickGuiScreen extends Screen {
             text(g, TABS[i], left + 33, y + 8, tabColor, side - 40);
             hit(left + 8, y, side - 16, 25, () -> navigate(next));
         }
-        if (panelH > 300) text(g, "26.2 · 2.4", left + 13, top + panelH - 21, 0xFF586272, side - 18);
+        if (panelH > 300) text(g, "26.2 · 2.4.1", left + 13, top + panelH - 21, 0xFF586272, side - 18);
         text(g, selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : HudRenderer.title(selected), bodyX, top + 20, 0xFFF0F3F7, bodyW - 28);
         text(g, "×", left + panelW - 26, top + 17, 0xFFABB4C2, 16);
         hit(left + panelW - 31, top + 10, 24, 24, this::onClose);
@@ -194,6 +194,9 @@ public final class ClickGuiScreen extends Screen {
             toggle(g, id, HudRenderer.title(id), desc, w.visible, () -> { w.visible = !w.visible; changed(); }, () -> select(id));
         }
         button(g, "Редактор расположения", () -> minecraft.gui.setScreen(new HudEditorScreen(this)));
+        var cfg = LavaVisualClient.config();
+        toggle(g, "badge", "Значок LavaVisual", "Иконка у ников игроков с модом; они видят ваш", cfg.badgeEnabled,
+                () -> { cfg.badgeEnabled = !cfg.badgeEnabled; changed(); if (minecraft != null) minecraft.options.broadcastOptions(); }, null);
     }
     private void effects(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();

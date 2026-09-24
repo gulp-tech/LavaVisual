@@ -39,7 +39,9 @@ public final class HandEditorScreen extends Screen {
     @Override public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
         var c = LavaVisualClient.config();
         g.fill(0, 0, width, height, 0x38000000);
-        UiFont.text(g, font, "Редактор рук · перетаскивайте ползунки, руки и предмет видны в игре", width / 2 - 240, 10, 0xFFE8EAF0, 480);
+        String title = "Редактор рук · руки и предмет видны в игре";
+        int titleW = Math.min(width - 16, font.width(UiFont.component(title)));
+        UiFont.text(g, font, title, (width - titleW) / 2, 10, 0xFFE8EAF0, titleW + 2);
         String[] labels = {"X · вправо / влево", "Y · выше / ниже", "Z · дальше от камеры", "Размер"};
         for (int i = 0; i < 4; i++) {
             int y = 34 + i * 34, x = barX();

@@ -27,8 +27,8 @@ import org.joml.Vector3f;
 import tech.gulp.lavavisual.LavaVisualClient;
 import tech.gulp.lavavisual.ui.UiDraw;
 
-/** LavaVisual badge next to the name tag of other LavaVisual users. Needs a server/LAN host
-    that also runs LavaVisual to relay the channel; otherwise nothing is shown. */
+/** LavaVisual badge next to the name tag of other LavaVisual users. Works on ordinary servers via
+    the relayed skin-parts marker (see Badge); the optional mod channel covers hosts running LavaVisual. */
 public final class PlayerTags {
     public record TagPayload(UUID id) implements CustomPacketPayload {
         public static final Type<TagPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath("lavavisual", "tag"));
@@ -73,14 +73,15 @@ public final class PlayerTags {
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> TAGGED.clear());
         LevelExtractionEvents.END_EXTRACTION.register(context -> {
             var mc = Minecraft.getInstance();
-            if (TAGGED.isEmpty() || mc.level == null || mc.player == null) {
+            if (!LavaVisualClient.config().badgeEnabled || mc.level == null || mc.player == null) {
                 context.levelState().setData(DATA, null);
                 return;
             }
             float partial = context.deltaTracker().getGameTimeDeltaPartialTick(false);
             var tags = new ArrayList<Tag>();
             for (var player : mc.level.players()) {
-                if (player == mc.player || player.isInvisible() || !TAGGED.contains(player.getUUID())) continue;
+                if (player == mc.player || player.isInvisible()) continue;
+                if (!TAGGED.contains(player.getUUID()) && !Badge.marked(player)) continue;
                 if (player.distanceToSqr(mc.player) > 48 * 48) continue;
                 Vec3 anchor = player.getPosition(partial).add(0, player.getBbHeight() + 0.39, 0);
                 tags.add(new Tag(anchor, mc.font.width(player.getDisplayName()) * 0.0125f));

@@ -29,7 +29,7 @@ with log.open('w') as output:
             if re.search(r'Failed to load font|Unable to load font|Failed to load[^\n]*lavavisual', text):
                 raise RuntimeError('LavaVisual resource loading failed')
             # Atlas creation follows model/shader loading. Stay alive for a few seconds afterwards.
-            if re.search(r'LavaVisual 2\.[0-9]+\.[0-9]+', text) and re.search(r'Created:.*(atlas|textures)', text) and 'LavaVisual UI smoke complete' in text and 'LavaVisual audio regression passed' in text:
+            if re.search(r'LavaVisual 2\.[0-9]+\.[0-9]+', text) and re.search(r'Created:.*(atlas|textures)', text) and 'LavaVisual UI smoke complete' in text and 'LavaVisual audio regression passed' in text and 'LavaVisual badge marker on' in text:
                 ready_since = ready_since or time.monotonic()
                 if time.monotonic() - ready_since >= 12:
                     # Loom may start its own Xvfb. Find the innermost display, rather than guessing :99.

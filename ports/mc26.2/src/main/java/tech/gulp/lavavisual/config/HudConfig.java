@@ -21,6 +21,7 @@ public final class HudConfig {
     public double hitVolume = 0.65, critVolume = 0.65, totemVolume = 0.65;
     public double menuScale = 0.8, menuOpacity = 0.9, menuDim = 0.12;
     public boolean markerEnabled, skyEnabled, fpsBoost;
+    public boolean badgeEnabled = true;
     public int markerShape, skyRgb = 0x83B9FF;
     public double markerDuration = 2, markerSize = 0.45, skyStrength = 0.65, targetHold = 3;
     public int savedRenderDistance = -1, savedParticles = -1;
