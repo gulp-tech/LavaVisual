@@ -1,4 +1,8 @@
-package net.fabricmc.loader.impl.discovery;
+package tech.gulp.lavavisual;
+
+import net.fabricmc.loader.impl.discovery.ModCandidateImpl;
+import net.fabricmc.loader.impl.discovery.ModResolver;
+import net.fabricmc.loader.impl.discovery.ModResolutionException;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.impl.metadata.DependencyOverrides;
@@ -21,6 +25,23 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Exercises the actual Fabric SAT resolver, not a hand-written version-range approximation. */
 class BundleResolutionTest {
+    // Fabric Loader is signed. Keep tests outside its packages and reflect only the package-private test factories.
+    private static ModCandidateImpl plain(List<Path> paths, LoaderModMetadata meta, boolean remap, java.util.Collection<ModCandidateImpl> nested) throws Exception {
+        var method = ModCandidateImpl.class.getDeclaredMethod("createPlain", List.class, LoaderModMetadata.class, boolean.class, java.util.Collection.class);
+        method.setAccessible(true);
+        return (ModCandidateImpl) method.invoke(null, paths, meta, remap, nested);
+    }
+    private static ModCandidateImpl nested(String path, long hash, LoaderModMetadata meta, boolean remap, java.util.Collection<ModCandidateImpl> children) throws Exception {
+        var method = ModCandidateImpl.class.getDeclaredMethod("createNested", String.class, long.class, LoaderModMetadata.class, boolean.class, java.util.Collection.class);
+        method.setAccessible(true);
+        return (ModCandidateImpl) method.invoke(null, path, hash, meta, remap, children);
+    }
+    private static void parent(ModCandidateImpl child, ModCandidateImpl parent) throws Exception {
+        var method = ModCandidateImpl.class.getDeclaredMethod("addParent", ModCandidateImpl.class);
+        method.setAccessible(true);
+        method.invoke(child, parent);
+    }
+
     private final VersionOverrides versions = new VersionOverrides();
     private final DependencyOverrides dependencies = new DependencyOverrides(Path.of("build/nonexistent-config"));
 
@@ -31,7 +52,7 @@ class BundleResolutionTest {
     private ModCandidateImpl builtin(String name, String version) throws Exception {
         String json = "{\"schemaVersion\":1,\"id\":\"" + name + "\",\"version\":\"" + version + "\"}";
         var meta = metadata(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)), name);
-        return ModCandidateImpl.createPlain(List.of(Path.of(name)), meta, false, List.of());
+        return plain(List.of(Path.of(name)), meta, false, List.of());
     }
 
     private List<ModCandidateImpl> resolve(String minecraft, String java, String api) throws Exception {
@@ -46,13 +67,13 @@ class BundleResolutionTest {
                     while ((resource = child.getNextEntry()) != null) {
                         if (!resource.getName().equals("fabric.mod.json")) continue;
                         var meta = metadata(new ByteArrayInputStream(child.readAllBytes()), entry.getName());
-                        nested.add(ModCandidateImpl.createNested(entry.getName(), 0, meta, false, List.of()));
+                        nested.add(nested(entry.getName(), 0, meta, false, List.of()));
                         break;
                     }
                 }
             }
-            var root = ModCandidateImpl.createPlain(List.of(bundle), rootMeta, false, nested);
-            for (var child : nested) child.addParent(root);
+            var root = plain(List.of(bundle), rootMeta, false, nested);
+            for (var child : nested) parent(child, root);
             candidates.add(root);
             candidates.addAll(nested);
         }
