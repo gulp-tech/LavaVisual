@@ -25,6 +25,7 @@ public final class LavaVisualClient implements ClientModInitializer {
     private Object previousWorld;
     private final boolean uiSmoke = Boolean.getBoolean("lavavisual.uiSmoke");
     private int smokeTicks = -1;
+    private boolean boostChecked;
     public static HudConfig config() { return config; }
     public static void save() { if (!STORE.save(config, 0)) LavaVisual.LOGGER.error("Could not save LavaVisual settings"); }
     public static void resetLayout() {
@@ -57,8 +58,10 @@ public final class LavaVisualClient implements ClientModInitializer {
                     if (smokeTicks == 220) client.gui.setScreen(new tech.gulp.lavavisual.ui.HudEditorScreen(new ClickGuiScreen()));
                     if (smokeTicks == 260) client.gui.setScreen(new ClickGuiScreen(3));
                     if (smokeTicks == 300) client.gui.setScreen(new ClickGuiScreen(4));
+                    if (smokeTicks == 350) client.gui.setScreen(new ClickGuiScreen(5));
+                    if (smokeTicks == 370) client.gui.setScreen(new tech.gulp.lavavisual.ui.HandEditorScreen(new ClickGuiScreen()));
                     if (smokeTicks == 320) tech.gulp.lavavisual.effects.AudioRegression.run(client);
-                    if (smokeTicks == 340) LavaVisual.LOGGER.info("LavaVisual UI smoke complete");
+                    if (smokeTicks == 400) LavaVisual.LOGGER.info("LavaVisual UI smoke complete");
                 }
             }
             while (menu.consumeClick()) if (client.gui.screen() == null) client.gui.setScreen(new ClickGuiScreen());
@@ -73,6 +76,7 @@ public final class LavaVisualClient implements ClientModInitializer {
                 nextSample = now + 1_000_000_000L;
                 STATE.performance = client.getFps() + " FPS";
             }
+            if (!boostChecked && client.options != null) { boostChecked = true; if (config.fpsBoost) tech.gulp.lavavisual.effects.PerformanceMode.update(client); }
             tech.gulp.lavavisual.hud.TargetSnapshot.update(client);
             tech.gulp.lavavisual.effects.WorldCosmetics.tick(client);
             if (client.player != null) {

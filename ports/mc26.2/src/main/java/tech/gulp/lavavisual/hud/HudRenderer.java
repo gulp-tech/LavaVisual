@@ -48,7 +48,13 @@ public final class HudRenderer {
                     if (target.skin() != null) {
                         g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, target.skin(), 9, 9, 8, 8, 32, 32, 8, 8, 64, 64);
                         g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, target.skin(), 9, 9, 40, 8, 32, 32, 8, 8, 64, 64);
-                    } else UiFont.text(g, mc.font, "LV", 17, 21, accent, 26);
+                    } else if (target.entity() != null && !target.entity().isRemoved()) {
+                        try {
+                            net.minecraft.client.gui.screens.inventory.InventoryScreen.extractEntityInInventoryFollowsMouse(g, 9, 9, 32, 32, 0, 25, 25, 14, target.entity());
+                        } catch (RuntimeException ignored) {
+                            UiFont.text(g, mc.font, target.name().isEmpty() ? "?" : target.name().substring(0, 1).toUpperCase(java.util.Locale.ROOT), 21, 21, accent, 26);
+                        }
+                    } else UiFont.text(g, mc.font, target.name().isEmpty() ? "?" : target.name().substring(0, 1).toUpperCase(java.util.Locale.ROOT), 21, 21, accent, 26);
                     UiFont.text(g, mc.font, target.name(), 49, 8, accent, bw - 57);
                     UiFont.text(g, mc.font, String.format(java.util.Locale.ROOT, "HP %.1f / %.1f", target.health(), target.maximum()), 49, 22, 0xFFE8E8EB, bw - 57);
                     UiFont.text(g, mc.font, String.format(java.util.Locale.ROOT, "Броня %d · %.1f м", target.armor(), target.distance()), 49, 36, 0xFF9698A3, bw - 57);

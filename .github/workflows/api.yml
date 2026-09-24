@@ -25,3 +25,5 @@ jobs:
           git commit -m 'Record cosmetic API signatures [skip ci]'
           git pull --rebase origin arena/01a0d2b1-lavavisual
           git push origin HEAD:arena/01a0d2b1-lavavisual
+
+# touch: rerun signatures
