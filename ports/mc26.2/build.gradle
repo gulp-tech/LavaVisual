@@ -33,17 +33,34 @@ jar { from('LICENSE') }
 tasks.register('apiSignatures') {
     doLast {
         def names = [
-            'com.mojang.blaze3d.platform.Window',
-            'net.minecraft.client.multiplayer.PlayerInfo',
-            'net.minecraft.client.multiplayer.ServerData',
-            'net.minecraft.client.gui.screens.inventory.InventoryScreen',
-            'net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState',
-            'net.minecraft.client.renderer.state.gui.pip.GuiEntityRenderState',
-            'net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState',
-            'net.minecraft.client.MouseHandler',
-            'net.minecraft.client.KeyMapping',
-            'net.minecraft.client.renderer.RenderPipelines',
-            'net.minecraft.client.Minecraft'
+            'net.minecraft.client.renderer.texture.DynamicTexture',
+            'com.mojang.blaze3d.platform.NativeImage',
+            'net.minecraft.client.renderer.texture.TextureManager',
+            'net.minecraft.world.level.material.MapColor',
+            'net.minecraft.world.level.material.MapColor$Brightness',
+            'net.minecraft.world.level.levelgen.Heightmap$Types',
+            'net.minecraft.world.level.dimension.DimensionType',
+            'net.minecraft.resources.ResourceKey',
+            'net.minecraft.client.Camera',
+            'com.mojang.blaze3d.platform.InputConstants',
+            'com.mojang.blaze3d.platform.InputConstants$Type',
+            'com.mojang.blaze3d.platform.InputConstants$Key',
+            'net.minecraft.client.input.KeyEvent',
+            'net.minecraft.client.input.CharacterEvent',
+            'net.minecraft.client.gui.components.EditBox',
+            'net.minecraft.client.gui.screens.Screen',
+            'net.minecraft.client.renderer.state.level.CameraRenderState',
+            'net.minecraft.client.renderer.state.level.LevelRenderState',
+            'net.minecraft.world.level.storage.WorldData',
+            'net.minecraft.client.CameraType',
+            'net.minecraft.world.level.LevelReader',
+            'net.minecraft.world.level.block.state.BlockBehaviour$BlockStateBase',
+            'com.mojang.blaze3d.pipeline.DepthStencilState',
+            'com.mojang.blaze3d.platform.CompareOp',
+            'net.minecraft.client.multiplayer.ClientLevel',
+            'net.minecraft.client.renderer.GameRenderer',
+            'net.minecraft.client.Options',
+            'net.minecraft.server.MinecraftServer'
         ]
         def result = new StringBuilder()
         names.each { name ->
