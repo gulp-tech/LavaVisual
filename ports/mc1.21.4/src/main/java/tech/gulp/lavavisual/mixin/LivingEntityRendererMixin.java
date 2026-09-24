@@ -1,5 +1,7 @@
 package tech.gulp.lavavisual.mixin;
 
+import tech.gulp.lavavisual.render.TargetState;
+
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.LivingEntityRenderer;

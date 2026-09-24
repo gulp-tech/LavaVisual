@@ -27,7 +27,7 @@ jobs:
           java-version: ${{ matrix.java }}
       - uses: gradle/actions/setup-gradle@v5
       - name: Install virtual display
-        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri libasound2t64
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri libasound2t64 libflite1
       - name: Start client and check resources and mixins
         run: python3 tools/client_smoke.py ports/mc${{ matrix.mc }}
       - uses: actions/upload-artifact@v4

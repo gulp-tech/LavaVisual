@@ -23,7 +23,7 @@ with log.open('w') as output:
             text = log.read_text(errors='replace')
             if process.poll() is not None:
                 raise RuntimeError(f'Client exited before completing startup: {process.returncode}')
-            if re.search(r'InjectionError|InvalidMixinException|MixinApplyError|Exception in thread|Reported exception thrown', text):
+            if re.search(r'InjectionError|InvalidMixinException|MixinApplyError|IllegalClassLoadError|Mixin transformation .* failed|Exception in thread|Reported exception thrown', text):
                 raise RuntimeError('Client or mixin initialization failed')
             # Atlas creation follows model/shader loading. Stay alive for a few seconds afterwards.
             if 'LavaVisual 1.1.0' in text and re.search(r'Created:.*(atlas|textures)', text):
