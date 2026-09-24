@@ -1,0 +1,12 @@
+// Used only by .github/workflows/api.yml: writes the compile classpath so javap can inspect any class.
+allprojects { p ->
+    p.afterEvaluate {
+        p.tasks.register('lavaClasspath') {
+            def cp = p.configurations.compileClasspath
+            doLast {
+                p.file('build').mkdirs()
+                p.file('build/lava-classpath.txt').text = cp.asPath
+            }
+        }
+    }
+}

@@ -15,9 +15,23 @@ jobs:
           java-version: '25'
       - uses: gradle/actions/setup-gradle@v5
       - run: bash tools/ci_run.sh ports/mc26.2/gradlew -p ports/mc26.2 apiSignatures --no-daemon
+      - run: bash tools/ci_run.sh ports/mc26.2/gradlew -p ports/mc26.2 --init-script "$GITHUB_WORKSPACE/tools/api-init.gradle" lavaClasspath --no-daemon
       - run: |
           mkdir -p docs/api
           cp ports/mc26.2/build/api-signatures.txt docs/api/editors26.2.txt
+          CP=$(cat ports/mc26.2/build/lava-classpath.txt)
+          OUT=docs/api/extra26.2.txt
+          : > "$OUT"
+          while read -r c; do
+            [ -z "$c" ] && continue
+            javap -p -classpath "$CP" "$c" >> "$OUT" 2>&1 || true
+            echo >> "$OUT"
+          done < tools/api-classes.txt
+          echo '== class index ==' >> "$OUT"
+          for j in $(echo "$CP" | tr ':' '\n'); do
+            [ -f "$j" ] || continue
+            unzip -Z1 "$j" 2>/dev/null | grep -E 'entity/state/|entity/layers/|rendering/v1/[A-Za-z]*(Layer|Feature)|client/model/[a-z/]*(Humanoid|Player)Model|renderer/entity/player/' | grep -v '[$]' | sed 's/[.]class$//' >> "$OUT" || true
+          done
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add docs/api/
@@ -36,3 +50,4 @@ jobs:
 
 # touch: window/pip/mouse/minecraft signatures
 # touch: minimap/binds/camera signatures
+# touch: render layer / gui / widget signatures
