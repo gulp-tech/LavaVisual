@@ -2,6 +2,9 @@
 
 **[Скачать lavavisual-2.7.0-mc26.2.jar](artifacts/lavavisual-2.7.0-mc26.2.jar)**
 
+![Звуки](artifacts/ui-2.7-sounds.png)
+![Редактор HUD](artifacts/ui-2.7-hud.png)
+
 ## Что нового в 2.7
 
 - **Чёткий шрифт.** Inter Medium/SemiBold растеризуется ровно под пиксели экрана: для каждого
