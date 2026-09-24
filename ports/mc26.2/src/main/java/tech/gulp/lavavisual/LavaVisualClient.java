@@ -80,7 +80,7 @@ public final class LavaVisualClient implements ClientModInitializer {
     }
     private static void changed(Minecraft client, String message) {
         CONFIG.save();
-        if (client.player != null) client.player.displayClientMessage(Component.literal(message), true);
+        if (client.player != null) client.gui.setOverlayMessage(Component.literal(message), false);
     }
     /** Called only during extraction, never from a deferred drawing callback. */
     public static boolean isTarget(Entity entity) {
@@ -90,7 +90,7 @@ public final class LavaVisualClient implements ClientModInitializer {
         if (entity instanceof Player player) {
             if (!CONFIG.players || player.isSpectator()) return false;
         } else if (!(entity instanceof Mob) || !CONFIG.mobs) return false;
-        return entity.distanceToSqr(client.gameRenderer.getMainCamera().position()) <= CONFIG.maxDistance * CONFIG.maxDistance;
+        return entity.distanceToSqr(client.getCameraEntity().position()) <= CONFIG.maxDistance * CONFIG.maxDistance;
     }
     private void extract(LevelExtractionContext context) {
         List<Target> targets = new ArrayList<>();
