@@ -16,7 +16,7 @@ import tech.gulp.lavavisual.effects.CustomAudio;
 import tech.gulp.lavavisual.hud.HudRenderer;
 
 public final class ClickGuiScreen extends Screen {
-    private record Hit(int x, int y, int w, int h, Runnable action) { }
+    private record Hit(int x, int y, int w, int h, Runnable action, boolean clipped) { }
     private record Slider(int x, int y, int width, double min, double max, DoubleConsumer setter) {
         void set(double mouse) { setter.accept(min + Math.clamp((mouse - x) / width, 0, 1) * (max - min)); }
     }
@@ -26,6 +26,7 @@ public final class ClickGuiScreen extends Screen {
     private final Map<String, Double> motions = new HashMap<>();
     private int page, left, top, panelW, panelH, side, bodyX, bodyW, clipTop, clipBottom, cursor, mx, my;
     private int contentHeight;
+    private boolean clippingHits;
     private double scroll, indicator, frameFactor;
     private String selected;
     private Slider dragging;
@@ -39,7 +40,7 @@ public final class ClickGuiScreen extends Screen {
     private void changed() { LavaVisualClient.save(); }
     private void navigate(int next) { page = next; selected = null; scroll = 0; dragging = null; hits.clear(); sliders.clear(); }
     private void select(String id) { selected = id; scroll = 0; }
-    private void hit(int x, int y, int w, int h, Runnable action) { hits.add(new Hit(x, y, w, h, action)); }
+    private void hit(int x, int y, int w, int h, Runnable action) { hits.add(new Hit(x, y, w, h, action, clippingHits)); }
     private void text(GuiGraphicsExtractor g, String value, int x, int y, int color, int width) { UiFont.text(g, font, value, x, y, color, Math.max(1, width)); }
     private int accent() { return LavaVisualClient.config().accent(); }
     private double motion(String key, double goal) {
@@ -128,8 +129,10 @@ public final class ClickGuiScreen extends Screen {
         g.fill(bodyX, top + 39, bodyX + (int) (bodyW * enter), top + 40, UiDraw.alpha(accent(), 0.32));
         cursor = clipTop + 3 - (int) scroll;
         g.enableScissor(bodyX - 1, clipTop, bodyX + bodyW + 1, clipBottom);
+        clippingHits = true;
         if (selected != null) settings(g);
         else switch (page) { case 0 -> hud(g); case 1 -> effects(g); case 2 -> hands(g); case 3 -> audio(g); default -> appearance(g); }
+        clippingHits = false;
         contentHeight = cursor + (int) scroll - clipTop;
         g.disableScissor();
         int max = Math.max(0, contentHeight - (clipBottom - clipTop));
@@ -219,7 +222,7 @@ public final class ClickGuiScreen extends Screen {
         toggle(g, "setting:" + selected, "Отображение", "Цвет задаётся во вкладке RGB / UI", cross ? c.crosshairEnabled : w.visible, () -> {
             if (cross) c.crosshairEnabled = !c.crosshairEnabled; else w.visible = !w.visible; changed();
         }, null);
-        slider(g, "Размер", cross ? c.crosshairScale : w.scale, cross ? 0.5 : 0.6, cross ? 2 : 1.6, v -> { if (cross) c.crosshairScale = v; else w.scale = v; }, false);
+        slider(g, "Размер", cross ? c.crosshairScale : w.scale, 0.6, cross ? 2 : 1.6, v -> { if (cross) c.crosshairScale = v; else w.scale = v; }, false);
         slider(g, cross ? "Непрозрачность" : "Плотность фона", cross ? c.crosshairOpacity : w.opacity, 0.2, 1, v -> { if (cross) c.crosshairOpacity = v; else w.opacity = v; }, false);
         if (cross) button(g, "Форма: " + new String[]{"", "точка", "плюс", "квадрат"}[c.crosshairShape], () -> { c.crosshairShape = c.crosshairShape % 3 + 1; changed(); });
         else button(g, "Переместить на экране", () -> minecraft.gui.setScreen(new HudEditorScreen(this, selected)));
@@ -232,9 +235,7 @@ public final class ClickGuiScreen extends Screen {
             }
         }
         for (Hit hit : hits) {
-            boolean content = hit.x >= bodyX && hit.y >= clipTop && hit.y < cursor;
-            if (content && hit.y < clipBottom && (event.y() < clipTop || event.y() >= clipBottom)) continue;
-            if (hit.x >= bodyX && hit.y >= clipBottom && hit.y < cursor && hit.y != clipBottom + 2) continue;
+            if (hit.clipped && (event.y() < clipTop || event.y() >= clipBottom)) continue;
             if (event.x() >= hit.x && event.x() < hit.x + hit.w && event.y() >= hit.y && event.y() < hit.y + hit.h) { hit.action.run(); return true; }
         }
         return super.mouseClicked(event, doubleClick);

@@ -4,41 +4,53 @@
     "author": "Kenney",
     "license": "CC0-1.0",
     "source": "https://github.com/iwenzhou/kenney/blob/master/Audio (295 files)/RPG sounds (50 sounds)/knifeSlice.ogg",
-    "sha256": "4cd96dc630bed9840c15f1dd2306da2cc56a4da26a5d3f1a03c5a7265ac5e54f"
+    "source_sha256": "4cd96dc630bed9840c15f1dd2306da2cc56a4da26a5d3f1a03c5a7265ac5e54f",
+    "conversion": "FFmpeg libvorbis -ac 1 -ar 44100 -q:a 5",
+    "distributed_sha256": "21878f489c719c93d022a4be118f3fb6d00e157fca3670355a965dc596573b81"
   },
   {
     "file": "hit_heavy.ogg",
     "author": "Kenney",
     "license": "CC0-1.0",
     "source": "https://github.com/iwenzhou/kenney/blob/master/Audio (295 files)/RPG sounds (50 sounds)/chop.ogg",
-    "sha256": "d00c2b3c9fff07e376145c8c8c45c90e5084ec192f6ce0387db233f7b86f1486"
+    "source_sha256": "d00c2b3c9fff07e376145c8c8c45c90e5084ec192f6ce0387db233f7b86f1486",
+    "conversion": "FFmpeg libvorbis -ac 1 -ar 44100 -q:a 5",
+    "distributed_sha256": "3c2a61d2d37665cdda0355c69c36336bb5ac04fba761ffe1a7bbda0cc2eb45a4"
   },
   {
     "file": "crit_metal.ogg",
     "author": "Kenney",
     "license": "CC0-1.0",
     "source": "https://github.com/iwenzhou/kenney/blob/master/Audio (295 files)/RPG sounds (50 sounds)/metalPot1.ogg",
-    "sha256": "159def979e8e386c2c539f5e99cc30a080eb2dcb6c911fa2e4ccc0785b2522fd"
+    "source_sha256": "159def979e8e386c2c539f5e99cc30a080eb2dcb6c911fa2e4ccc0785b2522fd",
+    "conversion": "FFmpeg libvorbis -ac 1 -ar 44100 -q:a 5",
+    "distributed_sha256": "814ce24e606fa28ba6fec385fbd4ef83566abe1eaa7482444a066dc0539bafba"
   },
   {
     "file": "crit_arcade.ogg",
     "author": "Kenney",
     "license": "CC0-1.0",
     "source": "https://github.com/iwenzhou/kenney/blob/master/Audio (295 files)/Digital sounds (60 sounds)/laser1.ogg",
-    "sha256": "57f0ca591846e341b2e89af3321959f8e820626e510b2130274c824a133a5f97"
+    "source_sha256": "57f0ca591846e341b2e89af3321959f8e820626e510b2130274c824a133a5f97",
+    "conversion": "FFmpeg libvorbis -ac 1 -ar 44100 -q:a 5",
+    "distributed_sha256": "2d9e3d72dc3a37c2f0b37e5f1c5cdbc5807fe3cdff97d9f1eeb9da186702bd15"
   },
   {
     "file": "totem_chime.ogg",
     "author": "Kenney",
     "license": "CC0-1.0",
     "source": "https://github.com/iwenzhou/kenney/blob/master/Audio (295 files)/Jingle sounds (85 sounds)/jingles_HIT/jingles_HIT00.ogg",
-    "sha256": "e23d8c9e971a4e34484bc834a3ec1d560811ec6f5edd5efa2c61e583c18c504a"
+    "source_sha256": "e23d8c9e971a4e34484bc834a3ec1d560811ec6f5edd5efa2c61e583c18c504a",
+    "conversion": "FFmpeg libvorbis -ac 1 -ar 44100 -q:a 5",
+    "distributed_sha256": "47c9fa23bfbfef9272d8cadd6674a96a5891811ff33098878412b76c609a37a7"
   },
   {
     "file": "totem_arcade.ogg",
     "author": "Kenney",
     "license": "CC0-1.0",
     "source": "https://github.com/iwenzhou/kenney/blob/master/Audio (295 files)/Digital sounds (60 sounds)/powerUp7.ogg",
-    "sha256": "fa15881860c806d4d865acb202f703adc7522de2d181ed163422dd0b0dbfd664"
+    "source_sha256": "fa15881860c806d4d865acb202f703adc7522de2d181ed163422dd0b0dbfd664",
+    "conversion": "FFmpeg libvorbis -ac 1 -ar 44100 -q:a 5",
+    "distributed_sha256": "8c6beae4907024f920443508863e17cb927a108f69cd1d94f48af470c6d6d727"
   }
 ]

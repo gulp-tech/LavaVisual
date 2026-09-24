@@ -26,7 +26,7 @@ public final class HudEditorScreen extends Screen {
     @Override public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
         g.fill(0, 0, width, height, 0x50000000);
         HudRenderer.draw(g, true, selected);
-        g.centeredText(font, "Перетащите панель мышью. Это предпросмотр — скрытые панели тоже видны.", width / 2, height - 40, 0xFFFFFFFF);
+        g.centeredText(font, UiFont.component("Перетащите панель мышью. Предпросмотр показывает и выключенные панели."), width / 2, height - 40, 0xFFFFFFFF);
         super.extractRenderState(g, mx, my, delta);
     }
     @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {

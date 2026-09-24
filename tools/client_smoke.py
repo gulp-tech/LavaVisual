@@ -48,7 +48,15 @@ with log.open('w') as output:
             os.killpg(process.pid, signal.SIGKILL)
             process.wait()
 if result:
-    lines = log.read_text(errors='replace').splitlines()[-120:]
+    all_lines = log.read_text(errors='replace').splitlines()
+    indices = set(range(max(0, len(all_lines) - 30), len(all_lines)))
+    for i, line in enumerate(all_lines):
+        if re.search(r'Exception|Error|Caused by:|Failed|crash|Description:', line):
+            indices.update(range(max(0, i - 2), min(len(all_lines), i + 12)))
+    lines = [all_lines[i] for i in sorted(indices)][:350]
+    reports = sorted((project / 'run' / 'crash-reports').glob('*.txt'))
+    if reports:
+        lines = reports[-1].read_text(errors='replace').splitlines()[:100] + lines
     for start in range(0, len(lines), 15):
         message = '\n'.join(lines[start:start + 15]).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
         print('::error title=Client startup diagnostics::' + message)
