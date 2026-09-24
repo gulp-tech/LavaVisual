@@ -239,6 +239,154 @@ public interface net.minecraft.client.renderer.SubmitNodeCollector extends net.m
   public abstract net.minecraft.client.renderer.OrderedSubmitNodeCollector order(int);
 }
 
+Compiled from "OrderedSubmitNodeCollector.java"
+public interface net.minecraft.client.renderer.OrderedSubmitNodeCollector extends net.fabricmc.fabric.api.client.renderer.v1.render.FabricOrderedSubmitNodeCollector,net.fabricmc.fabric.api.client.rendering.v1.FabricOrderedSubmitNodeCollector {
+  public abstract void submitShadow(com.mojang.blaze3d.vertex.PoseStack, float, java.util.List<net.minecraft.client.renderer.entity.state.EntityRenderState$ShadowPiece>);
+  public abstract void submitNameTag(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.world.phys.Vec3, int, net.minecraft.network.chat.Component, boolean, int, net.minecraft.client.renderer.state.level.CameraRenderState);
+  public abstract void submitText(com.mojang.blaze3d.vertex.PoseStack, float, float, net.minecraft.util.FormattedCharSequence, boolean, net.minecraft.client.gui.Font$DisplayMode, int, int, int, int);
+  public abstract void submitFlame(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.entity.state.EntityRenderState, org.joml.Quaternionf);
+  public abstract void submitLeash(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.entity.state.EntityRenderState$LeashState);
+  public abstract <S> void submitModel(net.minecraft.client.model.Model<? super S>, S, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.rendertype.RenderType, int, int, int, net.minecraft.client.renderer.texture.TextureAtlasSprite, int, net.minecraft.client.renderer.feature.ModelFeatureRenderer$CrumblingOverlay);
+  public default <S> void submitModel(net.minecraft.client.model.Model<? super S>, S, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.rendertype.RenderType, int, int, int, net.minecraft.client.renderer.feature.ModelFeatureRenderer$CrumblingOverlay);
+  public default <S> void submitModel(net.minecraft.client.model.Model<? super S>, S, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.resources.Identifier, int, int, int, net.minecraft.client.renderer.feature.ModelFeatureRenderer$CrumblingOverlay);
+  public default <S> void submitModel(net.minecraft.client.model.Model<S>, S, com.mojang.blaze3d.vertex.PoseStack, int, int, int, net.minecraft.client.resources.model.sprite.SpriteId, net.minecraft.client.resources.model.sprite.SpriteGetter, int, net.minecraft.client.renderer.feature.ModelFeatureRenderer$CrumblingOverlay);
+  public default void submitModelPart(net.minecraft.client.model.geom.ModelPart, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.rendertype.RenderType, int, int, net.minecraft.client.renderer.texture.TextureAtlasSprite);
+  public default void submitModelPart(net.minecraft.client.model.geom.ModelPart, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.rendertype.RenderType, int, int, net.minecraft.client.renderer.texture.TextureAtlasSprite, int, net.minecraft.client.renderer.feature.ModelFeatureRenderer$CrumblingOverlay);
+  public default void submitModelPart(net.minecraft.client.model.geom.ModelPart, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.rendertype.RenderType, int, int, net.minecraft.client.renderer.texture.TextureAtlasSprite, int, net.minecraft.client.renderer.feature.ModelFeatureRenderer$CrumblingOverlay, int);
+  public abstract void submitMovingBlock(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.block.MovingBlockRenderState, int);
+  public abstract void submitBlockModel(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.rendertype.RenderType, java.util.List<net.minecraft.client.renderer.block.dispatch.BlockStateModelPart>, int[], int, int, int);
+  public abstract void submitBreakingBlockModel(com.mojang.blaze3d.vertex.PoseStack, java.util.List<net.minecraft.client.renderer.block.dispatch.BlockStateModelPart>, int);
+  public abstract void submitShapeOutline(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.world.phys.shapes.VoxelShape, net.minecraft.client.renderer.rendertype.RenderType, int, float, boolean);
+  public abstract void submitItem(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.world.item.ItemDisplayContext, int, int, int, int[], java.util.List<net.minecraft.client.resources.model.geometry.BakedQuad>, net.minecraft.client.renderer.item.ItemStackRenderState$FoilType);
+  public abstract void submitCustomGeometry(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.rendertype.RenderType, net.minecraft.client.renderer.SubmitNodeCollector$CustomGeometryRenderer);
+  public abstract void submitQuadParticleGroup(net.minecraft.client.renderer.state.level.QuadParticleRenderState);
+  public abstract void submitGizmoPrimitives(net.minecraft.client.renderer.gizmos.DrawableGizmoPrimitives$Group, net.minecraft.client.renderer.state.level.CameraRenderState, boolean);
+  private static net.minecraft.client.renderer.rendertype.RenderType lambda$submitModelPart$0(net.minecraft.client.renderer.rendertype.RenderType, net.minecraft.resources.Identifier);
+}
+
+Compiled from "DepthStencilState.java"
+public final class com.mojang.blaze3d.pipeline.DepthStencilState extends java.lang.Record {
+  private final com.mojang.blaze3d.platform.CompareOp depthTest;
+  private final boolean writeDepth;
+  private final float depthBiasScaleFactor;
+  private final float depthBiasConstant;
+  public static final com.mojang.blaze3d.pipeline.DepthStencilState DEFAULT;
+  public com.mojang.blaze3d.pipeline.DepthStencilState(com.mojang.blaze3d.platform.CompareOp, boolean);
+  public com.mojang.blaze3d.pipeline.DepthStencilState(com.mojang.blaze3d.platform.CompareOp, boolean, float, float);
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public com.mojang.blaze3d.platform.CompareOp depthTest();
+  public boolean writeDepth();
+  public float depthBiasScaleFactor();
+  public float depthBiasConstant();
+  static {};
+}
+
+Compiled from "ColorTargetState.java"
+public final class com.mojang.blaze3d.pipeline.ColorTargetState extends java.lang.Record {
+  private final java.util.Optional<com.mojang.blaze3d.pipeline.BlendFunction> blendFunction;
+  private final com.mojang.blaze3d.GpuFormat format;
+  private final int writeMask;
+  public static final int WRITE_RED;
+  public static final int WRITE_GREEN;
+  public static final int WRITE_BLUE;
+  public static final int WRITE_ALPHA;
+  public static final int WRITE_COLOR;
+  public static final int WRITE_ALL;
+  public static final int WRITE_NONE;
+  public static final com.mojang.blaze3d.pipeline.ColorTargetState DEFAULT;
+  public static final int MAX_COLOR_TARGETS;
+  public com.mojang.blaze3d.pipeline.ColorTargetState(com.mojang.blaze3d.pipeline.BlendFunction);
+  public com.mojang.blaze3d.pipeline.ColorTargetState(java.util.Optional<com.mojang.blaze3d.pipeline.BlendFunction>, com.mojang.blaze3d.GpuFormat, int);
+  public boolean writeRed();
+  public boolean writeGreen();
+  public boolean writeBlue();
+  public boolean writeAlpha();
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public java.util.Optional<com.mojang.blaze3d.pipeline.BlendFunction> blendFunction();
+  public com.mojang.blaze3d.GpuFormat format();
+  public int writeMask();
+  static {};
+}
+
+Compiled from "BlendFunction.java"
+public final class com.mojang.blaze3d.pipeline.BlendFunction extends java.lang.Record {
+  private final com.mojang.blaze3d.pipeline.BlendEquation color;
+  private final com.mojang.blaze3d.pipeline.BlendEquation alpha;
+  public static final com.mojang.blaze3d.pipeline.BlendFunction LIGHTNING;
+  public static final com.mojang.blaze3d.pipeline.BlendFunction GLINT;
+  public static final com.mojang.blaze3d.pipeline.BlendFunction OVERLAY;
+  public static final com.mojang.blaze3d.pipeline.BlendFunction TRANSLUCENT;
+  public static final com.mojang.blaze3d.pipeline.BlendFunction TRANSLUCENT_PREMULTIPLIED_ALPHA;
+  public static final com.mojang.blaze3d.pipeline.BlendFunction ADDITIVE;
+  public static final com.mojang.blaze3d.pipeline.BlendFunction ENTITY_OUTLINE_BLIT;
+  public static final com.mojang.blaze3d.pipeline.BlendFunction INVERT;
+  public com.mojang.blaze3d.pipeline.BlendFunction(com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendOp, com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendOp);
+  public com.mojang.blaze3d.pipeline.BlendFunction(com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendFactor);
+  public com.mojang.blaze3d.pipeline.BlendFunction(com.mojang.blaze3d.pipeline.BlendEquation);
+  public com.mojang.blaze3d.pipeline.BlendFunction(com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendOp);
+  public com.mojang.blaze3d.pipeline.BlendFunction(com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendFactor);
+  public com.mojang.blaze3d.pipeline.BlendFunction(com.mojang.blaze3d.pipeline.BlendEquation, com.mojang.blaze3d.pipeline.BlendEquation);
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public com.mojang.blaze3d.pipeline.BlendEquation color();
+  public com.mojang.blaze3d.pipeline.BlendEquation alpha();
+  static {};
+}
+
+Compiled from "Model.java"
+public abstract class net.minecraft.client.model.Model<S> implements net.fabricmc.fabric.api.client.rendering.v1.FabricModel<S> {
+  protected final net.minecraft.client.model.geom.ModelPart root;
+  protected final java.util.function.Function<net.minecraft.resources.Identifier, net.minecraft.client.renderer.rendertype.RenderType> renderType;
+  private final java.util.List<net.minecraft.client.model.geom.ModelPart> allParts;
+  public net.minecraft.client.model.Model(net.minecraft.client.model.geom.ModelPart, java.util.function.Function<net.minecraft.resources.Identifier, net.minecraft.client.renderer.rendertype.RenderType>);
+  public final java.util.function.Function<net.minecraft.resources.Identifier, net.minecraft.client.renderer.rendertype.RenderType> renderType();
+  public final net.minecraft.client.renderer.rendertype.RenderType renderType(net.minecraft.resources.Identifier);
+  public final void renderToBuffer(com.mojang.blaze3d.vertex.PoseStack, com.mojang.blaze3d.vertex.VertexConsumer, int, int, int);
+  public final net.minecraft.client.model.geom.ModelPart root();
+  public final java.util.List<net.minecraft.client.model.geom.ModelPart> allParts();
+  public void setupAnim(S);
+  public final void resetPose();
+}
+
+Compiled from "ModelFeatureRenderer.java"
+public final class net.minecraft.client.renderer.feature.ModelFeatureRenderer$CrumblingOverlay extends java.lang.Record {
+  private final int progress;
+  private final com.mojang.blaze3d.vertex.PoseStack$Pose cameraPose;
+  public net.minecraft.client.renderer.feature.ModelFeatureRenderer$CrumblingOverlay(int, com.mojang.blaze3d.vertex.PoseStack$Pose);
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public int progress();
+  public com.mojang.blaze3d.vertex.PoseStack$Pose cameraPose();
+}
+
+Compiled from "PrimitiveTopology.java"
+public final class com.mojang.blaze3d.PrimitiveTopology extends java.lang.Enum<com.mojang.blaze3d.PrimitiveTopology> {
+  public static final com.mojang.blaze3d.PrimitiveTopology LINES;
+  public static final com.mojang.blaze3d.PrimitiveTopology DEBUG_LINES;
+  public static final com.mojang.blaze3d.PrimitiveTopology DEBUG_LINE_STRIP;
+  public static final com.mojang.blaze3d.PrimitiveTopology POINTS;
+  public static final com.mojang.blaze3d.PrimitiveTopology TRIANGLES;
+  public static final com.mojang.blaze3d.PrimitiveTopology TRIANGLE_STRIP;
+  public static final com.mojang.blaze3d.PrimitiveTopology TRIANGLE_FAN;
+  public static final com.mojang.blaze3d.PrimitiveTopology QUADS;
+  public final int primitiveLength;
+  public final int primitiveStride;
+  public final boolean connectedPrimitives;
+  private static final com.mojang.blaze3d.PrimitiveTopology[] $VALUES;
+  public static com.mojang.blaze3d.PrimitiveTopology[] values();
+  public static com.mojang.blaze3d.PrimitiveTopology valueOf(java.lang.String);
+  private com.mojang.blaze3d.PrimitiveTopology(int, int, boolean);
+  public int indexCount(int);
+  private static com.mojang.blaze3d.PrimitiveTopology[] $values();
+  static {};
+}
+
 Compiled from "LivingEntityRenderer.java"
 public abstract class net.minecraft.client.renderer.entity.LivingEntityRenderer<T extends net.minecraft.world.entity.LivingEntity, S extends net.minecraft.client.renderer.entity.state.LivingEntityRenderState, M extends net.minecraft.client.model.EntityModel<? super S>> extends net.minecraft.client.renderer.entity.EntityRenderer<T, S> implements net.minecraft.client.renderer.entity.RenderLayerParent<S, M> {
   private static final float EYE_BED_OFFSET;
@@ -554,3 +702,167 @@ public interface com.mojang.blaze3d.vertex.VertexConsumer {
   public default com.mojang.blaze3d.vertex.VertexConsumer setNormal(com.mojang.blaze3d.vertex.PoseStack$Pose, org.joml.Vector3fc);
 }
 
+public void submit(S, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, net.minecraft.client.renderer.state.level.CameraRenderState);
+    Code:
+         0: aload_2
+         1: invokevirtual #144                // Method com/mojang/blaze3d/vertex/PoseStack.pushPose:()V
+         4: aload_1
+         5: getstatic     #150                // Field net/minecraft/world/entity/Pose.SLEEPING:Lnet/minecraft/world/entity/Pose;
+         8: invokevirtual #156                // Method net/minecraft/client/renderer/entity/state/LivingEntityRenderState.hasPose:(Lnet/minecraft/world/entity/Pose;)Z
+        11: ifeq          59
+        14: aload_1
+        15: getfield      #160                // Field net/minecraft/client/renderer/entity/state/LivingEntityRenderState.bedOrientation:Lnet/minecraft/core/Direction;
+        18: astore        5
+        20: aload         5
+        22: ifnull        59
+        25: aload_1
+        26: getfield      #163                // Field net/minecraft/client/renderer/entity/state/LivingEntityRenderState.eyeHeight:F
+        29: ldc           #33                 // float 0.1f
+        31: fsub
+        32: fstore        6
+        34: aload_2
+        35: aload         5
+        37: invokevirtual #169                // Method net/minecraft/core/Direction.getStepX:()I
+        40: ineg
+        41: i2f
+        42: fload         6
+        44: fmul
+        45: fconst_0
+        46: aload         5
+        48: invokevirtual #172                // Method net/minecraft/core/Direction.getStepZ:()I
+        51: ineg
+        52: i2f
+        53: fload         6
+        55: fmul
+        56: invokevirtual #176                // Method com/mojang/blaze3d/vertex/PoseStack.translate:(FFF)V
+        59: aload_1
+        60: getfield      #179                // Field net/minecraft/client/renderer/entity/state/LivingEntityRenderState.scale:F
+        63: fstore        5
+        65: aload_2
+        66: fload         5
+        68: fload         5
+        70: fload         5
+        72: invokevirtual #181                // Method com/mojang/blaze3d/vertex/PoseStack.scale:(FFF)V
+        75: aload_0
+        76: aload_1
+        77: aload_2
+        78: aload_1
+        79: getfield      #184                // Field net/minecraft/client/renderer/entity/state/LivingEntityRenderState.bodyRot:F
+        82: fload         5
+        84: invokevirtual #188                // Method setupRotations:(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FF)V
+        87: aload_2
+        88: ldc           #189                // float -1.0f
+        90: ldc           #189                // float -1.0f
+        92: fconst_1
+        93: invokevirtual #181                // Method com/mojang/blaze3d/vertex/PoseStack.scale:(FFF)V
+        96: aload_0
+        97: aload_1
+        98: aload_2
+        99: invokevirtual #192                // Method scale:(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;)V
+       102: aload_2
+       103: fconst_0
+       104: ldc           #193                // float -1.501f
+       106: fconst_0
+       107: invokevirtual #176                // Method com/mojang/blaze3d/vertex/PoseStack.translate:(FFF)V
+       110: aload_0
+       111: aload_1
+       112: invokevirtual #197                // Method isBodyVisible:(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;)Z
+       115: istore        6
+       117: iload         6
+       119: ifne          133
+       122: aload_1
+       123: getfield      #201                // Field net/minecraft/client/renderer/entity/state/LivingEntityRenderState.isInvisibleToPlayer:Z
+       126: ifne          133
+       129: iconst_1
+       130: goto          134
+       133: iconst_0
+       134: istore        7
+       136: aload_0
+       137: aload_1
+       138: iload         6
+       140: iload         7
+       142: aload_1
+       143: invokevirtual #205                // Method net/minecraft/client/renderer/entity/state/LivingEntityRenderState.appearsGlowing:()Z
+       146: invokevirtual #209                // Method getRenderType:(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;ZZZ)Lnet/minecraft/client/renderer/rendertype/RenderType;
+       149: astore        8
+       151: aload         8
+       153: ifnull        220
+       156: aload_1
+       157: aload_0
+       158: aload_1
+       159: invokevirtual #213                // Method getWhiteOverlayProgress:(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;)F
+       162: invokestatic  #217                // Method getOverlayCoords:(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;F)I
+       165: istore        9
+       167: iload         7
+       169: ifeq          177
+       172: ldc           #218                // int 654311423
+       174: goto          178
+       177: iconst_m1
+       178: istore        10
+       180: iload         10
+       182: aload_0
+       183: aload_1
+       184: invokevirtual #224                // Method getModelTint:(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;)I
+       187: invokestatic  #230                // Method net/minecraft/util/ARGB.multiply:(II)I
+       190: istore        11
+       192: aload_3
+       193: aload_0
+       194: getfield      #65                 // Field model:Lnet/minecraft/client/model/EntityModel;
+       197: aload_1
+       198: aload_2
+       199: aload         8
+       201: aload_1
+       202: getfield      #234                // Field net/minecraft/client/renderer/entity/state/LivingEntityRenderState.lightCoords:I
+       205: iload         9
+       207: iload         11
+       209: aconst_null
+       210: aload_1
+       211: getfield      #237                // Field net/minecraft/client/renderer/entity/state/LivingEntityRenderState.outlineColor:I
+       214: aconst_null
+       215: invokeinterface #243,  11         // InterfaceMethod net/minecraft/client/renderer/SubmitNodeCollector.submitModel:(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IIILnet/minecraft/client/renderer/texture/TextureAtlasSprite;ILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V
+       220: aload_0
+       221: aload_1
+       222: invokevirtual #246                // Method shouldRenderLayers:(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;)Z
+       225: ifeq          304
+       228: aload_0
+       229: getfield      #57                 // Field layers:Ljava/util/List;
+       232: invokeinterface #249,  1          // InterfaceMethod java/util/List.isEmpty:()Z
+       237: ifne          304
+       240: aload_0
+       241: getfield      #65                 // Field model:Lnet/minecraft/client/model/EntityModel;
+       244: aload_1
+       245: invokevirtual #255                // Method net/minecraft/client/model/EntityModel.setupAnim:(Ljava/lang/Object;)V
+       248: aload_0
+       249: getfield      #57                 // Field layers:Ljava/util/List;
+       252: invokeinterface #259,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+       257: astore        9
+       259: aload         9
+       261: invokeinterface #264,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       266: ifeq          304
+       269: aload         9
+       271: invokeinterface #268,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       276: checkcast     #270                // class net/minecraft/client/renderer/entity/layers/RenderLayer
+       279: astore        10
+       281: aload         10
+       283: aload_2
+       284: aload_3
+       285: aload_1
+       286: getfield      #234                // Field net/minecraft/client/renderer/entity/state/LivingEntityRenderState.lightCoords:I
+       289: aload_1
+       290: aload_1
+       291: getfield      #273                // Field net/minecraft/client/renderer/entity/state/LivingEntityRenderState.yRot:F
+       294: aload_1
+       295: getfield      #276                // Field net/minecraft/client/renderer/entity/state/LivingEntityRenderState.xRot:F
+       298: invokevirtual #279                // Method net/minecraft/client/renderer/entity/layers/RenderLayer.submit:(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/EntityRenderState;FF)V
+       301: goto          259
+       304: aload_2
+       305: invokevirtual #282                // Method com/mojang/blaze3d/vertex/PoseStack.popPose:()V
+       308: aload_0
+       309: aload_1
+       310: aload_2
+       311: aload_3
+       312: aload         4
+       314: invokespecial #285                // Method net/minecraft/client/renderer/entity/EntityRenderer.submit:(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V
+       317: return
+
+  
