@@ -8,8 +8,8 @@ import zipfile
 
 ADAPTERS = {
     '1.20.4': 'lavavisual-1.0.0+mc1.20.4.jar',
-    '1.21.4': 'lavavisual-1.1.0+mc1.21.4.jar',
-    '26.2': 'lavavisual-1.1.0+mc26.2.jar',
+    '1.21.4': 'lavavisual-1.1.0-mc1.21.4.jar',
+    '26.2': 'lavavisual-1.1.0-mc26.2.jar',
 }
 
 
