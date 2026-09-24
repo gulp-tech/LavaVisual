@@ -1,5 +1,18 @@
 {
   "key.category.lavavisual.hud": "LavaVisual HUD",
-  "key.lavavisual.menu": "Настройки HUD",
-  "key.lavavisual.toggle": "Выключить все модули"
+  "key.lavavisual.menu": "Меню LavaVisual",
+  "key.lavavisual.toggle": "Выключить все модули",
+  "key.lavavisual.waypoint_add": "Поставить метку",
+  "key.lavavisual.waypoints": "Список меток",
+  "key.lavavisual.minimap": "Миникарта вкл/выкл",
+  "key.lavavisual.minimap_zoom": "Масштаб миникарты",
+  "key.lavavisual.hud": "Скрыть / показать HUD",
+  "key.lavavisual.target": "Target HUD вкл/выкл",
+  "key.lavavisual.crosshair": "Прицел вкл/выкл",
+  "key.lavavisual.hat": "China Hat вкл/выкл",
+  "key.lavavisual.esp": "Target ESP вкл/выкл",
+  "key.lavavisual.trail": "Trails вкл/выкл",
+  "key.lavavisual.particles": "Hit Particles вкл/выкл",
+  "key.lavavisual.sounds": "Звуки ударов вкл/выкл",
+  "key.lavavisual.fps_boost": "FPS Boost вкл/выкл"
 }

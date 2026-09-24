@@ -97,7 +97,7 @@ public final class PlayerTags {
         Vec3 camera = context.levelState().cameraRenderState.pos;
         Quaternionf orientation = new Quaternionf(context.levelState().cameraRenderState.orientation);
         Vector3f right = new Vector3f(1, 0, 0).rotate(orientation), up = new Vector3f(0, 1, 0).rotate(orientation);
-        int accent = LavaVisualClient.config().accent();
+        int accent = LavaVisualClient.config().color("badge");
         float spin = (System.currentTimeMillis() % 4000L) / 4000f * (float) (Math.PI * 2);
         context.poseStack().pushPose();
         try {

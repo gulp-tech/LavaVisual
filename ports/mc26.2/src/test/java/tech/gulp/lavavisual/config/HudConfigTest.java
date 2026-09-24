@@ -20,7 +20,7 @@ class HudConfigTest {
         w.x = Double.NaN; w.y = 20; w.scale = -2; w.opacity = 100; c.sanitize();
         assertEquals(0.02, w.x); assertEquals(1, w.y);
         assertEquals(0.6, w.scale); assertEquals(1, w.opacity);
-        assertEquals(7, c.widgets.size());
+        assertEquals(8, c.widgets.size());
     }
     @Test void existingNewSettingsArePreserved(@TempDir Path dir) {
         var store = new ConfigStore(dir); var c = new HudConfig();
@@ -40,7 +40,7 @@ class HudConfigTest {
     @Test void removedPanelsDoNotSurviveMigration(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve("hud.json"), "{\"schemaVersion\":2,\"widgets\":{\"stopwatch\":{\"visible\":true},\"island\":{\"visible\":true}}}");
         var store = new ConfigStore(dir); var c = store.load(0);
-        assertEquals(java.util.Set.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark"), c.widgets.keySet());
+        assertEquals(java.util.Set.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark", "minimap"), c.widgets.keySet());
         assertTrue(store.save(c, 0));
         assertFalse(Files.readString(dir.resolve("hud.json")).contains("stopwatch"));
         assertFalse(Files.readString(dir.resolve("hud.json")).contains("island"));
@@ -68,5 +68,36 @@ class HudConfigTest {
         c.disableAll();
         assertFalse(c.killSoundEnabled);
         assertFalse(c.widgets.get("watermark").visible);
+    }
+
+    @org.junit.jupiter.api.Test
+    void perElementColorsFollowThemeUntilCustomised() {
+        HudConfig c = new HudConfig();
+        c.rgb = 0x123456;
+        assertEquals(0xFF123456, c.color("target"));
+        assertEquals(0xFF111216, c.color("hud_bg"));
+        c.colors.put("target", 0xABCDEF);
+        c.colors.put("unknown", 5);
+        c.colors.put("menu", 0x7FFFFFFF);
+        c.chroma.add("nope");
+        c.hatSize = 9; c.hatSpin = -1; c.mapZoom = 7;
+        c.sanitize();
+        assertEquals(0xFFABCDEF, c.color("target"));
+        assertEquals(0xFFFFFFFF, c.color("menu"));
+        assertFalse(c.colors.containsKey("unknown"));
+        assertTrue(c.chroma.isEmpty());
+        assertEquals(1.8, c.hatSize); assertEquals(0, c.hatSpin); assertEquals(1, c.mapZoom);
+        assertFalse(c.widgets.get("minimap").visible);
+    }
+    @org.junit.jupiter.api.Test
+    void colorMathRoundTrips() {
+        for (int rgb : new int[]{0xFF5A36, 0x85F56A, 0x36C8FF, 0xB45CFF, 0x000000, 0xFFFFFF, 0x808080}) {
+            double[] hsv = ColorMath.toHsv(rgb);
+            assertEquals(rgb, ColorMath.hsv(hsv[0], hsv[1], hsv[2]));
+        }
+        assertEquals(0xFF5A36, ColorMath.parse("#ff5a36"));
+        assertEquals(0xFFAA00, ColorMath.parse("fa0"));
+        assertEquals(-1, ColorMath.parse("zz"));
+        assertEquals("#0A0B0C", ColorMath.hex(0x0A0B0C));
     }
 }

@@ -1,5 +1,18 @@
 {
   "key.category.lavavisual.hud": "LavaVisual HUD",
-  "key.lavavisual.menu": "Open HUD settings",
-  "key.lavavisual.toggle": "Disable all modules"
+  "key.lavavisual.menu": "Open LavaVisual menu",
+  "key.lavavisual.toggle": "Disable all modules",
+  "key.lavavisual.waypoint_add": "Add waypoint",
+  "key.lavavisual.waypoints": "Waypoint list",
+  "key.lavavisual.minimap": "Toggle minimap",
+  "key.lavavisual.minimap_zoom": "Minimap zoom",
+  "key.lavavisual.hud": "Hide / show HUD",
+  "key.lavavisual.target": "Toggle Target HUD",
+  "key.lavavisual.crosshair": "Toggle crosshair",
+  "key.lavavisual.hat": "Toggle China Hat",
+  "key.lavavisual.esp": "Toggle Target ESP",
+  "key.lavavisual.trail": "Toggle trails",
+  "key.lavavisual.particles": "Toggle hit particles",
+  "key.lavavisual.sounds": "Toggle hit sounds",
+  "key.lavavisual.fps_boost": "Toggle FPS Boost"
 }

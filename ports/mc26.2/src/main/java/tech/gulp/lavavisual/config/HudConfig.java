@@ -1,5 +1,6 @@
 package tech.gulp.lavavisual.config;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +9,10 @@ public final class HudConfig {
     public static final int SCHEMA = 3;
     /** Built-in sounds in CustomAudio.IDS; index SOUND_LIBRARY means the user's own file. */
     public static final int SOUND_LIBRARY = 27;
-    public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark");
+    public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark", "minimap");
+    /** Every element with its own colour. Missing from {@link #colors} means "follow the theme colour". */
+    public static final List<String> COLOR_KEYS = List.of("menu", "menu_bg", "hud_bg", "watermark", "target", "keys", "armor", "coordinates",
+            "performance", "totems", "minimap", "badge", "crosshair", "jump", "particles", "ambient", "marker", "esp", "kill", "hat", "trail", "waypoint");
     public int schemaVersion = SCHEMA;
     public int rgb = 0x85F56A;
     public boolean shadows = true, animations = true;
@@ -35,6 +39,31 @@ public final class HudConfig {
     public int savedRenderDistance = -1, savedParticles = -1;
     public boolean savedEntityShadows = true, boostApplied;
     public int accent() { return 0xFF000000 | rgb; }
+    /** Per-element colours (RGB) and elements that cycle through the rainbow. New fields: older configs simply follow the theme. */
+    public Map<String, Integer> colors = new LinkedHashMap<>();
+    public List<String> chroma = new ArrayList<>();
+    public double chromaSpeed = 1;
+    /** China Hat: level by default; tilt follows the head only when enabled. */
+    public double hatSize = 1, hatLift = 0, hatCone = 1, hatOpacity = 0.7, hatSpin = 0;
+    public boolean hatTilt;
+    public int hatStyle;
+    /** Minimap: terrain only, north up. Zoom index into blocks-per-view {48, 64, 96}. */
+    public int mapZoom = 1;
+    public boolean mapCoords = true, mapWaypoints = true;
+    public boolean waypointBeams = true, waypointLabels = true;
+    public static int defaultColor(String key, int theme) {
+        return switch (key) { case "menu_bg" -> 0x12151B; case "hud_bg" -> 0x111216; default -> theme; };
+    }
+    /** Opaque ARGB colour of an element: rainbow, custom or the theme colour. */
+    public int color(String key) {
+        if (chroma != null && chroma.contains(key)) {
+            double hue = (System.currentTimeMillis() % 1_000_000L) / 1000.0 * 0.12 * chromaSpeed;
+            return 0xFF000000 | ColorMath.hsv(hue - Math.floor(hue), 0.72, 1);
+        }
+        Integer custom = colors == null ? null : colors.get(key);
+        return 0xFF000000 | (custom != null ? custom : defaultColor(key, rgb));
+    }
+    public boolean customColor(String key) { return colors != null && colors.containsKey(key); }
     public static final class Hand {
         public double x, y, z, scale = 1;
         public void sanitize() {
@@ -60,10 +89,12 @@ public final class HudConfig {
         result.put("armor", new Widget(0.5, 0.9));
         result.put("totems", new Widget(0.98, 0.66));
         result.put("watermark", new Widget(0.01, 0.015));
+        result.put("minimap", new Widget(0.99, 0.02));
         return result;
     }
     public void disableAll() {
         widgets.values().forEach(w -> w.visible = false);
+        waypointBeams = waypointLabels = false;
         crosshairEnabled = jumpEnabled = particlesEnabled = ambientEnabled = viewModelEnabled = false;
         hitSoundEnabled = critSoundEnabled = totemSoundEnabled = killSoundEnabled = false;
         markerEnabled = skyEnabled = fpsBoost = false;
@@ -105,6 +136,17 @@ public final class HudConfig {
         markerSize = bounded(markerSize, 0.15, 0.9, 0.45); targetHold = bounded(targetHold, 0.5, 10, 3);
         skyRgb = Math.clamp(skyRgb, 0, 0xFFFFFF); skyStrength = bounded(skyStrength, 0, 1, 0.65);
         savedRenderDistance = Math.clamp(savedRenderDistance, -1, 32); savedParticles = Math.clamp(savedParticles, -1, 2);
+        if (colors == null) colors = new LinkedHashMap<>();
+        Map<String, Integer> cleanColors = new LinkedHashMap<>();
+        for (var entry : colors.entrySet())
+            if (entry.getKey() != null && entry.getValue() != null && COLOR_KEYS.contains(entry.getKey())) cleanColors.put(entry.getKey(), Math.clamp(entry.getValue(), 0, 0xFFFFFF));
+        colors = cleanColors;
+        if (chroma == null) chroma = new ArrayList<>();
+        chroma = new ArrayList<>(chroma.stream().filter(k -> k != null && COLOR_KEYS.contains(k)).distinct().toList());
+        chromaSpeed = bounded(chromaSpeed, 0.2, 3, 1);
+        hatSize = bounded(hatSize, 0.5, 1.8, 1); hatLift = bounded(hatLift, -0.3, 0.6, 0); hatCone = bounded(hatCone, 0.3, 2.5, 1);
+        hatOpacity = bounded(hatOpacity, 0.15, 1, 0.7); hatSpin = bounded(hatSpin, 0, 3, 0); hatStyle = Math.floorMod(hatStyle, 3);
+        mapZoom = Math.floorMod(mapZoom, 3);
         schemaVersion = SCHEMA;
     }
     public static double bounded(double value, double min, double max, double fallback) {

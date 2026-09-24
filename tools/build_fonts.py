@@ -31,7 +31,9 @@ ICONS = ['layout-dashboard', 'sparkles', 'hand', 'volume-2', 'palette', 'earth',
          'circle-dot', 'orbit', 'star', 'trophy', 'triangle', 'sun', 'moon', 'hand-metal', 'check', 'plus', 'minus',
          'settings', 'sliders-horizontal', 'signal', 'timer', 'mouse', 'ruler', 'heart-pulse', 'crown', 'gem', 'rocket',
          'ghost', 'headphones', 'audio-lines', 'volume-x', 'paintbrush', 'refresh-cw', 'folder', 'info', 'shield-half',
-         'medal', 'pencil', 'stamp', 'droplet']
+         'medal', 'pencil', 'stamp', 'droplet', 'map', 'map-pinned', 'navigation', 'navigation-2', 'compass', 'flag',
+         'trash-2', 'eye-off', 'pipette', 'locate-fixed', 'mountain', 'command', 'rainbow', 'paint-bucket', 'swatch-book',
+         'keyboard-off', 'signpost', 'cone', 'rotate-cw', 'move-vertical', 'scaling', 'square-pen']
 
 def instance(weight, name):
     font = TTFont(SRC / 'InterVariable.ttf')

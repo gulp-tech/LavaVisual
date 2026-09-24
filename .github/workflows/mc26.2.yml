@@ -34,7 +34,7 @@ jobs:
           from pathlib import Path
           log = Path('ports/mc26.2/build/client-smoke.log').read_text(errors='replace')
           assert 'with Fabric Loader 0.19.3' in log, 'Wrong runtime loader version'
-          with zipfile.ZipFile('ports/mc26.2/build/libs/lavavisual-2.7.0-mc26.2.jar') as jar:
+          with zipfile.ZipFile('ports/mc26.2/build/libs/lavavisual-2.8.0-mc26.2.jar') as jar:
               m = json.loads(jar.read('fabric.mod.json'))
               assert m['id'] == 'lavavisual'
               assert m['depends']['minecraft'] == '26.2'
@@ -60,17 +60,17 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: LavaVisual-2.7.0-mc26.2-standalone
-          path: ports/mc26.2/build/libs/lavavisual-2.7.0-mc26.2.jar
+          name: LavaVisual-2.8.0-mc26.2-standalone
+          path: ports/mc26.2/build/libs/lavavisual-2.8.0-mc26.2.jar
       - name: Publish tested JAR
         if: github.ref == 'refs/heads/arena/01a0d2b1-lavavisual'
         run: |
           git pull --ff-only origin arena/01a0d2b1-lavavisual
           mkdir -p artifacts
-          cp ports/mc26.2/build/libs/lavavisual-2.7.0-mc26.2.jar artifacts/
+          cp ports/mc26.2/build/libs/lavavisual-2.8.0-mc26.2.jar artifacts/
           rm -f artifacts/ui-2.*.png
-          test ! -f ports/mc26.2/build/ui-smoke.png || cp ports/mc26.2/build/ui-smoke.png artifacts/ui-2.7.png
-          for shot in ports/mc26.2/build/shot-*.png; do if [ -f "$shot" ]; then cp "$shot" "artifacts/ui-2.7-$(basename "$shot" .png | cut -c6-).png"; fi; done
+          test ! -f ports/mc26.2/build/ui-smoke.png || cp ports/mc26.2/build/ui-smoke.png artifacts/ui-2.8.png
+          for shot in ports/mc26.2/build/shot-*.png; do if [ -f "$shot" ]; then cp "$shot" "artifacts/ui-2.8-$(basename "$shot" .png | cut -c6-).png"; fi; done
           (cd artifacts && sha256sum *.jar > SHA256SUMS)
           printf 'Source: %s\nBuild: https://github.com/%s/actions/runs/%s\nMinecraft: 26.2\nTested Fabric Loader: 0.19.3\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" > artifacts/STANDALONE-26.2.txt
           git config user.name 'github-actions[bot]'

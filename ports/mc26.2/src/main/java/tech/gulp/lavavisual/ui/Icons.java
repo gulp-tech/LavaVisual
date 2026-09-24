@@ -85,4 +85,26 @@ public final class Icons {
     public static final String PENCIL = "\uE1F9";
     public static final String STAMP = "\uE3BB";
     public static final String DROPLET = "\uE0B4";
+    public static final String MAP = "\uE110";
+    public static final String MAP_PINNED = "\uE53D";
+    public static final String NAVIGATION = "\uE123";
+    public static final String NAVIGATION_2 = "\uE124";
+    public static final String COMPASS = "\uE09B";
+    public static final String FLAG = "\uE0D1";
+    public static final String TRASH_2 = "\uE18E";
+    public static final String EYE_OFF = "\uE0BB";
+    public static final String PIPETTE = "\uE13B";
+    public static final String LOCATE_FIXED = "\uE1DB";
+    public static final String MOUNTAIN = "\uE231";
+    public static final String COMMAND = "\uE09A";
+    public static final String RAINBOW = "\uE4C2";
+    public static final String PAINT_BUCKET = "\uE2E6";
+    public static final String SWATCH_BOOK = "\uE59F";
+    public static final String KEYBOARD_OFF = "\uE5DE";
+    public static final String SIGNPOST = "\uE540";
+    public static final String CONE = "\uE523";
+    public static final String ROTATE_CW = "\uE149";
+    public static final String MOVE_VERTICAL = "\uE1C7";
+    public static final String SCALING = "\uE2EC";
+    public static final String SQUARE_PEN = "\uE172";
 }

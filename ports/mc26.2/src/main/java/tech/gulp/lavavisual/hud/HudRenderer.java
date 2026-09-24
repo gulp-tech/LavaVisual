@@ -24,7 +24,10 @@ import tech.gulp.lavavisual.ui.UiFont.Face;
 
 public final class HudRenderer {
     private HudRenderer() { }
-    private static final int PANEL = 0x111216, TEXT = 0xF1F3F7, MUTED = 0x8C93A1;
+    private static final int TEXT = 0xF1F3F7, MUTED = 0x8C93A1;
+    private static int PANEL = 0x111216;
+    /** Partial tick of the current HUD frame (set by the HUD element callback). */
+    public static float partial = 1;
     private static final EquipmentSlot[] ARMOR = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
     private static final String[] ARMOR_SPRITES = {"container/slot/helmet", "container/slot/chestplate", "container/slot/leggings", "container/slot/boots"};
 
@@ -34,6 +37,7 @@ public final class HudRenderer {
             case "keys" -> 76;
             case "armor" -> 97;
             case "watermark" -> watermarkWidth(UiFont.guiScale());
+            case "minimap" -> tech.gulp.lavavisual.map.Minimap.baseWidth();
             default -> 156;
         };
     }
@@ -43,6 +47,7 @@ public final class HudRenderer {
             case "keys" -> 92;
             case "armor" -> 36;
             case "watermark" -> 26;
+            case "minimap" -> tech.gulp.lavavisual.map.Minimap.baseHeight();
             default -> 30;
         };
     }
@@ -61,6 +66,7 @@ public final class HudRenderer {
             case "armor" -> "Броня";
             case "totems" -> "Тотемы";
             case "watermark" -> "Водянка";
+            case "minimap" -> "Миникарта";
             default -> "HUD";
         };
     }
@@ -78,7 +84,13 @@ public final class HudRenderer {
         long now = System.nanoTime();
         double dt = Math.min(0.1, (now - lastNs) / 1e9); lastNs = now;
         Minecraft mc = Minecraft.getInstance();
+        PANEL = c.color("hud_bg") & 0xFFFFFF;
         if (!edit && (mc.player == null || mc.gui.screen() instanceof tech.gulp.lavavisual.ui.HudEditorScreen)) return;
+        if (!edit) {
+            toast(g, mc);
+            if (LavaVisualClient.STATE.hudHidden) return;
+            tech.gulp.lavavisual.map.WaypointOverlay.draw(g, mc);
+        }
         for (String id : HudConfig.IDS) {
             HudConfig.Widget w = c.widgets.get(id);
             if (!w.visible && !edit) continue;
@@ -93,7 +105,7 @@ public final class HudRenderer {
                 scaleAnim = 0.72 + 0.28 * (1 - Math.pow(1 - fade, 3));
             }
             int x = x(id, w, g.guiWidth()), y = y(id, w, g.guiHeight());
-            int bw = baseWidth(id), bh = baseHeight(id), accent = c.accent();
+            int bw = baseWidth(id), bh = baseHeight(id), accent = c.color(id);
             boolean off = edit && !w.visible;
             g.pose().pushMatrix();
             try {
@@ -110,6 +122,7 @@ public final class HudRenderer {
                     case "keys" -> keys(g, mc, c, w, accent, dt);
                     case "armor" -> armor(g, mc, c, w);
                     case "watermark" -> watermark(g, mc, c, w, accent);
+                    case "minimap" -> tech.gulp.lavavisual.map.Minimap.draw(g, mc, c, w, accent, partial, edit);
                     default -> info(g, mc, c, w, id, accent);
                 }
                 if (off) {
@@ -373,9 +386,21 @@ public final class HudRenderer {
         }
     }
 
+    /** Hotkey confirmation, bottom centre above the hotbar, 1.5 s. */
+    private static void toast(GuiGraphicsExtractor g, Minecraft mc) {
+        String text = tech.gulp.lavavisual.input.Binds.Toast.text;
+        long age = System.currentTimeMillis() - tech.gulp.lavavisual.input.Binds.Toast.at;
+        if (text == null || age > 1500) return;
+        double fade = Math.min(1, Math.min(age / 120.0, (1500 - age) / 300.0));
+        int tw = UiFont.width(g, mc.font, text, Face.REGULAR), w = tw + 20, x = (g.guiWidth() - w) / 2, y = g.guiHeight() - 78;
+        UiDraw.round(g, x, y, w, 18, 6, UiDraw.alpha(PANEL, 0.88 * fade));
+        UiDraw.round(g, x + 6, y + 7, 4, 4, 2, UiDraw.alpha(LavaVisualClient.config().color("menu"), fade));
+        UiFont.text(g, mc.font, text, x + 14, y + 5, UiDraw.alpha(TEXT, Math.max(0.05, fade)), tw + 2);
+    }
+
     public static void crosshair(GuiGraphicsExtractor g) {
         HudConfig c = LavaVisualClient.config();
-        int color = UiDraw.alpha(c.accent(), c.crosshairOpacity);
+        int color = UiDraw.alpha(c.color("crosshair"), c.crosshairOpacity);
         g.pose().pushMatrix();
         try {
             g.pose().translate(g.guiWidth() / 2f, g.guiHeight() / 2f);

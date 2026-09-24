@@ -1,16 +1,13 @@
 package tech.gulp.lavavisual;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
-import org.lwjgl.glfw.GLFW;
 import tech.gulp.lavavisual.config.ConfigStore;
 import tech.gulp.lavavisual.config.HudConfig;
 import tech.gulp.lavavisual.hud.HudRenderer;
@@ -60,8 +57,7 @@ public final class LavaVisualClient implements ClientModInitializer {
         tech.gulp.lavavisual.effects.WorldCosmetics.register();
         tech.gulp.lavavisual.effects.PlayerTags.registerClient();
         var category = KeyMapping.Category.register(id("hud"));
-        var menu = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.lavavisual.menu", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, category));
-        var toggle = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.lavavisual.toggle", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, category));
+        tech.gulp.lavavisual.input.Binds.register(category);
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             // Explicit CI-only switch; never enabled by normal game or server settings.
             if (uiSmoke) {
@@ -69,30 +65,40 @@ public final class LavaVisualClient implements ClientModInitializer {
                 if (smokeTicks >= 0) {
                     smokeTicks++;
                     // "smoke shot" lines ask tools/client_smoke.py for a screenshot; each screen then stays for 3 s.
-                    if (smokeTicks == 20) client.gui.setScreen(new ClickGuiScreen());
-                    if (smokeTicks == 50) LavaVisual.LOGGER.info("LavaVisual smoke shot menu");
-                    if (smokeTicks == 110) client.gui.setScreen(new ClickGuiScreen(1));
-                    if (smokeTicks == 140) client.gui.setScreen(new ClickGuiScreen(2));
-                    if (smokeTicks == 170) client.gui.setScreen(new ClickGuiScreen(0, "target"));
-                    if (smokeTicks == 200) client.gui.setScreen(new ClickGuiScreen(1, "crosshair"));
-                    if (smokeTicks == 230) client.gui.setScreen(new tech.gulp.lavavisual.ui.HudEditorScreen(new ClickGuiScreen()));
-                    if (smokeTicks == 260) LavaVisual.LOGGER.info("LavaVisual smoke shot hud");
-                    if (smokeTicks == 320) client.gui.setScreen(new ClickGuiScreen(3));
-                    if (smokeTicks == 350) LavaVisual.LOGGER.info("LavaVisual smoke shot sounds");
-                    if (smokeTicks == 410) client.gui.setScreen(new ClickGuiScreen(4));
-                    if (smokeTicks == 430) tech.gulp.lavavisual.effects.AudioRegression.run(client);
-                    if (smokeTicks == 450) client.gui.setScreen(new ClickGuiScreen(5));
-                    if (smokeTicks == 470) client.gui.setScreen(new tech.gulp.lavavisual.ui.HandEditorScreen(new ClickGuiScreen()));
-                    if (smokeTicks == 490) LavaVisual.LOGGER.info("LavaVisual badge marker " + (tech.gulp.lavavisual.effects.Badge.marked(client.options.buildPlayerInformation()) ? "on" : "off"));
-                    if (smokeTicks == 500) LavaVisual.LOGGER.info("LavaVisual UI smoke complete");
+                    if (smokeTicks == 20) client.gui.setScreen(new ClickGuiScreen(1));
+                    if (smokeTicks == 50) client.gui.setScreen(new ClickGuiScreen(2));
+                    if (smokeTicks == 80) client.gui.setScreen(new ClickGuiScreen(0, "target"));
+                    if (smokeTicks == 110) client.gui.setScreen(new ClickGuiScreen(1, "crosshair"));
+                    if (smokeTicks == 140) client.gui.setScreen(new tech.gulp.lavavisual.ui.HudEditorScreen(new ClickGuiScreen()));
+                    if (smokeTicks == 170) LavaVisual.LOGGER.info("LavaVisual smoke shot hud");
+                    if (smokeTicks == 230) client.gui.setScreen(new ClickGuiScreen(3));
+                    if (smokeTicks == 250) tech.gulp.lavavisual.effects.AudioRegression.run(client);
+                    if (smokeTicks == 270) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MAP));
+                    if (smokeTicks == 300) LavaVisual.LOGGER.info("LavaVisual smoke shot map");
+                    if (smokeTicks == 360) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_BINDS));
+                    if (smokeTicks == 390) LavaVisual.LOGGER.info("LavaVisual smoke shot binds");
+                    if (smokeTicks == 450) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COLORS, "color:theme"));
+                    if (smokeTicks == 480) LavaVisual.LOGGER.info("LavaVisual smoke shot colors");
+                    if (smokeTicks == 540) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_WORLD));
+                    if (smokeTicks == 560) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_INTERFACE));
+                    if (smokeTicks == 580) client.gui.setScreen(new tech.gulp.lavavisual.ui.HandEditorScreen(new ClickGuiScreen()));
+                    if (smokeTicks == 600) client.gui.setScreen(new tech.gulp.lavavisual.ui.HatEditorScreen(new ClickGuiScreen(1)));
+                    if (smokeTicks == 630) LavaVisual.LOGGER.info("LavaVisual smoke shot hat");
+                    if (smokeTicks == 690) client.gui.setScreen(new tech.gulp.lavavisual.ui.WaypointScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MAP), null));
+                    if (smokeTicks == 720) LavaVisual.LOGGER.info("LavaVisual smoke shot waypoint");
+                    if (smokeTicks == 780) client.gui.setScreen(new ClickGuiScreen());
+                    if (smokeTicks == 820) LavaVisual.LOGGER.info("LavaVisual smoke shot menu");
+                    if (smokeTicks == 870) LavaVisual.LOGGER.info("LavaVisual badge marker " + (tech.gulp.lavavisual.effects.Badge.marked(client.options.buildPlayerInformation()) ? "on" : "off"));
+                    if (smokeTicks == 880) LavaVisual.LOGGER.info("LavaVisual UI smoke complete");
                 }
             }
-            while (menu.consumeClick()) if (client.gui.screen() == null) client.gui.setScreen(new ClickGuiScreen());
-            while (toggle.consumeClick()) if (client.gui.screen() == null) { config.disableAll(); save(); }
+            tech.gulp.lavavisual.input.Binds.tick(client);
             if (previousWorld != client.level) {
                 previousWorld = client.level;
                 STATE.coordinates = "X —   Y —   Z —";
                 tech.gulp.lavavisual.effects.WorldCosmetics.clear();
+                tech.gulp.lavavisual.map.Minimap.reset();
+                tech.gulp.lavavisual.map.WaypointOverlay.clear();
             }
             long now = System.nanoTime();
             if (now >= nextSample) {
@@ -104,12 +110,13 @@ public final class LavaVisualClient implements ClientModInitializer {
             tech.gulp.lavavisual.hud.TargetSnapshot.update(client);
             tech.gulp.lavavisual.effects.WorldCosmetics.tick(client);
             tech.gulp.lavavisual.effects.SwingStyles.tick(client);
+            tech.gulp.lavavisual.map.Minimap.tick(client);
             if (client.player != null) {
                 var pos = client.player.blockPosition();
                 STATE.coordinates = "X " + pos.getX() + "  Y " + pos.getY() + "  Z " + pos.getZ();
             }
         });
-        HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, id("widgets"), (g, delta) -> HudRenderer.draw(g, false, null));
+        HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, id("widgets"), (g, delta) -> { HudRenderer.partial = delta.getGameTimeDeltaPartialTick(false); HudRenderer.draw(g, false, null); });
         HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, original -> (g, delta) -> {
             Minecraft client = Minecraft.getInstance();
             if (!config.crosshairEnabled || client.player == null || client.player.isSpectator()

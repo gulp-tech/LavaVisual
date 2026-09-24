@@ -50,7 +50,7 @@ public final class HandEditorScreen extends Screen {
             UiDraw.round(g, x, y + 12, 320, 4, 2, 0xFF353A43);
             double progress = Math.clamp((value(i) - min(i)) / (max(i) - min(i)), 0, 1);
             int filled = (int) Math.round(320 * progress);
-            if (filled > 0) UiDraw.round(g, x, y + 12, filled, 4, 2, c.accent());
+            if (filled > 0) UiDraw.round(g, x, y + 12, filled, 4, 2, c.color("menu"));
             UiDraw.round(g, x + filled - 4, y + 9, 8, 10, 4, 0xFFF2F5FA);
         }
         super.extractRenderState(g, mx, my, delta);
@@ -76,4 +76,8 @@ public final class HandEditorScreen extends Screen {
     }
     @Override public void onClose() { LavaVisualClient.save(); minecraft.gui.setScreen(parent); }
     @Override public boolean isPauseScreen() { return false; }
+    /** No blur in a world: the real hands must stay sharp while editing. */
+    @Override public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
+        if (minecraft.level == null) super.extractBackground(g, mouseX, mouseY, delta);
+    }
 }

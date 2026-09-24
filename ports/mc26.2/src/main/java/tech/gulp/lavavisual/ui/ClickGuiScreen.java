@@ -8,7 +8,13 @@ import java.util.Map;
 import java.util.function.DoubleConsumer;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import com.mojang.blaze3d.platform.InputConstants;
+import org.lwjgl.glfw.GLFW;
+import tech.gulp.lavavisual.config.ColorMath;
+import tech.gulp.lavavisual.input.Binds;
+import tech.gulp.lavavisual.map.Waypoints;
 import net.minecraft.network.chat.Component;
 import tech.gulp.lavavisual.LavaVisualClient;
 import tech.gulp.lavavisual.config.HudConfig;
@@ -20,8 +26,10 @@ public final class ClickGuiScreen extends Screen {
     private record Slider(int x, int y, int width, double min, double max, DoubleConsumer setter) {
         void set(double mouse) { setter.accept(min + Math.clamp((mouse - x) / width, 0, 1) * (max - min)); }
     }
-    private static final String[] TABS = {"HUD", "Эффекты", "Руки", "Звуки", "RGB / UI", "Мир / FPS"};
-    private static final String[] TAB_ICONS = {Icons.LAYOUT_DASHBOARD, Icons.SPARKLES, Icons.HAND, Icons.VOLUME_2, Icons.PALETTE, Icons.EARTH};
+    public static final int PAGE_HUD = 0, PAGE_EFFECTS = 1, PAGE_HANDS = 2, PAGE_SOUNDS = 3, PAGE_MAP = 4, PAGE_BINDS = 5, PAGE_COLORS = 6, PAGE_WORLD = 7, PAGE_INTERFACE = 8;
+    private static final String[] TABS = {"HUD", "Эффекты", "Руки", "Звуки", "Карта", "Бинды", "Цвета", "Мир / FPS", "Интерфейс"};
+    private static final String[] TAB_ICONS = {Icons.LAYOUT_DASHBOARD, Icons.SPARKLES, Icons.HAND, Icons.VOLUME_2, Icons.MAP, Icons.KEYBOARD, Icons.PALETTE, Icons.EARTH, Icons.SETTINGS};
+    private static final int[] PRESETS = {0xFF5A36, 0xFF8A3C, 0xFFC233, 0xE8FF5A, 0x85F56A, 0x2CE08A, 0x36C8FF, 0x4C6BFF, 0xB45CFF, 0xFF5C9A, 0xFFFFFF, 0x9AA3B2};
     private static final Map<String, String> CARD_ICONS = Map.ofEntries(
             Map.entry("target", Icons.TARGET), Map.entry("coordinates", Icons.MAP_PIN), Map.entry("performance", Icons.GAUGE),
             Map.entry("keys", Icons.KEYBOARD), Map.entry("armor", Icons.SHIELD), Map.entry("totems", Icons.HEART_PULSE),
@@ -31,7 +39,9 @@ public final class ClickGuiScreen extends Screen {
             Map.entry("hat", Icons.TRIANGLE), Map.entry("trail", Icons.WIND), Map.entry("hands", Icons.HAND),
             Map.entry("sound0", Icons.SWORDS), Map.entry("sound1", Icons.ZAP), Map.entry("sound2", Icons.HEART_PULSE),
             Map.entry("sound3", Icons.SKULL), Map.entry("shadows", Icons.LAYERS), Map.entry("animations", Icons.WAND_SPARKLES),
-            Map.entry("sky", Icons.CLOUD_SUN), Map.entry("boost", Icons.ROCKET), Map.entry("setting", Icons.EYE));
+            Map.entry("sky", Icons.CLOUD_SUN), Map.entry("boost", Icons.ROCKET), Map.entry("setting", Icons.EYE),
+            Map.entry("minimap", Icons.MAP), Map.entry("beams", Icons.SIGNPOST), Map.entry("labels", Icons.NAVIGATION),
+            Map.entry("mapcoords", Icons.LOCATE_FIXED), Map.entry("mapmarks", Icons.MAP_PINNED), Map.entry("tilt", Icons.MOVE_VERTICAL));
     private final List<Hit> hits = new ArrayList<>();
     private final List<Slider> sliders = new ArrayList<>();
     private final Map<String, Double> motions = new HashMap<>();
@@ -39,25 +49,31 @@ public final class ClickGuiScreen extends Screen {
     private int contentHeight;
     private boolean clippingHits;
     private double scroll, indicator, frameFactor, renderScale = 1;
-    private String selected;
+    private String selected, colorOpen;
     private Slider dragging;
+    private Binds.Action capturing;
+    private Object confirmDelete;
+    private long confirmAt;
+    private int tabStep = 29;
+    private final Map<String, double[]> hsvCache = new HashMap<>();
     private long opened = System.nanoTime(), lastFrame = opened;
     public ClickGuiScreen() { this(0); }
     public ClickGuiScreen(int page) { this(page, null); }
     public ClickGuiScreen(int page, String selected) {
-        super(UiFont.component("LavaVisual")); this.page = Math.clamp(page, 0, 5); indicator = this.page * 29;
-        this.selected = selected != null && (selected.equals("crosshair") || HudConfig.IDS.contains(selected)) ? selected : null;
+        super(UiFont.component("LavaVisual")); this.page = Math.clamp(page, 0, TABS.length - 1); indicator = -1;
+        if (selected != null && selected.startsWith("color:")) { colorOpen = selected.substring(6); selected = null; }
+        this.selected = selected != null && (selected.equals("crosshair") || selected.equals("hat") || HudConfig.IDS.contains(selected)) ? selected : null;
     }
     private String flash;
     private long flashAt;
     private void flash(String message) { flash = message; flashAt = System.currentTimeMillis(); }
     private void changed() { LavaVisualClient.save(); }
-    private void navigate(int next) { page = next; selected = null; scroll = 0; dragging = null; hits.clear(); sliders.clear(); }
+    private void navigate(int next) { page = next; selected = null; colorOpen = null; capturing = null; scroll = 0; dragging = null; hits.clear(); sliders.clear(); }
     private void select(String id) { selected = id; scroll = 0; }
     private void hit(int x, int y, int w, int h, Runnable action) { hits.add(new Hit(x, y, w, h, action, clippingHits)); }
     private void text(GuiGraphicsExtractor g, String value, int x, int y, int color, int width) { UiFont.text(g, font, value, x, y, color, Math.max(1, width)); }
     private void text(GuiGraphicsExtractor g, String value, int x, int y, int color, int width, UiFont.Face face) { UiFont.text(g, font, value, x, y, color, Math.max(1, width), face); }
-    private int accent() { return LavaVisualClient.config().accent(); }
+    private int accent() { return LavaVisualClient.config().color("menu"); }
     private double motion(String key, double goal) {
         double previous = motions.getOrDefault(key, goal);
         double next = previous + (goal - previous) * frameFactor;
@@ -156,9 +172,10 @@ public final class ClickGuiScreen extends Screen {
             UiDraw.round(g, left - 3, top + 2, panelW + 6, panelH + 6, 13, 0x24000000);
             UiDraw.round(g, left, top + 4, panelW, panelH, 11, 0x59000000);
         }
-        UiDraw.round(g, left, top, panelW, panelH, 10, UiDraw.alpha(0x12151B, c.menuOpacity));
+        int menuBg = c.color("menu_bg") & 0xFFFFFF;
+        UiDraw.round(g, left, top, panelW, panelH, 10, UiDraw.alpha(menuBg, c.menuOpacity));
         int ac = accent();
-        UiDraw.round(g, left + 4, top + 4, side - 6, panelH - 8, 8, UiDraw.alpha(0x0C0F14, c.menuOpacity * 0.75));
+        UiDraw.round(g, left + 4, top + 4, side - 6, panelH - 8, 8, UiDraw.alpha(UiDraw.mix(menuBg, 0x000000, 0.35), c.menuOpacity * 0.75));
         g.fillGradient(left + side + 2, top + 1, left + panelW - 10, top + 46, UiDraw.alpha(ac, 0.09), UiDraw.alpha(ac, 0));
         for (int gx = 0; gx < panelW - 24; gx += 3) {
             double t = gx / (double) (panelW - 24), pulse = 0.55 + 0.45 * Math.sin(now / 6e8 + t * 6);
@@ -170,18 +187,22 @@ public final class ClickGuiScreen extends Screen {
         g.fillGradient(left + 15, top + 16, left + 36, top + 28, 0x45FFFFFF, 0x00FFFFFF);
         UiFont.iconLarge(g, font, Icons.FLAME, left + 17, top + 19, 0xFF11181A);
         text(g, "LavaVisual", left + 13, top + 47, 0xFFF1F4F8, side - 18, UiFont.Face.BOLD);
-        indicator += (page * 29 - indicator) * frameFactor;
-        UiDraw.round(g, left + 8, top + 72 + (int) indicator, side - 16, 25, 6, UiDraw.alpha(accent(), 0.13));
-        UiDraw.round(g, left + 8, top + 79 + (int) indicator, 2, 11, 1, accent());
+        tabStep = Math.max(20, Math.min(29, (panelH - 72 - 30) / TABS.length));
+        int tabH = Math.min(25, tabStep - 2), tabPad = (tabH - 11) / 2;
+        if (indicator < 0) indicator = page * tabStep;
+        indicator += (page * tabStep - indicator) * frameFactor;
+        UiDraw.round(g, left + 8, top + 72 + (int) indicator, side - 16, tabH, 6, UiDraw.alpha(accent(), 0.13));
+        UiDraw.round(g, left + 8, top + 72 + tabPad + (int) indicator, 2, 11, 1, accent());
         for (int i = 0; i < TABS.length; i++) {
-            int next = i, y = top + 72 + i * 29;
-            int tabColor = page == i ? accent() : hover(left + 8, y, side - 16, 25) ? 0xFFC9D0DA : 0xFF929BA9;
-            tabIcon(g, i, left + 17, y + 7, tabColor);
-            text(g, TABS[i], left + 33, y + 8, tabColor, side - 40);
-            hit(left + 8, y, side - 16, 25, () -> navigate(next));
+            int next = i, y = top + 72 + i * tabStep;
+            int tabColor = page == i ? accent() : hover(left + 8, y, side - 16, tabH) ? 0xFFC9D0DA : 0xFF929BA9;
+            tabIcon(g, i, left + 17, y + tabPad, tabColor);
+            text(g, TABS[i], left + 33, y + tabPad + 1, tabColor, side - 40);
+            hit(left + 8, y, side - 16, tabH, () -> navigate(next));
         }
-        if (panelH > 300) text(g, "26.2 · 2.7", left + 13, top + panelH - 21, 0xFF586272, side - 18);
-        text(g, selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : HudRenderer.title(selected), bodyX, top + 17, 0xFFF0F3F7, bodyW - 28, UiFont.Face.HEADING);
+        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.8", left + 13, top + panelH - 21, 0xFF586272, side - 18);
+        String heading = selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : selected.equals("hat") ? "China Hat" : HudRenderer.title(selected);
+        text(g, heading, bodyX, top + 17, 0xFFF0F3F7, bodyW - 28, UiFont.Face.HEADING);
         boolean overClose = mx >= left + panelW - 31 && mx < left + panelW - 7 && my >= top + 10 && my < top + 34;
         if (overClose) UiDraw.round(g, left + panelW - 31, top + 10, 24, 24, 6, 0xFF2A2E36);
         UiFont.icon(g, font, Icons.X, left + panelW - 24, top + 17, overClose ? 0xFFFFFFFF : 0xFFABB4C2);
@@ -192,7 +213,11 @@ public final class ClickGuiScreen extends Screen {
         g.enableScissor(bodyX - 1, clipTop, bodyX + bodyW + 1, clipBottom);
         clippingHits = true;
         if (selected != null) settings(g);
-        else switch (page) { case 0 -> hud(g); case 1 -> effects(g); case 2 -> hands(g); case 3 -> audio(g); case 4 -> appearance(g); default -> world(g); }
+        else switch (page) {
+            case PAGE_HUD -> hud(g); case PAGE_EFFECTS -> effects(g); case PAGE_HANDS -> hands(g); case PAGE_SOUNDS -> audio(g);
+            case PAGE_MAP -> map(g); case PAGE_BINDS -> binds(g); case PAGE_COLORS -> colors(g); case PAGE_WORLD -> world(g);
+            default -> appearance(g);
+        }
         clippingHits = false;
         contentHeight = cursor + (int) scroll - clipTop;
         g.disableScissor();
@@ -203,7 +228,8 @@ public final class ClickGuiScreen extends Screen {
             int y = clipTop + (int) ((clipBottom - clipTop - h) * scroll / max);
             UiDraw.round(g, left + panelW - 8, y, 2, h, 1, UiDraw.alpha(accent(), 0.5));
         }
-        if (selected == null) text(g, "Right Shift · меню    V · всё выкл", bodyX, top + panelH - 20, 0xFF818C9C, bodyW);
+        if (selected == null) text(g, Binds.keyName(Binds.Action.MENU) + " · меню    " + Binds.keyName(Binds.Action.DISABLE_ALL) + " · всё выкл    "
+                + Binds.keyName(Binds.Action.WAYPOINT_ADD) + " · метка", bodyX, top + panelH - 20, 0xFF818C9C, bodyW);
         else {
             UiFont.icon(g, font, Icons.CHEVRON_LEFT, bodyX - 2, top + panelH - 21, 0xFFB3BAC7);
             text(g, "Назад к модулям", bodyX + 11, top + panelH - 20, 0xFFB3BAC7, bodyW - 11);
@@ -222,6 +248,7 @@ public final class ClickGuiScreen extends Screen {
                 case "armor" -> "Прочность надетой брони";
                 case "totems" -> "Сколько тотемов в инвентаре";
                 case "watermark" -> "Логотип, место, время, пинг и FPS";
+                case "minimap" -> "Только местность, без игроков и мобов";
                 default -> "Частота кадров";
             };
             toggle(g, id, HudRenderer.title(id), desc, w.visible, () -> { w.visible = !w.visible; changed(); }, () -> select(id));
@@ -253,7 +280,8 @@ public final class ClickGuiScreen extends Screen {
         button(g, "Стиль ESP: " + (c.espStyle == 0 ? "призраки" : "кольцо"), () -> { c.espStyle = 1 - c.espStyle; changed(); });
         toggle(g, "kill", "Kill Effect", "Столб света и искры, когда ваша цель погибает", c.killEffect, () -> { c.killEffect = !c.killEffect; changed(); }, null);
         slider(g, "Огонь на экране · %", c.fireHeight * 100, 0, 100, v -> c.fireHeight = v / 100, true);
-        toggle(g, "hat", "China Hat", "Вращающаяся шляпа, вид от 3-го лица", c.hatEnabled, () -> { c.hatEnabled = !c.hatEnabled; changed(); }, null);
+        toggle(g, "hat", "China Hat", "Шляпа над головой, вид от 3-го лица", c.hatEnabled, () -> { c.hatEnabled = !c.hatEnabled; changed(); }, () -> select("hat"));
+        button(g, Icons.PENCIL, "Редактор шляпы · цвет, размер, высота", () -> minecraft.gui.setScreen(new HatEditorScreen(this)));
         toggle(g, "trail", "Trails", "Светящийся след за вами", c.trailEnabled, () -> { c.trailEnabled = !c.trailEnabled; changed(); }, null);
         note(g, "Эффекты не видны сквозь блоки.");
     }
@@ -345,25 +373,7 @@ public final class ClickGuiScreen extends Screen {
         slider(g, "Масштаб меню", c.menuScale, 0.6, 1.2, v -> c.menuScale = v, false);
         slider(g, "Непрозрачность меню", c.menuOpacity, 0.25, 1, v -> c.menuOpacity = v, false);
         slider(g, "Затемнение мира", c.menuDim, 0, 0.65, v -> c.menuDim = v, false);
-        UiDraw.round(g, bodyX, cursor, bodyW, 24, 7, accent());
-        int luminance = (c.rgb >> 16 & 255) * 3 + (c.rgb >> 8 & 255) * 6 + (c.rgb & 255);
-        text(g, String.format(Locale.ROOT, "RGB  #%06X", c.rgb), bodyX + 10, cursor + 8, luminance > 1350 ? 0xFF101820 : 0xFFFFFFFF, bodyW - 20); cursor += 32;
-        String[] names = {"R · Красный", "G · Зелёный", "B · Синий"};
-        for (int i = 0; i < 3; i++) {
-            int shift = (2 - i) * 8;
-            slider(g, names[i], c.rgb >> shift & 255, 0, 255, v -> c.rgb = c.rgb & ~(255 << shift) | (int) Math.round(v) << shift, true);
-            cursor -= 6;
-        }
-        note(g, "Один цвет для меню, HUD и эффектов.");
-        String[] themeNames = {"Лава", "Мята", "Океан", "Неон", "Золото", "Роза"};
-        int[] themes = {0xFF5A36, 0x85F56A, 0x36C8FF, 0xB45CFF, 0xFFC233, 0xFF5C9A};
-        int tw = (bodyW - 16) / 3;
-        for (int i = 0; i < themes.length; i++) {
-            int theme = i, tx = bodyX + (i % 3) * (tw + 8);
-            action(g, themeNames[i], tx, cursor, tw, () -> { c.rgb = themes[theme]; changed(); });
-            UiDraw.round(g, tx + tw - 16, cursor + 8, 8, 8, 4, 0xFF000000 | themes[i]);
-            if (i % 3 == 2) cursor += 32;
-        }
+        button(g, Icons.PALETTE, "Цвета меню и всех модулей · вкладка «Цвета»", () -> navigate(PAGE_COLORS));
         toggle(g, "shadows", "Тени панелей", "Мягкая глубина интерфейса", c.shadows, () -> { c.shadows = !c.shadows; changed(); }, null);
         toggle(g, "animations", "Анимации", "Плавные вкладки и переключатели", c.animations, () -> { c.animations = !c.animations; changed(); }, null);
         section(g, "Конфиги");
@@ -415,8 +425,9 @@ public final class ClickGuiScreen extends Screen {
     }
     private void settings(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config(); boolean cross = selected.equals("crosshair");
+        if (selected.equals("hat")) { hatSettings(g); return; }
         var w = cross ? null : c.widgets.get(selected);
-        toggle(g, "setting:" + selected, "Отображение", "Цвет задаётся во вкладке RGB / UI", cross ? c.crosshairEnabled : w.visible, () -> {
+        toggle(g, "setting:" + selected, "Отображение", "Показывать на экране", cross ? c.crosshairEnabled : w.visible, () -> {
             if (cross) c.crosshairEnabled = !c.crosshairEnabled; else w.visible = !w.visible; changed();
         }, null);
         slider(g, "Размер", cross ? c.crosshairScale : w.scale, 0.6, cross ? 2 : 1.6, v -> { if (cross) c.crosshairScale = v; else w.scale = v; }, false);
@@ -424,10 +435,248 @@ public final class ClickGuiScreen extends Screen {
         if (cross) button(g, "Форма: " + new String[]{"", "точка", "плюс", "квадрат"}[c.crosshairShape], () -> { c.crosshairShape = c.crosshairShape % 3 + 1; changed(); });
         else {
             if (selected.equals("target")) slider(g, "Удержание цели · сек", c.targetHold, 0.5, 10, v -> c.targetHold = v, false);
+            if (selected.equals("minimap")) mapOptions(g);
             button(g, Icons.MOVE, "Переместить на экране", () -> minecraft.gui.setScreen(new HudEditorScreen(this, selected)));
         }
+        section(g, "Цвет");
+        colorRow(g, selected, cross ? "Цвет прицела" : "Цвет модуля");
+        if (selected.equals("target") || cross) note(g, "Фон всех панелей HUD — во вкладке «Цвета».");
+    }
+
+    private void hatSettings(GuiGraphicsExtractor g) {
+        var c = LavaVisualClient.config();
+        toggle(g, "hat", "China Hat", "По умолчанию стоит ровно; вид от 3-го лица", c.hatEnabled, () -> { c.hatEnabled = !c.hatEnabled; changed(); }, null);
+        button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new HatEditorScreen(this)));
+        slider(g, "Размер", c.hatSize, 0.5, 1.8, v -> c.hatSize = v, false);
+        slider(g, "Высота над головой", c.hatLift, -0.3, 0.6, v -> c.hatLift = v, false);
+        slider(g, "Высота конуса", c.hatCone, 0.3, 2.5, v -> c.hatCone = v, false);
+        slider(g, "Прозрачность", c.hatOpacity, 0.15, 1, v -> c.hatOpacity = v, false);
+        slider(g, "Вращение · 0 = стоит ровно", c.hatSpin, 0, 3, v -> c.hatSpin = v < 0.08 ? 0 : v, false);
+        String[] styles = {"полосы", "сплошной", "градиент"};
+        int half = (bodyW - 8) / 2;
+        action(g, "Стиль: " + styles[c.hatStyle], bodyX, cursor, half, () -> { c.hatStyle = (c.hatStyle + 1) % 3; changed(); });
+        action(g, "Наклон: " + (c.hatTilt ? "с головой" : "ровно"), bodyX + half + 8, cursor, half, () -> { c.hatTilt = !c.hatTilt; changed(); });
+        cursor += 32;
+        section(g, "Цвет");
+        colorRow(g, "hat", "Цвет шляпы");
+    }
+    private void mapOptions(GuiGraphicsExtractor g) {
+        var c = LavaVisualClient.config();
+        String[] zooms = {"ближе", "обычный", "дальше"};
+        int half = (bodyW - 8) / 2;
+        action(g, Icons.SCALING, "Масштаб: " + zooms[c.mapZoom], bodyX, cursor, half, () -> { c.mapZoom = (c.mapZoom + 1) % 3; changed(); });
+        action(g, Icons.LOCATE_FIXED, "Координаты: " + (c.mapCoords ? "вкл" : "выкл"), bodyX + half + 8, cursor, half, () -> { c.mapCoords = !c.mapCoords; changed(); });
+        cursor += 32;
+        button(g, Icons.MAP_PINNED, "Метки на карте: " + (c.mapWaypoints ? "вкл" : "выкл"), () -> { c.mapWaypoints = !c.mapWaypoints; changed(); });
+    }
+    private void map(GuiGraphicsExtractor g) {
+        var c = LavaVisualClient.config();
+        var w = c.widgets.get("minimap");
+        toggle(g, "minimap", "Миникарта", "Только местность — без игроков, мобов и предметов", w.visible, () -> { w.visible = !w.visible; changed(); }, () -> select("minimap"));
+        mapOptions(g);
+        note(g, "Карта строится по нескольку строк за тик — FPS не проседает.");
+        section(g, "Метки");
+        toggle(g, "beams", "Лучи меток", "Столб света над меткой, сквозь блоки не виден", c.waypointBeams, () -> { c.waypointBeams = !c.waypointBeams; changed(); }, null);
+        toggle(g, "labels", "Подписи и стрелки", "Название и расстояние; за экраном — стрелка у края", c.waypointLabels, () -> { c.waypointLabels = !c.waypointLabels; changed(); }, null);
+        button(g, Icons.PLUS, "Добавить метку · клавиша " + Binds.keyName(Binds.Action.WAYPOINT_ADD), () -> minecraft.gui.setScreen(new WaypointScreen(this, null)));
+        if (minecraft.level == null) { note(g, "Зайдите в мир, чтобы увидеть свои метки."); return; }
+        var list = Waypoints.all(minecraft);
+        if (list.isEmpty()) note(g, "Меток пока нет: нажмите «Добавить метку» или " + Binds.keyName(Binds.Action.WAYPOINT_ADD) + " в игре.");
+        String here = Waypoints.dimension(minecraft);
+        var player = minecraft.player;
+        for (Waypoints.Point p : List.copyOf(list)) {
+            int y = cursor, bw = 24;
+            UiDraw.round(g, bodyX, y, bodyW, 38, 7, UiDraw.alpha(0x191C22, c.menuOpacity));
+            UiDraw.round(g, bodyX + 1, y + 9, 3, 20, 1, 0xFF000000 | p.color);
+            text(g, p.name, bodyX + 12, y + 7, p.visible ? 0xFFE5E9F0 : 0xFF7C8594, bodyW - 12 - bw * 3 - 24, UiFont.Face.BOLD);
+            String where = "X " + p.x + "  Y " + p.y + "  Z " + p.z;
+            if (!here.equals(p.dimension)) where += " · " + p.dimension.replace("minecraft:", "");
+            else if (player != null) where += " · " + Waypoints.distance(Math.sqrt(player.distanceToSqr(p.x + 0.5, p.y, p.z + 0.5)));
+            text(g, where, bodyX + 12, y + 22, 0xFF838994, bodyW - 12 - bw * 3 - 24, UiFont.Face.SMALL);
+            int bx = bodyX + bodyW - (bw + 4) * 3 - 3;
+            iconButton(g, p.visible ? Icons.EYE : Icons.EYE_OFF, bx, y + 7, () -> { p.visible = !p.visible; Waypoints.save(); });
+            iconButton(g, Icons.PENCIL, bx + bw + 4, y + 7, () -> minecraft.gui.setScreen(new WaypointScreen(this, p)));
+            boolean armed = confirmDelete == p && System.currentTimeMillis() - confirmAt < 3000;
+            if (armed) UiDraw.round(g, bx + (bw + 4) * 2 - 1, y + 6, bw + 2, bw + 2, 7, 0xFFE0524A);
+            iconButton(g, Icons.TRASH_2, bx + (bw + 4) * 2, y + 7, () -> {
+                if (confirmDelete == p && System.currentTimeMillis() - confirmAt < 3000) { Waypoints.remove(minecraft, p); confirmDelete = null; flash("Метка удалена"); }
+                else { confirmDelete = p; confirmAt = System.currentTimeMillis(); flash("Нажмите ещё раз, чтобы удалить «" + p.name + "»"); }
+            });
+            cursor += 44;
+        }
+        note(g, flash != null && System.currentTimeMillis() - flashAt < 3000 ? flash : "Метки хранятся отдельно для каждого сервера и мира.");
+    }
+    private void binds(GuiGraphicsExtractor g) {
+        note(g, "Работают в игре, когда меню закрыто. Нажмите на клавишу справа.");
+        int keyW = Math.min(130, bodyW / 3);
+        for (Binds.Action action : Binds.Action.values()) {
+            int y = cursor;
+            boolean listening = capturing == action, conflict = Binds.conflicts(action, minecraft);
+            UiDraw.round(g, bodyX, y, bodyW, 30, 7, UiDraw.alpha(0x191C22, LavaVisualClient.config().menuOpacity));
+            UiFont.icon(g, font, action.icon, bodyX + 10, y + 10, listening ? accent() : 0xFFAEB6C4);
+            text(g, action.title, bodyX + 28, y + 11, 0xFFE5E9F0, bodyW - keyW - 70);
+            int kx = bodyX + bodyW - keyW - 34;
+            boolean over = hover(kx, y + 4, keyW, 22);
+            UiDraw.round(g, kx, y + 4, keyW, 22, 6, listening ? UiDraw.alpha(accent(), 0.28) : over ? 0xFF30333B : 0xFF24272E);
+            String label = listening ? "нажмите клавишу…" : Binds.keyName(action);
+            int lw = Math.min(keyW - 10, UiFont.width(g, font, label, UiFont.Face.REGULAR));
+            text(g, label, kx + (keyW - lw) / 2, y + 11, listening ? accent() : conflict ? 0xFFFF7A6B : Binds.mapping(action).isUnbound() ? 0xFF6B7280 : 0xFFE8EAF0, lw + 2);
+            hit(kx, y + 4, keyW, 22, () -> capturing = capturing == action ? null : action);
+            int rx = bodyX + bodyW - 28;
+            boolean isDefault = Binds.mapping(action).isDefault();
+            if (!isDefault) {
+                boolean o = hover(rx, y + 4, 22, 22);
+                UiDraw.round(g, rx, y + 4, 22, 22, 6, o ? 0xFF30333B : 0xFF24272E);
+                UiFont.icon(g, font, Icons.ROTATE_CCW, rx + 6, y + 10, o ? accent() : 0xFF9AA3B2);
+                hit(rx, y + 4, 22, 22, () -> { Binds.reset(action, minecraft); capturing = null; });
+            }
+            cursor += 34;
+        }
+        note(g, capturing != null ? "Esc — отмена, Backspace — удалить бинд, кнопки мыши 3–8 тоже можно." : "Красным — клавиша занята другим действием.");
+        button(g, Icons.ROTATE_CCW, "Сбросить все бинды", () -> { Binds.resetAll(minecraft); capturing = null; });
+        note(g, "Те же бинды есть в Настройки → Управление → LavaVisual.");
+    }
+    private void colors(GuiGraphicsExtractor g) {
+        var c = LavaVisualClient.config();
+        section(g, "Тема");
+        String[] themeNames = {"Лава", "Мята", "Океан", "Неон", "Золото", "Роза"};
+        int[] themes = {0xFF5A36, 0x85F56A, 0x36C8FF, 0xB45CFF, 0xFFC233, 0xFF5C9A};
+        int tw = (bodyW - 16) / 3;
+        for (int i = 0; i < themes.length; i++) {
+            int theme = i, tx = bodyX + (i % 3) * (tw + 8);
+            action(g, themeNames[i], tx, cursor, tw, () -> { c.rgb = themes[theme]; hsvCache.remove("theme"); changed(); });
+            UiDraw.round(g, tx + tw - 16, cursor + 8, 8, 8, 4, 0xFF000000 | themes[i]);
+            if (i % 3 == 2) cursor += 32;
+        }
+        colorRow(g, "theme", "Цвет темы · для всего, где «как тема»");
+        slider(g, "Скорость переливания", c.chromaSpeed, 0.2, 3, v -> c.chromaSpeed = v, false);
+        section(g, "Интерфейс");
+        colorRow(g, "menu", "Акцент меню");
+        colorRow(g, "menu_bg", "Фон меню");
+        colorRow(g, "hud_bg", "Фон панелей HUD");
+        section(g, "HUD");
+        for (String id : List.of("watermark", "target", "keys", "armor", "coordinates", "performance", "totems", "minimap")) colorRow(g, id, HudRenderer.title(id));
+        colorRow(g, "badge", "Значок у ников");
+        section(g, "Эффекты");
+        String[][] effects = {{"crosshair", "Прицел"}, {"jump", "Jump Circle"}, {"particles", "Hit Particles"}, {"ambient", "Звёздная пыль"},
+                {"marker", "Маркер удара"}, {"esp", "Target ESP"}, {"kill", "Kill Effect"}, {"hat", "China Hat"}, {"trail", "Trails"}, {"waypoint", "Новые метки"}};
+        for (String[] e : effects) colorRow(g, e[0], e[1]);
+        button(g, Icons.ROTATE_CCW, "Все цвета — как тема", () -> { c.colors.clear(); c.chroma.clear(); hsvCache.clear(); changed(); });
+    }
+    private int currentRgb(String key) {
+        var c = LavaVisualClient.config();
+        return key.equals("theme") ? c.rgb : c.color(key) & 0xFFFFFF;
+    }
+    private void setColor(String key, int rgb) {
+        var c = LavaVisualClient.config();
+        if (key.equals("theme")) c.rgb = rgb & 0xFFFFFF;
+        else { c.colors.put(key, rgb & 0xFFFFFF); c.chroma.remove(key); }
+    }
+    /** One element: swatch, name and state; click to open the picker below. */
+    private void colorRow(GuiGraphicsExtractor g, String key, String title) {
+        var c = LavaVisualClient.config();
+        int y = cursor;
+        boolean open = key.equals(colorOpen), theme = key.equals("theme");
+        boolean rainbow = !theme && c.chroma.contains(key), custom = theme || c.customColor(key);
+        int color = theme ? c.accent() : c.color(key);
+        double over = motion("hover:color:" + key, hover(bodyX, y, bodyW, 30) ? 1 : 0);
+        UiDraw.round(g, bodyX, y, bodyW, 30, 7, UiDraw.alpha(blend(0x191C22, 0x262B33, open ? 1 : over), c.menuOpacity));
+        UiDraw.round(g, bodyX + 8, y + 6, 18, 18, 6, 0x40FFFFFF);
+        UiDraw.round(g, bodyX + 9, y + 7, 16, 16, 5, color);
+        String state = rainbow ? "переливание" : custom ? ColorMath.hex(color) : "как тема";
+        int sw = UiFont.width(g, font, state, UiFont.Face.SMALL);
+        text(g, title, bodyX + 34, y + 11, 0xFFE5E9F0, bodyW - 34 - sw - 34);
+        text(g, state, bodyX + bodyW - sw - 26, y + 12, custom || rainbow ? 0xFFB8C0CD : 0xFF6B7280, sw + 2, UiFont.Face.SMALL);
+        UiFont.icon(g, font, open ? Icons.CHEVRON_LEFT : Icons.CHEVRON_RIGHT, bodyX + bodyW - 18, y + 10, open ? accent() : 0xFF9AA3B2);
+        hit(bodyX, y, bodyW, 30, () -> { colorOpen = open ? null : key; hsvCache.remove(key); });
+        cursor += 34;
+        if (open) picker(g, key);
+    }
+    private void picker(GuiGraphicsExtractor g, String key) {
+        var c = LavaVisualClient.config();
+        boolean theme = key.equals("theme");
+        int rgb = currentRgb(key);
+        double[] hsv = hsvCache.get(key);
+        if (hsv == null || ColorMath.hsv(hsv[0], hsv[1], hsv[2]) != rgb) {
+            double[] fresh = ColorMath.toHsv(rgb);
+            if (hsv != null && fresh[1] < 0.01) fresh[0] = hsv[0];
+            hsv = fresh; hsvCache.put(key, hsv);
+        }
+        final double[] state = hsv;
+        int x = bodyX + 10, w = bodyW - 20;
+        UiDraw.round(g, bodyX, cursor - 2, bodyW, 4, 2, UiDraw.alpha(accent(), 0.25));
+        if (!theme) {
+            String[] modes = {"Как тема", "Свой цвет", "Переливание"};
+            int mode = c.chroma.contains(key) ? 2 : c.customColor(key) ? 1 : 0, mw = (bodyW - 16) / 3;
+            for (int i = 0; i < 3; i++) {
+                int m = i, mx0 = bodyX + i * (mw + 8);
+                boolean on = mode == i, o = hover(mx0, cursor + 6, mw, 22);
+                UiDraw.round(g, mx0, cursor + 6, mw, 22, 6, on ? UiDraw.alpha(accent(), 0.3) : o ? 0xFF30333B : 0xFF24272E);
+                int lw = Math.min(mw - 8, UiFont.width(g, font, modes[i], UiFont.Face.REGULAR));
+                text(g, modes[i], mx0 + (mw - lw) / 2, cursor + 13, on ? 0xFFFFFFFF : 0xFFC9D0DA, lw + 2);
+                hit(mx0, cursor + 6, mw, 22, () -> {
+                    if (m == 0) { c.colors.remove(key); c.chroma.remove(key); }
+                    else if (m == 1) { c.chroma.remove(key); c.colors.put(key, c.color(key) & 0xFFFFFF); }
+                    else if (!c.chroma.contains(key)) c.chroma.add(key);
+                    hsvCache.remove(key); changed();
+                });
+            }
+            cursor += 34;
+        }
+        gradientBar(g, "Оттенок", state[0], t -> ColorMath.hsv(t, 1, 1), v -> { state[0] = Math.min(0.999, v); setColor(key, ColorMath.hsv(state[0], state[1], state[2])); });
+        gradientBar(g, "Насыщенность", state[1], t -> ColorMath.hsv(state[0], t, Math.max(0.35, state[2])), v -> { state[1] = v; setColor(key, ColorMath.hsv(state[0], state[1], state[2])); });
+        gradientBar(g, "Яркость", state[2], t -> ColorMath.hsv(state[0], state[1], t), v -> { state[2] = v; setColor(key, ColorMath.hsv(state[0], state[1], state[2])); });
+        int pw = (bodyW - (PRESETS.length - 1) * 4) / PRESETS.length;
+        for (int i = 0; i < PRESETS.length; i++) {
+            int preset = PRESETS[i], px = bodyX + i * (pw + 4);
+            if ((rgb & 0xFFFFFF) == preset && (theme || c.customColor(key))) UiDraw.round(g, px - 1, cursor - 1, pw + 2, 18, 5, 0xFFFFFFFF);
+            UiDraw.round(g, px, cursor, pw, 16, 4, 0xFF000000 | preset);
+            hit(px, cursor, pw, 16, () -> { setColor(key, preset); hsvCache.remove(key); changed(); });
+        }
+        cursor += 24;
+        int hw = (bodyW - 16) / 3;
+        UiDraw.round(g, bodyX, cursor, hw, 24, 6, 0xFF1C1F26);
+        UiDraw.round(g, bodyX + 6, cursor + 6, 12, 12, 4, 0xFF000000 | rgb);
+        text(g, ColorMath.hex(rgb), bodyX + 24, cursor + 8, 0xFFE8EAF0, hw - 28);
+        action(g, Icons.COPY, "Копировать", bodyX + hw + 8, cursor, hw, () -> { minecraft.keyboardHandler.setClipboard(ColorMath.hex(currentRgb(key))); flash("Цвет скопирован"); });
+        action(g, Icons.CLIPBOARD_PASTE, "Вставить HEX", bodyX + (hw + 8) * 2, cursor, hw, () -> {
+            int parsed = ColorMath.parse(minecraft.keyboardHandler.getClipboard());
+            if (parsed < 0) flash("В буфере нет цвета вида #FF5A36"); else { setColor(key, parsed); hsvCache.remove(key); changed(); flash("Цвет вставлен"); }
+        });
+        cursor += 30;
+        if (flash != null && System.currentTimeMillis() - flashAt < 2500) note(g, flash);
+        cursor += 4;
+    }
+    /** Slider whose track shows the resulting colours; value in 0..1. */
+    private void gradientBar(GuiGraphicsExtractor g, String label, double value, java.util.function.DoubleUnaryOperator colorAt, DoubleConsumer setter) {
+        int y = cursor, x = bodyX + 4, w = bodyW - 8;
+        text(g, label, bodyX + 2, y + 1, 0xFFB8C0CD, bodyW - 60, UiFont.Face.SMALL);
+        String shown = Math.round(value * 100) + "%";
+        int vw = UiFont.width(g, font, shown, UiFont.Face.SMALL);
+        text(g, shown, bodyX + bodyW - vw - 2, y + 1, 0xFFF2F4F8, vw + 2, UiFont.Face.SMALL);
+        for (int i = 0; i < w; i += 2) g.fill(x + i, y + 13, x + Math.min(w, i + 2), y + 19, 0xFF000000 | (int) colorAt.applyAsDouble(i / (double) Math.max(1, w - 1)));
+        int knob = x + (int) Math.round(w * Math.clamp(value, 0, 1));
+        UiDraw.round(g, knob - 4, y + 10, 8, 12, 4, 0xFF101217);
+        UiDraw.round(g, knob - 3, y + 11, 6, 10, 3, 0xFFFFFFFF);
+        sliders.add(new Slider(x, y + 8, w, 0, 1, setter));
+        cursor += 28;
+    }
+    @Override public boolean keyPressed(KeyEvent event) {
+        if (capturing != null) {
+            if (event.key() == GLFW.GLFW_KEY_ESCAPE) capturing = null;
+            else if (event.key() == GLFW.GLFW_KEY_BACKSPACE || event.key() == GLFW.GLFW_KEY_DELETE) { Binds.set(capturing, InputConstants.UNKNOWN, minecraft); capturing = null; }
+            else { Binds.set(capturing, InputConstants.getKey(event), minecraft); capturing = null; }
+            return true;
+        }
+        var menuKey = Binds.mapping(Binds.Action.MENU);
+        if (menuKey != null && !menuKey.isUnbound() && menuKey.matches(event) && dragging == null) { onClose(); return true; }
+        return super.keyPressed(event);
     }
     @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (capturing != null) {
+            if (event.button() >= 2) { Binds.set(capturing, InputConstants.Type.MOUSE.getOrCreate(event.button()), minecraft); capturing = null; return true; }
+            if (event.button() == 1) { capturing = null; return true; }
+        }
         if (event.button() != 0) return super.mouseClicked(event, doubleClick);
         if ((event.y() / renderScale) >= clipTop && (event.y() / renderScale) < clipBottom) for (Slider slider : sliders) {
             if ((event.x() / renderScale) >= slider.x - 4 && (event.x() / renderScale) <= slider.x + slider.width + 4 && (event.y() / renderScale) >= slider.y && (event.y() / renderScale) < slider.y + 20) {
