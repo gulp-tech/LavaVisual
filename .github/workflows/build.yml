@@ -1,5 +1,8 @@
 name: Build LavaVisual
-on: [push, workflow_dispatch]
+on:
+  push:
+    paths: ['src/**', 'build.gradle', 'gradle.properties', 'settings.gradle', 'gradle/**', '.github/workflows/build.yml']
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:

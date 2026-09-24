@@ -1,0 +1,54 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT'
+}
+version = project.mod_version
+group = 'tech.gulp'
+base { archivesName = 'lavavisual' }
+repositories { mavenCentral() }
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+}
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') { expand version: project.version }
+}
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
+}
+tasks.withType(JavaCompile).configureEach { options.release = 25; options.encoding = 'UTF-8' }
+test { useJUnitPlatform() }
+jar { from('LICENSE') }
+// Public signatures only, for reviewing the version-specific adapter against the real game API.
+tasks.register('apiSignatures') {
+    doLast {
+        def names = [
+            'net.minecraft.client.renderer.rendertype.RenderType',
+            'net.minecraft.client.renderer.rendertype.RenderSetup',
+            'net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder',
+            'net.minecraft.client.renderer.RenderPipelines',
+            'com.mojang.blaze3d.pipeline.RenderPipeline$Builder',
+            'net.minecraft.client.renderer.SubmitNodeCollector',
+            'net.minecraft.client.renderer.entity.LivingEntityRenderer',
+            'net.minecraft.client.renderer.entity.state.LivingEntityRenderState',
+            'net.minecraft.client.renderer.entity.state.EntityRenderState',
+            'net.minecraft.client.renderer.state.level.CameraRenderState',
+            'net.minecraft.client.Camera',
+            'net.minecraft.client.KeyMapping',
+            'net.minecraft.client.KeyMapping$Category',
+            'net.minecraft.client.model.EntityModel',
+            'com.mojang.blaze3d.vertex.VertexConsumer'
+        ]
+        def result = new StringBuilder()
+        names.each { name ->
+            def p = new ProcessBuilder('javap', '-classpath', configurations.compileClasspath.asPath, '-p', name).redirectErrorStream(true).start()
+            result.append(p.inputStream.text).append('\n')
+            p.waitFor()
+        }
+        file('build').mkdirs()
+        file('build/api-signatures.txt').text = result.toString()
+    }
+}

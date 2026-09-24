@@ -1,0 +1,66 @@
+name: Build version adapters
+on:
+  push:
+    paths: ['ports/**', '.github/workflows/ports.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  adapters:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - mc: '1.21.4'
+            java: '21'
+            gradle: '8.12'
+          - mc: '26.2'
+            java: '25'
+            gradle: '9.5.1'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+      - uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-version: ${{ matrix.gradle }}
+      - name: Build adapter
+        shell: bash
+        run: |
+          set +e
+          task=build
+          if [ '${{ matrix.mc }}' = '26.2' ]; then task=apiSignatures; fi
+          gradle -p ports/mc${{ matrix.mc }} "$task" --no-daemon > build-port.log 2>&1
+          result=$?
+          cat build-port.log
+          if [ "$result" -ne 0 ]; then
+            python3 - <<'PY'
+          import pathlib
+          lines = pathlib.Path('build-port.log').read_text().splitlines()[-120:]
+          for i in range(0, len(lines), 15):
+              msg = '\n'.join(lines[i:i+15]).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+              print('::error title=Adapter diagnostics::' + msg)
+          PY
+          fi
+          exit "$result"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LavaVisual-mc${{ matrix.mc }}
+          path: |
+            ports/mc${{ matrix.mc }}/build/libs/*.jar
+            ports/mc${{ matrix.mc }}/build/api-signatures.txt
+      - name: Publish signatures for adapter review
+        if: matrix.mc == '26.2' && github.ref == 'refs/heads/arena/01a0d2b1-lavavisual'
+        run: |
+          mkdir -p docs/api
+          cp ports/mc26.2/build/api-signatures.txt docs/api/mc26.2.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/api
+          git diff --cached --quiet && exit 0
+          git commit -m 'Record public 26.2 API signatures for adapter review [skip ci]'
+          git pull --rebase origin arena/01a0d2b1-lavavisual
+          git push origin HEAD:arena/01a0d2b1-lavavisual
