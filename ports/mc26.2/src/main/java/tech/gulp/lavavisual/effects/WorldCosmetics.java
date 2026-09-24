@@ -32,12 +32,15 @@ import tech.gulp.lavavisual.ui.UiDraw;
 /** Bounded local cosmetics. Extraction contains no entity references; rendering never queries the world. */
 public final class WorldCosmetics {
     private record Ring(Vec3 origin, int born) { }
+    private record Mark(Vec3 origin, long born, int shape) { }
     private record Spark(Vec3 origin, Vec3 velocity, int born, int life, float size, boolean ambient) { }
     private record RingFrame(Vec3 origin, float radius, float alpha) { }
     private record SparkFrame(Vec3 origin, float size, float alpha) { }
-    private record Frame(List<RingFrame> rings, List<SparkFrame> sparks, int color) { }
+    private record MarkerFrame(Vec3 origin, int shape, float size, float alpha) { }
+    private record Frame(List<RingFrame> rings, List<SparkFrame> sparks, List<MarkerFrame> markers, int color) { }
     private static final RenderStateDataKey<Frame> DATA = RenderStateDataKey.create(() -> "lavavisual:cosmetics");
     private static final ArrayList<Ring> RINGS = new ArrayList<>();
+    private static final ArrayList<Mark> MARKS = new ArrayList<>();
     private static final ArrayList<Spark> SPARKS = new ArrayList<>();
     private static final Random RANDOM = new Random();
     private static int tick, lastHitTick = -100;
@@ -67,6 +70,13 @@ public final class WorldCosmetics {
                     add(new Spark(origin, velocity, tick, 14 + RANDOM.nextInt(9), (float) c.particleSize, false));
                 }
             }
+            if (c.markerEnabled && player == mc.player && level == mc.level && !player.isSpectator()
+                    && mc.gui.screen() == null && entity instanceof LivingEntity marked && marked.isAlive() && !marked.isInvisible()
+                    && mc.hitResult instanceof EntityHitResult aimedMark && aimedMark.getEntity() == entity
+                    && player.distanceTo(entity) <= 6 && player.hasLineOfSight(entity)) {
+                if (MARKS.size() >= 6) MARKS.removeFirst();
+                MARKS.add(new Mark(marked.getBoundingBox().getCenter(), tick, c.markerShape));
+            }
             return InteractionResult.PASS;
         });
         LevelExtractionEvents.END_EXTRACTION.register(context -> {
@@ -85,12 +95,30 @@ public final class WorldCosmetics {
                 Vec3 position = s.origin.add(s.velocity.scale(age)).add(0, s.ambient ? 0 : -0.0015 * age * age, 0);
                 sparks.add(new SparkFrame(position, s.size, (float) alpha));
             }
-            context.levelState().setData(DATA, new Frame(List.copyOf(rings), List.copyOf(sparks), c.accent()));
+            var markers = new ArrayList<MarkerFrame>();
+            if (c.markerEnabled) for (Mark m : MARKS) {
+                double age = Math.clamp((now - m.born) / (c.markerDuration * 20), 0, 1);
+                markers.add(new MarkerFrame(m.origin, m.shape, (float) c.markerSize, (float) (1 - age)));
+            }
+            context.levelState().setData(DATA, new Frame(List.copyOf(rings), List.copyOf(sparks), List.copyOf(markers), c.accent()));
+            if (c.skyEnabled) {
+                var level = Minecraft.getInstance().level;
+                if (level != null && level.dimensionType().hasSkyLight()) {
+                    var sky = context.levelState().skyRenderState;
+                    sky.skyColor = mix(sky.skyColor, c.skyRgb, c.skyStrength);
+                }
+            }
         });
         LevelRenderEvents.BEFORE_TRANSLUCENT_TERRAIN.register(WorldCosmetics::render);
     }
+    private static int mix(int from, int to, double t) {
+        int r = (int) (((from >> 16 & 255) * (1 - t)) + ((to >> 16 & 255) * t));
+        int g = (int) (((from >> 8 & 255) * (1 - t)) + ((to >> 8 & 255) * t));
+        int b = (int) (((from & 255) * (1 - t)) + (to & 255) * t);
+        return r << 16 | g << 8 | b;
+    }
     private static void add(Spark spark) {
-        if (SPARKS.size() >= 96) SPARKS.removeFirst();
+        if (SPARKS.size() >= (PerformanceMode.active() ? 48 : 96)) SPARKS.removeFirst();
         SPARKS.add(spark);
     }
     public static void clear() {
@@ -103,6 +131,7 @@ public final class WorldCosmetics {
         var c = LavaVisualClient.config();
         var player = mc.player;
         RINGS.removeIf(r -> !c.jumpEnabled || tick - r.born >= 24);
+        MARKS.removeIf(m -> !c.markerEnabled || tick - m.born >= (long) (c.markerDuration * 20));
         SPARKS.removeIf(s -> (s.ambient ? !c.ambientEnabled : !c.particlesEnabled) || tick - s.born >= s.life);
         if (ready && c.jumpEnabled && grounded && !player.onGround() && player.getDeltaMovement().y > 0.08
                 && mc.options.keyJump.isDown() && !player.getAbilities().flying && !player.isInWater() && !player.isPassenger()) {
@@ -111,7 +140,7 @@ public final class WorldCosmetics {
         }
         grounded = player.onGround(); ready = true;
         if (grounded) groundPosition = player.position();
-        if (c.ambientEnabled && tick % 5 == 0 && !player.isSpectator()) {
+        if (c.ambientEnabled && tick % (PerformanceMode.active() ? 12 : 5) == 0 && !player.isSpectator()) {
             double angle = RANDOM.nextDouble() * Math.PI * 2, radius = 1.2 + RANDOM.nextDouble() * 2.8;
             Vec3 position = player.position().add(Math.cos(angle) * radius, .3 + RANDOM.nextDouble() * 2.5, Math.sin(angle) * radius);
             add(new Spark(position, new Vec3(0, .008, 0), tick, 70, .055f, true));
@@ -133,6 +162,7 @@ public final class WorldCosmetics {
                     band(pose, out, p, ring.radius, ring.radius * 1.11f, frame.color, ring.alpha * .75f, 0);
                     band(pose, out, p, ring.radius * .72f, ring.radius * .75f, frame.color, ring.alpha * .42f, ring.alpha * .42f);
                 }
+                for (MarkerFrame mark : frame.markers) marker(pose, out, mark.origin().subtract(camera), mark, frame.color(), right, up);
                 for (SparkFrame spark : frame.sparks) {
                     Vec3 p = spark.origin.subtract(camera);
                     glow(pose, out, p, right, up, spark.size * 2.7f, frame.color, spark.alpha * .35f, 12);
@@ -161,6 +191,36 @@ public final class WorldCosmetics {
             billboardVertex(pose, out, p, right, up, Math.cos(b) * size, Math.sin(b) * size, edge);
             vertex(pose, out, p.x, p.y, p.z, center);
         }
+    }
+    private static void marker(PoseStack.Pose pose, VertexConsumer out, Vec3 p, MarkerFrame mark, int color, Vector3f right, Vector3f up) {
+        float s = mark.size();
+        int fill = UiDraw.alpha(color, mark.alpha() * 0.18f);
+        int line = UiDraw.alpha(color, mark.alpha() * 0.9f);
+        billboardVertex(pose, out, p, right, up, -s, -s, fill);
+        billboardVertex(pose, out, p, right, up, s, -s, fill);
+        billboardVertex(pose, out, p, right, up, s, s, fill);
+        billboardVertex(pose, out, p, right, up, -s, s, fill);
+        float t = Math.max(0.02f, s * 0.14f);
+        if (mark.shape() == 0) {
+            for (int i = 0; i < 40; i++) {
+                double a = i * Math.PI / 20, b = (i + 1) * Math.PI / 20;
+                billboardVertex(pose, out, p, right, up, Math.cos(a) * (s - t), Math.sin(a) * (s - t), line);
+                billboardVertex(pose, out, p, right, up, Math.cos(b) * (s - t), Math.sin(b) * (s - t), line);
+                billboardVertex(pose, out, p, right, up, Math.cos(b) * s, Math.sin(b) * s, line);
+                billboardVertex(pose, out, p, right, up, Math.cos(a) * s, Math.sin(a) * s, line);
+            }
+        } else {
+            bar(pose, out, p, right, up, -s, s - t, s, s, line);
+            bar(pose, out, p, right, up, -s, -s, s, -s + t, line);
+            bar(pose, out, p, right, up, -s, -s + t, -s + t, s - t, line);
+            bar(pose, out, p, right, up, s - t, -s + t, s, s - t, line);
+        }
+    }
+    private static void bar(PoseStack.Pose pose, VertexConsumer out, Vec3 p, Vector3f right, Vector3f up, float x0, float y0, float x1, float y1, int color) {
+        billboardVertex(pose, out, p, right, up, x0, y0, color);
+        billboardVertex(pose, out, p, right, up, x1, y0, color);
+        billboardVertex(pose, out, p, right, up, x1, y1, color);
+        billboardVertex(pose, out, p, right, up, x0, y1, color);
     }
     private static void billboardVertex(PoseStack.Pose pose, VertexConsumer out, Vec3 p, Vector3f r, Vector3f u, double x, double y, int color) {
         vertex(pose, out, p.x + r.x * x + u.x * y, p.y + r.y * x + u.y * y, p.z + r.z * x + u.z * y, color);

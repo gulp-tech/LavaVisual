@@ -13,6 +13,8 @@ public final class CustomAudio {
     public static Identifier sound(int group) {
         var c = LavaVisualClient.config();
         int preset = group == 0 ? c.hitPreset : group == 1 ? c.critPreset : c.totemPreset;
+        if (preset == 2 && !CustomSounds.names().isEmpty())
+            return Identifier.fromNamespaceAndPath("lavavisual", "custom/" + CustomSounds.names().get(group % CustomSounds.names().size()));
         return Identifier.fromNamespaceAndPath("lavavisual", SOUNDS[group][Math.floorMod(preset, 2)]);
     }
     private static double volume(int group) {
