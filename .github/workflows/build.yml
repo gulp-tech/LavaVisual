@@ -1,7 +1,7 @@
 name: Build LavaVisual
 on: [push, workflow_dispatch]
 permissions:
-  contents: read
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,3 +34,18 @@ jobs:
           name: LavaVisual-mc1.20.4
           path: build/libs/*.jar
           if-no-files-found: error
+      - name: Publish installable JAR to working branch
+        if: github.ref == 'refs/heads/arena/01a0d2b1-lavavisual'
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          cp build/libs/lavavisual-1.0.0+mc1.20.4.jar artifacts/
+          (cd artifacts && sha256sum lavavisual-1.0.0+mc1.20.4.jar > SHA256SUMS)
+          printf 'Source commit: %s\nBuild run: https://github.com/%s/actions/runs/%s\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" > artifacts/BUILD.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add artifacts/
+          if ! git diff --cached --quiet; then
+            git commit -m 'Publish compiled Minecraft 1.20.4 JAR [skip ci]'
+            git push origin HEAD:arena/01a0d2b1-lavavisual
+          fi
