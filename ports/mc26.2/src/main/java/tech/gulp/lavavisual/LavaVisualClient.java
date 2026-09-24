@@ -28,6 +28,16 @@ public final class LavaVisualClient implements ClientModInitializer {
     private boolean boostChecked;
     public static HudConfig config() { return config; }
     public static void save() { if (!STORE.save(config, 0)) LavaVisual.LOGGER.error("Could not save LavaVisual settings"); }
+    public static String exportConfig() { return STORE.export(config); }
+    public static boolean importConfig(String text) {
+        HudConfig parsed = STORE.parse(text);
+        if (parsed == null) return false;
+        config = parsed;
+        save();
+        return true;
+    }
+    public static String profileInfo(int slot) { return STORE.modified(slot); }
+    public static java.nio.file.Path configDirectory() { return STORE.directory(); }
     public static boolean saveProfile(int slot) { boolean ok = STORE.save(config, slot); if (ok) save(); return ok; }
     public static boolean loadProfile(int slot) {
         if (!STORE.exists(slot)) return false;

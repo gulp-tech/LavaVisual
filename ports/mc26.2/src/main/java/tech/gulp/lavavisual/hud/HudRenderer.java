@@ -21,6 +21,7 @@ public final class HudRenderer {
             case "target" -> "Target HUD";
             case "keys" -> "Клавиши";
             case "armor" -> "Броня";
+            case "totems" -> "Тотемы";
             default -> "HUD";
         };
     }
@@ -108,6 +109,7 @@ public final class HudRenderer {
                     String value = switch (id) {
                         case "coordinates" -> state.coordinates;
                         case "performance" -> state.performance;
+                        case "totems" -> totems(mc);
                         default -> "";
                     };
                     UiFont.text(g, mc.font, title(id) + (edit && !w.visible ? " · выкл" : ""), 8, 4, UiDraw.alpha(accent, fade), bw - 16);
@@ -115,6 +117,17 @@ public final class HudRenderer {
                 }
             } finally { g.pose().popMatrix(); }
         }
+    }
+    private static String totems(Minecraft mc) {
+        if (mc.player == null) return "0 шт.";
+        var inventory = mc.player.getInventory();
+        int count = 0;
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            var stack = inventory.getItem(i);
+            if (stack.is(net.minecraft.world.item.Items.TOTEM_OF_UNDYING)) count += stack.getCount();
+        }
+        if (inventory.getContainerSize() <= 36 && mc.player.getOffhandItem().is(net.minecraft.world.item.Items.TOTEM_OF_UNDYING)) count += mc.player.getOffhandItem().getCount();
+        return count + " шт.";
     }
     private static void keys(GuiGraphicsExtractor g, Minecraft mc, double fade, int accent, boolean off) {
         var o = mc.options;

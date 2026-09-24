@@ -6,7 +6,7 @@ import java.util.Map;
 
 public final class HudConfig {
     public static final int SCHEMA = 3;
-    public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor");
+    public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor", "totems");
     public int schemaVersion = SCHEMA;
     public int rgb = 0x85F56A;
     public boolean shadows = true, animations = true;
@@ -22,6 +22,7 @@ public final class HudConfig {
     public double menuScale = 0.8, menuOpacity = 0.9, menuDim = 0.12;
     public boolean markerEnabled, skyEnabled, fpsBoost;
     public boolean badgeEnabled = true;
+    public boolean hatEnabled, trailEnabled;
     public int markerShape, skyRgb = 0x83B9FF;
     public double markerDuration = 2, markerSize = 0.45, skyStrength = 0.65, targetHold = 3;
     public int savedRenderDistance = -1, savedParticles = -1;
@@ -50,6 +51,7 @@ public final class HudConfig {
         result.put("target", new Widget(0.5, 0.78));
         result.put("keys", new Widget(0.98, 0.5));
         result.put("armor", new Widget(0.5, 0.9));
+        result.put("totems", new Widget(0.98, 0.66));
         return result;
     }
     public void disableAll() {
@@ -57,6 +59,7 @@ public final class HudConfig {
         crosshairEnabled = jumpEnabled = particlesEnabled = ambientEnabled = viewModelEnabled = false;
         hitSoundEnabled = critSoundEnabled = totemSoundEnabled = false;
         markerEnabled = skyEnabled = fpsBoost = false;
+        hatEnabled = trailEnabled = false;
     }
     public void sanitize() {
         if (widgets == null) widgets = defaults();

@@ -37,6 +37,9 @@ public final class ClickGuiScreen extends Screen {
         super(UiFont.component("LavaVisual")); this.page = Math.clamp(page, 0, 5); indicator = this.page * 29;
         this.selected = selected != null && (selected.equals("crosshair") || HudConfig.IDS.contains(selected)) ? selected : null;
     }
+    private String flash;
+    private long flashAt;
+    private void flash(String message) { flash = message; flashAt = System.currentTimeMillis(); }
     private void changed() { LavaVisualClient.save(); }
     private void navigate(int next) { page = next; selected = null; scroll = 0; dragging = null; hits.clear(); sliders.clear(); }
     private void select(String id) { selected = id; scroll = 0; }
@@ -161,7 +164,7 @@ public final class ClickGuiScreen extends Screen {
             text(g, TABS[i], left + 33, y + 8, tabColor, side - 40);
             hit(left + 8, y, side - 16, 25, () -> navigate(next));
         }
-        if (panelH > 300) text(g, "26.2 · 2.4.1", left + 13, top + panelH - 21, 0xFF586272, side - 18);
+        if (panelH > 300) text(g, "26.2 · 2.5", left + 13, top + panelH - 21, 0xFF586272, side - 18);
         text(g, selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : HudRenderer.title(selected), bodyX, top + 20, 0xFFF0F3F7, bodyW - 28);
         text(g, "×", left + panelW - 26, top + 17, 0xFFABB4C2, 16);
         hit(left + panelW - 31, top + 10, 24, 24, this::onClose);
@@ -190,7 +193,14 @@ public final class ClickGuiScreen extends Screen {
         var c = LavaVisualClient.config();
         for (String id : HudConfig.IDS) {
             var w = c.widgets.get(id);
-            String desc = id.equals("target") ? "Аватар и данные видимой цели" : id.equals("coordinates") ? "Ваша позиция в мире" : "Частота кадров";
+            String desc = switch (id) {
+                case "target" -> "Аватар и данные видимой цели";
+                case "coordinates" -> "Ваша позиция в мире";
+                case "keys" -> "WASD, кнопки мыши и CPS";
+                case "armor" -> "Прочность надетой брони";
+                case "totems" -> "Сколько тотемов в инвентаре";
+                default -> "Частота кадров";
+            };
             toggle(g, id, HudRenderer.title(id), desc, w.visible, () -> { w.visible = !w.visible; changed(); }, () -> select(id));
         }
         button(g, "Редактор расположения", () -> minecraft.gui.setScreen(new HudEditorScreen(this)));
@@ -211,6 +221,8 @@ public final class ClickGuiScreen extends Screen {
         button(g, "Форма: " + (c.markerShape == 0 ? "круг" : "квадрат"), () -> { c.markerShape = 1 - c.markerShape; changed(); });
         slider(g, "Длительность · сек", c.markerDuration, 1, 3, v -> c.markerDuration = v, false);
         slider(g, "Размер маркера", c.markerSize, 0.15, 0.9, v -> c.markerSize = v, false);
+        toggle(g, "hat", "China Hat", "Вращающаяся шляпа, вид от 3-го лица", c.hatEnabled, () -> { c.hatEnabled = !c.hatEnabled; changed(); }, null);
+        toggle(g, "trail", "Trails", "Светящийся след за вами", c.trailEnabled, () -> { c.trailEnabled = !c.trailEnabled; changed(); }, null);
         note(g, "Эффекты не видны сквозь блоки.");
     }
     private void hands(GuiGraphicsExtractor g) {
@@ -272,19 +284,24 @@ public final class ClickGuiScreen extends Screen {
         note(g, "Один цвет для меню, HUD и эффектов.");
         toggle(g, "shadows", "Тени панелей", "Мягкая глубина интерфейса", c.shadows, () -> { c.shadows = !c.shadows; changed(); }, null);
         toggle(g, "animations", "Анимации", "Плавные вкладки и переключатели", c.animations, () -> { c.animations = !c.animations; changed(); }, null);
-        section(g, "Профили настроек");
-        int cw = (bodyW - 16) / 3;
-        for (int i = 1; i <= 3; i++) {
-            int slot = i;
-            action(g, "Сохранить " + i, bodyX + (i - 1) * (cw + 8), cursor, cw, () -> LavaVisualClient.saveProfile(slot));
+        section(g, "Конфиги");
+        for (int i = 1; i <= 5; i++) {
+            int slot = i, y = cursor, bw2 = Math.min(84, (bodyW - 150) / 2);
+            String info = LavaVisualClient.profileInfo(slot);
+            UiDraw.round(g, bodyX, y, bodyW, 28, 6, UiDraw.alpha(0x191C22, c.menuOpacity));
+            if (info != null) UiDraw.round(g, bodyX + 1, y + 8, 2, 12, 1, accent());
+            text(g, "Конфиг " + slot, bodyX + 10, y + 10, 0xFFE5E9F0, 64);
+            text(g, info == null ? "пусто" : info, bodyX + 76, y + 10, info == null ? 0xFF6B7280 : 0xFF9AA3B2, bodyW - 90 - bw2 * 2);
+            action(g, "Сохранить", bodyX + bodyW - bw2 * 2 - 8, y + 2, bw2, () -> flash(LavaVisualClient.saveProfile(slot) ? "Конфиг " + slot + " сохранён" : "Не удалось сохранить"));
+            if (info != null) action(g, "Загрузить", bodyX + bodyW - bw2 - 2, y + 2, bw2, () -> flash(LavaVisualClient.loadProfile(slot) ? "Конфиг " + slot + " загружен" : "Не удалось загрузить"));
+            cursor += 32;
         }
+        int hw = (bodyW - 8) / 2;
+        action(g, "Экспорт в буфер", bodyX, cursor, hw, () -> { minecraft.keyboardHandler.setClipboard(LavaVisualClient.exportConfig()); flash("Конфиг скопирован — можно отправить другу"); });
+        action(g, "Импорт из буфера", bodyX + hw + 8, cursor, hw, () -> flash(LavaVisualClient.importConfig(minecraft.keyboardHandler.getClipboard()) ? "Конфиг импортирован" : "В буфере нет конфига LavaVisual"));
         cursor += 32;
-        for (int i = 1; i <= 3; i++) {
-            int slot = i;
-            action(g, "Загрузить " + i, bodyX + (i - 1) * (cw + 8), cursor, cw, () -> LavaVisualClient.loadProfile(slot));
-        }
-        cursor += 32;
-        note(g, "Профили хранятся рядом с основными настройками.");
+        button(g, "Открыть папку конфигов", () -> net.minecraft.util.Util.getPlatform().openPath(LavaVisualClient.configDirectory()));
+        note(g, flash != null && System.currentTimeMillis() - flashAt < 3000 ? flash : "Конфиг — это текст: экспортируйте и делитесь.");
         button(g, "Выключить все модули", () -> { c.disableAll(); changed(); });
         button(g, "Сбросить расположение HUD", LavaVisualClient::resetLayout);
     }
