@@ -40,7 +40,7 @@ class HudConfigTest {
     @Test void removedPanelsDoNotSurviveMigration(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve("hud.json"), "{\"schemaVersion\":2,\"widgets\":{\"stopwatch\":{\"visible\":true},\"island\":{\"visible\":true}}}");
         var store = new ConfigStore(dir); var c = store.load(0);
-        assertEquals(java.util.Set.of("coordinates", "performance", "target"), c.widgets.keySet());
+        assertEquals(java.util.Set.of("coordinates", "performance", "target", "keys", "armor"), c.widgets.keySet());
         assertTrue(store.save(c, 0));
         assertFalse(Files.readString(dir.resolve("hud.json")).contains("stopwatch"));
         assertFalse(Files.readString(dir.resolve("hud.json")).contains("island"));

@@ -235,6 +235,19 @@ public final class ClickGuiScreen extends Screen {
         note(g, "Один цвет для меню, HUD и эффектов.");
         toggle(g, "shadows", "Тени панелей", "Мягкая глубина интерфейса", c.shadows, () -> { c.shadows = !c.shadows; changed(); }, null);
         toggle(g, "animations", "Анимации", "Плавные вкладки и переключатели", c.animations, () -> { c.animations = !c.animations; changed(); }, null);
+        section(g, "Профили настроек");
+        int cw = (bodyW - 16) / 3;
+        for (int i = 1; i <= 3; i++) {
+            int slot = i;
+            action(g, "Сохранить " + i, bodyX + (i - 1) * (cw + 8), cursor, cw, () -> LavaVisualClient.saveProfile(slot));
+        }
+        cursor += 32;
+        for (int i = 1; i <= 3; i++) {
+            int slot = i;
+            action(g, "Загрузить " + i, bodyX + (i - 1) * (cw + 8), cursor, cw, () -> LavaVisualClient.loadProfile(slot));
+        }
+        cursor += 32;
+        note(g, "Профили хранятся рядом с основными настройками.");
         button(g, "Выключить все модули", () -> { c.disableAll(); changed(); });
         button(g, "Сбросить расположение HUD", LavaVisualClient::resetLayout);
     }
@@ -247,6 +260,18 @@ public final class ClickGuiScreen extends Screen {
             slider(g, channels[i], c.skyRgb >> shift & 255, 0, 255, v -> c.skyRgb = c.skyRgb & ~(255 << shift) | (int) Math.round(v) << shift, true);
         }
         slider(g, "Смешивание оттенка", c.skyStrength, 0, 1, v -> c.skyStrength = v, false);
+        int pw = (bodyW - 16) / 3;
+        int[][] presets = {{0x83B9FF, 0}, {0xFF8A3C, 100}, {0x8A4CFF, 100}, {0x2CE08A, 100}, {0xFF4C6A, 100}, {0x0A0E18, 100}};
+        String[] presetNames = {"Ваниль", "Закат", "Неон", "Изумруд", "Алый", "Бездна"};
+        for (int i = 0; i < presets.length; i++) {
+            int preset = i;
+            action(g, presetNames[i], bodyX + (i % 3) * (pw + 8), cursor, pw, () -> {
+                if (preset == 0) c.skyStrength = 0; else { c.skyRgb = presets[preset][0]; c.skyStrength = 1; c.skyEnabled = true; }
+                changed();
+            });
+            if (i % 3 == 2) cursor += 32;
+        }
+        if (presets.length % 3 != 0) cursor += 32;
         toggle(g, "boost", "FPS Boost", "8 чанков, меньше частиц, без теней сущностей", c.fpsBoost, () -> { c.fpsBoost = !c.fpsBoost; tech.gulp.lavavisual.effects.PerformanceMode.update(minecraft); changed(); }, null);
         note(g, "Выключение возвращает прежние настройки.");
         note(g, "Также уменьшает число наших искр и колец.");

@@ -28,6 +28,12 @@ public final class LavaVisualClient implements ClientModInitializer {
     private boolean boostChecked;
     public static HudConfig config() { return config; }
     public static void save() { if (!STORE.save(config, 0)) LavaVisual.LOGGER.error("Could not save LavaVisual settings"); }
+    public static boolean saveProfile(int slot) { boolean ok = STORE.save(config, slot); if (ok) save(); return ok; }
+    public static boolean loadProfile(int slot) {
+        if (!STORE.exists(slot)) return false;
+        config = STORE.load(slot);
+        return save();
+    }
     public static void resetLayout() {
         var defaults = HudConfig.defaults();
         for (String id : HudConfig.IDS) {
@@ -41,6 +47,7 @@ public final class LavaVisualClient implements ClientModInitializer {
     @Override public void onInitializeClient() {
         save();
         tech.gulp.lavavisual.effects.WorldCosmetics.register();
+        tech.gulp.lavavisual.effects.PlayerTags.registerClient();
         var category = KeyMapping.Category.register(id("hud"));
         var menu = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.lavavisual.menu", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, category));
         var toggle = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.lavavisual.toggle", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, category));
@@ -75,6 +82,7 @@ public final class LavaVisualClient implements ClientModInitializer {
             if (now >= nextSample) {
                 nextSample = now + 1_000_000_000L;
                 STATE.performance = client.getFps() + " FPS";
+                STATE.fps = client.getFps();
             }
             if (!boostChecked && client.options != null) { boostChecked = true; if (config.fpsBoost) tech.gulp.lavavisual.effects.PerformanceMode.update(client); }
             tech.gulp.lavavisual.hud.TargetSnapshot.update(client);

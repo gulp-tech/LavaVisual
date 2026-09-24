@@ -8,6 +8,7 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -43,10 +44,12 @@ public final class WorldCosmetics {
     private static final ArrayList<Mark> MARKS = new ArrayList<>();
     private static final ArrayList<Spark> SPARKS = new ArrayList<>();
     private static final Random RANDOM = new Random();
-    private static int tick, lastHitTick = -100;
+    private static int tick, lastHitTick = -100, combo, lastComboTick = -100;
+    private static Object comboTarget;
+    private static final ArrayDeque<Integer> CLICKS = new ArrayDeque<>();
     private static boolean grounded, ready;
     private static Vec3 groundPosition = Vec3.ZERO;
-    private static final RenderType GLOW = RenderType.create("lavavisual_cosmetic_glow",
+    public static final RenderType GLOW = RenderType.create("lavavisual_cosmetic_glow",
             RenderSetup.builder(RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
                     .withLocation(net.minecraft.resources.Identifier.fromNamespaceAndPath("lavavisual", "pipeline/cosmetic_glow"))
                     .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
@@ -76,6 +79,12 @@ public final class WorldCosmetics {
                     && player.distanceTo(entity) <= 6 && player.hasLineOfSight(entity)) {
                 if (MARKS.size() >= 6) MARKS.removeFirst();
                 MARKS.add(new Mark(marked.getBoundingBox().getCenter(), tick, c.markerShape));
+            }
+            if (player == mc.player && level == mc.level) {
+                CLICKS.addLast((int) (System.currentTimeMillis() / 50));
+                while (CLICKS.size() > 40) CLICKS.removeFirst();
+                if (tick - lastComboTick > 40 || comboTarget != entity) combo = 0;
+                combo++; lastComboTick = tick; comboTarget = entity;
             }
             return InteractionResult.PASS;
         });
@@ -121,8 +130,14 @@ public final class WorldCosmetics {
         if (SPARKS.size() >= (PerformanceMode.active() ? 48 : 96)) SPARKS.removeFirst();
         SPARKS.add(spark);
     }
+    public static int combo() { return tick - lastComboTick <= 40 ? combo : 0; }
+    public static int clicksPerSecond() {
+        int now = (int) (System.currentTimeMillis() / 50); int count = 0;
+        for (int t : CLICKS) if (now - t <= 20) count++;
+        return count;
+    }
     public static void clear() {
-        RINGS.clear(); SPARKS.clear(); ready = false; grounded = false; tick = 0; lastHitTick = -100; groundPosition = Vec3.ZERO;
+        RINGS.clear(); SPARKS.clear(); MARKS.clear(); CLICKS.clear(); ready = false; grounded = false; tick = 0; lastHitTick = -100; groundPosition = Vec3.ZERO; combo = 0; comboTarget = null;
     }
     public static void tick(Minecraft mc) {
         if (mc.player == null || mc.level == null) { clear(); return; }
@@ -158,9 +173,11 @@ public final class WorldCosmetics {
             context.submitNodeCollector().submitCustomGeometry(context.poseStack(), GLOW, (pose, out) -> {
                 for (RingFrame ring : frame.rings) {
                     Vec3 p = ring.origin.subtract(camera);
-                    band(pose, out, p, ring.radius * .89f, ring.radius, frame.color, 0, ring.alpha * .75f);
-                    band(pose, out, p, ring.radius, ring.radius * 1.11f, frame.color, ring.alpha * .75f, 0);
-                    band(pose, out, p, ring.radius * .72f, ring.radius * .75f, frame.color, ring.alpha * .42f, ring.alpha * .42f);
+                    band(pose, out, p, 0, ring.radius * .5f, frame.color, ring.alpha * .2f, ring.alpha * .2f);
+                    band(pose, out, p, ring.radius * .52f, ring.radius * .58f, frame.color, ring.alpha * .5f, ring.alpha * .5f);
+                    band(pose, out, p, ring.radius * .89f, ring.radius, frame.color, 0, ring.alpha * .8f);
+                    band(pose, out, p, ring.radius, ring.radius * 1.11f, frame.color, ring.alpha * .8f, 0);
+                    band(pose, out, p, ring.radius * .72f, ring.radius * .75f, frame.color, ring.alpha * .45f, ring.alpha * .45f);
                 }
                 for (MarkerFrame mark : frame.markers) marker(pose, out, mark.origin().subtract(camera), mark, frame.color(), right, up);
                 for (SparkFrame spark : frame.sparks) {
@@ -174,8 +191,9 @@ public final class WorldCosmetics {
     }
     private static void band(PoseStack.Pose pose, VertexConsumer out, Vec3 p, float inner, float outer, int color, float innerAlpha, float outerAlpha) {
         int a = UiDraw.alpha(color, innerAlpha), b = UiDraw.alpha(color, outerAlpha);
-        for (int i = 0; i < 64; i++) {
-            double angle = i * Math.PI / 32, next = (i + 1) * Math.PI / 32;
+        int segments = PerformanceMode.quality() < 0.5 ? 36 : 64;
+        for (int i = 0; i < segments; i++) {
+            double angle = i * Math.PI * 2 / segments, next = (i + 1) * Math.PI * 2 / segments;
             vertex(pose, out, p.x + Math.cos(angle) * inner, p.y, p.z + Math.sin(angle) * inner, a);
             vertex(pose, out, p.x + Math.cos(angle) * outer, p.y, p.z + Math.sin(angle) * outer, b);
             vertex(pose, out, p.x + Math.cos(next) * outer, p.y, p.z + Math.sin(next) * outer, b);

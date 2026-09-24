@@ -3,11 +3,14 @@ package tech.gulp.lavavisual.ui;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FontDescription;
+import net.minecraft.resources.Identifier;
 
-/** Use the current Minecraft resource-pack font consistently in menus and HUD. */
+/** Bundled smooth OFL font affects only LavaVisual, never replaces the global Minecraft font. */
 public final class UiFont {
+    private static final FontDescription FACE = new FontDescription.Resource(Identifier.fromNamespaceAndPath("lavavisual", "ui"));
     private UiFont() { }
-    public static Component component(String value) { return Component.literal(value); }
+    public static Component component(String value) { return Component.literal(value).withStyle(style -> style.withFont(FACE)); }
     public static void text(GuiGraphicsExtractor g, Font font, String value, int x, int y, int color, int width) {
         String shown = value;
         while (!shown.isEmpty() && font.width(component(shown)) > width) shown = shown.substring(0, shown.length() - 1);

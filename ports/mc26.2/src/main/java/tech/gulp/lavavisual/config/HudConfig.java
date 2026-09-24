@@ -6,7 +6,7 @@ import java.util.Map;
 
 public final class HudConfig {
     public static final int SCHEMA = 3;
-    public static final List<String> IDS = List.of("coordinates", "performance", "target");
+    public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor");
     public int schemaVersion = SCHEMA;
     public int rgb = 0x85F56A;
     public boolean shadows = true, animations = true;
@@ -47,6 +47,8 @@ public final class HudConfig {
         result.put("coordinates", new Widget(0.02, 0.04));
         result.put("performance", new Widget(0.02, 0.15));
         result.put("target", new Widget(0.5, 0.78));
+        result.put("keys", new Widget(0.98, 0.5));
+        result.put("armor", new Widget(0.5, 0.9));
         return result;
     }
     public void disableAll() {

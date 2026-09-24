@@ -32,7 +32,6 @@ tasks.register('apiSignatures') {
             'net.minecraft.world.entity.player.Player',
             'net.minecraft.client.multiplayer.ClientLevel'
         ]
-       ]
         def result = new StringBuilder()
         names.each { name ->
             def p = new ProcessBuilder('javap', '-classpath', configurations.compileClasspath.asPath, '-p', name).redirectErrorStream(true).start()
