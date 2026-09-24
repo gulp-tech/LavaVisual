@@ -1,7 +1,0 @@
-{
-  "required": true,
-  "package": "tech.gulp.lavavisual.mixin",
-  "compatibilityLevel": "JAVA_21",
-  "client": ["LivingEntityRendererMixin", "LivingEntityRenderStateMixin"],
-  "injectors": { "defaultRequire": 1 }
-}

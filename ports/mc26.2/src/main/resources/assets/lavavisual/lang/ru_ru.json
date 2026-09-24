@@ -1,8 +1,6 @@
 {
-  "category.lavavisual": "LavaVisual",
-  "key.lavavisual.toggle": "Включить / выключить LavaVisual",
-  "key.lavavisual.boxes": "Режим ESP: 3D / 2D / выключен",
-  "key.lavavisual.tracers": "Включить / выключить трассеры",
-  "key.lavavisual.chams": "Включить / выключить Chams моделей",
-  "key.category.lavavisual.visuals": "LavaVisual"
+  "key.category.lavavisual.hud": "LavaVisual HUD",
+  "key.lavavisual.menu": "Настройки HUD",
+  "key.lavavisual.toggle": "Включить/выключить HUD",
+  "key.lavavisual.timer": "Запустить/остановить секундомер"
 }

@@ -1,2 +1,0 @@
-Adapter source: 3055779dc67411ea8d98703eb3244f9e7cb4fb20
-Build: https://github.com/gulp-tech/LavaVisual/actions/runs/35985637180
