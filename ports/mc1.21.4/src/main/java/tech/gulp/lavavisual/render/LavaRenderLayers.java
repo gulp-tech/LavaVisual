@@ -29,7 +29,7 @@ public abstract class LavaRenderLayers extends RenderLayer {
             VertexFormat.DrawMode.QUADS, 65536, false, true,
             MultiPhaseParameters.builder()
                     .program(ENTITY_TRANSLUCENT_PROGRAM)
-                    .texture(new Texture(Identifier.of("lavavisual", "textures/white.png"), false, false))
+                    .texture(new Texture(Identifier.of("lavavisual", "textures/white.png"), net.minecraft.util.TriState.FALSE, false))
                     .transparency(TRANSLUCENT_TRANSPARENCY)
                     .depthTest(ALWAYS_DEPTH_TEST)
                     .writeMaskState(COLOR_MASK)

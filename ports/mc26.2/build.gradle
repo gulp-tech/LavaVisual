@@ -32,6 +32,13 @@ tasks.register('apiSignatures') {
             'net.minecraft.client.renderer.RenderPipelines',
             'com.mojang.blaze3d.pipeline.RenderPipeline$Builder',
             'net.minecraft.client.renderer.SubmitNodeCollector',
+            'net.minecraft.client.renderer.OrderedSubmitNodeCollector',
+            'com.mojang.blaze3d.pipeline.DepthStencilState',
+            'com.mojang.blaze3d.pipeline.ColorTargetState',
+            'com.mojang.blaze3d.pipeline.BlendFunction',
+            'net.minecraft.client.model.Model',
+            'net.minecraft.client.renderer.feature.ModelFeatureRenderer$CrumblingOverlay',
+            'com.mojang.blaze3d.PrimitiveTopology',
             'net.minecraft.client.renderer.entity.LivingEntityRenderer',
             'net.minecraft.client.renderer.entity.state.LivingEntityRenderState',
             'net.minecraft.client.renderer.entity.state.EntityRenderState',
@@ -49,6 +56,12 @@ tasks.register('apiSignatures') {
             p.waitFor()
         }
         file('build').mkdirs()
+        def p = new ProcessBuilder('javap', '-classpath', configurations.compileClasspath.asPath, '-c', 'net.minecraft.client.renderer.entity.LivingEntityRenderer').redirectErrorStream(true).start()
+        def code = p.inputStream.text
+        p.waitFor()
+        def start = code.indexOf('public void submit(S,')
+        def end = code.indexOf('protected boolean shouldRenderLayers', start)
+        if (start >= 0 && end > start) result.append(code.substring(start, end))
         file('build/api-signatures.txt').text = result.toString()
     }
 }
