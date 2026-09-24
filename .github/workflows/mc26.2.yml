@@ -53,6 +53,7 @@ jobs:
         if: github.ref == 'refs/heads/arena/01a0d2b1-lavavisual'
         run: |
           git pull --ff-only origin arena/01a0d2b1-lavavisual
+          mkdir -p artifacts
           cp ports/mc26.2/build/libs/lavavisual-2.0.0-mc26.2.jar artifacts/
           (cd artifacts && sha256sum *.jar > SHA256SUMS)
           printf 'Source: %s\nBuild: https://github.com/%s/actions/runs/%s\nMinecraft: 26.2\nTested Fabric Loader: 0.19.3\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" > artifacts/STANDALONE-26.2.txt

@@ -23,6 +23,8 @@ public final class LavaVisualClient implements ClientModInitializer {
     private static HudConfig config = STORE.load(0);
     private long nextSample;
     private Object previousWorld;
+    private final boolean uiSmoke = Boolean.getBoolean("lavavisual.uiSmoke");
+    private int smokeTicks = -1;
     public static HudConfig config() { return config; }
     public static void save() { if (!STORE.save(config, 0)) STATE.notify("Settings could not be saved"); }
     public static void saveProfile(int slot) { STATE.notify(STORE.save(config, slot) ? "Profile " + slot + " saved" : "Profile save failed"); }
@@ -40,6 +42,18 @@ public final class LavaVisualClient implements ClientModInitializer {
         var toggle = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.lavavisual.toggle", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, category));
         var timer = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.lavavisual.timer", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F8, category));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            // Explicit CI-only switch; never enabled by normal game or server settings.
+            if (uiSmoke) {
+                if (smokeTicks < 0 && client.gui.screen() instanceof net.minecraft.client.gui.screens.TitleScreen) smokeTicks = 0;
+                if (smokeTicks >= 0) {
+                    smokeTicks++;
+                    if (smokeTicks == 20) client.gui.setScreen(new ClickGuiScreen());
+                    if (smokeTicks == 60) client.gui.setScreen(new ClickGuiScreen(1));
+                    if (smokeTicks == 100) client.gui.setScreen(new ClickGuiScreen(2));
+                    if (smokeTicks == 140) client.gui.setScreen(new tech.gulp.lavavisual.ui.HudEditorScreen(new ClickGuiScreen()));
+                    if (smokeTicks == 180) LavaVisual.LOGGER.info("LavaVisual UI smoke complete");
+                }
+            }
             while (menu.consumeClick()) if (client.gui.screen() == null) client.gui.setScreen(new ClickGuiScreen());
             while (toggle.consumeClick()) if (client.gui.screen() == null) { config.enabled = !config.enabled; save(); }
             while (timer.consumeClick()) if (client.gui.screen() == null && client.player != null) STATE.toggleTimer();

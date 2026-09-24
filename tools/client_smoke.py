@@ -15,7 +15,8 @@ result = 1
 with log.open('w') as output:
     process = subprocess.Popen(['xvfb-run', '-a', './gradlew', 'runClient', '--no-daemon'],
                                cwd=project, stdout=output, stderr=subprocess.STDOUT,
-                               start_new_session=True)
+                               start_new_session=True,
+                               env={**os.environ, 'JAVA_TOOL_OPTIONS': os.environ.get('JAVA_TOOL_OPTIONS', '') + ' -Dlavavisual.uiSmoke=true'})
     ready_since = None
     try:
         deadline = time.monotonic() + 300
@@ -26,7 +27,7 @@ with log.open('w') as output:
             if re.search(r'InjectionError|InvalidMixinException|MixinApplyError|IllegalClassLoadError|Mixin transformation .* failed|Exception in thread|Reported exception thrown', text):
                 raise RuntimeError('Client or mixin initialization failed')
             # Atlas creation follows model/shader loading. Stay alive for a few seconds afterwards.
-            if re.search(r'LavaVisual 2\.0\.[0-9]+', text) and re.search(r'Created:.*(atlas|textures)', text):
+            if re.search(r'LavaVisual 2\.0\.[0-9]+', text) and re.search(r'Created:.*(atlas|textures)', text) and 'LavaVisual UI smoke complete' in text:
                 ready_since = ready_since or time.monotonic()
                 if time.monotonic() - ready_since >= 12:
                     print('Client startup smoke passed; in-world visual correctness is NOT asserted.')
