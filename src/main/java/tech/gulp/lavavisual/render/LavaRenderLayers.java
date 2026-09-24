@@ -22,7 +22,7 @@ public abstract class LavaRenderLayers extends RenderLayer {
                     .transparency(TRANSLUCENT_TRANSPARENCY)
                     .depthTest(ALWAYS_DEPTH_TEST)
                     .writeMaskState(COLOR_MASK)
-                    .cull(DISABLE_CULL)
+                    .cull(DISABLE_CULLING)
                     .build(false));
 
     public static final RenderLayer CHAMS = of("lavavisual_chams", VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL,
@@ -33,7 +33,7 @@ public abstract class LavaRenderLayers extends RenderLayer {
                     .transparency(TRANSLUCENT_TRANSPARENCY)
                     .depthTest(ALWAYS_DEPTH_TEST)
                     .writeMaskState(COLOR_MASK)
-                    .cull(DISABLE_CULL)
+                    .cull(DISABLE_CULLING)
                     .lightmap(ENABLE_LIGHTMAP)
                     .overlay(ENABLE_OVERLAY_COLOR)
                     .build(false));
