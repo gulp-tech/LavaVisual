@@ -80,7 +80,7 @@ public final class LavaVisualClient implements ClientModInitializer {
     }
     private static void changed(Minecraft client, String message) {
         CONFIG.save();
-        if (client.player != null) client.gui.setOverlayMessage(Component.literal(message), false);
+        if (client.player != null) client.gui.hud.getChat().addClientSystemMessage(Component.literal(message));
     }
     /** Called only during extraction, never from a deferred drawing callback. */
     public static boolean isTarget(Entity entity) {
