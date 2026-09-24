@@ -1,7 +1,7 @@
 package tech.gulp.lavavisual.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
-import com.llamalad7.mixinextras.injector.wrapmethod.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Mixin;
 

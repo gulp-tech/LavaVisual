@@ -94,18 +94,18 @@ public final class HudRenderer {
     private static void keys(GuiGraphicsExtractor g, Minecraft mc, double fade, int accent, boolean off) {
         var o = mc.options;
         boolean l = o.keyAttack.isDown(), r = o.keyUse.isDown();
-        cell(g, 8, 8, 32, 14, l, "ЛКМ", fade, accent);
-        cell(g, 44, 8, 32, 14, r, "ПКМ", fade, accent);
-        cell(g, 26, 26, 14, 14, o.keyUp.isDown(), "W", fade, accent);
-        cell(g, 8, 42, 14, 14, o.keyLeft.isDown(), "A", fade, accent);
-        cell(g, 26, 42, 14, 14, o.keyDown.isDown(), "S", fade, accent);
-        cell(g, 44, 42, 14, 14, o.keyRight.isDown(), "D", fade, accent);
+        cell(g, mc.font, 8, 8, 32, 14, l, "ЛКМ", fade, accent);
+        cell(g, mc.font, 44, 8, 32, 14, r, "ПКМ", fade, accent);
+        cell(g, mc.font, 26, 26, 14, 14, o.keyUp.isDown(), "W", fade, accent);
+        cell(g, mc.font, 8, 42, 14, 14, o.keyLeft.isDown(), "A", fade, accent);
+        cell(g, mc.font, 26, 42, 14, 14, o.keyDown.isDown(), "S", fade, accent);
+        cell(g, mc.font, 44, 42, 14, 14, o.keyRight.isDown(), "D", fade, accent);
         UiFont.text(g, mc.font, "CPS " + tech.gulp.lavavisual.effects.WorldCosmetics.clicksPerSecond(), 62, 30, UiDraw.alpha(0xFFEAEAF0, fade), 20);
         if (off) UiFont.text(g, mc.font, "выкл", 62, 44, UiDraw.alpha(0xFF9698A3, fade), 22);
     }
-    private static void cell(GuiGraphicsExtractor g, int x, int y, int w, int h, boolean on, String label, double fade, int accent) {
+    private static void cell(GuiGraphicsExtractor g, net.minecraft.client.gui.Font font, int x, int y, int w, int h, boolean on, String label, double fade, int accent) {
         UiDraw.round(g, x, y, w, h, 3, on ? UiDraw.alpha(accent, 0.85 * fade) : UiDraw.alpha(0x23262D, 0.9 * fade));
-        UiFont.text(g, Minecraft.getInstance().font, label, x + (w - 14) / 2 + 3, y + 4, on ? UiDraw.alpha(0x101418, fade) : UiDraw.alpha(0xFFB8C0CD, fade), 14);
+        UiFont.text(g, font, label, x + (w - 14) / 2 + 3, y + 4, on ? UiDraw.alpha(0x101418, fade) : UiDraw.alpha(0xFFB8C0CD, fade), 14);
     }
     private static void armor(GuiGraphicsExtractor g, Minecraft mc, double fade, boolean off) {
         var player = mc.player;
