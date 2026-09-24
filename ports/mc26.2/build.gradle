@@ -27,10 +27,9 @@ jar { from('LICENSE') }
 tasks.register('apiSignatures') {
     doLast {
         def names = [
-            'net.minecraft.client.MouseHandler',
-            'net.minecraft.client.renderer.state.entity.EntityRenderState',
-            'net.minecraft.world.entity.player.Player',
-            'net.minecraft.client.multiplayer.ClientLevel'
+            'net.minecraft.client.renderer.ScreenEffectRenderer',
+            'net.minecraft.client.renderer.ItemInHandRenderer',
+            'net.minecraft.client.player.LocalPlayer'
         ]
         def result = new StringBuilder()
         names.each { name ->
