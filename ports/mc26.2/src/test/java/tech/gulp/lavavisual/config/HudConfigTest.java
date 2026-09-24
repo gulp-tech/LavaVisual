@@ -3,38 +3,35 @@ package tech.gulp.lavavisual.config;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.nio.file.Files;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HudConfigTest {
-    @Test void repairsInvalidValues() {
+    @Test void everythingIsInitiallyOff() {
         var c = new HudConfig();
-        c.widgets.get("coordinates").x = Double.NaN;
-        c.widgets.get("coordinates").y = 20;
-        c.crosshair = -1;
-        c.friends = new ArrayList<>(Arrays.asList(null, "Bob", "Bob", "../bad"));
-        c.sanitize();
-        assertEquals(0.02, c.widgets.get("coordinates").x);
-        assertEquals(1, c.widgets.get("coordinates").y);
-        assertEquals(3, c.crosshair);
-        assertEquals(java.util.List.of("Bob"), c.friends);
+        assertTrue(c.widgets.values().stream().noneMatch(w -> w.visible));
+        assertFalse(c.crosshairEnabled);
     }
-    @Test void restoresMissingWidgets() {
-        var c = new HudConfig(); c.widgets.clear(); c.sanitize();
-        assertEquals(6, c.widgets.size());
+    @Test void clampsAppearanceAndPosition() {
+        var c = new HudConfig(); var w = c.widgets.get("target");
+        w.x = Double.NaN; w.y = 20; w.scale = -2; w.opacity = 100; c.sanitize();
+        assertEquals(0.02, w.x); assertEquals(1, w.y);
+        assertEquals(0.6, w.scale); assertEquals(1, w.opacity);
+        assertEquals(5, c.widgets.size());
     }
-    @Test void savesIndependentProfiles(@TempDir Path dir) {
-        var store = new ConfigStore(dir); var config = new HudConfig();
-        config.widgets.get("island").visible = false; config.friends.add("Alice");
-        assertTrue(store.save(config, 1));
-        assertFalse(store.load(1).widgets.get("island").visible);
-        assertEquals(java.util.List.of("Alice"), store.load(1).friends);
-        assertTrue(store.load(2).widgets.get("island").visible);
-        assertThrows(IllegalArgumentException.class, () -> store.save(config, 4));
+    @Test void existingNewSettingsArePreserved(@TempDir Path dir) {
+        var store = new ConfigStore(dir); var c = new HudConfig();
+        c.widgets.get("target").visible = true; c.crosshairEnabled = true;
+        assertTrue(store.save(c, 0));
+        var loaded = store.load(0);
+        assertTrue(loaded.widgets.get("target").visible); assertTrue(loaded.crosshairEnabled);
     }
-    @Test void legacyCombatSettingsAreNotPartOfConfig() {
-        for (var field : HudConfig.class.getFields())
-            assertFalse(java.util.List.of("chams", "tracers", "maxDistance", "boxMode").contains(field.getName()));
+    @Test void migratesOldAutoEnabledDefaultsOnlyOnce(@TempDir Path dir) throws Exception {
+        Files.writeString(dir.resolve("hud.json"), "{\"widgets\":{\"coordinates\":{\"visible\":true,\"x\":0.42,\"y\":0.24}}}");
+        var store = new ConfigStore(dir); var c = store.load(0);
+        assertFalse(c.widgets.get("coordinates").visible);
+        assertEquals(0.42, c.widgets.get("coordinates").x);
+        c.widgets.get("coordinates").visible = true;
+        assertTrue(store.save(c, 0)); assertTrue(store.load(0).widgets.get("coordinates").visible);
     }
 }

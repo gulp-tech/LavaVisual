@@ -27,12 +27,7 @@ public final class LavaVisualClient implements ClientModInitializer {
     private int smokeTicks = -1;
     public static HudConfig config() { return config; }
     public static void save() { if (!STORE.save(config, 0)) STATE.notify("Settings could not be saved"); }
-    public static void saveProfile(int slot) { STATE.notify(STORE.save(config, slot) ? "Profile " + slot + " saved" : "Profile save failed"); }
-    public static void loadProfile(int slot) {
-        if (!STORE.exists(slot)) { STATE.notify("Profile " + slot + " is empty"); return; }
-        config = STORE.load(slot); save(); STATE.notify("Profile " + slot + " loaded");
-    }
-    public static void resetLayout() { config.widgets = HudConfig.defaults(); save(); STATE.notify("Layout reset"); }
+    public static void resetLayout() { for (String id : HudConfig.IDS) { var old = config.widgets.get(id); var fresh = HudConfig.defaults().get(id); old.x = fresh.x; old.y = fresh.y; } save(); STATE.notify("Layout reset"); }
     private static Identifier id(String path) { return Identifier.fromNamespaceAndPath("lavavisual", path); }
 
     @Override public void onInitializeClient() {
@@ -64,11 +59,12 @@ public final class LavaVisualClient implements ClientModInitializer {
             long now = System.nanoTime();
             if (now >= nextSample) {
                 nextSample = now + 1_000_000_000L;
-                Runtime runtime = Runtime.getRuntime();
-                STATE.memory = ((runtime.totalMemory() - runtime.freeMemory()) / 1048576) + " / " + (runtime.maxMemory() / 1048576) + " MB";
+
+
                 STATE.performance = client.getFps() + " FPS";
-                STATE.updateSession();
+
             }
+            tech.gulp.lavavisual.hud.TargetSnapshot.update(client);
             if (client.player != null) {
                 var pos = client.player.blockPosition();
                 STATE.coordinates = "X " + pos.getX() + "  Y " + pos.getY() + "  Z " + pos.getZ();
@@ -77,7 +73,7 @@ public final class LavaVisualClient implements ClientModInitializer {
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, id("widgets"), (g, delta) -> HudRenderer.draw(g, false, null));
         HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, original -> (g, delta) -> {
             Minecraft client = Minecraft.getInstance();
-            if (!config.enabled || config.crosshair == 0 || client.player == null || client.player.isSpectator()
+            if (!config.enabled || !config.crosshairEnabled || client.player == null || client.player.isSpectator()
                     || !client.options.getCameraType().isFirstPerson()) original.extractRenderState(g, delta);
             else HudRenderer.crosshair(g);
         });

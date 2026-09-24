@@ -2,6 +2,7 @@ package tech.gulp.lavavisual.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,9 +21,13 @@ public final class ConfigStore {
         Path file = path(slot);
         if (!Files.exists(file)) return new HudConfig();
         try (var reader = Files.newBufferedReader(file)) {
-            HudConfig config = JSON.fromJson(reader, HudConfig.class);
+            var document = JsonParser.parseReader(reader);
+            HudConfig config = JSON.fromJson(document, HudConfig.class);
             if (config == null) return new HudConfig();
             config.sanitize();
+            // One-time migration of 2.0 defaults: preserve layout, but do not surprise users with enabled panels.
+            if (!document.isJsonObject() || !document.getAsJsonObject().has("schemaVersion")
+                    || document.getAsJsonObject().get("schemaVersion").getAsInt() < HudConfig.SCHEMA) config.disableAll();
             return config;
         } catch (IOException | RuntimeException error) {
             LavaVisual.LOGGER.warn("Cannot load HUD settings: {}", file, error);
