@@ -112,6 +112,26 @@ public final class ClickGuiScreen extends Screen {
         text(g, title, tx, y + 8, 0xFFE8EAF0, width - (tx - x) - 8); hit(x, y, width, 24, callback);
     }
     private void button(GuiGraphicsExtractor g, String title, Runnable callback) { button(g, null, title, callback); }
+    private static final String[] ESP_STYLES = {"Призраки", "Круг", "Кристаллы", "Маркер", "Орбиты"};
+    /** One-of-N choice as a row of chips; the chosen one is filled with the theme gradient. */
+    private void chips(GuiGraphicsExtractor g, String[] options, int current, java.util.function.IntConsumer pick) {
+        int perRow = bodyW >= 380 ? options.length : 3, gap = 6, w = (bodyW - gap * (perRow - 1)) / perRow, ac = accent(), ac2 = accent2();
+        for (int i = 0; i < options.length; i++) {
+            int column = i % perRow, x = bodyX + column * (w + gap), y = cursor, index = i;
+            boolean on = i == current, over = hover(x, y, w, 24);
+            if (on) {
+                UiDraw.roundH(g, x - 1, y - 1, w + 2, 26, 7, UiDraw.alpha(ac, 0.25), UiDraw.alpha(ac2, 0.25));
+                UiDraw.roundH(g, x, y, w, 24, 6, ac, ac2);
+                g.fillGradient(x + 3, y + 1, x + w - 3, y + 10, 0x30FFFFFF, 0x00FFFFFF);
+            } else UiDraw.roundV(g, x, y, w, 24, 6, over ? 0xFF353945 : 0xFF282B33, over ? 0xFF2B2F38 : 0xFF212329);
+            UiFont.Face face = on ? UiFont.Face.BOLD : UiFont.Face.REGULAR;
+            int lw = Math.min(w - 8, UiFont.width(g, font, options[i], face));
+            text(g, options[i], x + (w - lw) / 2, y + 8, on ? 0xFFFFFFFF : 0xFFC9D0DA, lw + 2, face);
+            hit(x, y, w, 24, () -> pick.accept(index));
+            if (column == perRow - 1 || i == options.length - 1) cursor += 30;
+        }
+        cursor += 4;
+    }
     private void button(GuiGraphicsExtractor g, String icon, String title, Runnable callback) { action(g, icon, title, bodyX, cursor, bodyW, callback); cursor += 32; }
     private void note(GuiGraphicsExtractor g, String title) { text(g, title, bodyX + 1, cursor + 2, 0xFF838994, bodyW - 2); cursor += 22; }
     private void section(GuiGraphicsExtractor g, String title) {
@@ -297,6 +317,9 @@ public final class ClickGuiScreen extends Screen {
     }
     private void effects(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
+        toggle(g, "esp", "Target ESP", "Вокруг игрока или моба, на которого вы навелись", c.espEnabled, () -> { c.espEnabled = !c.espEnabled; changed(); }, null);
+        chips(g, ESP_STYLES, c.espStyle, i -> { c.espStyle = i; c.espEnabled = true; changed(); });
+        slider(g, "Удержание цели · сек", c.targetHold, 0.5, 10, v -> c.targetHold = v, false);
         toggle(g, "crosshair", "Прицел", "Форма, размер и прозрачность", c.crosshairEnabled, () -> { c.crosshairEnabled = !c.crosshairEnabled; changed(); }, () -> select("crosshair"));
         toggle(g, "jump", "Jump Circle", "Кольцо при вашем прыжке", c.jumpEnabled, () -> { c.jumpEnabled = !c.jumpEnabled; changed(); }, null);
         slider(g, "Радиус кольца", c.jumpRadius, 0.5, 2, v -> c.jumpRadius = v, false);
@@ -313,8 +336,6 @@ public final class ClickGuiScreen extends Screen {
         button(g, "Форма: " + (c.markerShape == 0 ? "круг" : "квадрат"), () -> { c.markerShape = 1 - c.markerShape; changed(); });
         slider(g, "Длительность · сек", c.markerDuration, 1, 3, v -> c.markerDuration = v, false);
         slider(g, "Размер маркера", c.markerSize, 0.15, 0.9, v -> c.markerSize = v, false);
-        toggle(g, "esp", "Target ESP", "Вокруг цели, только если она видна", c.espEnabled, () -> { c.espEnabled = !c.espEnabled; changed(); }, null);
-        button(g, "Стиль ESP: " + (c.espStyle == 0 ? "призраки" : "кольцо"), () -> { c.espStyle = 1 - c.espStyle; changed(); });
         toggle(g, "kill", "Kill Effect", "Столб света и искры, когда ваша цель погибает", c.killEffect, () -> { c.killEffect = !c.killEffect; changed(); }, null);
         slider(g, "Огонь на экране · %", c.fireHeight * 100, 0, 100, v -> c.fireHeight = v / 100, true);
         toggle(g, "hat", "China Hat", "Шляпа над головой, вид от 3-го лица", c.hatEnabled, () -> { c.hatEnabled = !c.hatEnabled; changed(); }, () -> select("hat"));

@@ -158,7 +158,7 @@ public final class HudConfig {
         menuScale = bounded(menuScale, 0.6, 1.2, 0.8);
         menuOpacity = bounded(menuOpacity, 0.25, 1, 0.9); menuDim = bounded(menuDim, 0, 0.65, 0.12);
         swingStyle = Math.floorMod(swingStyle, 7); particleShape = Math.floorMod(particleShape, 3); particlePattern = Math.floorMod(particlePattern, 3);
-        espStyle = Math.floorMod(espStyle, 2); fireHeight = bounded(fireHeight, 0, 1, 1);
+        espStyle = Math.floorMod(espStyle, 5); fireHeight = bounded(fireHeight, 0, 1, 1);
         markerShape = Math.floorMod(markerShape, 2); markerDuration = bounded(markerDuration, 1, 3, 2);
         markerSize = bounded(markerSize, 0.15, 0.9, 0.45); targetHold = bounded(targetHold, 0.5, 10, 3);
         skyRgb = Math.clamp(skyRgb, 0, 0xFFFFFF); skyStrength = bounded(skyStrength, 0, 1, 0.65);

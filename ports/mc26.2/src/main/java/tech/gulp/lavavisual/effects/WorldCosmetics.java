@@ -269,9 +269,14 @@ public final class WorldCosmetics {
                 if (frame.hat != null) hat(pose, out, frame.hat, camera);
                 if (frame.esp != null) {
                     Vec3 base = frame.esp.subtract(camera);
-                    int esp = frame.colors[1];
-                    if (frame.espStyle == 1) circle(pose, out, base, frame.espHeight, frame.espWidth, esp, frame.lights[1], frame.spin);
-                    else ghosts(pose, out, base, frame.espHeight, frame.espWidth, esp, frame.lights[1], frame.spin, right, up);
+                    int esp = frame.colors[1], espLight = frame.lights[1];
+                    switch (frame.espStyle) {
+                        case 1 -> circle(pose, out, base, frame.espHeight, frame.espWidth, esp, espLight, frame.spin);
+                        case 2 -> crystals(pose, out, base, frame.espHeight, frame.espWidth, esp, espLight, frame.spin, right, up);
+                        case 3 -> reticle(pose, out, base, frame.espHeight, frame.espWidth, esp, espLight, frame.spin, right, up);
+                        case 4 -> orbits(pose, out, base, frame.espHeight, frame.espWidth, esp, espLight, frame.spin, right, up);
+                        default -> ghosts(pose, out, base, frame.espHeight, frame.espWidth, esp, espLight, frame.spin, right, up);
+                    }
                 }
                 for (BeamFrame beam : frame.beams) beam(pose, out, beam.origin().subtract(camera), beam.alpha(), beam.age(), frame.colors[2], frame.lights[2], frame.spin);
                 trail(pose, out, frame.trail, camera, frame.colors[3], frame.lights[3]);
@@ -453,6 +458,108 @@ public final class WorldCosmetics {
                 if (j == 0) glow(pose, out, p, right, up, 0.07f, 0xFFFFFFFF, 0.9f, 8);
             }
         }
+    }
+    private static double frac(double v) { return v - Math.floor(v); }
+    /** Target ESP "crystals": glowing gems drifting around the target at different heights, each turning on its own axis. */
+    private static void crystals(PoseStack.Pose pose, VertexConsumer out, Vec3 base, float height, float width, int color, int light, float time, Vector3f right, Vector3f up) {
+        boolean low = PerformanceMode.quality() < 0.5;
+        int count = low ? 8 : 12;
+        int top = UiDraw.mix(color, 0xFFFFFF, 0.5), side = color, bottom = UiDraw.mix(color, light, 0.55);
+        for (int i = 0; i < count; i++) {
+            double h1 = frac(i * 0.618034 + 0.13), h2 = frac(i * 0.414214 + 0.37), h3 = frac(i * 0.732051 + 0.71);
+            double angle = i * 2.399963 + time * (0.3 + 0.22 * h2) * (i % 2 == 0 ? 1 : -1);
+            double radius = width * 0.55 + 0.26 + 0.2 * h3;
+            double y = height * (0.06 + 0.9 * h1) + Math.sin(time * 1.7 + i * 1.3) * 0.07;
+            Vec3 c = base.add(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
+            float s = (float) (0.1 + 0.05 * h2);
+            glow(pose, out, c, right, up, s * 2.6f, color, 0.34f, low ? 8 : 12);
+            crystal(pose, out, c, s * 0.62, s * 1.25, time * 2.2 + i * 0.7, top, side, bottom);
+        }
+    }
+    /** Bipyramid gem: four upper and four lower facets in alternating shades so it reads as 3D without lighting. */
+    private static void crystal(PoseStack.Pose pose, VertexConsumer out, Vec3 c, double r, double h, double spin, int top, int side, int bottom) {
+        double[] ex = new double[4], ez = new double[4];
+        for (int k = 0; k < 4; k++) { double a = spin + k * Math.PI / 2; ex[k] = c.x + Math.cos(a) * r; ez[k] = c.z + Math.sin(a) * r; }
+        int upperA = UiDraw.alpha(top, 0.95), upperB = UiDraw.alpha(UiDraw.mix(top, side, 0.5), 0.95);
+        int lowerA = UiDraw.alpha(side, 0.92), lowerB = UiDraw.alpha(bottom, 0.92);
+        for (int k = 0; k < 4; k++) {
+            int n = (k + 1) & 3, upper = (k & 1) == 0 ? upperA : upperB, lower = (k & 1) == 0 ? lowerA : lowerB;
+            vertex(pose, out, c.x, c.y + h, c.z, upper);
+            vertex(pose, out, ex[k], c.y, ez[k], upper);
+            vertex(pose, out, ex[n], c.y, ez[n], upper);
+            vertex(pose, out, ex[n], c.y, ez[n], upper);
+            vertex(pose, out, c.x, c.y - h, c.z, lower);
+            vertex(pose, out, ex[n], c.y, ez[n], lower);
+            vertex(pose, out, ex[k], c.y, ez[k], lower);
+            vertex(pose, out, ex[k], c.y, ez[k], lower);
+        }
+    }
+    /** Target ESP "marker": turning arcs and a counter-rotating diamond, facing the camera in front of the target. */
+    private static void reticle(PoseStack.Pose pose, VertexConsumer out, Vec3 base, float height, float width, int color, int light, float time, Vector3f right, Vector3f up) {
+        Vec3 center = base.add(0, height * 0.5, 0);
+        double distance = center.length();
+        // Pulled towards the camera so the body does not hide the marker (coordinates are camera-relative).
+        Vec3 p = distance > 1e-3 ? center.subtract(center.scale(Math.min(distance * 0.5, width * 0.7 + 0.05) / distance)) : center;
+        double s = Math.max(height * 0.42, width * 0.8) + 0.12, outer = s * (1 + 0.06 * Math.sin(time * 4)), inner = outer - Math.max(0.035, s * 0.07);
+        glow(pose, out, p, right, up, (float) (outer * 1.15), color, 0.14f, 16);
+        int segments = PerformanceMode.quality() < 0.5 ? 6 : 10;
+        double spin = time * 1.4;
+        for (int k = 0; k < 4; k++) {
+            int arc = UiDraw.alpha(UiDraw.mix(color, light, k / 3.0), 0.95);
+            double start = spin + k * Math.PI / 2 + 0.22, end = spin + (k + 1) * Math.PI / 2 - 0.22;
+            for (int j = 0; j < segments; j++) {
+                double a = start + (end - start) * j / segments, b = start + (end - start) * (j + 1) / segments;
+                billboardVertex(pose, out, p, right, up, Math.cos(a) * inner, Math.sin(a) * inner, arc);
+                billboardVertex(pose, out, p, right, up, Math.cos(b) * inner, Math.sin(b) * inner, arc);
+                billboardVertex(pose, out, p, right, up, Math.cos(b) * outer, Math.sin(b) * outer, arc);
+                billboardVertex(pose, out, p, right, up, Math.cos(a) * outer, Math.sin(a) * outer, arc);
+            }
+        }
+        double d = s * 0.42, t = Math.max(0.03, s * 0.07), turn = -time * 2.1;
+        int diamond = UiDraw.alpha(light, 0.9);
+        for (int k = 0; k < 4; k++) {
+            double a = turn + k * Math.PI / 2, b = turn + (k + 1) * Math.PI / 2;
+            billboardVertex(pose, out, p, right, up, Math.cos(a) * (d - t), Math.sin(a) * (d - t), diamond);
+            billboardVertex(pose, out, p, right, up, Math.cos(b) * (d - t), Math.sin(b) * (d - t), diamond);
+            billboardVertex(pose, out, p, right, up, Math.cos(b) * d, Math.sin(b) * d, diamond);
+            billboardVertex(pose, out, p, right, up, Math.cos(a) * d, Math.sin(a) * d, diamond);
+        }
+        glow(pose, out, p, right, up, (float) (s * 0.12), 0xFFFFFF, 0.8f, 8);
+    }
+    /** Target ESP "orbits": three tilted rings turning around the target like a gyroscope, each carrying a spark. */
+    private static void orbits(PoseStack.Pose pose, VertexConsumer out, Vec3 base, float height, float width, int color, int light, float time, Vector3f right, Vector3f up) {
+        Vec3 center = base.add(0, height * 0.52, 0);
+        double radius = Math.max(width * 0.85 + 0.3, height * 0.42);
+        int segments = PerformanceMode.quality() < 0.5 ? 28 : 48;
+        float w = (float) Math.max(0.025, radius * 0.035);
+        for (int k = 0; k < 3; k++) {
+            double tilt = Math.toRadians(62 + k * 9), yaw = time * (0.6 + 0.25 * k) + k * Math.PI * 2 / 3;
+            double ct = Math.cos(tilt), st = Math.sin(tilt), cy = Math.cos(yaw), sy = Math.sin(yaw);
+            Vec3 previous = null;
+            int previousColor = 0;
+            for (int i = 0; i <= segments; i++) {
+                double a = i * Math.PI * 2 / segments, x = Math.cos(a) * radius, z = Math.sin(a) * radius, z1 = z * ct;
+                Vec3 point = center.add(x * cy - z1 * sy, -z * st, x * sy + z1 * cy);
+                int col = UiDraw.alpha(lerp(color, light, (float) (0.5 + 0.5 * Math.sin(a * 2 - time * 3 + k))), 0.85f);
+                if (previous != null) ribbon(pose, out, previous, point, w, previousColor, col);
+                previous = point; previousColor = col;
+            }
+            double spark = time * 2.4 + k * 2.1, x = Math.cos(spark) * radius, z = Math.sin(spark) * radius, z1 = z * ct;
+            Vec3 s = center.add(x * cy - z1 * sy, -z * st, x * sy + z1 * cy);
+            glow(pose, out, s, right, up, 0.16f, light, 0.7f, 10);
+            glow(pose, out, s, right, up, 0.05f, 0xFFFFFF, 0.95f, 6);
+        }
+    }
+    /** Camera-facing strip from a to b; the camera sits at the origin of these camera-relative coordinates. */
+    private static void ribbon(PoseStack.Pose pose, VertexConsumer out, Vec3 a, Vec3 b, float width, int ca, int cb) {
+        Vec3 side = b.subtract(a).cross(a.add(b));
+        double length = side.length();
+        if (length < 1e-9) return;
+        side = side.scale(width / 2 / length);
+        vertex(pose, out, a.x - side.x, a.y - side.y, a.z - side.z, ca);
+        vertex(pose, out, a.x + side.x, a.y + side.y, a.z + side.z, ca);
+        vertex(pose, out, b.x + side.x, b.y + side.y, b.z + side.z, cb);
+        vertex(pose, out, b.x - side.x, b.y - side.y, b.z - side.z, cb);
     }
     /** Target ESP "circle": a ring gliding up and down the body with a fading curtain. */
     private static void circle(PoseStack.Pose pose, VertexConsumer out, Vec3 base, float height, float width, int color, int light, float time) {

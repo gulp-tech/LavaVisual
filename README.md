@@ -1,13 +1,23 @@
-# LavaVisual 2.9 — Minecraft 26.2
+# LavaVisual 2.9.1 — Minecraft 26.2
 
 <img src="ports/mc26.2/src/main/resources/assets/lavavisual/icon.png" width="96" alt="LV">
 
-**[Скачать lavavisual-2.9.0-mc26.2.jar](artifacts/lavavisual-2.9.0-mc26.2.jar)**
+**[Скачать lavavisual-2.9.1-mc26.2.jar](artifacts/lavavisual-2.9.1-mc26.2.jar)**
 
 ![Меню](artifacts/ui-2.9-menu.png)
 ![HUD](artifacts/ui-2.9-hud.png)
 ![Цвета](artifacts/ui-2.9-colors.png)
 ![Карта и метки](artifacts/ui-2.9-map.png)
+
+## Что нового в 2.9.1
+
+- **Target ESP — 5 видов:** «Призраки», «Круг», **«Кристаллы»** (светящиеся кристаллы вокруг цели, как на скриншоте),
+  «Маркер» (вращающиеся дуги и ромб перед целью) и «Орбиты» (три наклонных кольца с искрами). Выбор — в «Эффекты»,
+  сразу под переключателем. Цвета — из темы (градиент) или свой цвет «Target ESP» во вкладке «Цвета».
+- ESP включается, когда вы навелись на игрока или моба (до 8 блоков, только если цель видна), и держится
+  «Удержание цели» секунд. Больше не требует включённого Target HUD.
+
+![Эффекты](artifacts/ui-2.9-effects.png)
 
 ## Что нового в 2.9
 
