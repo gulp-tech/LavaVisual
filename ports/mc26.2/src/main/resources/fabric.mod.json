@@ -3,7 +3,7 @@
   "id": "lavavisual",
   "version": "${version}",
   "name": "LavaVisual HUD",
-  "description": "Local cosmetic HUD, layout editor, timers, notifications and profiles. No ESP or combat automation.",
+  "description": "Configurable HUD, compact ClickGUI and visible crosshair Target HUD. All modules off by default. No ESP or combat automation.",
   "authors": [
     "gulp-tech"
   ],
