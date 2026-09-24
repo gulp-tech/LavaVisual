@@ -22,7 +22,7 @@ public final class ClickGuiScreen extends Screen {
     public ClickGuiScreen(int page) { this(page, null); }
     public ClickGuiScreen(int page, String selected) {
         super(Component.literal("LavaVisual")); this.page = Math.max(0, Math.min(2, page));
-        this.selected = "crosshair".equals(selected) || HudConfig.IDS.contains(selected) ? selected : null;
+        this.selected = selected != null && ("crosshair".equals(selected) || HudConfig.IDS.contains(selected)) ? selected : null;
     }
     private void changed() { LavaVisualClient.save(); }
     private void hit(int x, int y, int w, int h, Runnable action) { hits.add(new Hit(x, y, w, h, action)); }
