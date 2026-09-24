@@ -20,7 +20,7 @@ class HudConfigTest {
         w.x = Double.NaN; w.y = 20; w.scale = -2; w.opacity = 100; c.sanitize();
         assertEquals(0.02, w.x); assertEquals(1, w.y);
         assertEquals(0.6, w.scale); assertEquals(1, w.opacity);
-        assertEquals(6, c.widgets.size());
+        assertEquals(7, c.widgets.size());
     }
     @Test void existingNewSettingsArePreserved(@TempDir Path dir) {
         var store = new ConfigStore(dir); var c = new HudConfig();
@@ -40,7 +40,7 @@ class HudConfigTest {
     @Test void removedPanelsDoNotSurviveMigration(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve("hud.json"), "{\"schemaVersion\":2,\"widgets\":{\"stopwatch\":{\"visible\":true},\"island\":{\"visible\":true}}}");
         var store = new ConfigStore(dir); var c = store.load(0);
-        assertEquals(java.util.Set.of("coordinates", "performance", "target", "keys", "armor", "totems"), c.widgets.keySet());
+        assertEquals(java.util.Set.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark"), c.widgets.keySet());
         assertTrue(store.save(c, 0));
         assertFalse(Files.readString(dir.resolve("hud.json")).contains("stopwatch"));
         assertFalse(Files.readString(dir.resolve("hud.json")).contains("island"));
@@ -59,5 +59,14 @@ class HudConfigTest {
         assertFalse(c.jumpEnabled || c.particlesEnabled || c.ambientEnabled || c.viewModelEnabled);
         assertFalse(c.hitSoundEnabled || c.critSoundEnabled || c.totemSoundEnabled);
         assertFalse(c.markerEnabled || c.skyEnabled || c.fpsBoost);
+    }
+    @Test void soundLibraryIndicesWrapAndKillSoundDisables() {
+        var c = new HudConfig();
+        c.hitSound = -1; c.critSound = HudConfig.SOUND_LIBRARY + 5; c.killVolume = Double.NaN; c.killSoundEnabled = true;
+        c.sanitize();
+        assertEquals(HudConfig.SOUND_LIBRARY, c.hitSound); assertEquals(4, c.critSound); assertEquals(0.65, c.killVolume);
+        c.disableAll();
+        assertFalse(c.killSoundEnabled);
+        assertFalse(c.widgets.get("watermark").visible);
     }
 }

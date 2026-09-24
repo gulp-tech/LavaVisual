@@ -68,19 +68,23 @@ public final class LavaVisualClient implements ClientModInitializer {
                 if (smokeTicks < 0 && client.gui.screen() != null) smokeTicks = 0;
                 if (smokeTicks >= 0) {
                     smokeTicks++;
+                    // "smoke shot" lines ask tools/client_smoke.py for a screenshot; each screen then stays for 3 s.
                     if (smokeTicks == 20) client.gui.setScreen(new ClickGuiScreen());
-                    if (smokeTicks == 60) client.gui.setScreen(new ClickGuiScreen(1));
-                    if (smokeTicks == 100) client.gui.setScreen(new ClickGuiScreen(2));
-                    if (smokeTicks == 140) client.gui.setScreen(new ClickGuiScreen(0, "target"));
-                    if (smokeTicks == 180) client.gui.setScreen(new ClickGuiScreen(1, "crosshair"));
-                    if (smokeTicks == 220) client.gui.setScreen(new tech.gulp.lavavisual.ui.HudEditorScreen(new ClickGuiScreen()));
-                    if (smokeTicks == 260) client.gui.setScreen(new ClickGuiScreen(3));
-                    if (smokeTicks == 300) client.gui.setScreen(new ClickGuiScreen(4));
-                    if (smokeTicks == 350) client.gui.setScreen(new ClickGuiScreen(5));
-                    if (smokeTicks == 370) client.gui.setScreen(new tech.gulp.lavavisual.ui.HandEditorScreen(new ClickGuiScreen()));
-                    if (smokeTicks == 320) tech.gulp.lavavisual.effects.AudioRegression.run(client);
-                    if (smokeTicks == 390) LavaVisual.LOGGER.info("LavaVisual badge marker " + (tech.gulp.lavavisual.effects.Badge.marked(client.options.buildPlayerInformation()) ? "on" : "off"));
-                    if (smokeTicks == 400) LavaVisual.LOGGER.info("LavaVisual UI smoke complete");
+                    if (smokeTicks == 50) LavaVisual.LOGGER.info("LavaVisual smoke shot menu");
+                    if (smokeTicks == 110) client.gui.setScreen(new ClickGuiScreen(1));
+                    if (smokeTicks == 140) client.gui.setScreen(new ClickGuiScreen(2));
+                    if (smokeTicks == 170) client.gui.setScreen(new ClickGuiScreen(0, "target"));
+                    if (smokeTicks == 200) client.gui.setScreen(new ClickGuiScreen(1, "crosshair"));
+                    if (smokeTicks == 230) client.gui.setScreen(new tech.gulp.lavavisual.ui.HudEditorScreen(new ClickGuiScreen()));
+                    if (smokeTicks == 260) LavaVisual.LOGGER.info("LavaVisual smoke shot hud");
+                    if (smokeTicks == 320) client.gui.setScreen(new ClickGuiScreen(3));
+                    if (smokeTicks == 350) LavaVisual.LOGGER.info("LavaVisual smoke shot sounds");
+                    if (smokeTicks == 410) client.gui.setScreen(new ClickGuiScreen(4));
+                    if (smokeTicks == 430) tech.gulp.lavavisual.effects.AudioRegression.run(client);
+                    if (smokeTicks == 450) client.gui.setScreen(new ClickGuiScreen(5));
+                    if (smokeTicks == 470) client.gui.setScreen(new tech.gulp.lavavisual.ui.HandEditorScreen(new ClickGuiScreen()));
+                    if (smokeTicks == 490) LavaVisual.LOGGER.info("LavaVisual badge marker " + (tech.gulp.lavavisual.effects.Badge.marked(client.options.buildPlayerInformation()) ? "on" : "off"));
+                    if (smokeTicks == 500) LavaVisual.LOGGER.info("LavaVisual UI smoke complete");
                 }
             }
             while (menu.consumeClick()) if (client.gui.screen() == null) client.gui.setScreen(new ClickGuiScreen());

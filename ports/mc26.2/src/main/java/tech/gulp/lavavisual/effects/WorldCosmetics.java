@@ -194,15 +194,18 @@ public final class WorldCosmetics {
         var snapshot = tech.gulp.lavavisual.hud.TargetSnapshot.current;
         espVisible = c.espEnabled && snapshot != null && snapshot.entity() != null && snapshot.entity().isAlive()
                 && player.distanceTo(snapshot.entity()) <= 16 && player.hasLineOfSight(snapshot.entity());
-        if (c.killEffect && comboTarget instanceof LivingEntity victim && tick - lastComboTick <= 60 && victim.isDeadOrDying() && victim.getId() != lastKillId) {
+        if ((c.killEffect || c.killSoundEnabled) && comboTarget instanceof LivingEntity victim && tick - lastComboTick <= 60 && victim.isDeadOrDying() && victim.getId() != lastKillId) {
             lastKillId = victim.getId();
-            Vec3 at = victim.position();
-            if (BEAMS.size() >= 3) BEAMS.removeFirst();
-            BEAMS.add(new Beam(at, tick));
-            Vec3 chest = at.add(0, victim.getBbHeight() * 0.55, 0);
-            for (int i = 0; i < 28; i++) {
-                Vec3 velocity = new Vec3((RANDOM.nextDouble() - .5) * .24, .03 + RANDOM.nextDouble() * .12, (RANDOM.nextDouble() - .5) * .24);
-                add(new Spark(chest, velocity, tick, 18 + RANDOM.nextInt(10), (float) c.particleSize * 1.25f, false, c.particleShape, true));
+            CustomAudio.kill();
+            if (c.killEffect) {
+                Vec3 at = victim.position();
+                if (BEAMS.size() >= 3) BEAMS.removeFirst();
+                BEAMS.add(new Beam(at, tick));
+                Vec3 chest = at.add(0, victim.getBbHeight() * 0.55, 0);
+                for (int i = 0; i < 28; i++) {
+                    Vec3 velocity = new Vec3((RANDOM.nextDouble() - .5) * .24, .03 + RANDOM.nextDouble() * .12, (RANDOM.nextDouble() - .5) * .24);
+                    add(new Spark(chest, velocity, tick, 18 + RANDOM.nextInt(10), (float) c.particleSize * 1.25f, false, c.particleShape, true));
+                }
             }
         }
         TRAIL.removeIf(n -> !c.trailEnabled || tick - n.born() >= 22);

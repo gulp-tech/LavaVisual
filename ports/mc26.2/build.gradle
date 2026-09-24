@@ -22,6 +22,12 @@ java {
 }
 tasks.withType(JavaCompile).configureEach { options.release = 25; options.encoding = 'UTF-8' }
 test { useJUnitPlatform() }
+loom {
+    runs {
+        // Larger dev window for the CI screenshots (the release JAR is unaffected).
+        client { programArgs '--width', '1280', '--height', '960' }
+    }
+}
 jar { from('LICENSE') }
 
 tasks.register('apiSignatures') {

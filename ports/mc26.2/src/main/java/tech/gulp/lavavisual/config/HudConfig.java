@@ -6,7 +6,9 @@ import java.util.Map;
 
 public final class HudConfig {
     public static final int SCHEMA = 3;
-    public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor", "totems");
+    /** Built-in sounds in CustomAudio.IDS; index SOUND_LIBRARY means the user's own file. */
+    public static final int SOUND_LIBRARY = 27;
+    public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark");
     public int schemaVersion = SCHEMA;
     public int rgb = 0x85F56A;
     public boolean shadows = true, animations = true;
@@ -19,6 +21,9 @@ public final class HudConfig {
     public boolean hitSoundEnabled, critSoundEnabled, totemSoundEnabled;
     public int hitPreset, critPreset, totemPreset;
     public double hitVolume = 0.65, critVolume = 0.65, totemVolume = 0.65;
+    public int hitSound = 3, critSound = 16, totemSound = 19, killSound = 17;
+    public boolean killSoundEnabled;
+    public double killVolume = 0.65;
     public double menuScale = 0.8, menuOpacity = 0.9, menuDim = 0.12;
     public boolean markerEnabled, skyEnabled, fpsBoost;
     public boolean badgeEnabled = true;
@@ -48,18 +53,19 @@ public final class HudConfig {
     }
     public static Map<String, Widget> defaults() {
         Map<String, Widget> result = new LinkedHashMap<>();
-        result.put("coordinates", new Widget(0.02, 0.04));
-        result.put("performance", new Widget(0.02, 0.15));
+        result.put("coordinates", new Widget(0.01, 0.12));
+        result.put("performance", new Widget(0.01, 0.22));
         result.put("target", new Widget(0.5, 0.78));
         result.put("keys", new Widget(0.98, 0.5));
         result.put("armor", new Widget(0.5, 0.9));
         result.put("totems", new Widget(0.98, 0.66));
+        result.put("watermark", new Widget(0.01, 0.015));
         return result;
     }
     public void disableAll() {
         widgets.values().forEach(w -> w.visible = false);
         crosshairEnabled = jumpEnabled = particlesEnabled = ambientEnabled = viewModelEnabled = false;
-        hitSoundEnabled = critSoundEnabled = totemSoundEnabled = false;
+        hitSoundEnabled = critSoundEnabled = totemSoundEnabled = killSoundEnabled = false;
         markerEnabled = skyEnabled = fpsBoost = false;
         hatEnabled = trailEnabled = espEnabled = killEffect = false;
         swingStyle = 0;
@@ -86,6 +92,9 @@ public final class HudConfig {
         particleCount = Math.max(4, Math.min(24, particleCount));
         hitPreset = Math.floorMod(hitPreset, 3); critPreset = Math.floorMod(critPreset, 3); totemPreset = Math.floorMod(totemPreset, 3);
         hitVolume = bounded(hitVolume, 0, 1, 0.65); critVolume = bounded(critVolume, 0, 1, 0.65); totemVolume = bounded(totemVolume, 0, 1, 0.65);
+        killVolume = bounded(killVolume, 0, 1, 0.65);
+        hitSound = Math.floorMod(hitSound, SOUND_LIBRARY + 1); critSound = Math.floorMod(critSound, SOUND_LIBRARY + 1);
+        totemSound = Math.floorMod(totemSound, SOUND_LIBRARY + 1); killSound = Math.floorMod(killSound, SOUND_LIBRARY + 1);
         crosshairScale = bounded(crosshairScale, 0.6, 2, 1);
         crosshairOpacity = bounded(crosshairOpacity, 0.2, 1, 1);
         menuScale = bounded(menuScale, 0.6, 1.2, 0.8);

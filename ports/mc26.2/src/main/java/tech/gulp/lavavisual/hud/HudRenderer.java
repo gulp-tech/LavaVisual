@@ -1,17 +1,56 @@
 package tech.gulp.lavavisual.hud;
 
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Locale;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import org.joml.Vector2f;
 import tech.gulp.lavavisual.LavaVisualClient;
 import tech.gulp.lavavisual.config.HudConfig;
+import tech.gulp.lavavisual.effects.WorldCosmetics;
+import tech.gulp.lavavisual.ui.Icons;
 import tech.gulp.lavavisual.ui.UiDraw;
 import tech.gulp.lavavisual.ui.UiFont;
+import tech.gulp.lavavisual.ui.UiFont.Face;
 
 public final class HudRenderer {
-    public static int baseWidth(String id) { return id.equals("target") ? 180 : id.equals("keys") ? 84 : id.equals("armor") ? 88 : 156; }
-    public static int baseHeight(String id) { return id.equals("target") ? 60 : id.equals("keys") ? 56 : id.equals("armor") ? 24 : 30; }
-    public static int width(String id, HudConfig.Widget w) { return (int) Math.ceil(baseWidth(id) * w.scale); }
-    public static int height(String id, HudConfig.Widget w) { return (int) Math.ceil(baseHeight(id) * w.scale); }
+    private HudRenderer() { }
+    private static final int PANEL = 0x111216, TEXT = 0xF1F3F7, MUTED = 0x8C93A1;
+    private static final EquipmentSlot[] ARMOR = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
+    private static final String[] ARMOR_SPRITES = {"container/slot/helmet", "container/slot/chestplate", "container/slot/leggings", "container/slot/boots"};
+    private static ItemStack totem;
+
+    public static int baseWidth(String id) {
+        return switch (id) {
+            case "target" -> 180;
+            case "keys" -> 76;
+            case "armor" -> 97;
+            case "watermark" -> watermarkWidth(UiFont.guiScale());
+            default -> 156;
+        };
+    }
+    public static int baseHeight(String id) {
+        return switch (id) {
+            case "target" -> 80;
+            case "keys" -> 92;
+            case "armor" -> 36;
+            case "watermark" -> 26;
+            default -> 30;
+        };
+    }
+    /** Widget scale rounded to whole screen pixels, so HUD text stays sharp. */
+    public static double scale(HudConfig.Widget w) { return UiFont.crisp(w.scale); }
+    public static int width(String id, HudConfig.Widget w) { return (int) Math.ceil(baseWidth(id) * scale(w)); }
+    public static int height(String id, HudConfig.Widget w) { return (int) Math.ceil(baseHeight(id) * scale(w)); }
     public static int x(String id, HudConfig.Widget w, int screen) { return (int) Math.round(w.x * Math.max(0, screen - width(id, w))); }
     public static int y(String id, HudConfig.Widget w, int screen) { return (int) Math.round(w.y * Math.max(0, screen - height(id, w))); }
     public static String title(String id) {
@@ -22,6 +61,7 @@ public final class HudRenderer {
             case "keys" -> "Клавиши";
             case "armor" -> "Броня";
             case "totems" -> "Тотемы";
+            case "watermark" -> "Водянка";
             default -> "HUD";
         };
     }
@@ -30,15 +70,16 @@ public final class HudRenderer {
     private static TargetSnapshot lastTarget;
     private static String lastName = "";
     private record HudParticle(double x, double y, double vx, double vy, long born, int color) { }
-    private static final java.util.ArrayList<HudParticle> HUD_PARTICLES = new java.util.ArrayList<>();
+    private static final ArrayList<HudParticle> HUD_PARTICLES = new ArrayList<>();
     private static float lastHealth = -1;
+    private static final double[] KEY_PRESS = new double[7];
+
     public static void draw(GuiGraphicsExtractor g, boolean edit, String selected) {
         HudConfig c = LavaVisualClient.config();
         long now = System.nanoTime();
         double dt = Math.min(0.1, (now - lastNs) / 1e9); lastNs = now;
         Minecraft mc = Minecraft.getInstance();
         if (!edit && (mc.player == null || mc.gui.screen() instanceof tech.gulp.lavavisual.ui.HudEditorScreen)) return;
-        SessionState state = LavaVisualClient.STATE;
         for (String id : HudConfig.IDS) {
             HudConfig.Widget w = c.widgets.get(id);
             if (!w.visible && !edit) continue;
@@ -54,151 +95,284 @@ public final class HudRenderer {
             }
             int x = x(id, w, g.guiWidth()), y = y(id, w, g.guiHeight());
             int bw = baseWidth(id), bh = baseHeight(id), accent = c.accent();
+            boolean off = edit && !w.visible;
             g.pose().pushMatrix();
             try {
                 g.pose().translate(x, y);
-                g.pose().scale((float) w.scale);
+                g.pose().scale((float) scale(w));
                 if (scaleAnim != 1) {
                     g.pose().translate(bw / 2f, bh / 2f);
                     g.pose().scale((float) scaleAnim);
                     g.pose().translate(-bw / 2f, -bh / 2f);
                 }
-                if (id.equals("target")) UiDraw.round(g, -2, -2, bw + 4, bh + 4, 7, UiDraw.alpha(accent, 0.14 * fade));
-                if (c.shadows) UiDraw.round(g, 1, 2, bw, bh, 5, UiDraw.alpha(0x000000, w.opacity * 0.25 * fade));
-                UiDraw.round(g, 0, 0, bw, bh, 5, UiDraw.alpha(0x111216, w.opacity * fade));
-                if (id.equals(selected)) g.fill(5, bh - 1, bw - 5, bh, accent);
-                if (id.equals("target")) {
-                    if (target == null) target = new TargetSnapshot("Предпросмотр", 16, 20, 10, 3.2,
-                            mc.player == null ? null : mc.player.getSkin().body().texturePath(), null, 0);
-                    g.fillGradient(4, 1, bw - 4, 20, UiDraw.alpha(accent, 0.10 * fade), UiDraw.alpha(accent, 0));
-                    UiDraw.round(g, 7, 7, 36, 36, 6, UiDraw.alpha(accent, 0.30 * fade));
-                    UiDraw.round(g, 8, 8, 34, 34, 5, UiDraw.alpha(0x1B1E25, fade));
-                    int white = UiDraw.alpha(0xFFFFFF, fade);
-                    if (target.skin() != null) {
-                        g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, target.skin(), 9, 9, 8, 8, 32, 32, 8, 8, 64, 64, white);
-                        g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, target.skin(), 9, 9, 40, 8, 32, 32, 8, 8, 64, 64, white);
-                    } else if (fade > 0.6 && target.entity() != null && !target.entity().isRemoved()) {
-                        try {
-                            net.minecraft.client.gui.screens.inventory.InventoryScreen.extractEntityInInventoryFollowsMouse(g, 9, 9, 32, 32, 0, 25f, 25f, 14f, target.entity());
-                        } catch (RuntimeException ignored) {
-                            UiFont.text(g, mc.font, target.name().isEmpty() ? "?" : target.name().substring(0, 1).toUpperCase(java.util.Locale.ROOT), 21, 21, UiDraw.alpha(accent, fade), 26);
-                        }
-                    } else UiFont.text(g, mc.font, target.name().isEmpty() ? "?" : target.name().substring(0, 1).toUpperCase(java.util.Locale.ROOT), 21, 21, UiDraw.alpha(accent, fade), 26);
-                    var living = target.entity();
-                    if (living != null && living.hurtTime > 0)
-                        UiDraw.round(g, 9, 9, 32, 32, 3, UiDraw.alpha(0xFF2A2A, 0.5 * living.hurtTime / 10.0 * fade));
-                    if (lastHealth >= 0 && target.health() < lastHealth - 0.01 && target.name().equals(lastName) && HUD_PARTICLES.size() < 60) {
-                        long born = System.nanoTime();
-                        for (int i = 0; i < 12; i++) {
-                            double angle = Math.random() * Math.PI * 2, speed = 40 + Math.random() * 70;
-                            HUD_PARTICLES.add(new HudParticle(25, 25, Math.cos(angle) * speed, Math.sin(angle) * speed - 40, born, i % 3 == 0 ? 0xFFFFFF : accent & 0xFFFFFF));
-                        }
-                    }
-                    lastHealth = target.health();
-                    long particleNow = System.nanoTime();
-                    HUD_PARTICLES.removeIf(pt -> particleNow - pt.born() > 700_000_000L);
-                    for (HudParticle pt : HUD_PARTICLES) {
-                        double age = (particleNow - pt.born()) / 1e9, life = 1 - age / 0.7;
-                        int px = (int) (pt.x() + pt.vx() * age), py = (int) (pt.y() + pt.vy() * age + 160 * age * age);
-                        UiDraw.round(g, px - 1, py - 1, 3, 3, 1, UiDraw.alpha(pt.color(), life * fade));
-                    }
-                    if (living != null && fade > 0.7) {
-                        net.minecraft.world.item.ItemStack[] gear = {
-                                living.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD), living.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST),
-                                living.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.LEGS), living.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.FEET),
-                                living.getMainHandItem() };
-                        g.pose().pushMatrix();
-                        g.pose().translate(bw - 8 - 5 * 11, 34);
-                        g.pose().scale(0.625f);
-                        for (int i = 0; i < gear.length; i++) if (!gear[i].isEmpty()) g.item(gear[i], i * 18, 0);
-                        g.pose().popMatrix();
-                    }
-                    int combo = tech.gulp.lavavisual.effects.WorldCosmetics.combo();
-                    if (combo >= 2) {
-                        UiDraw.round(g, bw - 30, 6, 24, 12, 6, UiDraw.alpha(accent, 0.85 * fade));
-                        UiFont.text(g, mc.font, "x" + combo, bw - 26, 8, UiDraw.alpha(0x111216, fade), 20);
-                    }
-                    UiFont.text(g, mc.font, target.name(), 49, 8, UiDraw.alpha(accent, fade), bw - 57);
-                    UiFont.text(g, mc.font, String.format(java.util.Locale.ROOT, "HP %.1f / %.1f", target.health(), target.maximum()), 49, 22, UiDraw.alpha(0xE8E8EB, fade), bw - 57);
-                    UiFont.text(g, mc.font, String.format(java.util.Locale.ROOT, "Броня %d · %.1f м", target.armor(), target.distance()), 49, 36, UiDraw.alpha(0x9698A3, fade), living != null ? bw - 57 - 60 : bw - 57);
-                    double ratio = target.maximum() > 0 ? Math.max(0, Math.min(1, target.health() / target.maximum())) : 0;
-                    if (!target.name().equals(lastName)) { lastName = target.name(); healthShown = healthGhost = ratio; }
-                    healthShown += (ratio - healthShown) * Math.min(1, dt * 12);
-                    healthGhost = ratio > healthGhost ? ratio : Math.max(healthShown, healthGhost - dt * 0.5);
-                    int barW = bw - 18;
-                    UiDraw.round(g, 9, 50, barW, 5, 2, UiDraw.alpha(0x2A2C33, fade));
-                    if (healthGhost > 0) UiDraw.round(g, 9, 50, Math.max(2, (int) (barW * healthGhost)), 5, 2, UiDraw.alpha(0xFFFFFF, 0.35 * fade));
-                    if (healthShown > 0) {
-                        int fill = Math.max(2, (int) (barW * healthShown));
-                        UiDraw.round(g, 9, 50, fill, 5, 2, UiDraw.alpha(accent, fade));
-                        g.fillGradient(10, 50, 9 + fill - 1, 52, UiDraw.alpha(0xFFFFFF, 0.28 * fade), UiDraw.alpha(0xFFFFFF, 0));
-                    }
-                } else if (id.equals("keys")) {
-                    keys(g, mc, fade, accent, edit && !w.visible);
-                } else if (id.equals("armor")) {
-                    armor(g, mc, fade, edit && !w.visible);
-                } else {
-                    String value = switch (id) {
-                        case "coordinates" -> state.coordinates;
-                        case "performance" -> state.performance;
-                        case "totems" -> totems(mc);
-                        default -> "";
-                    };
-                    UiFont.text(g, mc.font, title(id) + (edit && !w.visible ? " · выкл" : ""), 8, 4, UiDraw.alpha(accent, fade), bw - 16);
-                    UiFont.text(g, mc.font, value, 8, 17, UiDraw.alpha(0xEAEAF0, fade), bw - 16);
+                if (edit && id.equals(selected)) g.outline(-3, -3, bw + 6, bh + 6, UiDraw.alpha(accent, 0.9));
+                switch (id) {
+                    case "target" -> target(g, mc, c, w, target, fade, accent, dt);
+                    case "keys" -> keys(g, mc, c, w, accent, dt);
+                    case "armor" -> armor(g, mc, c, w);
+                    case "watermark" -> watermark(g, mc, c, w, accent);
+                    default -> info(g, mc, c, w, id, accent);
+                }
+                if (off) {
+                    UiDraw.round(g, 0, -12, 26, 10, 3, 0xCC111216);
+                    UiFont.text(g, mc.font, "выкл", 4, -12, 0xFF9AA0AC, 22, Face.SMALL);
                 }
             } finally { g.pose().popMatrix(); }
         }
     }
+
+    private static void panel(GuiGraphicsExtractor g, HudConfig c, int x, int y, int w, int h, int radius, double opacity) {
+        if (c.shadows) UiDraw.round(g, x + 1, y + 2, w, h, radius, UiDraw.alpha(0, opacity * 0.28));
+        UiDraw.round(g, x, y, w, h, radius, UiDraw.alpha(PANEL, opacity));
+    }
+    private static int durability(double ratio) { return ratio > 0.5 ? 0xFF7ADB6A : ratio > 0.25 ? 0xFFE0C14C : 0xFFE06A4C; }
+
+    /** Coordinates, FPS and totem counter: icon badge, small accent title and a bold value. */
+    private static void info(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, String id, int accent) {
+        int bw = 156, bh = 30;
+        Font font = mc.font;
+        panel(g, c, 0, 0, bw, bh, 6, w.opacity);
+        UiDraw.round(g, 5, 5, 20, 20, 5, UiDraw.alpha(accent, 0.16));
+        String value;
+        if (id.equals("totems")) {
+            if (totem == null) totem = new ItemStack(Items.TOTEM_OF_UNDYING);
+            g.item(totem, 7, 7);
+            value = totems(mc);
+        } else {
+            UiFont.icon(g, font, id.equals("coordinates") ? Icons.MAP_PIN : Icons.GAUGE, 10, 10, UiDraw.alpha(accent, 1));
+            value = id.equals("coordinates") ? LavaVisualClient.STATE.coordinates : LavaVisualClient.STATE.performance;
+        }
+        UiFont.text(g, font, title(id), 31, 4, UiDraw.alpha(accent, 1), bw - 36, Face.SMALL);
+        UiFont.text(g, font, value, 31, 15, UiDraw.alpha(TEXT, 1), bw - 36, Face.BOLD);
+    }
+
     private static String totems(Minecraft mc) {
         if (mc.player == null) return "0 шт.";
         var inventory = mc.player.getInventory();
         int count = 0;
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             var stack = inventory.getItem(i);
-            if (stack.is(net.minecraft.world.item.Items.TOTEM_OF_UNDYING)) count += stack.getCount();
+            if (stack.is(Items.TOTEM_OF_UNDYING)) count += stack.getCount();
         }
-        if (inventory.getContainerSize() <= 36 && mc.player.getOffhandItem().is(net.minecraft.world.item.Items.TOTEM_OF_UNDYING)) count += mc.player.getOffhandItem().getCount();
+        if (inventory.getContainerSize() <= 36 && mc.player.getOffhandItem().is(Items.TOTEM_OF_UNDYING)) count += mc.player.getOffhandItem().getCount();
         return count + " шт.";
     }
-    private static void keys(GuiGraphicsExtractor g, Minecraft mc, double fade, int accent, boolean off) {
+
+    /** Keystrokes: separate keys, accent fill that eases in on press, real CPS under both mouse buttons. */
+    private static void keys(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, double dt) {
         var o = mc.options;
-        boolean l = o.keyAttack.isDown(), r = o.keyUse.isDown();
-        cell(g, mc.font, 8, 8, 32, 14, l, "ЛКМ", fade, accent);
-        cell(g, mc.font, 44, 8, 32, 14, r, "ПКМ", fade, accent);
-        cell(g, mc.font, 26, 26, 14, 14, o.keyUp.isDown(), "W", fade, accent);
-        cell(g, mc.font, 8, 42, 14, 14, o.keyLeft.isDown(), "A", fade, accent);
-        cell(g, mc.font, 26, 42, 14, 14, o.keyDown.isDown(), "S", fade, accent);
-        cell(g, mc.font, 44, 42, 14, 14, o.keyRight.isDown(), "D", fade, accent);
-        UiFont.text(g, mc.font, "CPS " + tech.gulp.lavavisual.effects.WorldCosmetics.clicksPerSecond(), 62, 30, UiDraw.alpha(0xFFEAEAF0, fade), 20);
-        if (off) UiFont.text(g, mc.font, "выкл", 62, 44, UiDraw.alpha(0xFF9698A3, fade), 22);
-    }
-    private static void cell(GuiGraphicsExtractor g, net.minecraft.client.gui.Font font, int x, int y, int w, int h, boolean on, String label, double fade, int accent) {
-        UiDraw.round(g, x, y, w, h, 3, on ? UiDraw.alpha(accent, 0.85 * fade) : UiDraw.alpha(0x23262D, 0.9 * fade));
-        UiFont.text(g, font, label, x + (w - 14) / 2 + 3, y + 4, on ? UiDraw.alpha(0x101418, fade) : UiDraw.alpha(0xFFB8C0CD, fade), 14);
-    }
-    private static void armor(GuiGraphicsExtractor g, Minecraft mc, double fade, boolean off) {
-        var player = mc.player;
-        net.minecraft.world.item.ItemStack[] stacks = new net.minecraft.world.item.ItemStack[4];
-        if (player != null) {
-            var slots = new net.minecraft.world.entity.EquipmentSlot[] {
-                    net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.entity.EquipmentSlot.CHEST,
-                    net.minecraft.world.entity.EquipmentSlot.LEGS, net.minecraft.world.entity.EquipmentSlot.FEET };
-            for (int i = 0; i < 4; i++) stacks[i] = player.getItemBySlot(slots[i]);
+        Font font = mc.font;
+        boolean[] down = {o.keyUp.isDown(), o.keyLeft.isDown(), o.keyDown.isDown(), o.keyRight.isDown(), o.keyAttack.isDown(), o.keyUse.isDown(), o.keyJump.isDown()};
+        String[] labels = {"W", "A", "S", "D", "ЛКМ", "ПКМ", ""};
+        int[][] r = {{27, 2, 22, 22}, {2, 27, 22, 22}, {27, 27, 22, 22}, {52, 27, 22, 22}, {2, 52, 35, 24}, {39, 52, 35, 24}, {2, 79, 72, 11}};
+        for (int i = 0; i < 7; i++) {
+            double goal = down[i] ? 1 : 0;
+            KEY_PRESS[i] += (goal - KEY_PRESS[i]) * (c.animations ? Math.min(1, dt * (down[i] ? 28 : 10)) : 1);
+            double p = KEY_PRESS[i];
+            int inset = p > 0.5 ? 1 : 0;
+            int x = r[i][0] + inset, y = r[i][1] + inset, kw = r[i][2] - inset * 2, kh = r[i][3] - inset * 2;
+            if (c.shadows) UiDraw.round(g, x, y + 1, kw, kh, 5, UiDraw.alpha(0, w.opacity * 0.3 * (1 - p)));
+            UiDraw.round(g, x, y, kw, kh, 5, UiDraw.alpha(UiDraw.mix(PANEL, accent, p), w.opacity + (0.96 - w.opacity) * p));
+            if (p > 0.02) UiDraw.round(g, x, y, kw, Math.max(2, kh / 2), 5, UiDraw.alpha(0xFFFFFF, 0.10 * p));
+            int fg = 0xFF000000 | UiDraw.mix(0xEEF0F4, 0x0E1014, p);
+            int cx = r[i][0] + r[i][2] / 2;
+            if (i < 4) UiFont.centered(g, font, labels[i], cx, r[i][1] + 7, fg, Face.BOLD);
+            else if (i < 6) {
+                UiFont.centered(g, font, labels[i], cx, r[i][1] + 4, fg, Face.BOLD);
+                UiFont.centered(g, font, ClickCounter.cps(i == 4) + " CPS", cx, r[i][1] + 13, 0xFF000000 | UiDraw.mix(0x9AA0AC, 0x22262C, p), Face.SMALL);
+            } else g.fill(r[i][0] + 24, r[i][1] + 5, r[i][0] + r[i][2] - 24, r[i][1] + 6, UiDraw.alpha(fg, 0.85));
         }
+    }
+
+    /** Armor: the actual pieces, durability strip and percent; vanilla slot silhouettes when empty. */
+    private static void armor(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w) {
+        int bw = 97, bh = 36;
+        Font font = mc.font;
+        panel(g, c, 0, 0, bw, bh, 6, w.opacity);
+        var player = mc.player;
         for (int i = 0; i < 4; i++) {
-            int x = 8 + i * 20;
-            UiDraw.round(g, x, 4, 16, 16, 3, UiDraw.alpha(0x23262D, 0.9 * fade));
-            var stack = stacks[i];
-            if (stack != null && !stack.isEmpty()) {
-                double ratio = 1 - (double) stack.getDamageValue() / Math.max(1, stack.getMaxDamage());
-                int color = ratio > 0.5 ? 0xFF7ADB6A : ratio > 0.25 ? 0xFFE0C14C : 0xFFE06A4C;
-                int h = Math.max(2, (int) Math.round(12 * ratio));
-                UiDraw.round(g, x + 3, 6 + (12 - h), 10, h, 2, UiDraw.alpha(color, 0.9 * fade));
+            int x = 4 + i * 23, y = 4;
+            UiDraw.round(g, x, y, 20, 20, 4, 0xF21D2027);
+            ItemStack stack = player == null ? ItemStack.EMPTY : player.getItemBySlot(ARMOR[i]);
+            if (stack.isEmpty()) {
+                g.blitSprite(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath("minecraft", ARMOR_SPRITES[i]), x + 2, y + 2, 16, 16, 0x66FFFFFF);
+                UiFont.centered(g, font, "—", x + 10, y + 22, 0xFF5D6472, Face.SMALL);
+                continue;
+            }
+            g.item(stack, x + 2, y + 2);
+            if (stack.isDamageableItem() && stack.getMaxDamage() > 0) {
+                double ratio = Math.clamp(1 - (double) stack.getDamageValue() / stack.getMaxDamage(), 0, 1);
+                int color = durability(ratio);
+                g.fill(x + 3, y + 18, x + 17, y + 19, 0xFF2A2D35);
+                g.fill(x + 3, y + 18, x + 3 + Math.max(1, (int) Math.round(14 * ratio)), y + 19, color);
+                UiFont.centered(g, font, Math.round(ratio * 100) + "%", x + 10, y + 22, color, Face.SMALL);
+            } else UiFont.centered(g, font, "∞", x + 10, y + 22, 0xFF9AA0AC, Face.SMALL);
+        }
+    }
+
+    private static String subtitle(Minecraft mc) {
+        String place;
+        if (mc.player == null) place = "Главное меню";
+        else if (mc.isLocalServer()) place = "Одиночная игра";
+        else place = mc.getCurrentServer() != null ? mc.getCurrentServer().ip : "Сервер";
+        LocalTime time = LocalTime.now();
+        return place + " · " + String.format(Locale.ROOT, "%02d:%02d", time.getHour(), time.getMinute());
+    }
+    private static int ping(Minecraft mc) {
+        if (mc.player == null || mc.getConnection() == null) return 0;
+        var info = mc.getConnection().getPlayerInfo(mc.player.getUUID());
+        return info == null ? 0 : Math.max(0, info.getLatency());
+    }
+    private static int watermarkWidth(int scale) {
+        Minecraft mc = Minecraft.getInstance();
+        Font font = mc.font;
+        int text = Math.max(UiFont.width(font, "LavaVisual", Face.BOLD, scale), UiFont.width(font, subtitle(mc), Face.SMALL, scale));
+        int stats = Math.max(UiFont.width(font, ping(mc) + " ms", Face.SMALL, scale), UiFont.width(font, mc.getFps() + " fps", Face.SMALL, scale));
+        return 27 + text + 15 + stats + 7;
+    }
+
+    /** Watermark in the spirit of PulseVisual's: logo, name, place and time, ping and FPS. */
+    private static void watermark(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent) {
+        Font font = mc.font;
+        int scale = UiFont.pixelScale(g);
+        String sub = subtitle(mc), ms = ping(mc) + " ms", fps = mc.getFps() + " fps";
+        int textW = Math.max(UiFont.width(font, "LavaVisual", Face.BOLD, scale), UiFont.width(font, sub, Face.SMALL, scale));
+        int statsW = Math.max(UiFont.width(font, ms, Face.SMALL, scale), UiFont.width(font, fps, Face.SMALL, scale));
+        int bw = 27 + textW + 15 + statsW + 7, bh = 26;
+        panel(g, c, 0, 0, bw, bh, 7, w.opacity);
+        g.fill(8, 0, bw - 8, 1, UiDraw.alpha(accent, 0.75));
+        UiDraw.round(g, 4, 4, 18, 18, 5, UiDraw.alpha(accent, 1));
+        g.fillGradient(5, 5, 21, 13, 0x48FFFFFF, 0x00FFFFFF);
+        UiFont.icon(g, font, Icons.FLAME, 8, 8, 0xFF13161C);
+        UiFont.text(g, font, "LavaVisual", 27, 4, UiDraw.alpha(TEXT, 1), textW + 2, Face.BOLD);
+        UiFont.text(g, font, sub, 27, 14, UiDraw.alpha(MUTED, 1), textW + 2, Face.SMALL);
+        int divider = 27 + textW + 7;
+        g.fill(divider, 6, divider + 1, 20, 0xFF2A2E37);
+        int right = divider + 8 + statsW, latency = ping(mc);
+        int pingColor = latency < 80 ? 0xFF7ADB6A : latency < 160 ? 0xFFE0C14C : 0xFFE06A4C;
+        UiFont.text(g, font, ms, right - UiFont.width(font, ms, Face.SMALL, scale), 3, pingColor, statsW + 2, Face.SMALL);
+        UiFont.text(g, font, fps, right - UiFont.width(font, fps, Face.SMALL, scale), 13, UiDraw.alpha(accent, 1), statsW + 2, Face.SMALL);
+    }
+
+    /**
+     * Mob avatar: a live 3D model. Picture-in-picture states ignore the GUI pose, so the box is transformed to
+     * absolute screen coordinates here and drawn with an identity pose.
+     */
+    private static boolean entityAvatar(GuiGraphicsExtractor g, LivingEntity entity, int x, int y, int size) {
+        Vector2f a = g.pose().transformPosition(new Vector2f(x, y));
+        Vector2f b = g.pose().transformPosition(new Vector2f(x + size, y + size));
+        int x0 = Math.round(Math.min(a.x, b.x)), y0 = Math.round(Math.min(a.y, b.y));
+        int x1 = Math.round(Math.max(a.x, b.x)), y1 = Math.round(Math.max(a.y, b.y));
+        int box = Math.min(x1 - x0, y1 - y0);
+        if (box < 6) return false;
+        float extent = Math.max(0.3f, Math.max(entity.getBbHeight(), entity.getBbWidth()));
+        int scale = (int) Math.clamp(box * 0.8f / extent, 2, 120);
+        float cx = (x0 + x1) / 2f, cy = (y0 + y1) / 2f;
+        g.pose().pushMatrix();
+        try {
+            g.pose().identity();
+            InventoryScreen.extractEntityInInventoryFollowsMouse(g, x0, y0, x1, y1, scale, 0.0625f, cx + 18, cy - 6, entity);
+            return true;
+        } catch (RuntimeException error) {
+            return false;
+        } finally { g.pose().popMatrix(); }
+    }
+
+    private static void target(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, TargetSnapshot target, double fade, int accent, double dt) {
+        int bw = 180, ph = 56;
+        Font font = mc.font;
+        if (target == null) target = new TargetSnapshot("Предпросмотр", 16, 20, 10, 3.2,
+                mc.player == null ? null : mc.player.getSkin().body().texturePath(), null, 0);
+        UiDraw.round(g, -2, -2, bw + 4, ph + 4, 8, UiDraw.alpha(accent, 0.14 * fade));
+        if (c.shadows) UiDraw.round(g, 1, 2, bw, ph, 6, UiDraw.alpha(0, w.opacity * 0.25 * fade));
+        UiDraw.round(g, 0, 0, bw, ph, 6, UiDraw.alpha(PANEL, w.opacity * fade));
+        g.fillGradient(4, 1, bw - 4, 20, UiDraw.alpha(accent, 0.10 * fade), UiDraw.alpha(accent, 0));
+        UiDraw.round(g, 7, 7, 38, 38, 7, UiDraw.alpha(accent, 0.30 * fade));
+        UiDraw.round(g, 8, 8, 36, 36, 6, UiDraw.alpha(0x1B1E25, fade));
+        int white = UiDraw.alpha(0xFFFFFF, fade);
+        LivingEntity living = target.entity();
+        if (target.skin() != null) {
+            g.blit(RenderPipelines.GUI_TEXTURED, target.skin(), 10, 10, 8, 8, 32, 32, 8, 8, 64, 64, white);
+            g.blit(RenderPipelines.GUI_TEXTURED, target.skin(), 10, 10, 40, 8, 32, 32, 8, 8, 64, 64, white);
+        } else if (!(living != null && !living.isRemoved() && fade > 0.6 && entityAvatar(g, living, 9, 9, 34))) {
+            UiDraw.round(g, 14, 14, 24, 24, 12, UiDraw.alpha(accent, 0.16 * fade));
+            UiFont.icon(g, font, living == null ? Icons.USER : Icons.GHOST, 21, 21, UiDraw.alpha(accent, fade));
+        }
+        if (living != null && living.hurtTime > 0)
+            UiDraw.round(g, 10, 10, 32, 32, 4, UiDraw.alpha(0xFF2A2A, 0.45 * living.hurtTime / 10.0 * fade));
+        if (lastHealth >= 0 && target.health() < lastHealth - 0.01 && target.name().equals(lastName) && HUD_PARTICLES.size() < 60) {
+            long born = System.nanoTime();
+            for (int i = 0; i < 12; i++) {
+                double angle = Math.random() * Math.PI * 2, speed = 40 + Math.random() * 70;
+                HUD_PARTICLES.add(new HudParticle(26, 26, Math.cos(angle) * speed, Math.sin(angle) * speed - 40, born, i % 3 == 0 ? 0xFFFFFF : accent & 0xFFFFFF));
             }
         }
-        if (off) UiFont.text(g, mc.font, "выкл", 8, 22, UiDraw.alpha(0xFF9698A3, fade), 40);
+        lastHealth = target.health();
+        long particleNow = System.nanoTime();
+        HUD_PARTICLES.removeIf(pt -> particleNow - pt.born() > 700_000_000L);
+        for (HudParticle pt : HUD_PARTICLES) {
+            double age = (particleNow - pt.born()) / 1e9, life = 1 - age / 0.7;
+            int px = (int) (pt.x() + pt.vx() * age), py = (int) (pt.y() + pt.vy() * age + 160 * age * age);
+            UiDraw.round(g, px - 1, py - 1, 3, 3, 1, UiDraw.alpha(pt.color(), life * fade));
+        }
+        int tx = 52, tw = bw - tx - 8;
+        int combo = WorldCosmetics.combo();
+        if (combo >= 2) {
+            UiDraw.round(g, bw - 34, 6, 28, 12, 6, UiDraw.alpha(accent, 0.9 * fade));
+            UiFont.centered(g, font, "x" + combo, bw - 20, 8, UiDraw.alpha(0x111216, fade), Face.BOLD);
+        }
+        UiFont.text(g, font, target.name(), tx, 8, UiDraw.alpha(TEXT, fade), tw - (combo >= 2 ? 32 : 0), Face.BOLD);
+        UiFont.iconSmall(g, font, Icons.HEART, tx, 20, UiDraw.alpha(0xFF4D5E, fade));
+        String hp = String.format(Locale.ROOT, "%.1f / %.1f", target.health(), target.maximum());
+        UiFont.text(g, font, hp, tx + 11, 20, UiDraw.alpha(0xE8E8EB, fade), tw - 11);
+        float absorption = living == null ? 0 : living.getAbsorptionAmount();
+        if (absorption > 0.05f) {
+            int ax = tx + 11 + UiFont.width(g, font, hp, Face.REGULAR) + 4;
+            UiFont.text(g, font, String.format(Locale.ROOT, "+%.1f", absorption), ax, 20, UiDraw.alpha(0xFFD24A, fade), Math.max(1, bw - 8 - ax));
+        }
+        int muted = UiDraw.alpha(MUTED, fade);
+        String armor = Integer.toString(target.armor());
+        UiFont.iconSmall(g, font, Icons.SHIELD, tx, 31, muted);
+        UiFont.text(g, font, armor, tx + 11, 31, muted, 24);
+        int dx = tx + 11 + UiFont.width(g, font, armor, Face.REGULAR) + 9;
+        UiFont.iconSmall(g, font, Icons.RULER, dx, 31, muted);
+        UiFont.text(g, font, String.format(Locale.ROOT, "%.1f м", target.distance()), dx + 11, 31, muted, Math.max(1, bw - 8 - dx - 11));
+        double ratio = target.maximum() > 0 ? Math.clamp(target.health() / target.maximum(), 0, 1) : 0;
+        if (!target.name().equals(lastName)) { lastName = target.name(); healthShown = healthGhost = ratio; }
+        healthShown += (ratio - healthShown) * Math.min(1, dt * 12);
+        healthGhost = ratio > healthGhost ? ratio : Math.max(healthShown, healthGhost - dt * 0.5);
+        int barX = tx, barW = bw - tx - 8, barY = 44;
+        UiDraw.round(g, barX, barY, barW, 5, 2, UiDraw.alpha(0x2A2C33, fade));
+        if (healthGhost > 0) UiDraw.round(g, barX, barY, Math.max(2, (int) (barW * healthGhost)), 5, 2, UiDraw.alpha(0xFFFFFF, 0.35 * fade));
+        if (healthShown > 0) {
+            int fill = Math.max(2, (int) (barW * healthShown));
+            UiDraw.round(g, barX, barY, fill, 5, 2, UiDraw.alpha(accent, fade));
+            g.fillGradient(barX + 1, barY, barX + fill - 1, barY + 2, UiDraw.alpha(0xFFFFFF, 0.28 * fade), UiDraw.alpha(0xFFFFFF, 0));
+        }
+        // Equipment strip under the panel: helmet, chestplate, leggings, boots, main hand.
+        if (living == null || fade > 0.7) {
+            ItemStack[] gear = living == null ? new ItemStack[] {ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY}
+                    : new ItemStack[] {living.getItemBySlot(EquipmentSlot.HEAD), living.getItemBySlot(EquipmentSlot.CHEST),
+                    living.getItemBySlot(EquipmentSlot.LEGS), living.getItemBySlot(EquipmentSlot.FEET), living.getMainHandItem()};
+            for (int i = 0; i < gear.length; i++) {
+                int sx = i * 21, sy = 60;
+                if (c.shadows) UiDraw.round(g, sx + 1, sy + 1, 19, 19, 4, UiDraw.alpha(0, w.opacity * 0.25 * fade));
+                UiDraw.round(g, sx, sy, 19, 19, 4, UiDraw.alpha(PANEL, w.opacity * fade));
+                ItemStack stack = gear[i];
+                if (stack.isEmpty()) {
+                    if (i < 4) g.blitSprite(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath("minecraft", ARMOR_SPRITES[i]), sx + 2, sy + 2, 15, 15, UiDraw.alpha(0xFFFFFF, 0.3 * fade));
+                    continue;
+                }
+                g.item(stack, sx + 2, sy + 1);
+                if (stack.isDamageableItem() && stack.getMaxDamage() > 0) {
+                    double left = Math.clamp(1 - (double) stack.getDamageValue() / stack.getMaxDamage(), 0, 1);
+                    g.fill(sx + 3, sy + 17, sx + 16, sy + 18, 0xFF2A2D35);
+                    g.fill(sx + 3, sy + 17, sx + 3 + Math.max(1, (int) Math.round(13 * left)), sy + 18, durability(left));
+                }
+            }
+        }
     }
+
     public static void crosshair(GuiGraphicsExtractor g) {
         HudConfig c = LavaVisualClient.config();
         int color = UiDraw.alpha(c.accent(), c.crosshairOpacity);

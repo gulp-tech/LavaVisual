@@ -26,5 +26,12 @@ public final class UiDraw {
         }
     }
 
+    public static int mix(int a, int b, double t) {
+        t = Math.clamp(t, 0, 1);
+        int r = (int) Math.round(((a >> 16) & 255) * (1 - t) + ((b >> 16) & 255) * t);
+        int g = (int) Math.round(((a >> 8) & 255) * (1 - t) + ((b >> 8) & 255) * t);
+        int v = (int) Math.round((a & 255) * (1 - t) + (b & 255) * t);
+        return r << 16 | g << 8 | v;
+    }
     public static int alpha(int rgb, double opacity) { return ((int) Math.round(255 * opacity) << 24) | (rgb & 0xFFFFFF); }
 }

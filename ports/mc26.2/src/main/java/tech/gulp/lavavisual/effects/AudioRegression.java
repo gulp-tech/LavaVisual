@@ -25,7 +25,7 @@ public final class AudioRegression {
         if (!Boolean.getBoolean("lavavisual.uiSmoke")) return;
         var c = LavaVisualClient.config(); var manager = client.getSoundManager();
         boolean hit = c.hitSoundEnabled, crit = c.critSoundEnabled, totem = c.totemSoundEnabled;
-        int hp = c.hitPreset, cp = c.critPreset, tp = c.totemPreset;
+        int hs = c.hitSound, cs = c.critSound, ts = c.totemSound, ks = c.killSound;
         double hv = c.hitVolume, cv = c.critVolume, tv = c.totemVolume;
         try {
             c.hitSoundEnabled = c.critSoundEnabled = c.totemSoundEnabled = false;
@@ -35,8 +35,11 @@ public final class AudioRegression {
             c.hitVolume = .25; c.critVolume = .5; c.totemVolume = .75;
             String[] paths = {"entity.player.attack.strong", "entity.player.attack.weak", "entity.player.attack.sweep",
                     "entity.player.attack.knockback", "entity.player.attack.crit", "item.totem.use"};
-            for (int preset = 0; preset < 2; preset++) {
-                c.hitPreset = c.critPreset = c.totemPreset = preset;
+            check(CustomAudio.IDS.length == tech.gulp.lavavisual.config.HudConfig.SOUND_LIBRARY, "library size");
+            for (int preset = 0; preset < CustomAudio.IDS.length; preset++) {
+                c.hitSound = c.critSound = c.totemSound = c.killSound = preset;
+                check(new SimpleSoundInstance(CustomAudio.sound(3), SoundSource.PLAYERS, 1, 1, SoundInstance.createUnseededRandom(), false, 0,
+                        SoundInstance.Attenuation.NONE, 0, 0, 0, true).resolve(manager) != null, "kill sound resolves: " + CustomAudio.IDS[preset]);
                 for (String path : paths) {
                     var original = fresh(path);
                     check(original.getSound() == null, "must start unresolved: " + path);
@@ -53,7 +56,7 @@ public final class AudioRegression {
                     check(replacement.getSource() == SoundSource.PLAYERS && replacement.getAttenuation() == SoundInstance.Attenuation.LINEAR
                             && !replacement.isRelative() && !replacement.isLooping() && replacement.getDelay() == 0, "spatial metadata preserved");
                     // Exercise the actual injected path with another unresolved packet-style instance.
-                    manager.play(fresh(path));
+                    if (preset < 2) manager.play(fresh(path));
                 }
             }
             var unrelated = fresh("block.stone.break");
@@ -69,7 +72,7 @@ public final class AudioRegression {
             LavaVisual.LOGGER.info("LavaVisual audio regression passed");
         } finally {
             c.hitSoundEnabled = hit; c.critSoundEnabled = crit; c.totemSoundEnabled = totem;
-            c.hitPreset = hp; c.critPreset = cp; c.totemPreset = tp;
+            c.hitSound = hs; c.critSound = cs; c.totemSound = ts; c.killSound = ks;
             c.hitVolume = hv; c.critVolume = cv; c.totemVolume = tv;
         }
     }

@@ -28,5 +28,110 @@
     "sounds": [
       "lavavisual:totem_arcade"
     ]
+  },
+  "lib.bell": {
+    "sounds": [
+      "lavavisual:lib/bell"
+    ]
+  },
+  "lib.bubble": {
+    "sounds": [
+      "lavavisual:lib/bubble"
+    ]
+  },
+  "lib.click": {
+    "sounds": [
+      "lavavisual:lib/click"
+    ]
+  },
+  "lib.tick": {
+    "sounds": [
+      "lavavisual:lib/tick"
+    ]
+  },
+  "lib.punch": {
+    "sounds": [
+      "lavavisual:lib/punch"
+    ]
+  },
+  "lib.metal": {
+    "sounds": [
+      "lavavisual:lib/metal"
+    ]
+  },
+  "lib.glass": {
+    "sounds": [
+      "lavavisual:lib/glass"
+    ]
+  },
+  "lib.laser": {
+    "sounds": [
+      "lavavisual:lib/laser"
+    ]
+  },
+  "lib.coin": {
+    "sounds": [
+      "lavavisual:lib/coin"
+    ]
+  },
+  "lib.crystal": {
+    "sounds": [
+      "lavavisual:lib/crystal"
+    ]
+  },
+  "lib.retro": {
+    "sounds": [
+      "lavavisual:lib/retro"
+    ]
+  },
+  "lib.bass": {
+    "sounds": [
+      "lavavisual:lib/bass"
+    ]
+  },
+  "lib.snap": {
+    "sounds": [
+      "lavavisual:lib/snap"
+    ]
+  },
+  "lib.drop": {
+    "sounds": [
+      "lavavisual:lib/drop"
+    ]
+  },
+  "lib.wood": {
+    "sounds": [
+      "lavavisual:lib/wood"
+    ]
+  },
+  "lib.zap": {
+    "sounds": [
+      "lavavisual:lib/zap"
+    ]
+  },
+  "lib.sparkle": {
+    "sounds": [
+      "lavavisual:lib/sparkle"
+    ]
+  },
+  "lib.double": {
+    "sounds": [
+      "lavavisual:lib/double"
+    ]
+  },
+  "lib.thunder": {
+    "sounds": [
+      "lavavisual:lib/thunder"
+    ]
+  },
+  "lib.fanfare": {
+    "sounds": [
+      "lavavisual:lib/fanfare"
+    ]
+  },
+  "lib.magic": {
+    "sounds": [
+      "lavavisual:lib/magic"
+    ]
   }
 }
