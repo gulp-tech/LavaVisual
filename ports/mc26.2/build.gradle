@@ -27,22 +27,12 @@ jar { from('LICENSE') }
 tasks.register('apiSignatures') {
     doLast {
         def names = [
-            'net.minecraft.client.sounds.WeighedSoundEvents',
-            'net.minecraft.client.sounds.Sound',
-            'net.minecraft.client.resources.sounds.AbstractSoundInstance',
-            'net.minecraft.client.renderer.state.level.LevelRenderState',
-            'net.minecraft.client.renderer.state.level.SkyRenderState',
-            'net.minecraft.client.Options',
-            'net.minecraft.client.Particles',
-            'net.minecraft.client.renderer.LevelRenderer',
-            'net.minecraft.client.gui.screens.inventory.InventoryScreen',
-            'net.minecraft.core.registries.BuiltInRegistries',
-            'net.minecraft.world.entity.EntityType',
-            'net.minecraft.server.packs.resources.Resource',
-            'net.minecraft.server.packs.metadata.MetadataSectionType',
-            'net.minecraft.server.packs.metadata.pack.ImageMetadata',
-            'net.minecraft.client.gui.GuiGraphicsExtractor'
+            'net.minecraft.client.MouseHandler',
+            'net.minecraft.client.renderer.state.entity.EntityRenderState',
+            'net.minecraft.world.entity.player.Player',
+            'net.minecraft.client.multiplayer.ClientLevel'
         ]
+       ]
         def result = new StringBuilder()
         names.each { name ->
             def p = new ProcessBuilder('javap', '-classpath', configurations.compileClasspath.asPath, '-p', name).redirectErrorStream(true).start()
