@@ -42,7 +42,7 @@ tasks.register('apiSignatures') {
             'net.minecraft.server.packs.metadata.MetadataSectionType',
             'net.minecraft.server.packs.metadata.pack.ImageMetadata',
             'net.minecraft.client.gui.GuiGraphicsExtractor'
-        ]     ]
+        ]
         def result = new StringBuilder()
         names.each { name ->
             def p = new ProcessBuilder('javap', '-classpath', configurations.compileClasspath.asPath, '-p', name).redirectErrorStream(true).start()
