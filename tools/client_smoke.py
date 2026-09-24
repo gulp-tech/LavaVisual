@@ -26,7 +26,7 @@ with log.open('w') as output:
             if re.search(r'InjectionError|InvalidMixinException|MixinApplyError|IllegalClassLoadError|Mixin transformation .* failed|Exception in thread|Reported exception thrown', text):
                 raise RuntimeError('Client or mixin initialization failed')
             # Atlas creation follows model/shader loading. Stay alive for a few seconds afterwards.
-            if 'LavaVisual 1.1.0' in text and re.search(r'Created:.*(atlas|textures)', text):
+            if re.search(r'LavaVisual 1\.1\.[0-9]+', text) and re.search(r'Created:.*(atlas|textures)', text):
                 ready_since = ready_since or time.monotonic()
                 if time.monotonic() - ready_since >= 12:
                     print('Client startup smoke passed; in-world visual correctness is NOT asserted.')

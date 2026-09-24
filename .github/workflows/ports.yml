@@ -1,7 +1,5 @@
 name: Build version adapters
 on:
-  push:
-    paths: ['ports/**', 'tools/**', '.github/workflows/ports.yml']
   workflow_dispatch:
 concurrency:
   group: lavavisual-adapters-${{ github.ref }}

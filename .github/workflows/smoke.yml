@@ -1,7 +1,5 @@
 name: Client startup smoke
 on:
-  push:
-    paths: ['.github/workflows/smoke.yml', 'tools/client_smoke.py']
   workflow_dispatch:
 permissions:
   contents: read

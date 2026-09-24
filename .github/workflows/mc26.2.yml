@@ -1,0 +1,58 @@
+name: Build LavaVisual 26.2 standalone
+on:
+  push:
+    paths: ['ports/mc26.2/**', 'tools/client_smoke.py', 'tools/ci_run.sh', '.github/workflows/mc26.2.yml']
+  workflow_dispatch:
+concurrency:
+  group: lavavisual-standalone-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v5
+      - name: Build standalone JAR and run tests
+        run: bash tools/ci_run.sh ports/mc26.2/gradlew -p ports/mc26.2 build --no-daemon
+      - name: Install virtual display
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri libasound2t64 libflite1
+      - name: Check client startup with Fabric Loader 0.19.3
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: python3 tools/client_smoke.py ports/mc26.2
+      - name: Verify standalone metadata
+        run: |
+          python3 - <<'PY'
+          import json, zipfile
+          with zipfile.ZipFile('ports/mc26.2/build/libs/lavavisual-1.1.1-mc26.2.jar') as jar:
+              m = json.loads(jar.read('fabric.mod.json'))
+              assert m['id'] == 'lavavisual'
+              assert m['depends']['minecraft'] == '26.2'
+              assert m['depends']['fabricloader'] == '>=0.19.3'
+              assert not m.get('jars'), 'Must not contain version adapters'
+              assert jar.testzip() is None
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LavaVisual-1.1.1-mc26.2-standalone
+          path: ports/mc26.2/build/libs/lavavisual-1.1.1-mc26.2.jar
+      - name: Publish tested JAR
+        if: github.ref == 'refs/heads/arena/01a0d2b1-lavavisual'
+        run: |
+          git pull --ff-only origin arena/01a0d2b1-lavavisual
+          cp ports/mc26.2/build/libs/lavavisual-1.1.1-mc26.2.jar artifacts/
+          (cd artifacts && sha256sum *.jar > SHA256SUMS)
+          printf 'Source: %s\nBuild: https://github.com/%s/actions/runs/%s\nMinecraft: 26.2\nTested Fabric Loader: 0.19.3\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" > artifacts/STANDALONE-26.2.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add artifacts/
+          git diff --cached --quiet && exit 0
+          git commit -m 'Publish tested standalone 26.2 JAR for Loader 0.19.3 [skip ci]'
+          git push origin HEAD:arena/01a0d2b1-lavavisual
