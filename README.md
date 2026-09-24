@@ -151,6 +151,11 @@ Loader 0.19.3 под Xvfb: открываются все вкладки, нас�
 - Lucide Icons (ISC, © Lucide Icons and Contributors) — иконки, подмножество `lucide.ttf`;
   лицензия в `licenses/Lucide-ISC.txt`. Шрифты собираются `tools/build_fonts.py`.
 - 21 звук синтезирован `tools/make_sounds.py` (собственная работа, MIT), без чужих сэмплов.
+- Миникарта повторяет правила ванильных карт (оттенки ×180/220/255, затенение по высоте блока к северу,
+  глубина воды) по описанию [Minecraft Wiki: Map item format](https://minecraft.wiki/w/Map_item_format);
+  код свой. Цвета блоков берутся из самой игры (`MapColor`). Сущности на карту не выводятся вообще.
+- Бинды — обычные `KeyMapping` игры; комбинации F3 + клавиша (B — хитбоксы, V — версия) не
+  запускают действия LavaVisual ([список debug-клавиш](https://minecraft.wiki/w/Debug_hotkey)).
 
 - PulseVisual (MIT, © 2026 PulseVisual contributors) — таблица пресетов анимации удара, функция
   огибающей и константы Low Fire адаптированы; текст лицензии в `licenses/PulseVisual-MIT.txt`.
