@@ -27,7 +27,6 @@ public final class HudRenderer {
     private static final int PANEL = 0x111216, TEXT = 0xF1F3F7, MUTED = 0x8C93A1;
     private static final EquipmentSlot[] ARMOR = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
     private static final String[] ARMOR_SPRITES = {"container/slot/helmet", "container/slot/chestplate", "container/slot/leggings", "container/slot/boots"};
-    private static ItemStack totem;
 
     public static int baseWidth(String id) {
         return switch (id) {
@@ -135,8 +134,9 @@ public final class HudRenderer {
         UiDraw.round(g, 5, 5, 20, 20, 5, UiDraw.alpha(accent, 0.16));
         String value;
         if (id.equals("totems")) {
-            if (totem == null) totem = new ItemStack(Items.TOTEM_OF_UNDYING);
-            g.item(totem, 7, 7);
+            // Item components are bound only inside a world; the title-screen editor shows an icon instead.
+            if (mc.level != null) g.item(new ItemStack(Items.TOTEM_OF_UNDYING), 7, 7);
+            else UiFont.icon(g, font, Icons.HEART_PULSE, 10, 10, UiDraw.alpha(accent, 1));
             value = totems(mc);
         } else {
             UiFont.icon(g, font, id.equals("coordinates") ? Icons.MAP_PIN : Icons.GAUGE, 10, 10, UiDraw.alpha(accent, 1));
