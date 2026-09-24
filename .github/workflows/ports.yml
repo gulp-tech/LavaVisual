@@ -3,6 +3,9 @@ on:
   push:
     paths: ['ports/**', 'tools/**', '.github/workflows/ports.yml']
   workflow_dispatch:
+concurrency:
+  group: lavavisual-adapters-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:
@@ -56,13 +59,14 @@ jobs:
           name: LavaVisual-mc${{ matrix.mc }}
           path: |
             ports/mc${{ matrix.mc }}/build/libs/*.jar
-            ports/mc${{ matrix.mc }}/build/api-signatures.txt
   publish:
     needs: adapters
     if: github.ref == 'refs/heads/arena/01a0d2b1-lavavisual'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - name: Fast-forward to latest artifact publication
+        run: git pull --ff-only origin arena/01a0d2b1-lavavisual
       - uses: actions/download-artifact@v4
         with:
           pattern: LavaVisual-mc*
@@ -95,5 +99,4 @@ jobs:
           git add artifacts/
           git diff --cached --quiet && exit 0
           git commit -m 'Publish version-specific adapters [skip ci]'
-          git pull --rebase origin arena/01a0d2b1-lavavisual
           git push origin HEAD:arena/01a0d2b1-lavavisual
