@@ -1,0 +1,32 @@
+{
+  "hit_soft": {
+    "sounds": [
+      "lavavisual:hit_soft"
+    ]
+  },
+  "hit_heavy": {
+    "sounds": [
+      "lavavisual:hit_heavy"
+    ]
+  },
+  "crit_metal": {
+    "sounds": [
+      "lavavisual:crit_metal"
+    ]
+  },
+  "crit_arcade": {
+    "sounds": [
+      "lavavisual:crit_arcade"
+    ]
+  },
+  "totem_chime": {
+    "sounds": [
+      "lavavisual:totem_chime"
+    ]
+  },
+  "totem_arcade": {
+    "sounds": [
+      "lavavisual:totem_arcade"
+    ]
+  }
+}

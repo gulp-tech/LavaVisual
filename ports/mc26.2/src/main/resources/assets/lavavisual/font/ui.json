@@ -1,0 +1,14 @@
+{
+  "providers": [
+    {
+      "type": "ttf",
+      "file": "lavavisual:font/inter.ttf",
+      "shift": [
+        0,
+        0
+      ],
+      "size": 10,
+      "oversample": 3
+    }
+  ]
+}

@@ -35,7 +35,10 @@ tasks.register('apiSignatures') {
             'net.minecraft.client.gui.Font',
             'net.minecraft.network.chat.Style',
             'net.minecraft.client.player.AbstractClientPlayer',
-            'net.minecraft.client.resources.PlayerSkin',
+            'net.minecraft.world.entity.player.PlayerSkin',
+            'net.minecraft.network.chat.FontDescription$Resource',
+            'com.mojang.blaze3d.PrimitiveTopology',
+            'com.mojang.blaze3d.platform.CompareOp',
             'net.minecraft.client.gui.components.PlayerFaceRenderer',
             'net.minecraft.network.protocol.game.ClientboundEntityEventPacket',
             'net.minecraft.client.multiplayer.ClientPacketListener'

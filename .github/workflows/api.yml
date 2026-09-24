@@ -15,12 +15,19 @@ jobs:
           java-version: '25'
       - uses: gradle/actions/setup-gradle@v5
       - run: bash tools/ci_run.sh ports/mc26.2/gradlew -p ports/mc26.2 apiSignatures --no-daemon
+      - name: Convert distributable audio to spatial mono
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+          for file in ports/mc26.2/src/main/resources/assets/lavavisual/sounds/*.ogg; do
+            ffmpeg -v error -y -i "$file" -ac 1 -ar 44100 -c:a libvorbis -q:a 5 "$file.mono.ogg"
+            mv "$file.mono.ogg" "$file"
+          done
       - run: |
           mkdir -p docs/api
           cp ports/mc26.2/build/api-signatures.txt docs/api/cosmetics26.2.txt
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add docs/api/
+          git add docs/api/ ports/mc26.2/src/main/resources/assets/lavavisual/sounds/
           git diff --cached --quiet && exit 0
           git commit -m 'Record cosmetic API signatures [skip ci]'
           git pull --rebase origin arena/01a0d2b1-lavavisual
