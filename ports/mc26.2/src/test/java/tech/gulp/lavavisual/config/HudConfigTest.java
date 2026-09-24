@@ -13,6 +13,7 @@ class HudConfigTest {
         assertFalse(c.crosshairEnabled);
         assertFalse(c.jumpEnabled || c.particlesEnabled || c.ambientEnabled || c.viewModelEnabled);
         assertFalse(c.hitSoundEnabled || c.critSoundEnabled || c.totemSoundEnabled);
+        assertFalse(c.markerEnabled || c.skyEnabled || c.fpsBoost);
     }
     @Test void clampsAppearanceAndPosition() {
         var c = new HudConfig(); var w = c.widgets.get("target");
@@ -50,12 +51,13 @@ class HudConfigTest {
         c.hitSoundEnabled = c.critSoundEnabled = c.totemSoundEnabled = true;
         c.mainHand.x = Double.NaN; c.mainHand.z = 40; c.mainHand.scale = -10;
         c.offHand = null; c.hitVolume = Double.POSITIVE_INFINITY; c.critPreset = -10;
-        c.particleCount = 9999; c.jumpRadius = -5; c.rgb = -1; c.sanitize();
+        c.particleCount = 9999; c.jumpRadius = -5; c.rgb = -1; c.targetHold = 99; c.sanitize();
         assertEquals(0, c.mainHand.x); assertEquals(1.5, c.mainHand.z); assertEquals(0.4, c.mainHand.scale);
-        assertNotNull(c.offHand); assertEquals(0.65, c.hitVolume); assertEquals(0, c.critPreset);
+        assertNotNull(c.offHand); assertEquals(0.65, c.hitVolume); assertEquals(2, c.critPreset); assertEquals(3, c.targetHold, 0.001);
         assertEquals(24, c.particleCount); assertEquals(0.5, c.jumpRadius); assertEquals(0, c.rgb);
         c.disableAll();
         assertFalse(c.jumpEnabled || c.particlesEnabled || c.ambientEnabled || c.viewModelEnabled);
         assertFalse(c.hitSoundEnabled || c.critSoundEnabled || c.totemSoundEnabled);
+        assertFalse(c.markerEnabled || c.skyEnabled || c.fpsBoost);
     }
 }
