@@ -1,6 +1,6 @@
 # LavaVisual 2.2 — Minecraft 26.2
 
-**[Скачать lavavisual-2.2.0-mc26.2.jar](artifacts/lavavisual-2.2.0-mc26.2.jar)**
+**[Скачать lavavisual-2.2.1-mc26.2.jar](artifacts/lavavisual-2.2.1-mc26.2.jar)**
 
 Клиентский HUD и косметика. Тёмное меню с Inter, анимированными вкладками и
 переключателями; общий RGB-цвет настраивается прямо в интерфейсе.

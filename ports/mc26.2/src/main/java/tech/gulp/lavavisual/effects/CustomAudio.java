@@ -19,7 +19,7 @@ public final class CustomAudio {
         var c = LavaVisualClient.config();
         return group == 0 ? c.hitVolume : group == 1 ? c.critVolume : c.totemVolume;
     }
-    public static SoundInstance replace(SoundInstance original) {
+    public static SoundInstance replace(SoundInstance original, net.minecraft.client.sounds.SoundManager manager) {
         if (!original.getIdentifier().getNamespace().equals("minecraft")) return original;
         var c = LavaVisualClient.config();
         int group = switch (original.getIdentifier().getPath()) {
@@ -29,6 +29,10 @@ public final class CustomAudio {
             default -> -1;
         };
         if (group < 0) return original;
+        // SoundManager.play receives unresolved instances (including incoming sound packets).
+        // AbstractSoundInstance volume/pitch depend on its selected Sound and cannot be read yet.
+        if (original.getSound() == null && original.resolve(manager) == null) return original;
+        if (original.getSound() == null) return original;
         // Keep the original position, category and attenuation; never turn distant world audio into UI audio.
         return new SimpleSoundInstance(sound(group), original.getSource(), (float) (original.getVolume() * volume(group)),
                 original.getPitch(), SoundInstance.createUnseededRandom(), original.isLooping(), original.getDelay(),

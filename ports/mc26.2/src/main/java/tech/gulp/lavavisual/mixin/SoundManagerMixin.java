@@ -10,5 +10,5 @@ import tech.gulp.lavavisual.effects.CustomAudio;
 @Mixin(SoundManager.class)
 public abstract class SoundManagerMixin {
     @ModifyVariable(method = "play", at = @At("HEAD"), argsOnly = true)
-    private SoundInstance lava$audio(SoundInstance original) { return CustomAudio.replace(original); }
+    private SoundInstance lava$audio(SoundInstance original) { return CustomAudio.replace(original, (SoundManager) (Object) this); }
 }

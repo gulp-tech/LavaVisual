@@ -9,6 +9,6 @@ public final class LavaVisual implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        LOGGER.info("LavaVisual 2.2.0 — Minecraft 26.2");
+        LOGGER.info("LavaVisual 2.2.1 — Minecraft 26.2");
     }
 }
