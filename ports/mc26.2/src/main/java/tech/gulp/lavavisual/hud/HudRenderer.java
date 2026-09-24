@@ -43,7 +43,7 @@ public final class HudRenderer {
                 if (id.equals(selected)) g.fill(5, bh - 1, bw - 5, bh, accent);
                 if (id.equals("target")) {
                     if (target == null) target = new TargetSnapshot("Предпросмотр", 16, 20, 10, 3.2,
-                            mc.player == null ? null : mc.player.getSkin().body().texturePath());
+                            mc.player == null ? null : mc.player.getSkin().body().texturePath(), null, 0);
                     UiDraw.round(g, 8, 8, 34, 34, 5, UiDraw.alpha(accent, 0.18));
                     if (target.skin() != null) {
                         g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, target.skin(), 9, 9, 8, 8, 32, 32, 8, 8, 64, 64);

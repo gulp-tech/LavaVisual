@@ -28,7 +28,6 @@ public final class PerformanceMode {
             options.entityShadows().set(c.savedEntityShadows);
             c.boostApplied = false;
         }
-        if (client.levelRenderer != null) client.levelRenderer.allChanged();
         LavaVisualClient.save();
     }
 }
