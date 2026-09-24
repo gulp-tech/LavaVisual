@@ -20,7 +20,7 @@ class HudConfigTest {
         w.x = Double.NaN; w.y = 20; w.scale = -2; w.opacity = 100; c.sanitize();
         assertEquals(0.02, w.x); assertEquals(1, w.y);
         assertEquals(0.6, w.scale); assertEquals(1, w.opacity);
-        assertEquals(3, c.widgets.size());
+        assertEquals(5, c.widgets.size());
     }
     @Test void existingNewSettingsArePreserved(@TempDir Path dir) {
         var store = new ConfigStore(dir); var c = new HudConfig();
