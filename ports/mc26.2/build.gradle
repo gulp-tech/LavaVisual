@@ -23,3 +23,29 @@ java {
 tasks.withType(JavaCompile).configureEach { options.release = 25; options.encoding = 'UTF-8' }
 test { useJUnitPlatform() }
 jar { from('LICENSE') }
+
+tasks.register('apiSignatures') {
+    doLast {
+        def names = [
+            'net.minecraft.client.renderer.ItemInHandRenderer',
+            'net.minecraft.client.sounds.SoundManager',
+            'net.minecraft.client.resources.sounds.SoundInstance',
+            'net.minecraft.client.resources.sounds.SimpleSoundInstance',
+            'net.minecraft.client.gui.GuiGraphicsExtractor',
+            'net.minecraft.client.gui.Font',
+            'net.minecraft.network.chat.Style',
+            'net.minecraft.client.player.AbstractClientPlayer',
+            'net.minecraft.client.resources.PlayerSkin',
+            'net.minecraft.client.gui.components.PlayerFaceRenderer',
+            'net.minecraft.network.protocol.game.ClientboundEntityEventPacket',
+            'net.minecraft.client.multiplayer.ClientPacketListener'
+        ]
+        def result = new StringBuilder()
+        names.each { name ->
+            def p = new ProcessBuilder('javap', '-classpath', configurations.compileClasspath.asPath, '-p', name).redirectErrorStream(true).start()
+            result.append(p.inputStream.text).append('\n'); p.waitFor()
+        }
+        file('build').mkdirs()
+        file('build/api-signatures.txt').text = result.toString()
+    }
+}
