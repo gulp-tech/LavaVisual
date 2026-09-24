@@ -26,10 +26,24 @@ with log.open('w') as output:
                 raise RuntimeError(f'Client exited before completing startup: {process.returncode}')
             if re.search(r'InjectionError|InvalidMixinException|MixinApplyError|IllegalClassLoadError|Mixin transformation .* failed|Exception in thread|Reported exception thrown', text):
                 raise RuntimeError('Client or mixin initialization failed')
+            if re.search(r'Failed to load font|Unable to load font|Failed to load[^\n]*lavavisual', text):
+                raise RuntimeError('LavaVisual resource loading failed')
             # Atlas creation follows model/shader loading. Stay alive for a few seconds afterwards.
             if re.search(r'LavaVisual 2\.2\.[0-9]+', text) and re.search(r'Created:.*(atlas|textures)', text) and 'LavaVisual UI smoke complete' in text:
                 ready_since = ready_since or time.monotonic()
                 if time.monotonic() - ready_since >= 12:
+                    # Loom may start its own Xvfb. Find the innermost display, rather than guessing :99.
+                    for proc in sorted(Path('/proc').glob('[0-9]*'), key=lambda p: int(p.name), reverse=True):
+                        try:
+                            args = (proc / 'cmdline').read_bytes().decode().split('\0')
+                            if Path(args[0]).name != 'Xvfb' or '-auth' not in args:
+                                continue
+                            env = {**os.environ, 'DISPLAY': args[1], 'XAUTHORITY': args[args.index('-auth') + 1]}
+                            shot = subprocess.run(['import', '-window', 'root', str(project / 'build' / 'ui-smoke.png')], env=env, timeout=10)
+                            if shot.returncode == 0:
+                                break
+                        except (OSError, ValueError, subprocess.TimeoutExpired):
+                            continue
                     print('Client startup smoke passed; in-world visual correctness is NOT asserted.')
                     result = 0
                     break

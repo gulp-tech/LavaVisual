@@ -45,7 +45,7 @@ public final class WorldCosmetics {
     private static Vec3 groundPosition = Vec3.ZERO;
     private static final RenderType GLOW = RenderType.create("lavavisual_cosmetic_glow",
             RenderSetup.builder(RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-                    .withLocation("lavavisual:pipeline/cosmetic_glow")
+                    .withLocation(net.minecraft.resources.Identifier.fromNamespaceAndPath("lavavisual", "pipeline/cosmetic_glow"))
                     .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
                     .withPrimitiveTopology(PrimitiveTopology.QUADS)
                     .withDepthStencilState(new DepthStencilState(DepthStencilState.DEFAULT.depthTest(), false))

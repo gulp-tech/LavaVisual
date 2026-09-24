@@ -22,7 +22,7 @@ jobs:
       - name: Build standalone JAR and run tests
         run: bash tools/ci_run.sh ports/mc26.2/gradlew -p ports/mc26.2 build --no-daemon
       - name: Install virtual display
-        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri libasound2t64 libflite1
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri libasound2t64 libflite1 imagemagick
       - name: Check client startup with Fabric Loader 0.19.3
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
@@ -41,6 +41,14 @@ jobs:
               assert m['depends']['fabricloader'] == '>=0.19.3'
               assert not m.get('jars'), 'Must not contain version adapters'
               assert jar.testzip() is None
+              assert 'licenses/Inter-OFL.txt' in jar.namelist()
+              assert 'licenses/Kenney-CC0.txt' in jar.namelist()
+              sounds = [name for name in jar.namelist() if name.endswith('.ogg')]
+              assert len(sounds) == 6
+              for name in sounds:
+                  data = jar.read(name)
+                  header = data.index(b'\x01vorbis')
+                  assert data[header + 11] == 1, 'Positional audio must be mono'
               assert m['mixins'] == ['lavavisual.mixins.json']
               mixins = json.loads(jar.read('lavavisual.mixins.json'))
               assert set(mixins['client']) == {'HandViewMixin', 'SoundManagerMixin'}
@@ -57,6 +65,7 @@ jobs:
           git pull --ff-only origin arena/01a0d2b1-lavavisual
           mkdir -p artifacts
           cp ports/mc26.2/build/libs/lavavisual-2.2.0-mc26.2.jar artifacts/
+          test ! -f ports/mc26.2/build/ui-smoke.png || cp ports/mc26.2/build/ui-smoke.png artifacts/ui-2.2.png
           (cd artifacts && sha256sum *.jar > SHA256SUMS)
           printf 'Source: %s\nBuild: https://github.com/%s/actions/runs/%s\nMinecraft: 26.2\nTested Fabric Loader: 0.19.3\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" > artifacts/STANDALONE-26.2.txt
           git config user.name 'github-actions[bot]'
