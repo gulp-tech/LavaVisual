@@ -20,14 +20,21 @@ public final class UiFont {
         private final String key;
         Face(String key) { this.key = key; }
     }
-    private static final FontDescription[][] FACES = new FontDescription[Face.values().length][17];
+    /** Text families (HudConfig.hudFont): Montserrat and Rubik for the HUD, Inter for menus. Icons never change. */
+    public static final String[] FAMILIES = {"Montserrat", "Rubik", "Inter"};
+    public static final int MENU = 2;
+    private static final String[] PREFIX = {"m", "u", ""};
+    private static final FontDescription[][][] FACES = new FontDescription[FAMILIES.length][Face.values().length][17];
+    private static int family = MENU;
     private UiFont() { }
+    /** Switches the text family for the following draw and width calls; returns the previous one for restoring. */
+    public static int use(int next) { int previous = family; family = Math.clamp(next, 0, FAMILIES.length - 1); return previous; }
     /** Face for {@code half} half-pixels per GUI unit (2 = one pixel per unit ... 16 = eight). */
     public static FontDescription face(Face face, int half) {
-        int h = Math.clamp(half, 2, 16);
-        FontDescription description = FACES[face.ordinal()][h];
-        if (description == null) FACES[face.ordinal()][h] = description = new FontDescription.Resource(
-                Identifier.fromNamespaceAndPath("lavavisual", face.key + (h / 2) + (h % 2 == 0 ? "" : "_5")));
+        int h = Math.clamp(half, 2, 16), f = face.ordinal() <= Face.HEADING.ordinal() ? family : MENU;
+        FontDescription description = FACES[f][face.ordinal()][h];
+        if (description == null) FACES[f][face.ordinal()][h] = description = new FontDescription.Resource(
+                Identifier.fromNamespaceAndPath("lavavisual", PREFIX[f] + face.key + (h / 2) + (h % 2 == 0 ? "" : "_5")));
         return description;
     }
     public static int guiScale() { return Math.max(1, Minecraft.getInstance().getWindow().getGuiScale()); }

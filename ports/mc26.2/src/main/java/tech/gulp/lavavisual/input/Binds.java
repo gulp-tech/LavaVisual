@@ -91,7 +91,7 @@ public final class Binds {
     private static void run(Action action, Minecraft mc) {
         var c = LavaVisualClient.config();
         switch (action) {
-            case MENU -> mc.gui.setScreen(new ClickGuiScreen());
+            case MENU -> mc.gui.setScreen(ClickGuiScreen.restore());
             case DISABLE_ALL -> { c.disableAll(); tech.gulp.lavavisual.effects.PerformanceMode.update(mc); }
             case WAYPOINT_ADD -> { if (mc.player != null) mc.gui.setScreen(new tech.gulp.lavavisual.ui.WaypointScreen(null, null)); }
             case WAYPOINTS -> mc.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MAP));

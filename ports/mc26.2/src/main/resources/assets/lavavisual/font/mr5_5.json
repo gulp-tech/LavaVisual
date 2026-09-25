@@ -1,0 +1,28 @@
+{
+ "providers": [
+  {
+   "type": "ttf",
+   "file": "lavavisual:montserrat-regular.ttf",
+   "shift": [
+    0,
+    0.5455
+   ],
+   "size": 9,
+   "oversample": 5.5
+  },
+  {
+   "type": "ttf",
+   "file": "lavavisual:inter-medium.ttf",
+   "shift": [
+    0,
+    0.5455
+   ],
+   "size": 9,
+   "oversample": 5.5
+  },
+  {
+   "type": "reference",
+   "id": "minecraft:default"
+  }
+ ]
+}

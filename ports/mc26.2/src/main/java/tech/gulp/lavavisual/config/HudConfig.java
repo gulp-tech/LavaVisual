@@ -72,6 +72,8 @@ public final class HudConfig {
     public boolean wingsEnabled;
     public int wingsType = 1, wingsStyle;
     public double wingsSize = 1, wingsOpacity = 0.95, wingsFlap = 1;
+    /** HUD text family (UiFont.FAMILIES): 0 Montserrat (default, like visual clients), 1 Rubik, 2 Inter (menu font). */
+    public int hudFont;
     /** Minimap: terrain only, north up. Zoom index into blocks-per-view {48, 64, 96}. */
     public int mapZoom = 1;
     public boolean mapCoords = true, mapWaypoints = true;
@@ -199,6 +201,7 @@ public final class HudConfig {
         wingsType = wingsType < 1 || wingsType > tech.gulp.lavavisual.effects.Hats.WING_COUNT ? 1 : wingsType;
         wingsSize = bounded(wingsSize, 0.5, 1.6, 1); wingsOpacity = bounded(wingsOpacity, 0.15, 1, 0.95); wingsFlap = bounded(wingsFlap, 0, 2, 1);
         wingsStyle = Math.floorMod(wingsStyle, 3);
+        hudFont = Math.floorMod(hudFont, 3);
         mapZoom = Math.floorMod(mapZoom, 3);
         schemaVersion = SCHEMA;
     }

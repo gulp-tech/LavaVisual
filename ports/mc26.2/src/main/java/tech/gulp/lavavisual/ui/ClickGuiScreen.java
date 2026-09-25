@@ -74,6 +74,23 @@ public final class ClickGuiScreen extends Screen {
     private int indexPage, highlightPage, searchX, searchY, searchW;
     private long caretAt, highlightAt;
     private static final String LAYOUT_EN = "qwertyuiop[]asdfghjkl;'zxcvbnm,.`", LAYOUT_RU = "йцукенгшщзхъфывапролджэячсмитьбюё";
+    private static int lastPage;
+    private static String lastSelected;
+    private static double lastScroll;
+    /** The menu key reopens the menu where it was closed: same tab, same subpage, same scroll position. */
+    public static int lastPage() { return lastPage; }
+    public static ClickGuiScreen restore() {
+        ClickGuiScreen screen = new ClickGuiScreen(lastPage, lastSelected);
+        screen.scroll = lastScroll;
+        return screen;
+    }
+    @Override public void removed() {
+        boolean searching = query != null && !query.isBlank();
+        lastPage = page;
+        lastSelected = searching ? null : colorOpen != null ? "color:" + colorOpen : selected;
+        lastScroll = searching ? 0 : scroll;
+        super.removed();
+    }
     public ClickGuiScreen() { this(0); }
     public ClickGuiScreen(int page) { this(page, null); }
     public ClickGuiScreen(int page, String selected) {
@@ -296,7 +313,7 @@ public final class ClickGuiScreen extends Screen {
             text(g, TABS[i], left + 33, y + tabPad + 1, tabColor, side - 40);
             hit(left + 8, y, side - 16, tabH, () -> navigate(next));
         }
-        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.13", left + 13, top + panelH - 21, 0xFF586272, side - 18);
+        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.14", left + 13, top + panelH - 21, 0xFF586272, side - 18);
         boolean searching = !query.isBlank();
         String heading = searching ? "Поиск" : selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : selected.equals("hat") ? "Шляпы" : selected.equals("wings") ? "Крылья" : HudRenderer.title(selected);
         searchW = Math.max(70, Math.min(150, bodyW / 2 - 20)); searchX = left + panelW - 58 - searchW; searchY = top + 11;
@@ -661,6 +678,8 @@ public final class ClickGuiScreen extends Screen {
     }
     private void appearance(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
+        note(g, "Шрифт HUD · Montserrat как у визуалов, Rubik мягче, Inter как в меню");
+        chips(g, UiFont.FAMILIES, c.hudFont, i -> { c.hudFont = i; changed(); });
         slider(g, "Масштаб меню", c.menuScale, 0.6, 1.2, v -> c.menuScale = v, false);
         slider(g, "Непрозрачность меню", c.menuOpacity, 0.25, 1, v -> c.menuOpacity = v, false);
         slider(g, "Затемнение мира", c.menuDim, 0, 0.65, v -> c.menuDim = v, false);

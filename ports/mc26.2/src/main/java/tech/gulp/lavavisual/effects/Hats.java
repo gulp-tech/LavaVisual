@@ -29,7 +29,7 @@ public final class Hats {
     public static final String[] WING_NAMES = {"Ангел", "Демон", "Бабочка", "Дракон", "Феникс"};
     public static final int COUNT = NAMES.length, WING_COUNT = WING_NAMES.length;
     private static final int GROUP = 0, REVOLVE = 1, TUBE = 2, TORUS = 3, SPHERE = 4, GEM = 5, PRISM = 6, POLY = 7, STRIP = 8,
-            GLOW_RING = 9, GLOW_FLAT = 10, GLOW_DISC = 11;
+            GLOW_RING = 9, GLOW_FLAT = 10, GLOW_DISC = 11, SHEET = 12;
     private static final String[] KEYS = {"c", "l", "m", "d", "dl", "cw", "lw", "w", "k", "g", "p", "gr", "r"};
     private static final String[] MATS = {"matte", "satin", "gloss", "metal", "gem", "fur", "glow"};
     private static final int GLOW = 6;
@@ -120,8 +120,8 @@ public final class Hats {
     private static final class Part {
         int kind, mat = 1;
         float[][] points;
-        float[][][] strip;
-        float[] fan;
+        float[][][] strip, sheet, sheetNormals;
+        float[] fan, ao;
         boolean closed, two, caps = true, lit = true, detail, cycle, altCycle, facets, mirror;
         int seg = 24, sides = 12, stripes, ridges, repeat = 1, spinAxis = -1;
         float twist, phase, arcFrom = 0, arcTo = 360, r0, r1, power = 1, y, size, alpha = 1, up, down, z0, z1, big, small, radius, spinSpeed;
@@ -186,6 +186,13 @@ public final class Hats {
             p.strip = new float[rows.size()][][];
             for (int i = 0; i < rows.size(); i++) p.strip[i] = matrix(rows.get(i).getAsJsonArray());
         }
+        else if (o.has("sheet")) {
+            p.kind = SHEET;
+            JsonArray rows = o.getAsJsonArray("sheet");
+            p.sheet = new float[rows.size()][][];
+            for (int i = 0; i < rows.size(); i++) p.sheet[i] = matrix(rows.get(i).getAsJsonArray());
+            p.sheetNormals = sheetNormals(p.sheet);
+        }
         else if (o.has("glowring")) { p.kind = GLOW_RING; float[] t = floats(o, "glowring"); p.big = t[0]; p.small = t[1]; }
         else if (o.has("glowflat")) { p.kind = GLOW_FLAT; p.big = floats(o, "glowflat")[0]; }
         else if (o.has("glowdisc")) { p.kind = GLOW_DISC; p.center = floats(o, "glowdisc"); p.size = number(o, "size", 0.1f); }
@@ -193,7 +200,8 @@ public final class Hats {
         p.seg = integer(o, "seg", p.kind == TORUS ? 32 : p.kind == SPHERE ? 12 : 24);
         p.sides = integer(o, "sides", p.kind == TORUS ? 8 : p.kind == GEM ? 6 : 12);
         p.closed = bool(o, "closed", false);
-        p.two = bool(o, "two", p.kind == POLY || p.kind == STRIP);
+        p.two = bool(o, "two", p.kind == POLY || p.kind == STRIP || p.kind == SHEET);
+        p.ao = o.has("ao") ? floats(o, "ao") : null;
         p.caps = bool(o, "caps", true); p.lit = bool(o, "lit", true); p.detail = bool(o, "detail", false);
         p.phase = number(o, "phase", 0);
         p.crease = (float) Math.cos(Math.toRadians(number(o, "crease", 50)));
@@ -215,6 +223,35 @@ public final class Hats {
             p.ridges = integer(pattern, "ridges", 0); p.facets = bool(pattern, "facets", false);
         }
         return p;
+    }
+
+    /** Per-vertex normals of a sheet grid: cross product of the central differences along rows and columns; a
+     *  degenerate point (feather tip where a whole row meets) borrows its neighbour's normal (same as make_hats.py). */
+    private static float[][][] sheetNormals(float[][][] grid) {
+        int rows = grid.length, cols = grid[0].length;
+        float[][][] n = new float[rows][cols][];
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                float[] u0 = grid[Math.max(0, r - 1)][c], u1 = grid[Math.min(rows - 1, r + 1)][c];
+                float[] v0 = grid[r][Math.max(0, c - 1)], v1 = grid[r][Math.min(cols - 1, c + 1)];
+                float ux = u1[0] - u0[0], uy = u1[1] - u0[1], uz = u1[2] - u0[2];
+                float vx = v1[0] - v0[0], vy = v1[1] - v0[1], vz = v1[2] - v0[2];
+                float x = uy * vz - uz * vy, y = uz * vx - ux * vz, z = ux * vy - uy * vx;
+                float length = (float) Math.sqrt(x * x + y * y + z * z);
+                n[r][c] = length > 1e-12f ? new float[] {x / length, y / length, z / length} : null;
+            }
+        }
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                if (n[r][c] != null) continue;
+                float[] near = null;
+                if (r > 0 && n[r - 1][c] != null) near = n[r - 1][c];
+                else if (r + 1 < rows && n[r + 1][c] != null) near = n[r + 1][c];
+                for (int k = 0; near == null && k < cols; k++) if (n[r][k] != null) near = n[r][k];
+                n[r][c] = near != null ? near : new float[] {0, 0, 1};
+            }
+        }
+        return n;
     }
 
     private static int[] paint(JsonElement element) {
@@ -297,6 +334,7 @@ public final class Hats {
                     case PRISM -> prism(part, g, index);
                     case POLY -> poly(part, g, index);
                     case STRIP -> strip(part, g, index);
+                    case SHEET -> sheet(part, g, index);
                     default -> { }
                 }
             }
@@ -427,7 +465,9 @@ public final class Hats {
                         if (sx * nx + sy * ny + sz * nz >= 0.05f) { mx = sx; my = sy; mz = sz; }
                     }
                 }
-                int rgb = shade(paint(ids, cycle, t[i], hat[i].y, index), mx, my, mz, cam[i], part);
+                int base = paint(ids, cycle, t[i], hat[i].y, index);
+                if (part.ao != null) base = dim(base, part.ao[0] + (part.ao[1] - part.ao[0]) * Math.clamp(t[i], 0, 1));
+                int rgb = shade(base, mx, my, mz, cam[i], part);
                 out.addVertex(pose, cam[i].x, cam[i].y, cam[i].z).setColor(a | rgb);
             }
         }
@@ -642,6 +682,32 @@ public final class Hats {
             }
         }
         static float param(float[][] points, int i, float lo, float hi) { return points[i].length > 3 ? points[i][3] : along(points[i][1], lo, hi); }
+
+        static int dim(int rgb, float f) {
+            int r = Math.clamp(Math.round(((rgb >> 16) & 255) * f), 0, 255), gg = Math.clamp(Math.round(((rgb >> 8) & 255) * f), 0, 255);
+            int b = Math.clamp(Math.round((rgb & 255) * f), 0, 255);
+            return r << 16 | gg << 8 | b;
+        }
+
+        /** Curved surface grid with smooth normals (volumetric feathers, billowing membranes, wing blades). */
+        void sheet(Part part, Matrix4f g, int index) {
+            float[][][] grid = part.sheet, normals = part.sheetNormals;
+            int rows = grid.length, cols = grid[0].length, step = quality < 0.5f && rows > 4 ? 2 : 1;
+            for (int a = 0; a < rows - 1; ) {
+                int b = Math.min(rows - 1, a + step);
+                for (int c = 0; c < cols - 1; c++) {
+                    float[] p0 = grid[a][c], p1 = grid[b][c], p2 = grid[b][c + 1], p3 = grid[a][c + 1];
+                    float[] n0 = normals[a][c], n1 = normals[b][c], n2 = normals[b][c + 1], n3 = normals[a][c + 1];
+                    set(0, p0[0], p0[1], p0[2]); set(1, p1[0], p1[1], p1[2]); set(2, p2[0], p2[1], p2[2]); set(3, p3[0], p3[1], p3[2]);
+                    t[0] = p0.length > 3 ? p0[3] : 0; t[1] = p1.length > 3 ? p1[3] : 0; t[2] = p2.length > 3 ? p2[3] : 0; t[3] = p3.length > 3 ? p3[3] : 0;
+                    normal(0, n0[0], n0[1], n0[2]); normal(1, n1[0], n1[1], n1[2]); normal(2, n2[0], n2[1], n2[2]); normal(3, n3[0], n3[1], n3[2]);
+                    float hx = n0[0] + n1[0] + n2[0] + n3[0], hy = n0[1] + n1[1] + n2[1] + n3[1], hz = n0[2] + n1[2] + n2[2] + n3[2];
+                    if (hx * hx + hy * hy + hz * hz < 1e-18f) { hx = 0; hy = 0; hz = 1; }
+                    emit(part, g, index, false, hx, hy, hz, true);
+                }
+                a = b;
+            }
+        }
 
         void strip(Part part, Matrix4f g, int index) {
             float[][][] rows = part.strip;

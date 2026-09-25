@@ -1,0 +1,28 @@
+{
+ "providers": [
+  {
+   "type": "ttf",
+   "file": "lavavisual:rubik-regular.ttf",
+   "shift": [
+    0,
+    0.6
+   ],
+   "size": 9,
+   "oversample": 5
+  },
+  {
+   "type": "ttf",
+   "file": "lavavisual:inter-medium.ttf",
+   "shift": [
+    0,
+    0.6
+   ],
+   "size": 9,
+   "oversample": 5
+  },
+  {
+   "type": "reference",
+   "id": "minecraft:default"
+  }
+ ]
+}

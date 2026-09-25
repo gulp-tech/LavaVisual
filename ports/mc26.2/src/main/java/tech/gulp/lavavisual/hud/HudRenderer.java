@@ -33,6 +33,10 @@ public final class HudRenderer {
     private static final String[] ARMOR_SPRITES = {"container/slot/helmet", "container/slot/chestplate", "container/slot/leggings", "container/slot/boots"};
 
     public static int baseWidth(String id) {
+        int previous = UiFont.use(LavaVisualClient.config().hudFont);
+        try { return widthOf(id); } finally { UiFont.use(previous); }
+    }
+    private static int widthOf(String id) {
         return switch (id) {
             case "target" -> 180;
             case "keys" -> 76;
@@ -82,7 +86,12 @@ public final class HudRenderer {
     private static float lastHealth = -1;
     private static final double[] KEY_PRESS = new double[7];
 
+    /** Draws every HUD element in the chosen HUD font (Montserrat by default); menus keep Inter. */
     public static void draw(GuiGraphicsExtractor g, boolean edit, String selected) {
+        int previous = UiFont.use(LavaVisualClient.config().hudFont);
+        try { drawAll(g, edit, selected); } finally { UiFont.use(previous); }
+    }
+    private static void drawAll(GuiGraphicsExtractor g, boolean edit, String selected) {
         HudConfig c = LavaVisualClient.config();
         long now = System.nanoTime();
         double dt = Math.min(0.1, (now - lastNs) / 1e9); lastNs = now;

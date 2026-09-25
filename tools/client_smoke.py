@@ -58,7 +58,7 @@ with log.open('w') as output:
                     shots.add(name)
                     capture(project / 'build' / f'shot-{name}.png')
             # Atlas creation follows model/shader loading. Stay alive for a few seconds afterwards.
-            if re.search(r'LavaVisual 2\.[0-9]+\.[0-9]+', text) and re.search(r'Created:.*(atlas|textures)', text) and 'LavaVisual UI smoke complete' in text and 'LavaVisual audio regression passed' in text and 'LavaVisual badge marker on' in text and 'LavaVisual hat sync self-test passed' in text and 'LavaVisual hats ready' in text:
+            if re.search(r'LavaVisual 2\.[0-9]+\.[0-9]+', text) and re.search(r'Created:.*(atlas|textures)', text) and 'LavaVisual UI smoke complete' in text and 'LavaVisual audio regression passed' in text and 'LavaVisual badge marker on' in text and 'LavaVisual hat sync self-test passed' in text and 'LavaVisual hats ready' in text and 'LavaVisual menu restore page 8' in text:
                 ready_since = ready_since or time.monotonic()
                 if time.monotonic() - ready_since >= 12:
                     capture(project / 'build' / 'ui-smoke.png')

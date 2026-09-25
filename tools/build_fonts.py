@@ -36,9 +36,15 @@ ICONS = ['layout-dashboard', 'sparkles', 'hand', 'volume-2', 'palette', 'earth',
          'keyboard-off', 'signpost', 'cone', 'rotate-cw', 'move-vertical', 'scaling', 'square-pen', 'search',
          'corner-down-left']
 
-def instance(weight, name):
-    font = TTFont(SRC / 'InterVariable.ttf')
-    static = instancer.instantiateVariableFont(font, {'wght': weight, 'opsz': 14}, inplace=False)
+# HUD font families (UiFont.FAMILIES order): face prefix -> (variable source, regular weight, bold weight, output stem).
+# Inter keeps the unprefixed faces (menu); Montserrat (HUD default) and Rubik are SIL OFL 1.1 (tools/fonts/*-OFL.txt).
+FAMILIES = {'m': ('Montserrat[wght].ttf', 600, 700, 'montserrat'), 'u': ('Rubik[wght].ttf', 500, 600, 'rubik')}
+
+
+def instance(weight, name, source='InterVariable.ttf'):
+    font = TTFont(SRC / source)
+    axes = {a.axisTag for a in font['fvar'].axes}
+    static = instancer.instantiateVariableFont(font, {k: v for k, v in {'wght': weight, 'opsz': 14}.items() if k in axes}, inplace=False)
     options = subset.Options()
     options.layout_features = []
     options.name_IDs = ['*']
@@ -107,6 +113,11 @@ def faces():
             if face in 'rbsh':
                 providers.append({'type': 'reference', 'id': 'minecraft:default'})
             (OUT / f'{name}.json').write_text(json.dumps({'providers': providers}, indent=1) + '\n')
+            if face in 'rbsh':  # the same face in every HUD family; symbols the family lacks fall back to Inter
+                for prefix, (_, _, _, stem) in FAMILIES.items():
+                    own = f"{stem}-{'bold' if file == 'inter-semibold.ttf' else 'regular'}.ttf"
+                    chain = [dict(providers[0], file='lavavisual:' + own)] + providers
+                    (OUT / f'{prefix}{name}.json').write_text(json.dumps({'providers': chain}, indent=1) + '\n')
     (OUT / 'ui.json').write_text((OUT / 'r2.json').read_text())
 
 if __name__ == '__main__':
@@ -115,10 +126,19 @@ if __name__ == '__main__':
     if sys.argv[1:] == ['--faces']:  # only rewrite the face JSONs, keep the font binaries byte-identical
         faces()
         raise SystemExit
+    if sys.argv[1:] == ['--families']:  # only (re)build the HUD family binaries + faces, Inter stays byte-identical
+        for prefix, (source, regular, bold, stem) in FAMILIES.items():
+            instance(regular, f'{stem}-regular.ttf', source)
+            instance(bold, f'{stem}-bold.ttf', source)
+        faces()
+        raise SystemExit
     if sys.argv[1:] == ['--icons']:  # only rebuild icons.ttf and Icons.java, keep the Inter binaries byte-identical
         icons()
         raise SystemExit
     instance(500, 'inter-medium.ttf')
     instance(620, 'inter-semibold.ttf')
+    for prefix, (source, regular, bold, stem) in FAMILIES.items():
+        instance(regular, f'{stem}-regular.ttf', source)
+        instance(bold, f'{stem}-bold.ttf', source)
     icons()
     faces()

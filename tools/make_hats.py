@@ -21,6 +21,10 @@ Part keys
   prism [[x, y], ...]    star-shaped polygon in the XY plane extruded along z [z0, z1].
   poly [[x, y, z(, t)]]  flat polygon, two-sided, fanned from its centroid or from fan [x, y, z(, t)].
   strip [[[x,y,z,t], [x,y,z,t]], ...]  two-sided ribbon of quads between left/right point pairs (feathers, flames).
+  sheet [[[x,y,z,t], ...], ...]  curved surface grid (rows x cols) with smooth per-vertex normals (central
+                         differences): volumetric feathers, billowing membranes, wing blades. Two-sided unless
+                         two=false (closed slabs made by slab()). At FPS Boost quality < 0.5 every other row is used.
+  ao [from, to]          (any part) brightness multiplier along t: tucked-in feather bases, membrane roots.
   glowring [R, w], glowflat [R], glowdisc [x, y, z] + size: soft glow (no depth write).
   group {at, rot [x, y, z] (applied Z, X, then Y), spin [axis, rad/s], bob [amp, freq, phase step],
          swing [[axis, degrees, speed, phase], ...] (wing beats, scaled by the flap amount and tempo),
@@ -81,6 +85,21 @@ def catmull(points, per=4, closed=True):
             t2, t3 = t * t, t * t * t
             out.append([0.5 * ((2 * p1[j]) + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t2
                                + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t3) for j in range(2)])
+    return out
+
+
+def spline(points, per=4):
+    """Smooth open curve through 2D points (Catmull-Rom with clamped ends), ends included."""
+    pts = [points[0]] + list(points) + [points[-1]]
+    out = []
+    for i in range(1, len(pts) - 2):
+        p0, p1, p2, p3 = pts[i - 1], pts[i], pts[i + 1], pts[i + 2]
+        for s in range(per):
+            t = s / per
+            t2, t3 = t * t, t * t * t
+            out.append(tuple(0.5 * ((2 * p1[j]) + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t2
+                                    + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t3) for j in range(2)))
+    out.append(tuple(points[-1]))
     return out
 
 
@@ -345,6 +364,11 @@ def hats():
 
 # ---------------------------------------------------------------------------------------------- wings
 
+COVERT = [0.46, 0.84, 1.0, 0.98, 0.84, 0.56, 0.0]
+COVERT_AT = [0.0, 0.14, 0.32, 0.52, 0.72, 0.88, 1.0]
+FLAME_AT = [0.0, 0.12, 0.3, 0.5, 0.68, 0.84, 0.94, 1.0]
+
+
 def wing_group(parts, sweep=26, lift=6, swing=None, at=(0.035, 0.0, -0.012)):
     swing = swing or [['y', 16, 2.2, 0.0], ['z', 5, 2.2, 0.9]]
     return [{'group': {'mirror': True}, 'parts': [
@@ -352,132 +376,259 @@ def wing_group(parts, sweep=26, lift=6, swing=None, at=(0.035, 0.0, -0.012)):
     ]}]
 
 
-def feathered(arm, primaries, secondaries, coverts, paints, mat, flame=False, embers=0):
-    """Bird-like wing in the XY plane: arm polyline (root, elbow, wrist, tip) and feather rows."""
+def shell(bend, cup):
+    """Bends the flat wing layout into a shell: the outer and lower parts curve backwards (-Z)."""
+    def warp(x, y, z):
+        return (x, y, z - bend * x * x - cup * x * max(0.0, -y))
+    return warp
+
+
+def v4(p, t):
+    return [r4(p[0]), r4(p[1]), r4(p[2]), r4(t)]
+
+
+def feather(base, angle, length, width, warp, z=0.0, arch=0.32, twist=0.3, bend=0.05, curl=0.0, t=(0.0, 1.0),
+            profile=FEATHER, at=FEATHER_AT):
+    """One volumetric feather: a vane arched around its quill (3 columns: edge, ridge, edge) with a twist so
+    neighbours overlap like tiles, curved in its plane (bend) and out of it (curl)."""
+    a = math.radians(angle)
+    d, n = (math.cos(a), math.sin(a)), (-math.sin(a), math.cos(a))
+    rows = []
+    for s, w in zip(at, profile):
+        off = bend * length * s * s
+        cx = base[0] + d[0] * s * length + n[0] * off
+        cy = base[1] + d[1] * s * length + n[1] * off
+        cz = z - curl * length * s * s
+        half = width * w / 2
+        tw = twist * (0.35 + 0.65 * s)
+        ct, st = math.cos(tw), math.sin(tw)
+        left = warp(cx + n[0] * half * ct, cy + n[1] * half * ct, cz + half * st)
+        ridge = warp(cx, cy, cz - arch * half)
+        right = warp(cx - n[0] * half * ct, cy - n[1] * half * ct, cz - half * st)
+        tt = t[0] + (t[1] - t[0]) * s
+        rows.append([v4(left, tt), v4(ridge, tt), v4(right, tt)])
+    return rows
+
+
+def along(points, u):
+    """Point at fraction u of a polyline (by length)."""
+    lengths = [math.dist(a, b) for a, b in zip(points, points[1:])]
+    goal = u * sum(lengths)
+    for (a, b), ln in zip(zip(points, points[1:]), lengths):
+        if goal <= ln or ln == lengths[-1] and b is points[-1]:
+            f = 0.0 if ln == 0 else min(1.0, goal / ln)
+            return tuple(a[k] + (b[k] - a[k]) * f for k in range(len(a)))
+        goal -= ln
+    return points[-1]
+
+
+def bird(arm, warp, primaries, secondaries, coverts, paints, mat='satin', flame=False, alula=True, arm_r=(0.034, 0.011)):
+    """Feathered wing built from volumetric feathers in overlapping rows (flight feathers, three covert rows,
+    alula) around a thick rounded arm. arm = root, elbow, wrist, tip in the XY plane."""
     root, elbow, wrist, tip = arm
-    parts = [{'tube': [[r4(p[0]), r4(p[1]), 0.0] for p in (root, elbow, wrist, tip)], 'radius': [0.022, 0.008], 'sides': 8, 'paint': paints['arm'],
-              'mat': 'metal' if flame else 'satin'}]
-    profile = FLAME if flame else FEATHER
-    count, (a0, a1), (l0, l1), width = primaries
-    web = [root, elbow, wrist, tip]
-    for i in range(count - 1, -1, -1):
-        u = i / (count - 1)
-        a = math.radians(a0 + (a1 - a0) * u)
-        base = lerp2(wrist, tip, u)
-        web.append((base[0] + math.cos(a) * (l0 + (l1 - l0) * u) * 0.8, base[1] + math.sin(a) * (l0 + (l1 - l0) * u) * 0.8))
-    sc, (sa0, sa1), (sl0, sl1), _ = secondaries
-    for i in range(sc - 1, -1, -1):
-        u = i / (sc - 1)
-        a = math.radians(sa0 + (sa1 - sa0) * u)
-        base = lerp2(root, elbow, u * 2) if u < 0.5 else lerp2(elbow, wrist, (u - 0.5) * 2)
-        web.append((base[0] + math.cos(a) * (sl0 + (sl1 - sl0) * u) * 0.8, base[1] + math.sin(a) * (sl0 + (sl1 - sl0) * u) * 0.8))
-    center = (wrist[0] * 0.55, wrist[1] * 0.1 - 0.06)
-    parts.append({'poly': [[r4(x), r4(y), 0.012, 0.3] for x, y in web], 'fan': [r4(center[0]), r4(center[1]), 0.012, 0.3],
-                  'paint': paints['covert'], 'mat': mat})
-    for i in range(count):
-        u = i / (count - 1)
-        base = lerp2(wrist, tip, u)
-        angle = a0 + (a1 - a0) * u
-        length = l0 + (l1 - l0) * u
-        parts.append({'strip': ribbon(base, angle, length, width, profile, z=0.004 * (count - i), bend=0.09 if flame else 0.04, wave=0.05 if flame else 0.0,
-                                      samples=FEATHER_AT), 'paint': paints['primary'], 'mat': mat})
-        if flame and embers and i % 2 == 0:
-            a = math.radians(angle)
-            parts.append({'glowdisc': [r4(base[0] + math.cos(a) * length * 0.95), r4(base[1] + math.sin(a) * length * 0.95), 0.0], 'size': 0.07,
-                          'paint': 'l', 'alpha': 0.4, 'detail': True})
+    inner = spline([root, elbow, wrist], 5)
+    outer = spline([wrist, (wrist[0] * 0.5 + tip[0] * 0.5, wrist[1] * 0.35 + tip[1] * 0.65 + 0.012), tip], 4)
+    spine = inner + outer[1:]
+    profile, samples = (FLAME, FLAME_AT) if flame else (FEATHER, FEATHER_AT)
+    parts = [{'tube': [list(warp(x, y, -0.004)) for x, y in spine], 'radius': list(arm_r), 'sides': 10, 'paint': paints['arm'],
+              'mat': 'metal' if flame else 'satin', 'caps': True}]
+    feathers = []
     count, (a0, a1), (l0, l1), width = secondaries
     for i in range(count):
         u = i / (count - 1)
-        base = lerp2(root, elbow, u * 2) if u < 0.5 else lerp2(elbow, wrist, (u - 0.5) * 2)
-        angle = a0 + (a1 - a0) * u
-        length = l0 + (l1 - l0) * u
-        parts.append({'strip': ribbon(base, angle, length, width, profile, z=-0.003 - 0.002 * i, bend=0.05 if flame else 0.02, wave=0.04 if flame else 0.0,
-                                      samples=FEATHER_AT), 'paint': paints['secondary'], 'mat': mat})
-    for row, (count, length, width, drop) in enumerate(coverts):
+        base = along(inner, 0.04 + 0.96 * u)
+        feathers.append(({'sheet': feather(base, a0 + (a1 - a0) * u, l0 + (l1 - l0) * u, width, warp, z=0.004 + 0.0035 * i,
+                                           twist=0.26, bend=0.03 if not flame else 0.1, curl=-0.05 if flame else 0.0, profile=profile, at=samples),
+                          'paint': paints['secondary'], 'mat': mat, 'ao': [0.6, 1.0]}))
+    pc, (a0, a1), (l0, l1), width = primaries
+    for i in range(pc):
+        u = i / (pc - 1)
+        base = along(outer, 0.05 + 0.95 * u)
+        length = l0 + (l1 - l0) * math.sin(min(1.0, u * 1.2) * math.pi / 2)
+        feathers.append(({'sheet': feather(base, a0 + (a1 - a0) * u, length, width, warp, z=0.004 + 0.0035 * count + 0.0045 * i,
+                                           twist=0.34, bend=0.06 if not flame else 0.14, curl=-0.08 if flame else 0.02, profile=profile, at=samples),
+                          'paint': paints['primary'], 'mat': mat, 'ao': [0.58, 1.0]}))
+    parts += feathers
+    parts.append({'sphere': list(warp(0.012, 0.01, -0.01)), 'r': [0.05, 0.062, 0.036], 'seg': 12, 'paint': paints['covert'] if isinstance(paints['covert'], str) else paints['covert'][0],
+                  'mat': paints.get('covert_mat', mat)})
+    for row, (count, length, width, drop, a0, a1, reach) in enumerate(coverts):
         for i in range(count):
-            u = i / max(1, count - 1)
-            base = lerp2(root, elbow, u * 2) if u < 0.5 else lerp2(elbow, tip, (u - 0.5) * 2 * 0.72)
-            base = (base[0], base[1] - drop)
-            parts.append({'strip': ribbon(base, -92 + 26 * u, length * (1 - 0.25 * u), width, profile, z=-0.016 - 0.01 * row, bend=0.02,
-                                          samples=FEATHER_AT), 'paint': paints['covert'], 'mat': mat})
+            u = i / (count - 1)
+            p = along(spine, 0.1 + u * (reach - 0.1))
+            base = (p[0], p[1] - drop)
+            parts.append({'sheet': feather(base, a0 + (a1 - a0) * u, length * (1 - 0.22 * u), width, warp, z=-0.014 - 0.012 * row + 0.0012 * i,
+                                           arch=0.4, twist=0.22, bend=0.02, profile=COVERT, at=COVERT_AT),
+                          'paint': paints['covert'], 'mat': paints.get('covert_mat', mat), 'ao': [0.72 + 0.06 * row, 1.0],
+                          **({'detail': True} if row == len(coverts) - 1 else {})})
+    if alula:
+        for k in range(3):
+            base = along(spine, 0.5 + 0.03 * k)
+            parts.append({'sheet': feather(base, 26 - 14 * k, 0.1 - 0.018 * k, 0.04, warp, z=-0.05 - 0.003 * k, arch=0.35, twist=0.2,
+                                           bend=-0.08, profile=COVERT, at=COVERT_AT),
+                          'paint': paints['covert'], 'mat': mat, 'ao': [0.8, 1.0], 'detail': True})
     return parts
 
 
-def membrane(root, elbow, wrist, tips, body, depth, bone_paint, skin_paint, skin_mat, thick=0.024, spikes=0, claw='w'):
-    parts = [{'tube': [[r4(p[0]), r4(p[1]), 0.0] for p in (root, elbow, wrist)], 'radius': [thick, thick * 0.7], 'sides': 8, 'paint': bone_paint, 'mat': 'gloss',
-              'pattern': {'ridges': 3}, 'alt': 'd'}]
-    for tip in tips:
-        mid = lerp2(wrist, tip, 0.5)
-        bend = (mid[0] + (tip[1] - wrist[1]) * 0.06, mid[1] - (tip[0] - wrist[0]) * 0.06)
-        parts.append({'tube': [[r4(wrist[0]), r4(wrist[1]), 0.0], [r4(bend[0]), r4(bend[1]), 0.0], [r4(tip[0]), r4(tip[1]), 0.0]],
-                      'radius': [thick * 0.55, thick * 0.18], 'sides': 6, 'paint': bone_paint, 'mat': 'gloss'})
-        parts.append({'gem': [r4(tip[0]), r4(tip[1]), 0.0], 'r': thick * 0.3, 'up': thick * 0.5, 'down': thick * 0.5, 'sides': 4, 'paint': claw, 'mat': 'gloss', 'detail': True})
-    outline = []
+def slab(grid, thick, closed=False):
+    """Turns one sheet grid (rows x cols of [x, y, z, t]) into a solid: front, back offset by thick along the
+    surface normal, and the rim band. Returns three sheet grids."""
+    rows, cols = len(grid), len(grid[0])
+    P = [[tuple(v[:3]) for v in row] for row in grid]
+    N = sheet_normals(P)
+    back = [[v4(sub(P[r][c], tuple(thick * x for x in N[r][c])), grid[r][c][3]) for c in range(cols)] for r in range(rows)]
+    back = [row[::-1] for row in back]
+    loop = [(r, cols - 1) for r in range(rows)] + [(rows - 1, c) for c in range(cols - 2, -1, -1)]
+    if not closed:
+        loop += [(r, 0) for r in range(rows - 2, -1, -1)] + [(0, c) for c in range(1, cols)]
+    rim = [[grid[r][c], back[r][cols - 1 - c]] for r, c in loop]
+    return grid, back, rim
+
+
+def patch(a, b, edge, rows, cols):
+    """Coons-like patch from curve a(u) to b(u) (u: wrist -> tips) with its far edge bent to follow edge(v)."""
+    grid = []
+    for i in range(rows):
+        u = i / (rows - 1)
+        pa, pb = along(a, u), along(b, u)
+        row = []
+        for j in range(cols):
+            v = j / (cols - 1)
+            lin_end = lerp3(a[-1], b[-1], v)
+            e = along(edge, v)
+            p = tuple(pa[k] + (pb[k] - pa[k]) * v + u ** 2.2 * (e[k] - lin_end[k]) for k in range(3))
+            row.append(p)
+        grid.append(row)
+    return grid
+
+
+def lerp3(a, b, t):
+    return tuple(a[k] + (b[k] - a[k]) * t for k in range(3))
+
+
+def bat(root, elbow, wrist, tips, body, warp, depth, billow, bone, skin, skin_mat='satin', r=0.024, spikes=0, horn=True,
+        claw='w', thick=0.007):
+    """Membrane wing: tapered bones with knuckles and claws, skin panels that billow between the fingers and
+    have real thickness (front, back and rim)."""
+    W = lambda p, z=0.0: warp(p[0], p[1], z)
+    arm = [W(p) for p in spline([root, elbow, wrist], 5)]
+    parts = [{'tube': [list(p) for p in arm], 'radius': [r, r * 0.72], 'sides': 10, 'paint': bone, 'mat': 'gloss', 'caps': True}]
+    for p, rr in ((root, r * 1.15), (elbow, r * 1.12), (wrist, r * 1.1)):
+        parts.append({'sphere': list(W(p)), 'r': rr, 'seg': 10, 'paint': bone, 'mat': 'gloss'})
+    fingers = []
+    for k, tipp in enumerate(tips):
+        mid = lerp2(wrist, tipp, 0.5)
+        side = (tipp[1] - wrist[1], -(tipp[0] - wrist[0]))
+        knuckle = (mid[0] + side[0] * 0.07, mid[1] + side[1] * 0.07)
+        pts = [W(p) for p in spline([wrist, knuckle, tipp], 4)]
+        fingers.append(pts)
+        parts.append({'tube': [list(p) for p in pts], 'radius': [r * 0.62, r * 0.2], 'sides': 8, 'paint': bone, 'mat': 'gloss'})
+        parts.append({'sphere': list(W(knuckle)), 'r': r * 0.5, 'seg': 8, 'paint': bone, 'mat': 'gloss', 'detail': True})
+        d = (tipp[0] - knuckle[0], tipp[1] - knuckle[1])
+        ln = math.hypot(*d) or 1.0
+        hook = (tipp[0] + d[0] / ln * r * 1.6 + side[0] * 0.04, tipp[1] + d[1] / ln * r * 1.6 + side[1] * 0.04)
+        parts.append({'tube': [list(W(tipp)), list(W(hook, -0.004))], 'radius': [r * 0.3, 0.001], 'sides': 6, 'paint': claw, 'mat': 'gloss'})
+    edges = []
     for a, b in zip(tips, tips[1:]):
-        outline.append([a, scallop(a, b, wrist, depth), b])
-    for (a, pts, b) in outline:
-        poly = [[r4(a[0]), r4(a[1]), 0.0, 1.0]] + [[r4(x), r4(y), 0.0, r4(t)] for x, y, t in pts] + [[r4(b[0]), r4(b[1]), 0.0, 1.0]]
-        parts.append({'poly': poly, 'fan': [r4(wrist[0]), r4(wrist[1]), 0.0, 0.0], 'paint': skin_paint, 'mat': skin_mat, 'alpha': 0.96})
-    last = tips[-1]
-    inner = [[r4(last[0]), r4(last[1]), 0.0, 1.0]] + [[r4(x), r4(y), 0.0, r4(t)] for x, y, t in scallop(last, body, wrist, depth * 0.8)] + \
-            [[r4(body[0]), r4(body[1]), 0.0, 0.9], [r4(root[0]), r4(root[1]), 0.0, 0.4], [r4(elbow[0]), r4(elbow[1]), 0.0, 0.2]]
-    parts.append({'poly': inner, 'fan': [r4(wrist[0]), r4(wrist[1]), 0.0, 0.0], 'paint': skin_paint, 'mat': skin_mat, 'alpha': 0.96})
-    parts.append({'gem': [r4(wrist[0]), r4(wrist[1] + 0.02), 0.0], 'r': thick * 0.55, 'up': thick * 2.6, 'down': thick * 0.4, 'sides': 5, 'paint': claw, 'mat': 'gloss'})
+        edges.append([W(a)] + [W((x, y)) for x, y, _ in scallop(a, b, wrist, depth, n=6)] + [W(b)])
+    rim_body = [W(tips[-1])] + [W((x, y)) for x, y, _ in scallop(tips[-1], body, wrist, depth * 0.8, n=6)] + [W(body)]
+    panels = [(fingers[k], fingers[k + 1], edges[k]) for k in range(len(fingers) - 1)]
+    panels.append((fingers[-1], [W(p) for p in spline([wrist, elbow, root, body], 3)], rim_body))
+    for a, b, edge in panels:
+        grid = patch(a, b, edge, 7, 6)
+        rows, cols = len(grid), len(grid[0])
+        for i in range(rows):
+            for j in range(cols):
+                u, v = i / (rows - 1), j / (cols - 1)
+                x, y, z = grid[i][j]
+                grid[i][j] = v4((x, y, z - billow * math.sin(math.pi * v) * math.sin(math.pi * min(1.0, u * 1.15))), u)
+        front, back, rim = slab(grid, thick)
+        parts.append({'sheet': front, 'paint': skin, 'mat': skin_mat, 'ao': [0.7, 1.0], 'two': False})
+        parts.append({'sheet': back, 'paint': skin, 'mat': skin_mat, 'ao': [0.55, 0.85], 'two': False})
+        parts.append({'sheet': rim, 'paint': 'k' if bone == 'k' else 'd', 'mat': 'satin', 'detail': True})
+    if horn:
+        top = W((wrist[0] - 0.01, wrist[1] + 0.012))
+        parts.append({'tube': [list(top), list(W((wrist[0] - 0.035, wrist[1] + r * 3.2), -0.01)), list(W((wrist[0] - 0.075, wrist[1] + r * 3.8), -0.02))],
+                      'radius': [r * 0.55, 0.001], 'sides': 8, 'paint': claw, 'mat': 'gloss'})
     for i in range(spikes):
         u = (i + 0.5) / spikes
-        p = lerp2(root, elbow, u * 2) if u < 0.5 else lerp2(elbow, wrist, (u - 0.5) * 2)
-        parts.append({'gem': [r4(p[0] - 0.01), r4(p[1] + thick * 0.8), 0.0], 'r': thick * 0.35, 'up': thick * 1.6, 'down': thick * 0.3, 'sides': 4, 'paint': 'l', 'mat': 'gloss'})
+        p = along(arm, u * 0.95)
+        parts.append({'tube': [list(p), [r4(p[0] - 0.012), r4(p[1] + r * 2.2), r4(p[2] - 0.004)]], 'radius': [r * 0.42, 0.001], 'sides': 6,
+                      'paint': 'l', 'mat': 'gloss', 'detail': True})
+    return parts
+
+
+def butterfly_wing(outline, root, warp, thick, paint, veins, rings=6, z=0.0):
+    """Thin solid wing blade: radial grid from the root to the outline, raised veins on top."""
+    closed = outline + [outline[0]]
+    grid = []
+    for i in range(rings):
+        s = i / (rings - 1)
+        row = []
+        for x, y in closed:
+            px, py = root[0] + (x - root[0]) * s, root[1] + (y - root[1]) * s
+            row.append(v4(warp(px, py, z - 0.03 * s * (1 - s)), s))
+        grid.append(row)
+    front, back, rim = slab(grid[1:], thick, closed=True)
+    parts = [{'sheet': front, 'paint': paint, 'mat': 'satin', 'ao': [0.75, 1.0], 'two': False},
+             {'sheet': back, 'paint': paint, 'mat': 'satin', 'ao': [0.6, 0.9], 'two': False},
+             {'sheet': rim, 'paint': 'k', 'mat': 'satin'},
+             {'sheet': [[v4(warp(root[0], root[1], z), 0.0)] * len(closed), grid[1]], 'paint': paint, 'mat': 'satin'}]
+    for k in veins:
+        x, y = closed[k]
+        pts = [list(warp(root[0] + (x - root[0]) * s, root[1] + (y - root[1]) * s, z - 0.03 * s * (1 - s) - thick * 0.6)) for s in (0.08, 0.35, 0.65, 0.93)]
+        parts.append({'tube': pts, 'radius': [0.0055, 0.002], 'sides': 5, 'paint': 'k', 'mat': 'gloss', 'detail': True})
     return parts
 
 
 def wings():
     w = []
-    w.append({'name': 'Ангел', 'parts': wing_group(feathered(
-        ((0.0, 0.0), (0.15, 0.25), (0.3, 0.43), (0.5, 0.47)),
-        (12, (-90, -38), (0.4, 0.5), 0.12),
-        (11, (-101, -90), (0.34, 0.43), 0.12),
-        [(13, 0.2, 0.095, 0.03), (11, 0.12, 0.08, -0.02)],
-        {'arm': 'w', 'primary': ['w', 'lw', 'cw'], 'secondary': ['w', 'lw'], 'covert': ['w', 'w']}, 'satin'), sweep=24, lift=8)})
-    w.append({'name': 'Демон', 'parts': wing_group(membrane(
-        (0.0, 0.0), (0.16, 0.22), (0.33, 0.36),
-        [(0.68, 0.25), (0.62, -0.03), (0.45, -0.25)], (0.06, -0.2), 0.3, 'k', ['d', 'c'], 'satin', thick=0.022, claw='w'),
-        sweep=22, lift=4, swing=[['y', 14, 1.8, 0.0], ['z', 6, 1.8, 0.8]])})
-    fore = catmull([(0.02, 0.05), (0.09, 0.3), (0.23, 0.45), (0.4, 0.47), (0.53, 0.39), (0.53, 0.25), (0.44, 0.12), (0.29, 0.04), (0.12, 0.005)], 4)
-    hind = catmull([(0.02, -0.02), (0.18, -0.03), (0.34, -0.11), (0.38, -0.25), (0.3, -0.37), (0.16, -0.39), (0.06, -0.27), (0.0, -0.1)], 4)
+    angel = shell(0.34, 0.1)
+    w.append({'name': 'Ангел', 'parts': wing_group(bird(
+        ((0.0, 0.0), (0.16, 0.17), (0.31, 0.38), (0.52, 0.46)), angel,
+        (10, (-88, -34), (0.36, 0.56), 0.105),
+        (11, (-102, -90), (0.3, 0.4), 0.108),
+        [(12, 0.2, 0.084, 0.045, -96, -66, 0.8), (11, 0.13, 0.07, 0.006, -94, -62, 0.78), (12, 0.078, 0.056, -0.022, -90, -58, 0.8)],
+        {'arm': 'w', 'primary': ['w', 'w', 'cw'], 'secondary': ['w', 'w', 'cw'], 'covert': 'w', 'covert_mat': 'fur'}), sweep=24, lift=8)})
 
-    def shape(points, z, shrink, paint, mat, alpha=1.0, anchor=(0.03, 0.0)):
-        cx, cy = anchor
-        pts = []
-        for x, y in points:
-            d = math.hypot(x - cx, y - cy)
-            pts.append([r4(cx + (x - cx) * shrink), r4(cy + (y - cy) * shrink), r4(z), r4(min(1.0, d / 0.5))])
-        return {'poly': pts, 'fan': [cx, cy, r4(z), 0.0], 'paint': paint, 'mat': mat, 'alpha': alpha}
+    demon = shell(0.28, 0.06)
+    w.append({'name': 'Демон', 'parts': wing_group(bat(
+        (0.0, 0.0), (0.16, 0.22), (0.33, 0.37), [(0.7, 0.26), (0.64, -0.04), (0.46, -0.27)], (0.06, -0.21), demon, 0.26, 0.05,
+        'k', ['d', 'c'], r=0.022, claw='w'), sweep=22, lift=4, swing=[['y', 14, 1.8, 0.0], ['z', 6, 1.8, 0.8]])})
 
-    butterfly = []
-    for pts, anchor in ((fore, (0.03, 0.03)), (hind, (0.03, -0.03))):
-        butterfly.append(shape(pts, 0.0, 1.0, 'k', 'satin', anchor=anchor))
-        for z in (0.0025, -0.0025):
-            butterfly.append(shape(pts, z, 0.84, ['c', 'l'], 'satin', anchor=anchor))
-    for z in (0.0045, -0.0045):
-        butterfly.append({'poly': circle(0.22, -0.21, z, 0.055, 16, 0.5), 'paint': 'w', 'mat': 'gloss'})
-        butterfly.append({'poly': circle(0.22, -0.21, z * 1.3, 0.032, 14, 0.5), 'paint': 'k', 'mat': 'gloss'})
-        butterfly.append({'poly': circle(0.215, -0.2, z * 1.6, 0.012, 10, 0.5), 'paint': 'lw', 'mat': 'glow'})
-        for x, y, r in ((0.47, 0.37, 0.016), (0.5, 0.3, 0.013), (0.43, 0.42, 0.012), (0.34, 0.44, 0.01)):
-            butterfly.append({'poly': circle(x, y, z, r, 10, 0.5), 'paint': 'w', 'mat': 'satin', 'detail': True})
-    butterfly.append({'sphere': [0.0, 0.0, 0.0], 'r': [0.02, 0.05, 0.02], 'seg': 8, 'paint': 'k', 'mat': 'gloss'})
-    w.append({'name': 'Бабочка', 'parts': wing_group(butterfly, sweep=30, lift=4, swing=[['y', 30, 6.0, 0.0], ['z', 4, 6.0, 0.5]], at=(0.02, -0.01, -0.02))})
-    w.append({'name': 'Дракон', 'parts': wing_group(membrane(
-        (0.0, 0.0), (0.18, 0.27), (0.37, 0.43),
-        [(0.84, 0.36), (0.82, 0.03), (0.65, -0.26), (0.4, -0.38)], (0.05, -0.25), 0.36, 'dl', ['c', 'd'], 'satin', thick=0.03, spikes=4, claw='w'),
-        sweep=20, lift=6, swing=[['y', 12, 1.4, 0.0], ['z', 7, 1.4, 0.9]])})
-    w.append({'name': 'Феникс', 'parts': wing_group(feathered(
-        ((0.0, 0.0), (0.15, 0.25), (0.31, 0.44), (0.52, 0.5)),
-        (11, (-86, -26), (0.4, 0.54), 0.13),
-        (10, (-102, -88), (0.32, 0.42), 0.13),
-        [(11, 0.18, 0.1, 0.03)],
-        {'arm': 'g', 'primary': ['g', 'c', 'l'], 'secondary': ['g', 'c'], 'covert': ['g', 'cw']}, 'glow', flame=True, embers=1),
+    fly = shell(0.18, 0.0)
+    fore = catmull([(0.02, 0.05), (0.09, 0.3), (0.23, 0.45), (0.4, 0.47), (0.53, 0.39), (0.53, 0.25), (0.44, 0.12), (0.29, 0.04), (0.12, 0.005)], 3)
+    hind = catmull([(0.02, -0.02), (0.18, -0.03), (0.34, -0.11), (0.38, -0.25), (0.3, -0.37), (0.16, -0.39), (0.06, -0.27), (0.0, -0.1)], 3)
+    butterfly = butterfly_wing(fore, (0.03, 0.03), fly, 0.006, ['d', 'c', 'l', 'k'], veins=[3, 6, 9, 12, 15, 18], z=0.0)
+    butterfly += butterfly_wing(hind, (0.03, -0.02), fly, 0.006, ['d', 'c', 'l', 'k'], veins=[3, 7, 11, 14, 17], z=0.012)
+    for x, y, rr, paint, z, mat in ((0.22, -0.21, 0.052, 'k', -0.012, 'gloss'), (0.22, -0.21, 0.036, 'w', -0.016, 'gloss'), (0.22, -0.21, 0.021, 'c', -0.019, 'gloss'),
+                                    (0.215, -0.2, 0.008, 'w', -0.022, 'glow'), (0.46, 0.35, 0.02, 'w', -0.018, 'satin'), (0.49, 0.28, 0.016, 'w', -0.018, 'satin'),
+                                    (0.41, 0.41, 0.015, 'w', -0.017, 'satin')):
+        wx, wy, wz = fly(x, y, z)
+        butterfly.append({'sphere': [r4(wx), r4(wy), r4(wz)], 'r': [rr, rr, rr * 0.22], 'seg': 12, 'paint': paint, 'mat': mat, 'detail': rr < 0.03})
+    w.append({'name': 'Бабочка', 'parts': wing_group(butterfly, sweep=30, lift=4, swing=[['y', 30, 6.0, 0.0], ['z', 4, 6.0, 0.5]], at=(0.03, -0.01, -0.02)) + [
+        {'sphere': [0.0, 0.0, -0.03], 'r': [0.028, 0.05, 0.026], 'seg': 12, 'paint': 'k', 'mat': 'gloss'},
+        {'sphere': [0.0, -0.1, -0.03], 'r': [0.022, 0.075, 0.02], 'seg': 12, 'paint': ['k', 'd'], 'mat': 'gloss', 'pattern': {'ridges': 5}, 'alt': 'dl'},
+        {'sphere': [0.0, 0.07, -0.035], 'r': 0.022, 'seg': 10, 'paint': 'k', 'mat': 'gloss'},
+        {'group': {'mirror': True}, 'parts': [
+            {'tube': [[0.008, 0.085, -0.04], [0.035, 0.15, -0.05], [0.06, 0.2, -0.045]], 'radius': [0.003, 0.002], 'sides': 5, 'paint': 'k', 'mat': 'gloss'},
+            {'sphere': [0.061, 0.203, -0.045], 'r': 0.008, 'seg': 8, 'paint': 'c', 'mat': 'gloss'}]}]})
+
+    dragon = shell(0.24, 0.05)
+    w.append({'name': 'Дракон', 'parts': wing_group(bat(
+        (0.0, 0.0), (0.18, 0.27), (0.37, 0.44), [(0.86, 0.37), (0.84, 0.03), (0.66, -0.27), (0.41, -0.39)], (0.05, -0.26), dragon, 0.32, 0.06,
+        'dl', ['c', 'd'], r=0.03, spikes=5, claw='w', thick=0.009), sweep=20, lift=6, swing=[['y', 12, 1.4, 0.0], ['z', 7, 1.4, 0.9]])})
+
+    fire = shell(0.3, 0.08)
+    w.append({'name': 'Феникс', 'parts': wing_group(bird(
+        ((0.0, 0.0), (0.17, 0.18), (0.32, 0.4), (0.54, 0.49)), fire,
+        (10, (-84, -26), (0.38, 0.56), 0.12),
+        (9, (-102, -88), (0.31, 0.4), 0.12),
+        [(11, 0.19, 0.095, 0.04, -96, -60, 0.8), (10, 0.11, 0.07, -0.006, -92, -56, 0.78)],
+        {'arm': 'g', 'primary': ['g', 'c', 'l'], 'secondary': ['g', 'c', 'l'], 'covert': ['g', 'cw']}, mat='gloss', flame=True, alula=False) + [
+        {'glowdisc': [r4(0.49 + 0.4 * math.cos(math.radians(a))), r4(0.47 + 0.4 * math.sin(math.radians(a))), -0.1], 'size': 0.07, 'paint': 'l', 'alpha': 0.45,
+         'detail': True} for a in (-84, -64, -44, -30)],
         sweep=24, lift=10, swing=[['y', 12, 1.6, 0.0], ['z', 6, 1.6, 0.9]]) + [
-        {'glowdisc': [0.0, 0.05, -0.05], 'size': 0.22, 'paint': 'c', 'alpha': 0.28}]})
+        {'glowdisc': [0.0, 0.05, -0.05], 'size': 0.24, 'paint': 'c', 'alpha': 0.3}]})
     return w
 
 
@@ -578,7 +729,7 @@ class Builder:
         centroid = tuple(sum(p[j] for p in cam) / 4 for j in range(3))
         flip = False
         if dot(n, centroid) > 0:
-            if not part.get('two', 'poly' in part or 'strip' in part):
+            if not part.get('two', 'poly' in part or 'strip' in part or 'sheet' in part):
                 return
             n = tuple(-v for v in n)
             flip = True
@@ -600,6 +751,10 @@ class Builder:
         colors = []
         for i in range(4):
             base = self.paint(paint, params[i], hat[i][1], index)
+            if 'ao' in part:
+                a0, a1 = part['ao']
+                f = a0 + (a1 - a0) * min(1.0, max(0.0, params[i]))
+                base = tuple(v * f for v in base)
             colors.append(self.shade(base, vn[i], cam[i], part) + (alpha,))
         self.quads.append((cam, colors, n))
 
@@ -635,6 +790,8 @@ class Builder:
                 self.poly(part, g, index)
             elif 'strip' in part:
                 self.strip(part, g, index)
+            elif 'sheet' in part:
+                self.sheet(part, g, index)
 
     def group(self, part, g, index):
         spec = part['group']
@@ -863,6 +1020,42 @@ class Builder:
             (l0, r0), (l1, r1) = rows[i], rows[i + 1]
             pts = [tuple(l0[:3]), tuple(l1[:3]), tuple(r1[:3]), tuple(r0[:3])]
             self.emit(g, pts, [l0[3], l1[3], r1[3], r0[3]], (0.0, 0.0, 1.0), part, index)
+
+
+    def sheet(self, part, g, index):
+        grid = part['sheet']
+        rows, cols = len(grid), len(grid[0])
+        P = [[tuple(v[:3]) for v in row] for row in grid]
+        N = sheet_normals(P)
+        order = list(range(0, rows, 2 if self.quality < 0.5 and rows > 4 else 1))
+        if order[-1] != rows - 1:
+            order.append(rows - 1)
+        for a, b in zip(order, order[1:]):
+            for c in range(cols - 1):
+                pts = [P[a][c], P[b][c], P[b][c + 1], P[a][c + 1]]
+                ns = [N[a][c], N[b][c], N[b][c + 1], N[a][c + 1]]
+                hint = normalize(tuple(sum(n[k] for n in ns) for k in range(3))) if length(tuple(sum(n[k] for n in ns) for k in range(3))) > 1e-9 else (0.0, 0.0, 1.0)
+                self.emit(g, pts, [grid[a][c][3], grid[b][c][3], grid[b][c + 1][3], grid[a][c + 1][3]], hint, part, index, normals=ns)
+
+
+def sheet_normals(P):
+    """Per-vertex normals of a grid surface: cross product of the central differences along rows and columns;
+    degenerate points (a feather tip where a whole row meets) borrow the normal of the previous row."""
+    rows, cols = len(P), len(P[0])
+    N = [[None] * cols for _ in range(rows)]
+    for r in range(rows):
+        for c in range(cols):
+            du = sub(P[min(rows - 1, r + 1)][c], P[max(0, r - 1)][c])
+            dv = sub(P[r][min(cols - 1, c + 1)], P[r][max(0, c - 1)])
+            n = cross(du, dv)
+            N[r][c] = normalize(n) if length(n) > 1e-12 else None
+    for r in range(rows):
+        for c in range(cols):
+            if N[r][c] is None:
+                near = [N[rr][c] for rr in (r - 1, r + 1) if 0 <= rr < rows and N[rr][c] is not None] or \
+                       [N[r][cc] for cc in range(cols) if N[r][cc] is not None] or [(0.0, 0.0, 1.0)]
+                N[r][c] = near[0]
+    return N
 
 
 # small vector helpers (tuples, 4x4 row-major lists)
@@ -1127,6 +1320,37 @@ def preview(path, data, main=0xFF6A2B, second=0xB45CFF):
     sheet.save(path)
 
 
+def preview_wings(path, data, main=0xFF6A2B, second=0xB45CFF, cell=380):
+    """Wings only, large: straight behind, three-quarter back, side and front views (shape and volume check)."""
+    from PIL import Image, ImageDraw, ImageFont
+    views = [((0.0, 1.5, -2.3), (0.0, 1.2, 0.0)), ((1.7, 1.75, -1.9), (0.0, 1.2, 0.0)), ((2.5, 1.35, 0.25), (0.0, 1.2, 0.0)), ((1.0, 1.4, 2.4), (0.0, 1.2, 0.0))]
+    p = PX
+    body = (box((-4 * p, 24 * p, -4 * p), (4 * p, 32 * p, 4 * p), (200, 152, 118)) + box((-4 * p, 12 * p, -2 * p), (4 * p, 24 * p, 2 * p), (70, 110, 170))
+            + box((4 * p, 12 * p, -2 * p), (8 * p, 24 * p, 2 * p), (200, 152, 118)) + box((-8 * p, 12 * p, -2 * p), (-4 * p, 24 * p, 2 * p), (200, 152, 118))
+            + box((-4 * p, 0, -2 * p), (4 * p, 12 * p, 2 * p), (60, 60, 120)))
+    anchor = translate(0.0, 21 * p, -2.2 * p)
+    models = data['wings']
+    sheet = Image.new('RGB', (len(views) * cell, len(models) * (cell + 22)), (35, 38, 45))
+    draw = ImageDraw.Draw(sheet)
+    try:
+        font = ImageFont.truetype(str(ROOT / 'ports/mc26.2/src/main/resources/assets/lavavisual/font/inter-semibold.ttf'), 15)
+    except OSError:
+        font = ImageFont.load_default()
+    for index, model in enumerate(models):
+        for v, (eye, target) in enumerate(views):
+            world = matmul(translate(-eye[0], -eye[1], -eye[2]), anchor)
+            b = Builder(main, second, time=0.9, world=world)
+            b.build(model['parts'])
+            quads = [([add(q, eye) for q in cam], colors, n) for cam, colors, n in b.quads]
+            glows = [(add(c, eye), sz, col, a) for c, sz, col, a in glow_list(b)]
+            img = render(quads, body, eye, target, cell, glows)
+            x, y = v * cell, index * (cell + 22)
+            sheet.paste(Image.fromarray(img), (x, y + 22))
+            if v == 0:
+                draw.text((x + 8, y + 3), f"{model['name']}  ({len(b.quads)} видимых)", fill=(235, 238, 245), font=font)
+    sheet.save(path)
+
+
 def main():
     data = {'version': 2, 'hats': hats(), 'wings': wings()}
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -1143,6 +1367,8 @@ def main():
           f"{OUT.stat().st_size // 1024} KB")
     if '--preview' in sys.argv:
         preview(sys.argv[sys.argv.index('--preview') + 1], data)
+    if '--wings' in sys.argv:
+        preview_wings(sys.argv[sys.argv.index('--wings') + 1], data)
 
 
 if __name__ == '__main__':
