@@ -4,6 +4,7 @@
 
 **[Скачать lavavisual-2.12.0-mc26.2.jar](artifacts/lavavisual-2.12.0-mc26.2.jar)**
 
+![Модели шляп](artifacts/hats-2.12-preview.png)
 ![Шляпы](artifacts/ui-2.12-hats.png)
 ![Меню](artifacts/ui-2.12-menu.png)
 ![Поиск](artifacts/ui-2.12-search.png)
