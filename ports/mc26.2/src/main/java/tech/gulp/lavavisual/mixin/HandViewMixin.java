@@ -57,6 +57,15 @@ public abstract class HandViewMixin {
             if (config.viewModelEnabled) {
                 var settings = hand == InteractionHand.MAIN_HAND ? config.mainHand : config.offHand;
                 pose.translate(settings.x, settings.y, -settings.z);
+                if (settings.pitch != 0 || settings.yaw != 0 || settings.roll != 0) {
+                    // Turn the hand in place around its vanilla resting point; yaw / roll mirror on the left side.
+                    HumanoidArm side = hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
+                    float mirror = side == HumanoidArm.RIGHT ? 1f : -1f, ax = .56f * mirror;
+                    pose.translate(ax, -.52f, -.72f);
+                    pose.mulPose(new org.joml.Quaternionf().rotationYXZ((float) Math.toRadians(settings.yaw * mirror),
+                            (float) Math.toRadians(settings.pitch), (float) Math.toRadians(settings.roll * mirror)));
+                    pose.translate(-ax, .52f, .72f);
+                }
                 pose.scale((float) settings.scale, (float) settings.scale, (float) settings.scale);
             }
             float shownSwing = swing;

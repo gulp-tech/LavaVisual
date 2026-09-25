@@ -32,7 +32,8 @@ public final class Binds {
         TRAIL("trail", "Trails", Icons.WIND, -1),
         PARTICLES("particles", "Hit Particles", Icons.SPARKLE, -1),
         SOUNDS("sounds", "Звуки ударов", Icons.VOLUME_2, -1),
-        BOOST("fps_boost", "FPS Boost", Icons.ROCKET, -1);
+        BOOST("fps_boost", "FPS Boost", Icons.ROCKET, -1),
+        DUMMY("dummy", "Манекен", Icons.USER, -1);
         public final String id, title, icon;
         public final int defaultKey;
         Action(String id, String title, String icon, int defaultKey) { this.id = id; this.title = title; this.icon = icon; this.defaultKey = defaultKey; }
@@ -107,6 +108,7 @@ public final class Binds {
             case PARTICLES -> c.particlesEnabled = !c.particlesEnabled;
             case SOUNDS -> { boolean on = !(c.hitSoundEnabled || c.critSoundEnabled); c.hitSoundEnabled = on; c.critSoundEnabled = on; }
             case BOOST -> { c.fpsBoost = !c.fpsBoost; tech.gulp.lavavisual.effects.PerformanceMode.update(mc); }
+            case DUMMY -> tech.gulp.lavavisual.effects.Dummy.toggle(mc);
         }
         LavaVisualClient.save();
         if (action != Action.MENU && action != Action.WAYPOINT_ADD && action != Action.WAYPOINTS) Toast.show(action.title + status(action, c));
@@ -126,6 +128,7 @@ public final class Binds {
             case PARTICLES -> onOff(c.particlesEnabled);
             case SOUNDS -> onOff(c.hitSoundEnabled);
             case BOOST -> onOff(c.fpsBoost);
+            case DUMMY -> tech.gulp.lavavisual.effects.Dummy.active() ? ": поставлен" : ": убран";
             default -> "";
         };
     }

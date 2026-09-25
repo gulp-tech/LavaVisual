@@ -55,6 +55,7 @@ public final class LavaVisualClient implements ClientModInitializer {
     @Override public void onInitializeClient() {
         save();
         tech.gulp.lavavisual.effects.WorldCosmetics.register();
+        tech.gulp.lavavisual.effects.Dummy.register();
         tech.gulp.lavavisual.effects.AirParticles.register();
         tech.gulp.lavavisual.effects.PlayerTags.registerClient();
         var category = KeyMapping.Category.register(id("hud"));
@@ -132,6 +133,7 @@ public final class LavaVisualClient implements ClientModInitializer {
             if (!boostChecked && client.options != null) { boostChecked = true; if (config.fpsBoost) tech.gulp.lavavisual.effects.PerformanceMode.update(client); }
             tech.gulp.lavavisual.hud.TargetSnapshot.update(client);
             tech.gulp.lavavisual.effects.WorldCosmetics.tick(client);
+            tech.gulp.lavavisual.effects.Dummy.tick(client);
             tech.gulp.lavavisual.effects.AirParticles.tick(client);
             tech.gulp.lavavisual.effects.SwingStyles.tick(client);
             tech.gulp.lavavisual.effects.HatSync.tick(client);

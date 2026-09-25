@@ -52,6 +52,8 @@ public final class HudConfig {
     public int ambientStyle, ambientCount = 60;
     public double ambientSize = 1, ambientRange = 10, ambientSpeed = 1;
     public boolean hatEnabled, trailEnabled, espEnabled, killEffect;
+    /** Local practice dummy slowly turns around (see effects.Dummy). */
+    public boolean dummySpin;
     public int swingStyle, particleShape, particlePattern, espStyle;
     public double fireHeight = 1;
     public int markerShape, skyRgb = 0x83B9FF;
@@ -102,10 +104,12 @@ public final class HudConfig {
     }
     public boolean customColor(String key) { return colors != null && colors.containsKey(key); }
     public static final class Hand {
-        public double x, y, z, scale = 1;
+        /** Position (blocks, from the camera), size, and rotation in degrees around the hand's resting point. */
+        public double x, y, z, scale = 1, pitch, yaw, roll;
         public void sanitize() {
             x = bounded(x, -1, 1, 0); y = bounded(y, -1, 1, 0);
             z = bounded(z, -0.5, 1.5, 0); scale = bounded(scale, 0.4, 1.8, 1);
+            pitch = bounded(pitch, -60, 60, 0); yaw = bounded(yaw, -60, 60, 0); roll = bounded(roll, -60, 60, 0);
         }
     }
     public Map<String, Widget> widgets = defaults();

@@ -313,7 +313,7 @@ public final class ClickGuiScreen extends Screen {
             text(g, TABS[i], left + 33, y + tabPad + 1, tabColor, side - 40);
             hit(left + 8, y, side - 16, tabH, () -> navigate(next));
         }
-        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.15", left + 13, top + panelH - 21, 0xFF586272, side - 18);
+        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.16", left + 13, top + panelH - 21, 0xFF586272, side - 18);
         boolean searching = !query.isBlank();
         String heading = searching ? "Поиск" : selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : selected.equals("hat") ? "Шляпы" : selected.equals("wings") ? "Крылья" : HudRenderer.title(selected);
         searchW = Math.max(70, Math.min(150, bodyW / 2 - 20)); searchX = left + panelW - 58 - searchW; searchY = top + 11;
@@ -577,8 +577,15 @@ public final class ClickGuiScreen extends Screen {
         button(g, Icons.PENCIL, "Редактор шляпы · вид, цвет, размер", () -> minecraft.gui.setScreen(new HatEditorScreen(this)));
         toggle(g, "wings", "Крылья", Hats.WING_COUNT + " видов: ангел, демон, бабочка, дракон, феникс · по стрелке", c.wingsEnabled,
                 () -> { c.wingsEnabled = !c.wingsEnabled; changed(); }, () -> select("wings"));
-        toggle(g, "trail", "Trails", "Светящийся след за вами", c.trailEnabled, () -> { c.trailEnabled = !c.trailEnabled; changed(); }, null);
+        toggle(g, "trail", "Trails", "Светящийся след из тела", c.trailEnabled, () -> { c.trailEnabled = !c.trailEnabled; changed(); }, null);
         note(g, "Эффекты не видны сквозь блоки.");
+        section(g, "Манекен");
+        button(g, Icons.USER, tech.gulp.lavavisual.effects.Dummy.active() ? "Убрать манекен" : "Поставить манекен перед собой",
+                () -> tech.gulp.lavavisual.effects.Dummy.toggle(minecraft));
+        toggle(g, "dummy_spin", "Вращать манекен", "Медленный поворот: шляпа и крылья со всех сторон", c.dummySpin,
+                () -> { c.dummySpin = !c.dummySpin; changed(); }, null);
+        note(g, "Манекен видите только вы: сервер о нём не знает.");
+        note(g, "На нём ваш скин, броня, шляпа и крылья; удары, звуки и Target HUD работают.");
     }
     private void hands(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
@@ -598,6 +605,7 @@ public final class ClickGuiScreen extends Screen {
                 double[] v = presetValues[preset];
                 c.mainHand.x = v[0]; c.mainHand.y = v[1]; c.mainHand.z = v[2]; c.mainHand.scale = v[3];
                 c.offHand.x = -v[0]; c.offHand.y = v[1]; c.offHand.z = v[2]; c.offHand.scale = v[3];
+                c.mainHand.pitch = c.mainHand.yaw = c.mainHand.roll = 0; c.offHand.pitch = c.offHand.yaw = c.offHand.roll = 0;
                 if (preset != 0) c.viewModelEnabled = true;
                 changed();
             });

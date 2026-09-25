@@ -41,7 +41,7 @@ public final class WorldCosmetics {
     private record BeamFrame(Vec3 origin, float alpha, float age) { }
     private record RingFrame(Vec3 origin, float radius, float alpha, boolean echo) { }
     private record TrailNode(Vec3 position, int born) { }
-    private record TrailPoint(Vec3 position, float alpha) { }
+    private record TrailPoint(Vec3 position, float alpha, float half) { }
     private record SparkFrame(Vec3 origin, float size, float alpha, int shape, int color) { }
     /** A hat on one player's head: base on top of the head, rotation hat space -> world (head yaw, optional tilt, spin). */
     private record HatFrame(Vec3 base, Matrix3f rotation, float scale, float stretch, Hats.Model model, Hats.Look look) { }
@@ -56,6 +56,11 @@ public final class WorldCosmetics {
     private static final ArrayList<Mark> MARKS = new ArrayList<>();
     private static final ArrayList<Spark> SPARKS = new ArrayList<>();
     private static final ArrayDeque<TrailNode> TRAIL = new ArrayDeque<>();
+    /** Torso centre as a share of the player's height (legs end at ~0.39, shoulders at ~0.78). */
+    private static final double TORSO = 0.58;
+    private static final PoseStack.Pose IDENTITY = new PoseStack().last();
+    private static final Vector3f CAMERA_RIGHT = new Vector3f(1, 0, 0), CAMERA_UP = new Vector3f(0, 1, 0);
+    private static double frameNow;
     private static final ArrayList<Beam> BEAMS = new ArrayList<>();
     private static boolean espVisible;
     private static int lastKillId = -1;
@@ -84,6 +89,9 @@ public final class WorldCosmetics {
                     .withCull(false).build())).sortOnUpload().createRenderSetup());
     private WorldCosmetics() { }
     public static void register() {
+        net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
+            if (renderer instanceof net.minecraft.client.renderer.entity.player.AvatarRenderer<?> avatar) helper.register(new CosmeticLayer(avatar));
+        });
         AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
             Minecraft mc = Minecraft.getInstance();
             var c = LavaVisualClient.config();
@@ -127,33 +135,19 @@ public final class WorldCosmetics {
             // Hats sit on the head of the player's own render state (same position, crouch and head angles the model uses
             // this frame), so they never trail the head; no state means first person or the player is not drawn.
             var hats = new ArrayList<HatFrame>();
+            // Hats and wings are drawn by CosmeticLayer as part of the player model (same pass, real head/body
+            // transforms). Extraction only hides the cape under wings and stores the clock and camera for that layer.
+            frameNow = now0;
+            var orientation = context.levelState().cameraRenderState.orientation;
+            CAMERA_RIGHT.set(1, 0, 0).rotate(orientation);
+            CAMERA_UP.set(0, 1, 0).rotate(orientation);
             boolean remoteAny = c.hatOthers && HatSync.any();
-            if (self != null && mc.level != null && (c.hatEnabled || c.wingsEnabled || remoteAny)) {
-                float seconds = (float) (now0 / 20.0);
-                long nanos = System.nanoTime();
+            if (self != null && mc.level != null && (c.wingsEnabled || remoteAny)) {
                 for (var state : context.levelState().entityRenderStates) {
-                    if (!(state instanceof net.minecraft.client.renderer.entity.state.AvatarRenderState avatar)) continue;
-                    if (avatar.id == self.getId()) {
-                        if (c.hatEnabled) hat(hats, avatar, Hats.hat(c.hatType), c.color("hat"), c.color2("hat"), c.hatStyle, (float) c.hatOpacity,
-                                c.hatSize, c.hatLift, c.hatCone, (float) (now0 * 0.06 * c.hatSpin), seconds);
-                        if (c.wingsEnabled) wings(hats, avatar, Hats.wing(c.wingsType), c.color("wings"), c.color2("wings"), c.wingsStyle, (float) c.wingsOpacity,
-                                c.wingsSize, (float) c.wingsFlap, seconds, nanos);
-                    } else if (remoteAny && hats.size() < 24 && avatar.distanceToCameraSq < 48 * 48) {
-                        var remote = HatSync.of(mc.level.getEntity(avatar.id));
-                        if (remote == null) continue;
-                        double hue = System.nanoTime() / 1e9 * 0.12;
-                        if (remote.hat() > 0) {
-                            int color = remote.hatRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue, 0.72, 1) : remote.hatRgb();
-                            int light = remote.hatRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue + 0.16, 0.72, 1) : tech.gulp.lavavisual.config.ColorMath.companion(color);
-                            hat(hats, avatar, Hats.hat(remote.hat()), color, light, 0, 0.95f, 1, 0, 1, 0, seconds);
-                        }
-                        if (remote.wings() > 0) {
-                            int color = remote.wingRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue, 0.72, 1) : remote.wingRgb();
-                            int light = remote.wingRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue + 0.16, 0.72, 1) : tech.gulp.lavavisual.config.ColorMath.companion(color);
-                            wings(hats, avatar, Hats.wing(remote.wings()), color, light, 0, 0.95f, 1, 1, seconds, nanos);
-                        }
-                    }
+                    if (state instanceof net.minecraft.client.renderer.entity.state.AvatarRenderState avatar && avatar.showCape && wearsWings(avatar, self.getId(), remoteAny))
+                        avatar.showCape = false;
                 }
+                long nanos = System.nanoTime();
                 if (WING_CLOCKS.size() > 64) WING_CLOCKS.values().removeIf(clock -> nanos - clock.last > 5_000_000_000L);
             }
             var waypointBeams = tech.gulp.lavavisual.map.WaypointOverlay.extract(mc, context.levelState().cameraRenderState, partial);
@@ -189,8 +183,10 @@ public final class WorldCosmetics {
             }
             var trail = new ArrayList<TrailPoint>();
             if (c.trailEnabled && self != null && !TRAIL.isEmpty()) {
-                for (TrailNode node : TRAIL) trail.add(new TrailPoint(node.position(), (float) Math.clamp(1 - (now - node.born()) / 22.0, 0, 1)));
-                trail.add(new TrailPoint(self.getPosition(partial), 1f));
+                // Nodes sit at the torso centre, so the ribbon comes out of the body (not from between the feet).
+                float half = self.getBbHeight() * 0.2f;
+                for (TrailNode node : TRAIL) trail.add(new TrailPoint(node.position(), (float) Math.clamp(1 - (now - node.born()) / 22.0, 0, 1), half));
+                trail.add(new TrailPoint(self.getPosition(partial).add(0, self.getBbHeight() * TORSO, 0), 1f, half));
             }
             var beams = new ArrayList<BeamFrame>();
             if (c.killEffect) for (Beam b : BEAMS) {
@@ -261,7 +257,7 @@ public final class WorldCosmetics {
         }
         TRAIL.removeIf(n -> !c.trailEnabled || tick - n.born() >= 22);
         if (c.trailEnabled && !player.isSpectator() && !player.isInvisible()) {
-            Vec3 here = player.position();
+            Vec3 here = player.position().add(0, player.getBbHeight() * TORSO, 0);
             if (TRAIL.isEmpty() || TRAIL.peekLast().position().distanceToSqr(here) > 0.04) {
                 TRAIL.addLast(new TrailNode(here, tick));
                 while (TRAIL.size() > 40) TRAIL.removeFirst();
@@ -343,68 +339,94 @@ public final class WorldCosmetics {
         int block = s.lightCoords >> 4 & 15, sky = s.lightCoords >> 20 & 15;
         return 0.4f + 0.6f * Math.max(block, sky) / 15f;
     }
-    /**
-     * Places a hat on the head, rigidly: it turns and tilts exactly like the vanilla head (neck pivot 24 px up,
-     * 0.9375 player scale, crouch lowers the pivot) and sits on the hat layer or the helmet.
-     */
-    private static void hat(List<HatFrame> out, net.minecraft.client.renderer.entity.state.AvatarRenderState s, Hats.Model model, int color, int light, int style,
-                            float opacity, double size, double lift, double stretch, float spin, float seconds) {
-        if (model == null || hidden(s)) return;
-        double scale = Math.max(0.2, s.scale), px = scale * 0.9375 / 16.0;
-        double pivot = s.isCrouching ? 19.816 * px - 0.125 * scale : 24.016 * px;
-        // A hair above the hat layer / helmet so flat hat bottoms never z-fight with the skin (shimmer when moving).
-        double top = (s.headEquipment != null && !s.headEquipment.isEmpty() ? 9.0 : s.showHat ? 8.5 : 8.0) + 0.06;
-        float yaw = (float) Math.toRadians(s.bodyRot + s.yRot), pitch = (float) Math.toRadians(s.xRot);
-        Matrix3f rotation = new Matrix3f().rotationY(-yaw).rotateX(pitch);
-        Vector3f offset = rotation.transform(new Vector3f(0, (float) (top * px + lift), 0));
-        rotation.rotateY(spin);
-        out.add(new HatFrame(new Vec3(s.x + offset.x, s.y + pivot + offset.y, s.z + offset.z), rotation, (float) (size * scale), (float) stretch, model,
-                new Hats.Look(color, light, style, opacity, seconds, seconds, 1, env(s))));
+    private static boolean wearsWings(net.minecraft.client.renderer.entity.state.AvatarRenderState s, int selfId, boolean remoteAny) {
+        var c = LavaVisualClient.config();
+        if (s.id == selfId || Dummy.is(s.id)) return c.wingsEnabled;
+        if (!remoteAny || s.distanceToCameraSq >= 48 * 48) return false;
+        var level = Minecraft.getInstance().level;
+        var remote = level == null ? null : HatSync.of(level.getEntity(s.id));
+        return remote != null && remote.wings() > 0;
     }
-    /** Wings on the upper back, following the body (not the head); hidden with an elytra, the cape is hidden under them. */
-    private static void wings(List<HatFrame> out, net.minecraft.client.renderer.entity.state.AvatarRenderState s, Hats.Model model, int color, int light, int style,
+    /** Called by CosmeticLayer for every drawn player model (you, the local dummy, and players who share cosmetics). */
+    public static void submitLayer(net.minecraft.client.model.player.PlayerModel model, PoseStack pose, net.minecraft.client.renderer.SubmitNodeCollector collector,
+                                   net.minecraft.client.renderer.entity.state.AvatarRenderState s) {
+        var mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null || hidden(s)) return;
+        var c = LavaVisualClient.config();
+        float seconds = (float) (frameNow / 20.0);
+        long nanos = System.nanoTime();
+        if (s.id == mc.player.getId() || Dummy.is(s.id)) {
+            if (c.hatEnabled) hat(model, pose, collector, s, Hats.hat(c.hatType), c.color("hat"), c.color2("hat"), c.hatStyle, (float) c.hatOpacity,
+                    c.hatSize, c.hatLift, c.hatCone, (float) (frameNow * 0.06 * c.hatSpin), seconds);
+            if (c.wingsEnabled) wings(model, pose, collector, s, Hats.wing(c.wingsType), c.color("wings"), c.color2("wings"), c.wingsStyle,
+                    (float) c.wingsOpacity, c.wingsSize, (float) c.wingsFlap, seconds, nanos);
+            return;
+        }
+        if (!c.hatOthers || !HatSync.any() || s.distanceToCameraSq >= 48 * 48) return;
+        var remote = HatSync.of(mc.level.getEntity(s.id));
+        if (remote == null) return;
+        double hue = nanos / 1e9 * 0.12;
+        if (remote.hat() > 0) {
+            int color = remote.hatRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue, 0.72, 1) : remote.hatRgb();
+            int light = remote.hatRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue + 0.16, 0.72, 1) : tech.gulp.lavavisual.config.ColorMath.companion(color);
+            hat(model, pose, collector, s, Hats.hat(remote.hat()), color, light, 0, 0.95f, 1, 0, 1, 0, seconds);
+        }
+        if (remote.wings() > 0) {
+            int color = remote.wingRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue, 0.72, 1) : remote.wingRgb();
+            int light = remote.wingRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue + 0.16, 0.72, 1) : tech.gulp.lavavisual.config.ColorMath.companion(color);
+            wings(model, pose, collector, s, Hats.wing(remote.wings()), color, light, 0, 0.95f, 1, 1, seconds, nanos);
+        }
+    }
+    /**
+     * Rigid hat: starts from the model's own head transform (whatever turned or tilted it this frame) and sits on the
+     * hat layer or the helmet, a hair above it so the bottom never shimmers on the skin.
+     */
+    private static void hat(net.minecraft.client.model.player.PlayerModel model, PoseStack pose, net.minecraft.client.renderer.SubmitNodeCollector collector,
+                            net.minecraft.client.renderer.entity.state.AvatarRenderState s, Hats.Model hat, int color, int light, int style,
+                            float opacity, double size, double lift, double stretch, float spin, float seconds) {
+        if (hat == null) return;
+        double top = (s.headEquipment != null && !s.headEquipment.isEmpty() ? 9.0 : s.showHat ? 8.5 : 8.0) + 0.06;
+        pose.pushPose();
+        model.head.translateAndRotate(pose);
+        pose.scale(1, -1, -1); // model space (y down, face towards -z) -> cosmetic space (y up, face towards +z)
+        pose.translate(0, top / 16.0 + lift / 0.9375, 0);
+        pose.mulPose(new Quaternionf().rotationY(spin));
+        float k = (float) (size / 0.9375);
+        pose.scale(k, (float) (k * stretch), k);
+        submitModel(collector, pose, hat, new Hats.Look(color, light, style, opacity, seconds, seconds, 1, env(s)), (float) (size * Math.max(0.2, s.scale)));
+        pose.popPose();
+    }
+    /** Wings on the upper back, on the model's body transform (attack twist and crouch lean included); hidden with an elytra. */
+    private static void wings(net.minecraft.client.model.player.PlayerModel model, PoseStack pose, net.minecraft.client.renderer.SubmitNodeCollector collector,
+                              net.minecraft.client.renderer.entity.state.AvatarRenderState s, Hats.Model wing, int color, int light, int style,
                               float opacity, double size, float flap, float seconds, long nanos) {
-        if (model == null || hidden(s)) return;
+        if (wing == null) return;
         var chest = s.chestEquipment;
         boolean armor = chest != null && !chest.isEmpty();
         if (armor && chest.is(net.minecraft.world.item.Items.ELYTRA)) return;
-        double scale = Math.max(0.2, s.scale), px = scale * 0.9375 / 16.0;
-        double pivot = s.isCrouching ? 20.816 * px - 0.125 * scale : 24.016 * px;
-        // Same body transform as the vanilla model: yaw, the attack twist of the torso, then the crouch lean.
-        Matrix3f rotation = new Matrix3f().rotationY((float) -Math.toRadians(s.bodyRot) - bodyTwist(s));
-        if (s.isCrouching) rotation.rotateX(0.5f);
-        Vector3f offset = rotation.transform(new Vector3f(0, (float) (-3 * px), (float) (-(armor ? 3.3 : 2.2) * px)));
         float walk = Math.clamp(s.walkAnimationSpeed, 0, 1);
         WingClock clock = WING_CLOCKS.computeIfAbsent(s.id, id -> new WingClock(nanos));
         double dt = Math.min(0.1, Math.max(0, (nanos - clock.last) / 1e9));
         clock.phase += dt * (1 + 1.4 * walk);
         clock.last = nanos;
-        s.showCape = false;
-        out.add(new HatFrame(new Vec3(s.x + offset.x, s.y + pivot + offset.y, s.z + offset.z), rotation, (float) (size * scale), 1f, model,
-                new Hats.Look(color, light, style, opacity, seconds, (float) clock.phase, flap * (0.8f + 0.5f * walk), env(s))));
+        pose.pushPose();
+        model.body.translateAndRotate(pose);
+        pose.scale(1, -1, -1);
+        pose.translate(0, -3 / 16.0, -(armor ? 3.3 : 2.2) / 16.0);
+        float k = (float) (size / 0.9375);
+        pose.scale(k, k, k);
+        submitModel(collector, pose, wing, new Hats.Look(color, light, style, opacity, seconds, (float) clock.phase, flap * (0.8f + 0.5f * walk), env(s)),
+                (float) (size * Math.max(0.2, s.scale)));
+        pose.popPose();
     }
-    private static java.lang.reflect.Field attackTime, attackArm;
-    private static boolean attackLookup;
-    /** HumanoidModel.setupAttackAnimation turns the torso by sin(sqrt(t) * 2pi) * 0.2 (mirrored for the left arm) while
-     *  swinging; wings follow it so they do not slide over the back during hits. Fields are looked up once by name. */
-    private static float bodyTwist(net.minecraft.client.renderer.entity.state.AvatarRenderState s) {
-        if (!attackLookup) {
-            attackLookup = true;
-            try { attackTime = s.getClass().getField("attackTime"); } catch (ReflectiveOperationException | RuntimeException ignored) { }
-            try { attackArm = s.getClass().getField("attackArm"); } catch (ReflectiveOperationException | RuntimeException ignored) { }
-        }
-        if (attackTime == null) return 0;
-        try {
-            float t = attackTime.getFloat(s);
-            if (t <= 0) return 0;
-            float twist = (float) (Math.sin(Math.sqrt(t) * Math.PI * 2) * 0.2);
-            Object arm = attackArm != null ? attackArm.get(s) : null;
-            return arm != null && "LEFT".equals(String.valueOf(arm)) ? -twist : twist;
-        } catch (ReflectiveOperationException | RuntimeException error) {
-            attackTime = null;
-            return 0;
-        }
+    private static void submitModel(net.minecraft.client.renderer.SubmitNodeCollector collector, PoseStack pose, Hats.Model model, Hats.Look look, float worldScale) {
+        Vector3f right = new Vector3f(CAMERA_RIGHT), up = new Vector3f(CAMERA_UP);
+        // The captured pose already maps model space to camera-relative world space, so it becomes the model matrix.
+        collector.submitCustomGeometry(pose, GLOW, (p, out) -> Hats.glow(IDENTITY, out, new Matrix4f(p.pose()), worldScale, model, look, right, up));
+        collector.submitCustomGeometry(pose, HAT, (p, out) -> Hats.draw(IDENTITY, out, new Matrix4f(p.pose()), model, look));
     }
+    /** The dummy stands up again: its next death may trigger the kill effect once more. */
+    public static void forgetKill(int id) { if (lastKillId == id) lastKillId = -1; }
     private static int brighten(int rgb) {
         int r = rgb >> 16 & 255, g = rgb >> 8 & 255, b = rgb & 255;
         return (r + (255 - r) / 2) << 16 | (g + (255 - g) / 2) << 8 | (b + (255 - b) / 2);
@@ -454,10 +476,18 @@ public final class WorldCosmetics {
             TrailPoint a = points.get(i), b = points.get(i + 1);
             Vec3 pa = a.position().subtract(camera), pb = b.position().subtract(camera);
             float fa = a.alpha(), fb = b.alpha();
-            vertex(pose, out, pa.x, pa.y + 0.08, pa.z, UiDraw.alpha(color, fa * 0.05));
-            vertex(pose, out, pb.x, pb.y + 0.08, pb.z, UiDraw.alpha(color, fb * 0.05));
-            vertex(pose, out, pb.x, pb.y + 0.62, pb.z, UiDraw.alpha(light, fb * 0.6));
-            vertex(pose, out, pa.x, pa.y + 0.62, pa.z, UiDraw.alpha(light, fa * 0.6));
+            // Soft band around the torso: bright core, transparent edges, narrowing towards the tail.
+            double ha = a.half() * (0.35 + 0.65 * fa), hb = b.half() * (0.35 + 0.65 * fb);
+            int ea = UiDraw.alpha(color, fa * 0.06), eb = UiDraw.alpha(color, fb * 0.06);
+            int ca = UiDraw.alpha(light, fa * 0.58), cb = UiDraw.alpha(light, fb * 0.58);
+            vertex(pose, out, pa.x, pa.y - ha, pa.z, ea);
+            vertex(pose, out, pb.x, pb.y - hb, pb.z, eb);
+            vertex(pose, out, pb.x, pb.y, pb.z, cb);
+            vertex(pose, out, pa.x, pa.y, pa.z, ca);
+            vertex(pose, out, pa.x, pa.y, pa.z, ca);
+            vertex(pose, out, pb.x, pb.y, pb.z, cb);
+            vertex(pose, out, pb.x, pb.y + hb, pb.z, eb);
+            vertex(pose, out, pa.x, pa.y + ha, pa.z, ea);
         }
     }
     private static void band(PoseStack.Pose pose, VertexConsumer out, Vec3 p, float inner, float outer, int color, float innerAlpha, float outerAlpha) {

@@ -11,8 +11,9 @@ import net.minecraft.world.Difficulty;
  * cosmetics are judged in the real game renderer instead of the Python preview.
  */
 final class SmokeWorld {
-    private static final int[] HATS = {1, 2, 3, 5, 9, 10, 13};
-    private static final int WING_STEP = 90, HAT_STEP = 40, HATS_AT = 60 + 5 * WING_STEP + 10;
+    private static final int[] HATS = {1, 3, 5, 13};
+    private static final int WING_STEP = 90, HAT_STEP = 40, HATS_AT = 60 + 5 * WING_STEP + 10,
+            DUMMY_AT = HATS_AT + HATS.length * HAT_STEP + 10, HANDS_AT = DUMMY_AT + 70, END_AT = HANDS_AT + 50;
     private static int stage = -1, ticks;
     private SmokeWorld() { }
 
@@ -81,7 +82,33 @@ final class SmokeWorld {
             if (at == 0) c.hatType = HATS[i];
             if (at == 30) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hat" + HATS[i]);
         }
-        if (ticks == HATS_AT + HATS.length * HAT_STEP + 5) finish(null);
+        // Local dummy wearing your hat and wings, seen from behind you; then one local hit (no packets).
+        if (ticks == DUMMY_AT) {
+            c.hatEnabled = true; c.hatType = 1; c.wingsEnabled = true; c.wingsType = 1;
+            tech.gulp.lavavisual.effects.Dummy.spawn(mc);
+            mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+        }
+        if (ticks == DUMMY_AT + 30) LavaVisual.LOGGER.info("LavaVisual smoke shot world_dummy");
+        if (ticks == DUMMY_AT + 45) {
+            float before = tech.gulp.lavavisual.effects.Dummy.health();
+            tech.gulp.lavavisual.effects.Dummy.testHit(mc);
+            float after = tech.gulp.lavavisual.effects.Dummy.health();
+            if (tech.gulp.lavavisual.effects.Dummy.active() && after < before) LavaVisual.LOGGER.info("LavaVisual smoke dummy ok " + before + " -> " + after);
+            else LavaVisual.LOGGER.warn("LavaVisual smoke dummy failed: active=" + tech.gulp.lavavisual.effects.Dummy.active() + " " + before + " -> " + after);
+        }
+        // Hand editor: opening it must switch the view model on, and the edited values must move the real hand.
+        if (ticks == HANDS_AT) {
+            tech.gulp.lavavisual.effects.Dummy.remove();
+            c.hatEnabled = false; c.wingsEnabled = false;
+            mc.options.setCameraType(CameraType.FIRST_PERSON);
+            c.viewModelEnabled = false;
+            mc.gui.setScreen(new tech.gulp.lavavisual.ui.HandEditorScreen(null));
+            c.mainHand.x = -0.3; c.mainHand.y = 0.12; c.mainHand.yaw = 35; c.mainHand.roll = -20;
+            LavaVisual.LOGGER.info(c.viewModelEnabled ? "LavaVisual smoke hand editor ok" : "LavaVisual smoke hand editor failed: view model stayed off");
+        }
+        if (ticks == HANDS_AT + 30) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hands");
+        if (ticks == HANDS_AT + 40) { mc.gui.setScreen(null); c.mainHand = new tech.gulp.lavavisual.config.HudConfig.Hand(); c.viewModelEnabled = false; }
+        if (ticks == END_AT) finish(null);
     }
 
     private static void finish(String problem) {
