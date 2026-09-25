@@ -39,3 +39,13 @@ net.minecraft.client.renderer.rendertype.RenderSetup
 net.minecraft.client.renderer.rendertype.RenderType
 net.minecraft.client.renderer.rendertype.RenderTypes
 net.minecraft.client.renderer.RenderPipelines
+net.minecraft.client.player.RemotePlayer
+net.minecraft.world.entity.Avatar
+net.minecraft.world.entity.player.Player
+net.minecraft.world.entity.LivingEntity
+net.minecraft.world.entity.Entity
+com.mojang.authlib.GameProfile
+net.fabricmc.fabric.api.event.player.UseEntityCallback
+net.minecraft.world.entity.ai.attributes.Attributes
+net.minecraft.world.entity.player.PlayerModelPart
+net.minecraft.client.renderer.ItemInHandRenderer
