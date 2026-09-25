@@ -58,3 +58,5 @@ net.minecraft.client.player.LocalPlayer
 net.minecraft.client.renderer.state.level.CameraRenderState
 net.minecraft.client.KeyMapping
 net.minecraft.world.entity.ai.attributes.Attributes
+com.mojang.blaze3d.pipeline.BlendFunction
+net.minecraft.client.Minecraft
