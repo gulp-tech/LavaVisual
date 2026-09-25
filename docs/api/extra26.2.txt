@@ -4088,65 +4088,445 @@ public class net.minecraft.world.entity.ai.attributes.Attributes {
   static {};
 }
 
+Compiled from "BlendFunction.java"
+public final class com.mojang.blaze3d.pipeline.BlendFunction extends java.lang.Record {
+  private final com.mojang.blaze3d.pipeline.BlendEquation color;
+  private final com.mojang.blaze3d.pipeline.BlendEquation alpha;
+  public static final com.mojang.blaze3d.pipeline.BlendFunction LIGHTNING;
+  public static final com.mojang.blaze3d.pipeline.BlendFunction GLINT;
+  public static final com.mojang.blaze3d.pipeline.BlendFunction OVERLAY;
+  public static final com.mojang.blaze3d.pipeline.BlendFunction TRANSLUCENT;
+  public static final com.mojang.blaze3d.pipeline.BlendFunction TRANSLUCENT_PREMULTIPLIED_ALPHA;
+  public static final com.mojang.blaze3d.pipeline.BlendFunction ADDITIVE;
+  public static final com.mojang.blaze3d.pipeline.BlendFunction ENTITY_OUTLINE_BLIT;
+  public static final com.mojang.blaze3d.pipeline.BlendFunction INVERT;
+  public com.mojang.blaze3d.pipeline.BlendFunction(com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendOp, com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendOp);
+  public com.mojang.blaze3d.pipeline.BlendFunction(com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendFactor);
+  public com.mojang.blaze3d.pipeline.BlendFunction(com.mojang.blaze3d.pipeline.BlendEquation);
+  public com.mojang.blaze3d.pipeline.BlendFunction(com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendOp);
+  public com.mojang.blaze3d.pipeline.BlendFunction(com.mojang.blaze3d.platform.BlendFactor, com.mojang.blaze3d.platform.BlendFactor);
+  public com.mojang.blaze3d.pipeline.BlendFunction(com.mojang.blaze3d.pipeline.BlendEquation, com.mojang.blaze3d.pipeline.BlendEquation);
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public com.mojang.blaze3d.pipeline.BlendEquation color();
+  public com.mojang.blaze3d.pipeline.BlendEquation alpha();
+  static {};
+}
+
+Compiled from "Minecraft.java"
+public class net.minecraft.client.Minecraft extends net.minecraft.util.thread.ReentrantBlockableEventLoop<java.lang.Runnable> implements com.mojang.blaze3d.platform.WindowEventHandler {
+  private static net.minecraft.client.Minecraft instance;
+  private static final org.slf4j.Logger LOGGER;
+  private static final int MAX_TICKS_PER_UPDATE;
+  public static final net.minecraft.resources.Identifier DEFAULT_FONT;
+  private static final net.minecraft.resources.Identifier REGIONAL_COMPLIANCIES;
+  private static final java.util.concurrent.CompletableFuture<net.minecraft.util.Unit> RESOURCE_RELOAD_INITIAL_TASK;
+  public static final java.lang.String UPDATE_DRIVERS_ADVICE;
+  private final long canary;
+  private final java.nio.file.Path resourcePackDirectory;
+  private final java.util.concurrent.CompletableFuture<com.mojang.authlib.yggdrasil.ProfileResult> profileFuture;
+  private final net.minecraft.client.renderer.texture.TextureManager textureManager;
+  private final net.minecraft.client.renderer.ShaderManager shaderManager;
+  private final com.mojang.datafixers.DataFixer fixerUpper;
+  private final com.mojang.blaze3d.platform.MonitorManager monitorManager;
+  private final com.mojang.blaze3d.platform.Window window;
+  private final com.mojang.blaze3d.systems.GpuSurface windowSurface;
+  private final com.mojang.blaze3d.platform.TextInputManager textInputManager;
+  private final net.minecraft.client.DeltaTracker$Timer deltaTracker;
+  public final net.minecraft.client.renderer.extract.LevelExtractor levelExtractor;
+  public final net.minecraft.client.renderer.LevelRenderer levelRenderer;
+  private final net.minecraft.client.renderer.entity.EntityRenderDispatcher entityRenderDispatcher;
+  private final net.minecraft.client.renderer.item.ItemModelResolver itemModelResolver;
+  private final net.minecraft.client.renderer.MapRenderer mapRenderer;
+  public final net.minecraft.client.particle.ParticleEngine particleEngine;
+  private final net.minecraft.client.User user;
+  public final net.minecraft.client.gui.Font font;
+  public final net.minecraft.client.gui.Font fontFilterFishy;
+  public final net.minecraft.client.renderer.GameRenderer gameRenderer;
+  public final net.minecraft.client.gui.Gui gui;
+  public final net.minecraft.client.Options options;
+  public final net.minecraft.client.gui.components.debug.DebugScreenEntryList debugEntries;
+  private final net.minecraft.client.HotbarManager hotbarManager;
+  public final net.minecraft.client.MouseHandler mouseHandler;
+  public final net.minecraft.client.KeyboardHandler keyboardHandler;
+  private net.minecraft.client.InputType lastInputType;
+  public final java.io.File gameDirectory;
+  private final java.lang.String launchedVersion;
+  private final java.net.Proxy proxy;
+  private final boolean offlineDeveloperMode;
+  private final net.minecraft.world.level.storage.LevelStorageSource levelSource;
+  private final boolean demo;
+  private final boolean allowsMultiplayer;
+  private final boolean allowsChat;
+  private final net.minecraft.server.packs.resources.ReloadableResourceManager resourceManager;
+  private final net.minecraft.server.packs.VanillaPackResources vanillaPackResources;
+  private final net.minecraft.client.resources.server.DownloadedPackSource downloadedPackSource;
+  private final net.minecraft.server.packs.repository.PackRepository resourcePackRepository;
+  private final net.minecraft.client.resources.language.LanguageManager languageManager;
+  private final net.minecraft.client.color.block.BlockColors blockColors;
+  private final com.mojang.blaze3d.TracyFrameCapture tracyFrameCapture;
+  private final net.minecraft.client.sounds.SoundManager soundManager;
+  private final net.minecraft.client.sounds.MusicManager musicManager;
+  private final net.minecraft.client.gui.font.FontManager fontManager;
+  private final net.minecraft.client.renderer.GpuWarnlistManager gpuWarnlistManager;
+  private final net.minecraft.client.PeriodicNotificationManager regionalCompliancies;
+  private final com.mojang.authlib.minecraft.UserApiService userApiService;
+  private final java.util.concurrent.CompletableFuture<com.mojang.authlib.minecraft.UserApiService$UserProperties> userPropertiesFuture;
+  private final net.minecraft.client.resources.SkinManager skinManager;
+  private final net.minecraft.client.resources.model.sprite.AtlasManager atlasManager;
+  private final net.minecraft.client.resources.model.ModelManager modelManager;
+  private final net.minecraft.client.resources.MapTextureManager mapTextureManager;
+  private final net.minecraft.client.tutorial.Tutorial tutorial;
+  private final net.minecraft.client.gui.screens.social.PlayerSocialManager playerSocialManager;
+  private final net.minecraft.client.gui.screens.social.RemoteFriendListUpdateHandler remoteFriendListUpdateHandler;
+  private final net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher blockEntityRenderDispatcher;
+  private final net.minecraft.client.telemetry.ClientTelemetryManager telemetryManager;
+  private final net.minecraft.client.multiplayer.ProfileKeyPairManager profileKeyPairManager;
+  private final com.mojang.realmsclient.gui.RealmsDataFetcher realmsDataFetcher;
+  private final net.minecraft.client.quickplay.QuickPlayLog quickPlayLog;
+  private final net.minecraft.server.Services services;
+  private final net.minecraft.client.renderer.PlayerSkinRenderCache playerSkinRenderCache;
+  private final com.mojang.blaze3d.systems.TimerQuery timerQuery;
+  public net.minecraft.client.multiplayer.MultiPlayerGameMode gameMode;
+  public net.minecraft.client.multiplayer.ClientLevel level;
+  public net.minecraft.client.player.LocalPlayer player;
+  private net.minecraft.client.server.IntegratedServer singleplayerServer;
+  private net.minecraft.network.Connection pendingConnection;
+  private boolean isLocalServer;
+  public net.minecraft.world.entity.Entity crosshairPickEntity;
+  public net.minecraft.world.phys.HitResult hitResult;
+  private int rightClickDelay;
+  public int missTime;
+  private volatile boolean pause;
+  private long lastNanoTime;
+  private long lastTime;
+  private int frames;
+  private java.lang.Thread gameThread;
+  private volatile boolean running;
+  private static int fps;
+  private long frameTimeNs;
+  private final com.mojang.blaze3d.platform.FramerateLimitTracker framerateLimitTracker;
+  public boolean wireframe;
+  public boolean smartCull;
+  private long lastActiveTime;
+  private java.util.concurrent.CompletableFuture<java.lang.Void> pendingReload;
+  private int fpsPieRenderTicks;
+  private final net.minecraft.util.profiling.ContinuousProfiler fpsPieProfiler;
+  private net.minecraft.util.profiling.metrics.profiling.MetricsRecorder metricsRecorder;
+  private final net.minecraft.client.ResourceLoadStateTracker reloadStateTracker;
+  private long savedCpuDuration;
+  private double gpuUtilization;
+  private final net.minecraft.client.GameNarrator narrator;
+  private net.minecraft.client.multiplayer.chat.report.ReportingContext reportingContext;
+  private final net.minecraft.world.level.validation.DirectoryValidator directoryValidator;
+  private boolean gameLoadFinished;
+  private final long clientStartTimeMs;
+  private long clientTickCount;
+  private final net.minecraft.network.PacketProcessor packetProcessor;
+  private final net.minecraft.gizmos.SimpleGizmoCollector perTickGizmos;
+  private java.util.List<net.minecraft.gizmos.SimpleGizmoCollector$GizmoInstance> drainedLatestTickGizmos;
+  private boolean windowSurfaceNeedsReconfiguring;
+  private boolean surfaceIsInvalid;
+  private com.mojang.blaze3d.systems.BackendCreationException backendCreationException;
+  public net.minecraft.client.Minecraft(net.minecraft.client.main.GameConfig);
+  public boolean hasShiftDown();
+  public boolean hasControlDown();
+  public boolean hasAltDown();
+  private void onResourceLoadFinished(net.minecraft.client.GameLoadCookie);
+  private void onGameLoadFinished(net.minecraft.client.GameLoadCookie);
+  public boolean isGameLoadFinished();
+  private static boolean countryEqualsISO3(java.lang.Object);
+  public void updateTitle();
+  private java.lang.String createTitle();
+  private static com.mojang.authlib.minecraft.UserApiService createUserApiService(com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService, net.minecraft.client.main.GameConfig);
+  public boolean isOfflineDeveloperMode();
+  public static net.minecraft.util.ModCheck checkModStatus();
+  private void loadCriticalShaders();
+  private void rollbackResourcePacks(java.lang.Throwable, net.minecraft.client.GameLoadCookie);
+  public void clearResourcePacksOnError(java.lang.Throwable, net.minecraft.network.chat.Component, net.minecraft.client.GameLoadCookie);
+  private void abortResourcePackRecovery();
+  private void addResourcePackLoadFailToast(net.minecraft.network.chat.Component);
+  public void triggerResourcePackRecovery(java.lang.Exception);
+  public void run();
+  void updateFontOptions();
+  private void onFullscreenError(int, long);
+  public java.lang.String getLaunchedVersion();
+  public void delayCrash(net.minecraft.CrashReport);
+  public void emergencySaveAndCrash(net.minecraft.CrashReport);
+  public static void saveReport(java.io.File, net.minecraft.CrashReport);
+  public static int saveReport(java.io.File, net.minecraft.CrashReport, int);
+  public static void crash(net.minecraft.client.Minecraft, java.io.File, net.minecraft.CrashReport, int);
+  public static int saveReportAndShutdownSoundManager(net.minecraft.client.Minecraft, java.io.File, net.minecraft.CrashReport, int);
+  public boolean isEnforceUnicode();
+  public java.util.concurrent.CompletableFuture<java.lang.Void> reloadResourcePacks();
+  private java.util.concurrent.CompletableFuture<java.lang.Void> reloadResourcePacks(boolean, net.minecraft.client.GameLoadCookie);
+  private void selfTest();
+  public net.minecraft.world.level.storage.LevelStorageSource getLevelSource();
+  public void exitWorldAndClose();
+  public void close();
+  private void runTick(boolean);
+  public void renderFrame(boolean);
+  private void pauseIfInactive();
+  private net.minecraft.util.profiling.ProfilerFiller constructProfiler(boolean, net.minecraft.util.profiling.SingleTickProfiler);
+  private void finishProfilers(boolean, net.minecraft.util.profiling.SingleTickProfiler);
+  public void framebufferSizeChanged();
+  public void resizeGui();
+  public void cursorEntered();
+  public int getFps();
+  public long getFrameTimeNs();
+  public void sendLowDiskSpaceWarning();
+  private void emergencySave();
+  public boolean debugClientMetricsStart(java.util.function.Consumer<net.minecraft.network.chat.Component>);
+  private void debugClientMetricsStop();
+  private void debugClientMetricsCancel();
+  private java.nio.file.Path archiveProfilingReport(net.minecraft.SystemReport, java.util.List<java.nio.file.Path>);
+  public void stop();
+  public boolean isRunning();
+  public void pauseGame(boolean);
+  private void continueAttack(boolean);
+  private boolean startAttack();
+  private void startUseItem();
+  public net.minecraft.client.sounds.MusicManager getMusicManager();
+  public void tick();
+  private boolean isLevelRunningNormally();
+  public boolean isMultiplayerServer();
+  private void handleKeybinds();
+  private java.util.Optional<net.minecraft.core.Holder<net.minecraft.server.dialog.Dialog>> getQuickActionsDialog();
+  public net.minecraft.client.telemetry.ClientTelemetryManager getTelemetryManager();
+  public net.minecraft.util.profiling.metrics.profiling.MetricsRecorder getMetricsRecorder();
+  public double getGpuUtilization();
+  public net.minecraft.client.multiplayer.ProfileKeyPairManager getProfileKeyPairManager();
+  public net.minecraft.client.gui.screens.worldselection.WorldOpenFlows createWorldOpenFlows();
+  public void doWorldLoad(net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess, net.minecraft.server.packs.repository.PackRepository, net.minecraft.server.WorldStem, java.util.Optional<net.minecraft.world.level.gamerules.GameRules>, boolean);
+  public void setLevel(net.minecraft.client.multiplayer.ClientLevel);
+  public void disconnectFromWorld(net.minecraft.network.chat.Component);
+  public void disconnectWithSavingScreen();
+  public void disconnectWithProgressScreen();
+  public void disconnectWithProgressScreen(boolean);
+  public void disconnect(net.minecraft.client.gui.screens.Screen, boolean);
+  public void disconnect(net.minecraft.client.gui.screens.Screen, boolean, boolean);
+  public void clearDownloadedResourcePacks();
+  public void clearClientLevel(net.minecraft.client.gui.screens.Screen);
+  public void setScreenAndShow(net.minecraft.client.gui.screens.Screen);
+  private void updateLevelInEngines(net.minecraft.client.multiplayer.ClientLevel);
+  private void updateLevelInEngines(net.minecraft.client.multiplayer.ClientLevel, boolean);
+  private com.mojang.authlib.minecraft.UserApiService$UserProperties userProperties();
+  public boolean telemetryOptInExtra();
+  public boolean extraTelemetryAvailable();
+  public boolean allowsTelemetry();
+  public boolean allowsMultiplayer();
+  public boolean allowsRealms();
+  public boolean friendsEnabled();
+  public boolean handleGlobalKeyPress(com.mojang.blaze3d.platform.InputConstants$Key, boolean);
+  private void toggleFullscreen();
+  private boolean toggleFriendsScreen();
+  public boolean allowFriendRequests();
+  public boolean allowChatOnlyWithFriend();
+  public com.mojang.authlib.minecraft.BanDetails multiplayerBan();
+  public boolean isNameBanned();
+  public boolean isBlocked(java.util.UUID);
+  public boolean isFriendOnlyRestricted(java.util.UUID);
+  private boolean isLocalOrUnknownPlayer(java.util.UUID);
+  public net.minecraft.client.multiplayer.chat.ChatAbilities computeChatAbilities();
+  public final boolean isDemo();
+  public final boolean canSwitchGameMode();
+  public net.minecraft.client.multiplayer.ClientPacketListener getConnection();
+  private void pickBlockOrEntity();
+  public net.minecraft.CrashReport fillReport(net.minecraft.CrashReport);
+  public static void fillReport(net.minecraft.client.Minecraft, net.minecraft.client.resources.language.LanguageManager, java.lang.String, net.minecraft.client.Options, net.minecraft.CrashReport);
+  private static java.lang.String formatSeconds(double);
+  private void fillUptime(net.minecraft.CrashReportCategory);
+  private static net.minecraft.SystemReport fillSystemReport(net.minecraft.SystemReport, net.minecraft.client.Minecraft, net.minecraft.client.resources.language.LanguageManager, java.lang.String, net.minecraft.client.Options);
+  public static net.minecraft.client.Minecraft getInstance();
+  public java.util.concurrent.CompletableFuture<java.lang.Void> delayTextureReload();
+  public void updateReportEnvironment(net.minecraft.client.multiplayer.chat.report.ReportEnvironment);
+  public net.minecraft.client.multiplayer.ServerData getCurrentServer();
+  public boolean isLocalServer();
+  public boolean hasSingleplayerServer();
+  public net.minecraft.client.server.IntegratedServer getSingleplayerServer();
+  public boolean isLocalPlayer(java.util.UUID);
+  public net.minecraft.client.User getUser();
+  public com.mojang.authlib.yggdrasil.ProfileResult getProfileResult();
+  public com.mojang.authlib.GameProfile getGameProfile();
+  public java.net.Proxy getProxy();
+  public net.minecraft.client.renderer.texture.TextureManager getTextureManager();
+  public net.minecraft.client.renderer.ShaderManager getShaderManager();
+  public net.minecraft.server.packs.resources.ResourceManager getResourceManager();
+  public net.minecraft.server.packs.repository.PackRepository getResourcePackRepository();
+  public net.minecraft.server.packs.VanillaPackResources getVanillaPackResources();
+  public net.minecraft.client.resources.server.DownloadedPackSource getDownloadedPackSource();
+  public java.nio.file.Path getResourcePackDirectory();
+  public net.minecraft.client.resources.language.LanguageManager getLanguageManager();
+  public boolean isPaused();
+  public net.minecraft.client.renderer.GpuWarnlistManager getGpuWarnlistManager();
+  public net.minecraft.client.sounds.SoundManager getSoundManager();
+  public net.minecraft.sounds.Music getSituationalMusic();
+  public float getMusicVolume();
+  public net.minecraft.server.Services services();
+  public net.minecraft.client.resources.SkinManager getSkinManager();
+  public net.minecraft.world.entity.Entity getCameraEntity();
+  public void setCameraEntity(net.minecraft.world.entity.Entity);
+  public boolean shouldEntityAppearGlowing(net.minecraft.world.entity.Entity);
+  public java.lang.Thread getRunningThread();
+  public java.lang.Runnable wrapRunnable(java.lang.Runnable);
+  protected boolean shouldRun(java.lang.Runnable);
+  public net.minecraft.client.renderer.entity.EntityRenderDispatcher getEntityRenderDispatcher();
+  public net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher getBlockEntityRenderDispatcher();
+  public net.minecraft.client.renderer.MapRenderer getMapRenderer();
+  public com.mojang.datafixers.DataFixer getFixerUpper();
+  public net.minecraft.client.DeltaTracker getDeltaTracker();
+  public net.minecraft.client.color.block.BlockColors getBlockColors();
+  public boolean showOnlyReducedInfo();
+  public net.minecraft.client.tutorial.Tutorial getTutorial();
+  public boolean isWindowActive();
+  public net.minecraft.client.HotbarManager getHotbarManager();
+  public net.minecraft.client.resources.model.ModelManager getModelManager();
+  public net.minecraft.client.resources.model.sprite.AtlasManager getAtlasManager();
+  public net.minecraft.client.resources.MapTextureManager getMapTextureManager();
+  public net.minecraft.network.chat.Component grabPanoramixScreenshot(java.io.File);
+  public net.minecraft.client.gui.screens.social.PlayerSocialManager getPlayerSocialManager();
+  public com.mojang.blaze3d.platform.Window getWindow();
+  public com.mojang.blaze3d.platform.TextInputManager textInputManager();
+  public void onTextInputFocusChange(net.minecraft.client.gui.components.events.GuiEventListener, boolean);
+  public com.mojang.blaze3d.systems.GpuSurface windowSurface();
+  public com.mojang.blaze3d.platform.FramerateLimitTracker getFramerateLimitTracker();
+  public net.minecraft.client.gui.components.DebugScreenOverlay getDebugOverlay();
+  public void updateMaxMipLevel(int);
+  public net.minecraft.client.model.geom.EntityModelSet getEntityModels();
+  public boolean isTextFilteringEnabled();
+  public void prepareForMultiplayer();
+  public net.minecraft.client.InputType getLastInputType();
+  public void setLastInputType(net.minecraft.client.InputType);
+  public net.minecraft.client.GameNarrator getNarrator();
+  public net.minecraft.client.multiplayer.chat.report.ReportingContext getReportingContext();
+  public com.mojang.realmsclient.gui.RealmsDataFetcher realmsDataFetcher();
+  public net.minecraft.client.quickplay.QuickPlayLog quickPlayLog();
+  public net.minecraft.world.level.validation.DirectoryValidator directoryValidator();
+  public net.minecraft.client.renderer.PlayerSkinRenderCache playerSkinRenderCache();
+  private float getTickTargetMillis(float);
+  public net.minecraft.client.renderer.item.ItemModelResolver getItemModelResolver();
+  public boolean canInterruptScreen();
+  public void invalidateSurfaceConfiguration();
+  public static java.lang.String getLauncherBrand();
+  public net.minecraft.network.PacketProcessor packetProcessor();
+  public net.minecraft.gizmos.Gizmos$TemporaryCollection collectPerTickGizmos();
+  public java.util.Collection<net.minecraft.gizmos.SimpleGizmoCollector$GizmoInstance> getPerTickGizmos();
+  private void pick(float);
+  public void showDebugChat(net.minecraft.network.chat.Component);
+  private static net.minecraft.network.chat.Style lambda$grabPanoramixScreenshot$1(java.io.File, net.minecraft.network.chat.Style);
+  private static void lambda$grabPanoramixScreenshot$0(net.minecraft.network.chat.Component);
+  private static java.util.concurrent.CompletionStage lambda$delayTextureReload$0(java.util.concurrent.CompletableFuture);
+  private static java.lang.Object lambda$fillSystemReport$11() throws java.lang.Exception;
+  private static java.lang.Object lambda$fillSystemReport$10() throws java.lang.Exception;
+  private static java.lang.Object lambda$fillSystemReport$9(net.minecraft.client.resources.language.LanguageManager) throws java.lang.Exception;
+  private static java.lang.Object lambda$fillSystemReport$8(net.minecraft.client.Minecraft) throws java.lang.Exception;
+  private static java.lang.Object lambda$fillSystemReport$7(net.minecraft.client.Minecraft) throws java.lang.Exception;
+  private static java.lang.Object lambda$fillSystemReport$6(net.minecraft.client.Minecraft) throws java.lang.Exception;
+  private static java.lang.Object lambda$fillSystemReport$5(net.minecraft.client.Minecraft) throws java.lang.Exception;
+  private static java.lang.Object lambda$fillSystemReport$4() throws java.lang.Exception;
+  private static java.lang.Object lambda$fillSystemReport$3(com.mojang.blaze3d.systems.GpuDevice) throws java.lang.Exception;
+  private static java.lang.Object lambda$fillSystemReport$2(net.minecraft.client.Minecraft) throws java.lang.Exception;
+  private static java.lang.Object lambda$fillSystemReport$1(net.minecraft.client.Minecraft) throws java.lang.Exception;
+  private static java.lang.Object lambda$fillSystemReport$0(java.lang.String) throws java.lang.Exception;
+  private java.lang.String lambda$fillUptime$3() throws java.lang.Exception;
+  private static java.lang.String lambda$fillUptime$2() throws java.lang.Exception;
+  private java.lang.String lambda$fillUptime$1() throws java.lang.Exception;
+  private static java.lang.String lambda$fillUptime$0() throws java.lang.Exception;
+  private void lambda$toggleFriendsScreen$0(net.minecraft.client.gui.screens.Screen);
+  private static void lambda$doWorldLoad$3(net.minecraft.network.chat.Component);
+  private static boolean lambda$doWorldLoad$2(long);
+  private static java.lang.String lambda$doWorldLoad$1(net.minecraft.server.WorldStem) throws java.lang.Exception;
+  private net.minecraft.client.server.IntegratedServer lambda$doWorldLoad$0(net.minecraft.world.level.storage.LevelStorageSource$LevelStorageAccess, net.minecraft.server.packs.repository.PackRepository, net.minecraft.server.WorldStem, java.util.Optional, net.minecraft.server.level.progress.LevelLoadListener, java.lang.Thread);
+  private static java.util.Optional lambda$getQuickActionsDialog$0(net.minecraft.core.Registry, net.minecraft.core.HolderSet$Named);
+  private void lambda$handleKeybinds$0(net.minecraft.core.Holder);
+  private static boolean lambda$tick$0();
+  private void lambda$debugClientMetricsStart$9(java.util.function.Consumer, net.minecraft.util.profiling.ProfileResults);
+  private static void lambda$debugClientMetricsStart$8(net.minecraft.util.profiling.ProfileResults);
+  private static void lambda$debugClientMetricsStart$7(java.util.function.Consumer, java.util.concurrent.CompletableFuture, java.util.concurrent.CompletableFuture);
+  private static void lambda$debugClientMetricsStart$6(java.util.function.Consumer, java.nio.file.Path);
+  private void lambda$debugClientMetricsStart$5(net.minecraft.SystemReport, java.util.function.Consumer, java.util.List);
+  private void lambda$debugClientMetricsStart$2(java.util.function.Consumer, java.nio.file.Path);
+  private static void lambda$debugClientMetricsStart$4(java.util.function.Consumer, net.minecraft.network.chat.Component);
+  private static net.minecraft.network.chat.Style lambda$debugClientMetricsStart$3(java.nio.file.Path, net.minecraft.network.chat.Style);
+  private void lambda$debugClientMetricsStart$0(java.util.function.Consumer, net.minecraft.util.profiling.ProfileResults);
+  private static void lambda$debugClientMetricsStart$1(java.util.function.Consumer, double, int);
+  private void lambda$sendLowDiskSpaceWarning$0();
+  private static void lambda$runTick$0(java.util.concurrent.CompletableFuture);
+  private void lambda$reloadResourcePacks$0(boolean, net.minecraft.client.GameLoadCookie, java.util.concurrent.CompletableFuture, java.util.Optional);
+  private void lambda$reloadResourcePacks$2(java.util.concurrent.CompletableFuture, net.minecraft.client.GameLoadCookie);
+  private void lambda$reloadResourcePacks$1(boolean, net.minecraft.client.GameLoadCookie, java.lang.Throwable);
+  private void lambda$clearResourcePacksOnError$0(net.minecraft.network.chat.Component);
+  private void lambda$new$8(net.minecraft.client.telemetry.TelemetryPropertyMap$Builder);
+  private int lambda$new$7();
+  private void lambda$new$4(net.minecraft.client.GameLoadCookie, java.util.Optional);
+  private void lambda$new$6(net.minecraft.client.GameLoadCookie);
+  private void lambda$new$5(net.minecraft.client.GameLoadCookie, java.lang.Throwable);
+  private void lambda$new$3(net.minecraft.client.resources.language.ClientLanguage);
+  private java.lang.String lambda$new$2(net.minecraft.resources.Identifier, com.mojang.blaze3d.shaders.ShaderType);
+  private com.mojang.authlib.minecraft.UserApiService$UserProperties lambda$new$1();
+  private com.mojang.authlib.yggdrasil.ProfileResult lambda$new$0();
+  static {};
+}
+
 == class index ==
 net/minecraft/client/model/HumanoidModel
 net/minecraft/client/model/player/PlayerModel
 net/minecraft/client/renderer/blockentity/state/
 net/minecraft/client/renderer/blockentity/state/BannerRenderState
 net/minecraft/client/renderer/blockentity/state/BeaconRenderState
+net/minecraft/client/renderer/blockentity/state/BedRenderState
 net/minecraft/client/renderer/blockentity/state/BellRenderState
 net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState
-net/minecraft/client/renderer/blockentity/state/BrushableBlockRenderState
+net/minecraft/client/renderer/blockentity/state/BlockEntityWithBoundingBoxRenderState
 net/minecraft/client/renderer/blockentity/state/CampfireRenderState
+net/minecraft/client/renderer/blockentity/state/BrushableBlockRenderState
 net/minecraft/client/renderer/blockentity/state/ChestRenderState
-net/minecraft/client/renderer/blockentity/state/ConduitRenderState
 net/minecraft/client/renderer/blockentity/state/CopperGolemStatueRenderState
 net/minecraft/client/renderer/blockentity/state/DecoratedPotRenderState
 net/minecraft/client/renderer/blockentity/state/EnchantTableRenderState
 net/minecraft/client/renderer/blockentity/state/EndGatewayRenderState
 net/minecraft/client/renderer/blockentity/state/EndPortalRenderState
-net/minecraft/client/renderer/blockentity/state/HangingSignRenderState
 net/minecraft/client/renderer/blockentity/state/LecternRenderState
-net/minecraft/client/renderer/blockentity/state/ShelfRenderState
+net/minecraft/client/renderer/blockentity/state/HangingSignRenderState
+net/minecraft/client/renderer/blockentity/state/ConduitRenderState
+net/minecraft/client/renderer/blockentity/state/PistonHeadRenderState
 net/minecraft/client/renderer/blockentity/state/ShulkerBoxRenderState
 net/minecraft/client/renderer/blockentity/state/SignRenderState
-net/minecraft/client/renderer/blockentity/state/BlockEntityWithBoundingBoxRenderState
-net/minecraft/client/renderer/blockentity/state/PistonHeadRenderState
-net/minecraft/client/renderer/blockentity/state/BedRenderState
 net/minecraft/client/renderer/blockentity/state/SpawnerRenderState
 net/minecraft/client/renderer/blockentity/state/StandingSignRenderState
+net/minecraft/client/renderer/blockentity/state/ShelfRenderState
+net/minecraft/client/renderer/blockentity/state/SkullBlockRenderState
 net/minecraft/client/renderer/blockentity/state/TestInstanceRenderState
 net/minecraft/client/renderer/blockentity/state/VaultRenderState
 net/minecraft/client/renderer/blockentity/state/package-info
-net/minecraft/client/renderer/blockentity/state/SkullBlockRenderState
 net/minecraft/client/renderer/entity/layers/
 net/minecraft/client/renderer/entity/layers/ArrowLayer
 net/minecraft/client/renderer/entity/layers/BeeStingerLayer
 net/minecraft/client/renderer/entity/layers/BlockDecorationLayer
 net/minecraft/client/renderer/entity/layers/BreezeEyesLayer
 net/minecraft/client/renderer/entity/layers/BreezeWindLayer
-net/minecraft/client/renderer/entity/layers/CarriedBlockLayer
 net/minecraft/client/renderer/entity/layers/CapeLayer
+net/minecraft/client/renderer/entity/layers/CarriedBlockLayer
 net/minecraft/client/renderer/entity/layers/CreeperPowerLayer
-net/minecraft/client/renderer/entity/layers/CatCollarLayer
 net/minecraft/client/renderer/entity/layers/CrossedArmsItemLayer
 net/minecraft/client/renderer/entity/layers/Deadmau5EarsLayer
 net/minecraft/client/renderer/entity/layers/DolphinCarryingItemLayer
-net/minecraft/client/renderer/entity/layers/CustomHeadLayer
 net/minecraft/client/renderer/entity/layers/EnderEyesLayer
 net/minecraft/client/renderer/entity/layers/DrownedOuterLayer
-net/minecraft/client/renderer/entity/layers/EyesLayer
-net/minecraft/client/renderer/entity/layers/FoxHeldItemLayer
+net/minecraft/client/renderer/entity/layers/EnergySwirlLayer
 net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer
+net/minecraft/client/renderer/entity/layers/FoxHeldItemLayer
 net/minecraft/client/renderer/entity/layers/HorseMarkingLayer
 net/minecraft/client/renderer/entity/layers/HumanoidArmorLayer
-net/minecraft/client/renderer/entity/layers/IronGolemCrackinessLayer
+net/minecraft/client/renderer/entity/layers/CustomHeadLayer
 net/minecraft/client/renderer/entity/layers/IronGolemFlowerLayer
 net/minecraft/client/renderer/entity/layers/ItemInHandLayer
+net/minecraft/client/renderer/entity/layers/EyesLayer
 net/minecraft/client/renderer/entity/layers/LivingEntityEmissiveLayer
 net/minecraft/client/renderer/entity/layers/LlamaDecorLayer
-net/minecraft/client/renderer/entity/layers/MushroomCowMushroomLayer
 net/minecraft/client/renderer/entity/layers/PandaHoldsItemLayer
+net/minecraft/client/renderer/entity/layers/MushroomCowMushroomLayer
 net/minecraft/client/renderer/entity/layers/PhantomEyesLayer
 net/minecraft/client/renderer/entity/layers/ParrotOnShoulderLayer
 net/minecraft/client/renderer/entity/layers/PlayerItemInHandLayer
@@ -4154,31 +4534,30 @@ net/minecraft/client/renderer/entity/layers/RenderLayer
 net/minecraft/client/renderer/entity/layers/RopesLayer
 net/minecraft/client/renderer/entity/layers/SheepWoolLayer
 net/minecraft/client/renderer/entity/layers/SheepWoolUndercoatLayer
-net/minecraft/client/renderer/entity/layers/SimpleEquipmentLayer
 net/minecraft/client/renderer/entity/layers/SkeletonClothingLayer
+net/minecraft/client/renderer/entity/layers/SimpleEquipmentLayer
 net/minecraft/client/renderer/entity/layers/SlimeOuterLayer
 net/minecraft/client/renderer/entity/layers/SnowGolemHeadLayer
 net/minecraft/client/renderer/entity/layers/SpiderEyesLayer
 net/minecraft/client/renderer/entity/layers/SpinAttackEffectLayer
-net/minecraft/client/renderer/entity/layers/SulfurCubeInnerLayer
 net/minecraft/client/renderer/entity/layers/StuckInBodyLayer
+net/minecraft/client/renderer/entity/layers/CatCollarLayer
 net/minecraft/client/renderer/entity/layers/TropicalFishPatternLayer
-net/minecraft/client/renderer/entity/layers/WingsLayer
 net/minecraft/client/renderer/entity/layers/VillagerProfessionLayer
 net/minecraft/client/renderer/entity/layers/WitchItemLayer
 net/minecraft/client/renderer/entity/layers/WitherArmorLayer
-net/minecraft/client/renderer/entity/layers/WolfCollarLayer
 net/minecraft/client/renderer/entity/layers/WolfArmorLayer
-net/minecraft/client/renderer/entity/layers/EnergySwirlLayer
+net/minecraft/client/renderer/entity/layers/WolfCollarLayer
+net/minecraft/client/renderer/entity/layers/package-info
 net/minecraft/client/renderer/entity/player/
+net/minecraft/client/renderer/entity/player/AvatarRenderer
 net/minecraft/client/renderer/entity/player/package-info
+net/minecraft/client/renderer/entity/layers/IronGolemCrackinessLayer
 net/minecraft/client/renderer/entity/state/
-net/minecraft/client/renderer/entity/state/AllayRenderState
 net/minecraft/client/renderer/entity/state/ArmadilloRenderState
 net/minecraft/client/renderer/entity/state/ArmedEntityRenderState
 net/minecraft/client/renderer/entity/state/ArmorStandRenderState
 net/minecraft/client/renderer/entity/state/ArrowRenderState
-net/minecraft/client/renderer/entity/player/AvatarRenderer
 net/minecraft/client/renderer/entity/state/AvatarRenderState
 net/minecraft/client/renderer/entity/state/AxolotlRenderState
 net/minecraft/client/renderer/entity/state/BatRenderState
@@ -4190,33 +4569,34 @@ net/minecraft/client/renderer/entity/state/BreezeRenderState
 net/minecraft/client/renderer/entity/state/CamelRenderState
 net/minecraft/client/renderer/entity/state/CatRenderState
 net/minecraft/client/renderer/entity/state/ChickenRenderState
-net/minecraft/client/renderer/entity/state/CowRenderState
 net/minecraft/client/renderer/entity/state/CopperGolemRenderState
+net/minecraft/client/renderer/entity/state/CowRenderState
 net/minecraft/client/renderer/entity/state/CreakingRenderState
 net/minecraft/client/renderer/entity/state/CreeperRenderState
-net/minecraft/client/renderer/entity/layers/package-info
-net/minecraft/client/renderer/entity/state/DolphinRenderState
+net/minecraft/client/renderer/entity/layers/WingsLayer
 net/minecraft/client/renderer/entity/state/DisplayEntityRenderState
+net/minecraft/client/renderer/entity/state/DolphinRenderState
+net/minecraft/client/renderer/entity/state/DonkeyRenderState
 net/minecraft/client/renderer/entity/state/EndCrystalRenderState
 net/minecraft/client/renderer/entity/state/EndermanRenderState
 net/minecraft/client/renderer/entity/state/EnderDragonRenderState
-net/minecraft/client/renderer/entity/state/EntityRenderState
 net/minecraft/client/renderer/entity/state/EquineRenderState
+net/minecraft/client/renderer/entity/state/EntityRenderState
 net/minecraft/client/renderer/entity/state/EvokerFangsRenderState
-net/minecraft/client/renderer/entity/state/DonkeyRenderState
+net/minecraft/client/renderer/entity/state/EvokerRenderState
 net/minecraft/client/renderer/entity/state/ExperienceOrbRenderState
 net/minecraft/client/renderer/entity/state/FallingBlockRenderState
 net/minecraft/client/renderer/entity/state/FelineRenderState
 net/minecraft/client/renderer/entity/state/FireworkRocketRenderState
-net/minecraft/client/renderer/entity/state/FishingHookRenderState
 net/minecraft/client/renderer/entity/state/FoxRenderState
 net/minecraft/client/renderer/entity/state/FrogRenderState
 net/minecraft/client/renderer/entity/state/GhastRenderState
 net/minecraft/client/renderer/entity/state/GoatRenderState
 net/minecraft/client/renderer/entity/state/GuardianRenderState
 net/minecraft/client/renderer/entity/state/HappyGhastRenderState
-net/minecraft/client/renderer/entity/state/HoglinRenderState
 net/minecraft/client/renderer/entity/state/HitboxRenderState
+net/minecraft/client/renderer/entity/state/HoglinRenderState
+net/minecraft/client/renderer/entity/layers/SulfurCubeInnerLayer
 net/minecraft/client/renderer/entity/state/HoldingEntityRenderState
 net/minecraft/client/renderer/entity/state/HorseRenderState
 net/minecraft/client/renderer/entity/state/HumanoidRenderState
@@ -4224,17 +4604,18 @@ net/minecraft/client/renderer/entity/state/IllagerRenderState
 net/minecraft/client/renderer/entity/state/IllusionerRenderState
 net/minecraft/client/renderer/entity/state/IronGolemRenderState
 net/minecraft/client/renderer/entity/state/ItemClusterRenderState
-net/minecraft/client/renderer/entity/state/ItemFrameRenderState
+net/minecraft/client/renderer/entity/state/ItemDisplayEntityRenderState
+net/minecraft/client/renderer/entity/state/ItemEntityRenderState
 net/minecraft/client/renderer/entity/state/LightningBoltRenderState
-net/minecraft/client/renderer/entity/state/LivingEntityRenderState
+net/minecraft/client/renderer/entity/state/ItemFrameRenderState
 net/minecraft/client/renderer/entity/state/LlamaRenderState
+net/minecraft/client/renderer/entity/state/LivingEntityRenderState
 net/minecraft/client/renderer/entity/state/LlamaSpitRenderState
-net/minecraft/client/renderer/entity/state/MinecartRenderState
 net/minecraft/client/renderer/entity/state/MinecartTntRenderState
+net/minecraft/client/renderer/entity/state/MinecartRenderState
 net/minecraft/client/renderer/entity/state/MushroomCowRenderState
 net/minecraft/client/renderer/entity/state/NautilusRenderState
 net/minecraft/client/renderer/entity/state/PaintingRenderState
-net/minecraft/client/renderer/entity/state/PandaRenderState
 net/minecraft/client/renderer/entity/state/ParrotRenderState
 net/minecraft/client/renderer/entity/state/PhantomRenderState
 net/minecraft/client/renderer/entity/state/PigRenderState
@@ -4245,38 +4626,38 @@ net/minecraft/client/renderer/entity/state/RabbitRenderState
 net/minecraft/client/renderer/entity/state/RavagerRenderState
 net/minecraft/client/renderer/entity/state/SalmonRenderState
 net/minecraft/client/renderer/entity/state/SheepRenderState
-net/minecraft/client/renderer/entity/state/ItemDisplayEntityRenderState
 net/minecraft/client/renderer/entity/state/ShulkerBulletRenderState
-net/minecraft/client/renderer/entity/state/SkeletonRenderState
+net/minecraft/client/renderer/entity/state/FishingHookRenderState
+net/minecraft/client/renderer/entity/state/AllayRenderState
 net/minecraft/client/renderer/entity/state/ShulkerRenderState
-net/minecraft/client/renderer/entity/state/SlimeRenderState
-net/minecraft/client/renderer/entity/state/SnifferRenderState
+net/minecraft/client/renderer/entity/state/SkeletonRenderState
 net/minecraft/client/renderer/entity/state/SnowGolemRenderState
+net/minecraft/client/renderer/entity/state/SnifferRenderState
 net/minecraft/client/renderer/entity/state/SquidRenderState
 net/minecraft/client/renderer/entity/state/StriderRenderState
 net/minecraft/client/renderer/entity/state/SulfurCubeRenderState
 net/minecraft/client/renderer/entity/state/TextDisplayEntityRenderState
-net/minecraft/client/renderer/entity/state/ThrownItemRenderState
 net/minecraft/client/renderer/entity/state/ThrownTridentRenderState
 net/minecraft/client/renderer/entity/state/TippableArrowRenderState
 net/minecraft/client/renderer/entity/state/TntRenderState
 net/minecraft/client/renderer/entity/state/TropicalFishRenderState
 net/minecraft/client/renderer/entity/state/TurtleRenderState
-net/minecraft/client/renderer/entity/state/VexRenderState
-net/minecraft/client/renderer/entity/state/ItemEntityRenderState
+net/minecraft/client/renderer/entity/state/UndeadRenderState
+net/minecraft/client/renderer/entity/state/ThrownItemRenderState
+net/minecraft/client/renderer/entity/state/PandaRenderState
 net/minecraft/client/renderer/entity/state/VillagerDataHolderRenderState
 net/minecraft/client/renderer/entity/state/VillagerRenderState
-net/minecraft/client/renderer/entity/state/EvokerRenderState
 net/minecraft/client/renderer/entity/state/WardenRenderState
+net/minecraft/client/renderer/entity/state/WitchRenderState
 net/minecraft/client/renderer/entity/state/WitherRenderState
 net/minecraft/client/renderer/entity/state/WitherSkullRenderState
-net/minecraft/client/renderer/entity/state/ZombieRenderState
 net/minecraft/client/renderer/entity/state/WolfRenderState
-net/minecraft/client/renderer/entity/state/ZombifiedPiglinRenderState
-net/minecraft/client/renderer/entity/state/UndeadRenderState
-net/minecraft/client/renderer/entity/state/package-info
-net/minecraft/client/renderer/entity/state/WitchRenderState
+net/minecraft/client/renderer/entity/state/ZombieRenderState
 net/minecraft/client/renderer/entity/state/ZombieVillagerRenderState
+net/minecraft/client/renderer/entity/state/ZombifiedPiglinRenderState
+net/minecraft/client/renderer/entity/state/package-info
+net/minecraft/client/renderer/entity/state/SlimeRenderState
+net/minecraft/client/renderer/entity/state/VexRenderState
 net/fabricmc/fabric/api/client/rendering/v1/FeatureRendererRegistry
 net/fabricmc/fabric/api/client/rendering/v1/LivingEntityFeatureRenderEvents
 net/fabricmc/fabric/api/client/rendering/v1/LivingEntityRenderLayerRegistrationCallback
