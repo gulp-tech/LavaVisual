@@ -3381,6 +3381,713 @@ public class net.minecraft.client.renderer.ItemInHandRenderer {
   static {};
 }
 
+Compiled from "MouseHandler.java"
+public class net.minecraft.client.MouseHandler {
+  private static final org.slf4j.Logger LOGGER;
+  public static final long DOUBLE_CLICK_THRESHOLD_MS;
+  private final net.minecraft.client.Minecraft minecraft;
+  private boolean isLeftPressed;
+  private boolean isMiddlePressed;
+  private boolean isRightPressed;
+  private double xpos;
+  private double ypos;
+  private net.minecraft.client.MouseHandler$LastClick lastClick;
+  protected int lastClickButton;
+  private int fakeRightMouse;
+  private net.minecraft.client.input.MouseButtonInfo activeButton;
+  private boolean ignoreFirstMove;
+  private double mousePressedTime;
+  private final net.minecraft.util.SmoothDouble smoothTurnX;
+  private final net.minecraft.util.SmoothDouble smoothTurnY;
+  private double accumulatedDX;
+  private double accumulatedDY;
+  private final net.minecraft.client.ScrollWheelHandler scrollWheelHandler;
+  private double lastHandleMovementTime;
+  private boolean mouseGrabbed;
+  public net.minecraft.client.MouseHandler(net.minecraft.client.Minecraft);
+  private void onButton(long, net.minecraft.client.input.MouseButtonInfo, int);
+  private net.minecraft.client.input.MouseButtonInfo simulateRightClick(net.minecraft.client.input.MouseButtonInfo, boolean);
+  public void fillMousePositionDetails(net.minecraft.CrashReportCategory, com.mojang.blaze3d.platform.Window);
+  private void onScroll(long, double, double);
+  private void onDrop(long, java.util.List<java.nio.file.Path>, int);
+  public void setup(com.mojang.blaze3d.platform.Window);
+  private void onMove(long, double, double);
+  public void handleAccumulatedMovement();
+  public static double getScaledXPos(com.mojang.blaze3d.platform.Window, double);
+  public double getScaledXPos(com.mojang.blaze3d.platform.Window);
+  public static double getScaledYPos(com.mojang.blaze3d.platform.Window, double);
+  public double getScaledYPos(com.mojang.blaze3d.platform.Window);
+  private void turnPlayer(double);
+  public boolean isLeftPressed();
+  public boolean isMiddlePressed();
+  public boolean isRightPressed();
+  public double xpos();
+  public double ypos();
+  public void setIgnoreFirstMove();
+  public boolean isMouseGrabbed();
+  public void grabMouse();
+  public void releaseMouse();
+  public void cursorEntered();
+  public void drawDebugMouseInfo(net.minecraft.client.gui.Font, net.minecraft.client.gui.GuiGraphicsExtractor);
+  private void lambda$setup$6(long, int, long);
+  private void lambda$setup$7(long, java.util.List, int);
+  private void lambda$setup$4(long, double, double);
+  private void lambda$setup$5(long, double, double);
+  private void lambda$setup$2(long, int, int, int);
+  private void lambda$setup$3(long, net.minecraft.client.input.MouseButtonInfo, int);
+  private void lambda$setup$0(long, double, double);
+  private void lambda$setup$1(long, double, double);
+  private static java.lang.String lambda$fillMousePositionDetails$1(com.mojang.blaze3d.platform.Window) throws java.lang.Exception;
+  private java.lang.String lambda$fillMousePositionDetails$0(com.mojang.blaze3d.platform.Window) throws java.lang.Exception;
+  static {};
+}
+
+Compiled from "ParticleEngine.java"
+public class net.minecraft.client.particle.ParticleEngine {
+  private static final java.util.List<net.minecraft.client.particle.ParticleRenderType> RENDER_ORDER;
+  protected net.minecraft.client.multiplayer.ClientLevel level;
+  private final java.util.Map<net.minecraft.client.particle.ParticleRenderType, net.minecraft.client.particle.ParticleGroup<?>> particles;
+  private final java.util.Queue<net.minecraft.client.particle.TrackingEmitter> trackingEmitters;
+  private final java.util.Queue<net.minecraft.client.particle.Particle> particlesToAdd;
+  private final it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap<net.minecraft.core.particles.ParticleLimit> trackedParticleCounts;
+  private final net.minecraft.client.particle.ParticleResources resourceManager;
+  private final net.minecraft.util.RandomSource random;
+  public net.minecraft.client.particle.ParticleEngine(net.minecraft.client.multiplayer.ClientLevel, net.minecraft.client.particle.ParticleResources);
+  public void createTrackingEmitter(net.minecraft.world.entity.Entity, net.minecraft.core.particles.ParticleOptions);
+  public void createTrackingEmitter(net.minecraft.world.entity.Entity, net.minecraft.core.particles.ParticleOptions, int);
+  public net.minecraft.client.particle.Particle createParticle(net.minecraft.core.particles.ParticleOptions, double, double, double, double, double, double);
+  private <T extends net.minecraft.core.particles.ParticleOptions> net.minecraft.client.particle.Particle makeParticle(T, double, double, double, double, double, double);
+  public void add(net.minecraft.client.particle.Particle);
+  public void tick();
+  private net.minecraft.client.particle.ParticleGroup<?> createParticleGroup(net.minecraft.client.particle.ParticleRenderType);
+  protected void updateCount(net.minecraft.core.particles.ParticleLimit, int);
+  public void extract(net.minecraft.client.renderer.state.level.ParticlesRenderState, net.minecraft.client.renderer.culling.Frustum, net.minecraft.client.Camera, float);
+  public void setLevel(net.minecraft.client.multiplayer.ClientLevel);
+  public java.lang.String countParticles();
+  private boolean hasSpaceInParticleLimit(net.minecraft.core.particles.ParticleLimit);
+  public void clearParticles();
+  public net.minecraft.util.RandomSource getRandom();
+  private void lambda$tick$1(net.minecraft.core.particles.ParticleLimit);
+  private static void lambda$tick$0(net.minecraft.client.particle.ParticleRenderType, net.minecraft.client.particle.ParticleGroup);
+  static {};
+}
+
+Compiled from "Util.java"
+public class net.minecraft.util.Util {
+  private static final org.slf4j.Logger LOGGER;
+  private static final int DEFAULT_MAX_THREADS;
+  private static final int DEFAULT_SAFE_FILE_OPERATION_RETRIES;
+  private static final java.lang.String MAX_THREADS_SYSTEM_PROPERTY;
+  private static final net.minecraft.TracingExecutor BACKGROUND_EXECUTOR;
+  private static final net.minecraft.TracingExecutor IO_POOL;
+  private static final net.minecraft.TracingExecutor DOWNLOAD_POOL;
+  private static final java.time.format.DateTimeFormatter FILENAME_DATE_TIME_FORMATTER;
+  public static final int LINEAR_LOOKUP_THRESHOLD;
+  private static final java.util.Set<java.lang.String> ALLOWED_UNTRUSTED_LINK_PROTOCOLS;
+  public static final long NANOS_PER_MILLI;
+  private static net.minecraft.util.TimeSource$NanoTimeSource timeSource;
+  private static final net.minecraft.util.TimeSource$NanoTimeSource INDIRECT_TIME_SOURCE;
+  public static final com.google.common.base.Ticker TICKER;
+  public static final java.util.UUID NIL_UUID;
+  public static final java.nio.file.spi.FileSystemProvider ZIP_FILE_SYSTEM_PROVIDER;
+  public static final com.google.common.escape.Escaper CONTROL_CHARACTER_ESCAPER;
+  private static java.util.function.Consumer<java.lang.String> thePauser;
+  public net.minecraft.util.Util();
+  public static <K, V> java.util.stream.Collector<java.util.Map$Entry<? extends K, ? extends V>, ?, java.util.Map<K, V>> toMap();
+  public static <T> java.util.stream.Collector<T, ?, java.util.List<T>> toMutableList();
+  public static <T extends java.lang.Comparable<T>> java.lang.String getPropertyName(net.minecraft.world.level.block.state.properties.Property<T>, java.lang.Object);
+  public static java.lang.String makeDescriptionId(java.lang.String, net.minecraft.resources.Identifier);
+  public static net.minecraft.util.TimeSource$NanoTimeSource timeSource();
+  public static void setTimeSource(net.minecraft.util.TimeSource$NanoTimeSource);
+  public static void shutdownTimeSource();
+  public static long getMillis();
+  public static long getNanos();
+  public static long getEpochMillis();
+  public static java.lang.String getFilenameFormattedDateTime();
+  private static net.minecraft.TracingExecutor makeExecutor(java.lang.String);
+  public static int maxAllowedExecutorThreads();
+  private static int getMaxThreads();
+  public static net.minecraft.TracingExecutor backgroundExecutor();
+  public static net.minecraft.TracingExecutor ioPool();
+  public static net.minecraft.TracingExecutor nonCriticalIoPool();
+  public static void shutdownExecutors();
+  private static net.minecraft.TracingExecutor makeIoExecutor(java.lang.String, boolean);
+  public static void throwAsRuntime(java.lang.Throwable);
+  private static void onThreadException(java.lang.Thread, java.lang.Throwable);
+  public static com.mojang.datafixers.types.Type<?> fetchChoiceType(com.mojang.datafixers.DSL$TypeReference, java.lang.String);
+  private static com.mojang.datafixers.types.Type<?> doFetchChoiceType(com.mojang.datafixers.DSL$TypeReference, java.lang.String);
+  public static void runNamed(java.lang.Runnable, java.lang.String);
+  public static <T> java.lang.String getRegisteredName(net.minecraft.core.Registry<T>, T);
+  public static <T> java.util.function.Predicate<T> allOf();
+  public static <T> java.util.function.Predicate<T> allOf(java.util.function.Predicate<? super T>);
+  public static <T> java.util.function.Predicate<T> allOf(java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>);
+  public static <T> java.util.function.Predicate<T> allOf(java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>);
+  public static <T> java.util.function.Predicate<T> allOf(java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>);
+  public static <T> java.util.function.Predicate<T> allOf(java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>);
+  public static <T> java.util.function.Predicate<T> allOf(java.util.function.Predicate<? super T>...);
+  public static <T> java.util.function.Predicate<T> allOf(java.util.List<? extends java.util.function.Predicate<? super T>>);
+  public static <T> java.util.function.Predicate<T> anyOf();
+  public static <T> java.util.function.Predicate<T> anyOf(java.util.function.Predicate<? super T>);
+  public static <T> java.util.function.Predicate<T> anyOf(java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>);
+  public static <T> java.util.function.Predicate<T> anyOf(java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>);
+  public static <T> java.util.function.Predicate<T> anyOf(java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>);
+  public static <T> java.util.function.Predicate<T> anyOf(java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>, java.util.function.Predicate<? super T>);
+  public static <T> java.util.function.Predicate<T> anyOf(java.util.function.Predicate<? super T>...);
+  public static <T> java.util.function.Predicate<T> anyOf(java.util.List<? extends java.util.function.Predicate<? super T>>);
+  public static <T> boolean isSymmetrical(int, int, java.util.List<T>);
+  public static int growByHalf(int, int);
+  public static java.time.format.DateTimeFormatter localizedDateFormatter(java.time.format.FormatStyle);
+  public static java.lang.management.ThreadInfo[] dumpThreadInfo();
+  public static net.minecraft.util.Util$OS getPlatform();
+  public static boolean isAarch64();
+  public static java.net.URI parseAndValidateUntrustedUri(java.lang.String) throws java.net.URISyntaxException;
+  public static <T> T findNextInIterable(java.lang.Iterable<T>, T);
+  public static <T> T findPreviousInIterable(java.lang.Iterable<T>, T);
+  public static <T> T make(java.util.function.Supplier<T>);
+  public static <T> T make(T, java.util.function.Consumer<? super T>);
+  public static <K extends java.lang.Enum<K>, V> java.util.Map<K, V> makeEnumMap(java.lang.Class<K>, java.util.function.Function<K, V>);
+  public static <K, V1, V2> java.util.Map<K, V2> mapValues(java.util.Map<K, V1>, java.util.function.Function<? super V1, V2>);
+  public static <K, V1, V2> java.util.Map<K, V2> mapValuesLazy(java.util.Map<K, V1>, com.google.common.base.Function<V1, V2>);
+  public static <T extends java.lang.Enum<T>> java.util.Set<T> allOfEnumExcept(T);
+  public static <V> java.util.concurrent.CompletableFuture<java.util.List<V>> sequence(java.util.List<? extends java.util.concurrent.CompletableFuture<V>>);
+  public static <V> java.util.concurrent.CompletableFuture<java.util.List<V>> sequenceFailFast(java.util.List<? extends java.util.concurrent.CompletableFuture<? extends V>>);
+  public static <V> java.util.concurrent.CompletableFuture<java.util.List<V>> sequenceFailFastAndCancel(java.util.List<? extends java.util.concurrent.CompletableFuture<? extends V>>);
+  private static <V> java.util.concurrent.CompletableFuture<java.util.List<V>> fallibleSequence(java.util.List<? extends java.util.concurrent.CompletableFuture<? extends V>>, java.util.function.Consumer<java.lang.Throwable>);
+  public static <T> java.util.Optional<T> ifElse(java.util.Optional<T>, java.util.function.Consumer<T>, java.lang.Runnable);
+  public static <T> java.util.function.Supplier<T> name(java.util.function.Supplier<T>, java.util.function.Supplier<java.lang.String>);
+  public static java.lang.Runnable name(java.lang.Runnable, java.util.function.Supplier<java.lang.String>);
+  public static void logAndPauseIfInIde(java.lang.String);
+  public static void logAndPauseIfInIde(java.lang.String, java.lang.Throwable);
+  public static <T extends java.lang.Throwable> T pauseInIde(T);
+  public static void setPause(java.util.function.Consumer<java.lang.String>);
+  private static void doPause(java.lang.String);
+  public static java.lang.String describeError(java.lang.Throwable);
+  public static <T> T getRandom(T[], net.minecraft.util.RandomSource);
+  public static int getRandom(int[], net.minecraft.util.RandomSource);
+  public static <T> T getRandom(java.util.List<T>, net.minecraft.util.RandomSource);
+  public static <T> java.util.Optional<T> getRandomSafe(java.util.List<T>, net.minecraft.util.RandomSource);
+  private static java.util.function.BooleanSupplier createRenamer(java.nio.file.Path, java.nio.file.Path, java.nio.file.CopyOption...);
+  private static java.util.function.BooleanSupplier createDeleter(java.nio.file.Path);
+  private static java.util.function.BooleanSupplier createFileDeletedCheck(java.nio.file.Path);
+  private static java.util.function.BooleanSupplier createFileCreatedCheck(java.nio.file.Path);
+  private static boolean executeInSequence(java.util.function.BooleanSupplier...);
+  private static boolean runWithRetries(int, java.lang.String, java.util.function.BooleanSupplier...);
+  public static boolean safeMoveFile(java.nio.file.Path, java.nio.file.Path, java.nio.file.CopyOption...);
+  public static void safeReplaceFile(java.nio.file.Path, java.nio.file.Path, java.nio.file.Path);
+  public static boolean safeReplaceOrMoveFile(java.nio.file.Path, java.nio.file.Path, java.nio.file.Path, boolean);
+  public static int offsetByCodepoints(java.lang.String, int, int);
+  public static java.util.function.Consumer<java.lang.String> prefix(java.lang.String, java.util.function.Consumer<java.lang.String>);
+  public static com.mojang.serialization.DataResult<int[]> fixedSize(java.util.stream.IntStream, int);
+  public static com.mojang.serialization.DataResult<long[]> fixedSize(java.util.stream.LongStream, int);
+  public static <T> com.mojang.serialization.DataResult<java.util.List<T>> fixedSize(java.util.List<T>, int);
+  public static void startTimerHackThread();
+  public static void copyBetweenDirs(java.nio.file.Path, java.nio.file.Path, java.nio.file.Path) throws java.io.IOException;
+  public static java.lang.String sanitizeName(java.lang.String, net.minecraft.CharPredicate);
+  public static <K, V> net.minecraft.util.SingleKeyCache<K, V> singleKeyCache(java.util.function.Function<K, V>);
+  public static <T, R> java.util.function.Function<T, R> memoize(java.util.function.Function<T, R>);
+  public static <T, U, R> java.util.function.BiFunction<T, U, R> memoize(java.util.function.BiFunction<T, U, R>);
+  public static <T> java.util.List<T> toShuffledList(java.util.stream.Stream<T>, net.minecraft.util.RandomSource);
+  public static it.unimi.dsi.fastutil.ints.IntArrayList toShuffledList(java.util.stream.IntStream, net.minecraft.util.RandomSource);
+  public static <T> java.util.List<T> shuffledCopy(T[], net.minecraft.util.RandomSource);
+  public static <T> java.util.List<T> shuffledCopy(it.unimi.dsi.fastutil.objects.ObjectArrayList<T>, net.minecraft.util.RandomSource);
+  public static <T> void shuffle(java.util.List<T>, net.minecraft.util.RandomSource);
+  public static <T> java.util.concurrent.CompletableFuture<T> blockUntilDone(java.util.function.Function<java.util.concurrent.Executor, java.util.concurrent.CompletableFuture<T>>);
+  public static <T> T blockUntilDone(java.util.function.Function<java.util.concurrent.Executor, T>, java.util.function.Predicate<T>);
+  public static <T> java.util.function.ToIntFunction<T> createIndexLookup(java.util.List<T>);
+  public static <T> java.util.function.ToIntFunction<T> createIndexIdentityLookup(java.util.List<T>);
+  public static <A, B> com.mojang.datafixers.Typed<B> writeAndReadTypedOrThrow(com.mojang.datafixers.Typed<A>, com.mojang.datafixers.types.Type<B>, java.util.function.UnaryOperator<com.mojang.serialization.Dynamic<?>>);
+  public static <T> com.mojang.datafixers.Typed<T> readTypedOrThrow(com.mojang.datafixers.types.Type<T>, com.mojang.serialization.Dynamic<?>);
+  public static <T> com.mojang.datafixers.Typed<T> readTypedOrThrow(com.mojang.datafixers.types.Type<T>, com.mojang.serialization.Dynamic<?>, boolean);
+  public static <T> java.util.List<T> copyAndAdd(java.util.List<T>, T);
+  public static <T> java.util.List<T> copyAndAdd(java.util.List<T>, T...);
+  public static <T> java.util.List<T> copyAndAdd(T, java.util.List<T>);
+  public static <T> java.util.List<T> join(java.util.List<T>, java.util.List<T>);
+  public static <T> java.util.List<T> join(java.util.List<T>...);
+  public static <K, V> java.util.Map<K, V> copyAndPut(java.util.Map<K, V>, K, V);
+  private static java.lang.String lambda$sanitizeName$0(net.minecraft.CharPredicate, int);
+  private static java.lang.String lambda$fixedSize$2(int);
+  private static java.lang.String lambda$fixedSize$1(int);
+  private static java.lang.String lambda$fixedSize$0(int);
+  private static void lambda$prefix$0(java.util.function.Consumer, java.lang.String, java.lang.String);
+  private static java.util.List lambda$fallibleSequence$1(it.unimi.dsi.fastutil.objects.ObjectArrayList, java.lang.Void);
+  private static void lambda$fallibleSequence$0(java.util.function.Consumer, it.unimi.dsi.fastutil.objects.ObjectArrayList, int, java.lang.Object, java.lang.Throwable);
+  private static void lambda$sequenceFailFastAndCancel$0(java.util.concurrent.CompletableFuture, java.util.List, java.lang.Throwable);
+  private static java.util.List lambda$sequence$0(java.util.List, java.lang.Void);
+  private static java.lang.Object lambda$mapValues$0(java.util.function.Function, java.util.Map$Entry);
+  private static java.util.function.Predicate[] lambda$anyOf$6(int);
+  private static boolean lambda$anyOf$5(java.util.function.Predicate[], java.lang.Object);
+  private static boolean lambda$anyOf$4(java.util.function.Predicate, java.util.function.Predicate, java.util.function.Predicate, java.util.function.Predicate, java.util.function.Predicate, java.lang.Object);
+  private static boolean lambda$anyOf$3(java.util.function.Predicate, java.util.function.Predicate, java.util.function.Predicate, java.util.function.Predicate, java.lang.Object);
+  private static boolean lambda$anyOf$2(java.util.function.Predicate, java.util.function.Predicate, java.util.function.Predicate, java.lang.Object);
+  private static boolean lambda$anyOf$1(java.util.function.Predicate, java.util.function.Predicate, java.lang.Object);
+  private static boolean lambda$anyOf$0(java.lang.Object);
+  private static java.util.function.Predicate[] lambda$allOf$6(int);
+  private static boolean lambda$allOf$5(java.util.function.Predicate[], java.lang.Object);
+  private static boolean lambda$allOf$4(java.util.function.Predicate, java.util.function.Predicate, java.util.function.Predicate, java.util.function.Predicate, java.util.function.Predicate, java.lang.Object);
+  private static boolean lambda$allOf$3(java.util.function.Predicate, java.util.function.Predicate, java.util.function.Predicate, java.util.function.Predicate, java.lang.Object);
+  private static boolean lambda$allOf$2(java.util.function.Predicate, java.util.function.Predicate, java.util.function.Predicate, java.lang.Object);
+  private static boolean lambda$allOf$1(java.util.function.Predicate, java.util.function.Predicate, java.lang.Object);
+  private static boolean lambda$allOf$0(java.lang.Object);
+  private static java.lang.Thread lambda$makeIoExecutor$0(java.lang.String, java.util.concurrent.atomic.AtomicInteger, boolean, java.lang.Runnable);
+  private static java.util.concurrent.ForkJoinWorkerThread lambda$makeExecutor$0(java.lang.String, java.util.concurrent.atomic.AtomicInteger, java.util.concurrent.ForkJoinPool);
+  private static void lambda$static$4(java.lang.String);
+  private static void lambda$static$3(com.google.common.escape.Escapers$Builder);
+  private static java.lang.IllegalStateException lambda$static$2();
+  private static boolean lambda$static$1(java.nio.file.spi.FileSystemProvider);
+  private static long lambda$static$0();
+  static {};
+}
+
+Compiled from "Util.java"
+public class net.minecraft.util.Util$OS extends java.lang.Enum<net.minecraft.util.Util$OS> {
+  public static final net.minecraft.util.Util$OS LINUX;
+  public static final net.minecraft.util.Util$OS SOLARIS;
+  public static final net.minecraft.util.Util$OS WINDOWS;
+  public static final net.minecraft.util.Util$OS OSX;
+  public static final net.minecraft.util.Util$OS UNKNOWN;
+  private final java.lang.String telemetryName;
+  private static final net.minecraft.util.Util$OS[] $VALUES;
+  public static net.minecraft.util.Util$OS[] values();
+  public static net.minecraft.util.Util$OS valueOf(java.lang.String);
+  private net.minecraft.util.Util$OS(java.lang.String);
+  public void openUri(java.net.URI);
+  public void openFile(java.io.File);
+  public void openPath(java.nio.file.Path);
+  protected java.lang.String[] getOpenUriArguments(java.net.URI);
+  public void openUri(java.lang.String);
+  public java.lang.String telemetryName();
+  private static net.minecraft.util.Util$OS[] $values();
+  static {};
+}
+
+Compiled from "ParticleTypes.java"
+public class net.minecraft.core.particles.ParticleTypes {
+  public static final net.minecraft.core.particles.SimpleParticleType ANGRY_VILLAGER;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.BlockParticleOption> BLOCK;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.BlockParticleOption> BLOCK_MARKER;
+  public static final net.minecraft.core.particles.SimpleParticleType BUBBLE;
+  public static final net.minecraft.core.particles.SimpleParticleType SULFUR_BUBBLES;
+  public static final net.minecraft.core.particles.SimpleParticleType NOXIOUS_GAS;
+  public static final net.minecraft.core.particles.SimpleParticleType NOXIOUS_GAS_CLOUD;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.GeyserParticleOptions> GEYSER;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.GeyserBaseParticleOptions> GEYSER_BASE;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.GeyserBaseParticleOptions> GEYSER_POOF;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.GeyserParticleOptions> GEYSER_PLUME;
+  public static final net.minecraft.core.particles.SimpleParticleType CLOUD;
+  public static final net.minecraft.core.particles.SimpleParticleType COPPER_FIRE_FLAME;
+  public static final net.minecraft.core.particles.SimpleParticleType CRIT;
+  public static final net.minecraft.core.particles.SimpleParticleType DAMAGE_INDICATOR;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.PowerParticleOption> DRAGON_BREATH;
+  public static final net.minecraft.core.particles.SimpleParticleType DRIPPING_LAVA;
+  public static final net.minecraft.core.particles.SimpleParticleType FALLING_LAVA;
+  public static final net.minecraft.core.particles.SimpleParticleType LANDING_LAVA;
+  public static final net.minecraft.core.particles.SimpleParticleType DRIPPING_WATER;
+  public static final net.minecraft.core.particles.SimpleParticleType FALLING_WATER;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.DustParticleOptions> DUST;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.DustColorTransitionOptions> DUST_COLOR_TRANSITION;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.SpellParticleOption> EFFECT;
+  public static final net.minecraft.core.particles.SimpleParticleType ELDER_GUARDIAN;
+  public static final net.minecraft.core.particles.SimpleParticleType ENCHANTED_HIT;
+  public static final net.minecraft.core.particles.SimpleParticleType ENCHANT;
+  public static final net.minecraft.core.particles.SimpleParticleType END_ROD;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.ColorParticleOption> ENTITY_EFFECT;
+  public static final net.minecraft.core.particles.SimpleParticleType EXPLOSION_EMITTER;
+  public static final net.minecraft.core.particles.SimpleParticleType EXPLOSION;
+  public static final net.minecraft.core.particles.SimpleParticleType GUST;
+  public static final net.minecraft.core.particles.SimpleParticleType SMALL_GUST;
+  public static final net.minecraft.core.particles.SimpleParticleType GUST_EMITTER_LARGE;
+  public static final net.minecraft.core.particles.SimpleParticleType GUST_EMITTER_SMALL;
+  public static final net.minecraft.core.particles.SimpleParticleType SONIC_BOOM;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.BlockParticleOption> FALLING_DUST;
+  public static final net.minecraft.core.particles.SimpleParticleType FIREWORK;
+  public static final net.minecraft.core.particles.SimpleParticleType FISHING;
+  public static final net.minecraft.core.particles.SimpleParticleType FLAME;
+  public static final net.minecraft.core.particles.SimpleParticleType INFESTED;
+  public static final net.minecraft.core.particles.SimpleParticleType CHERRY_LEAVES;
+  public static final net.minecraft.core.particles.SimpleParticleType PALE_OAK_LEAVES;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.ColorParticleOption> TINTED_LEAVES;
+  public static final net.minecraft.core.particles.SimpleParticleType SCULK_SOUL;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.SculkChargeParticleOptions> SCULK_CHARGE;
+  public static final net.minecraft.core.particles.SimpleParticleType SCULK_CHARGE_POP;
+  public static final net.minecraft.core.particles.SimpleParticleType SOUL_FIRE_FLAME;
+  public static final net.minecraft.core.particles.SimpleParticleType SOUL;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.ColorParticleOption> FLASH;
+  public static final net.minecraft.core.particles.SimpleParticleType HAPPY_VILLAGER;
+  public static final net.minecraft.core.particles.SimpleParticleType COMPOSTER;
+  public static final net.minecraft.core.particles.SimpleParticleType HEART;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.SpellParticleOption> INSTANT_EFFECT;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.ItemParticleOption> ITEM;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.VibrationParticleOption> VIBRATION;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.TrailParticleOption> TRAIL;
+  public static final net.minecraft.core.particles.SimpleParticleType PAUSE_MOB_GROWTH;
+  public static final net.minecraft.core.particles.SimpleParticleType RESET_MOB_GROWTH;
+  public static final net.minecraft.core.particles.SimpleParticleType ITEM_SLIME;
+  public static final net.minecraft.core.particles.SimpleParticleType ITEM_COBWEB;
+  public static final net.minecraft.core.particles.SimpleParticleType ITEM_SNOWBALL;
+  public static final net.minecraft.core.particles.SimpleParticleType LARGE_SMOKE;
+  public static final net.minecraft.core.particles.SimpleParticleType LAVA;
+  public static final net.minecraft.core.particles.SimpleParticleType MYCELIUM;
+  public static final net.minecraft.core.particles.SimpleParticleType NOTE;
+  public static final net.minecraft.core.particles.SimpleParticleType POOF;
+  public static final net.minecraft.core.particles.SimpleParticleType PORTAL;
+  public static final net.minecraft.core.particles.SimpleParticleType RAIN;
+  public static final net.minecraft.core.particles.SimpleParticleType SMOKE;
+  public static final net.minecraft.core.particles.SimpleParticleType WHITE_SMOKE;
+  public static final net.minecraft.core.particles.SimpleParticleType SNEEZE;
+  public static final net.minecraft.core.particles.SimpleParticleType SPIT;
+  public static final net.minecraft.core.particles.SimpleParticleType SQUID_INK;
+  public static final net.minecraft.core.particles.SimpleParticleType SWEEP_ATTACK;
+  public static final net.minecraft.core.particles.SimpleParticleType TOTEM_OF_UNDYING;
+  public static final net.minecraft.core.particles.SimpleParticleType UNDERWATER;
+  public static final net.minecraft.core.particles.SimpleParticleType SPLASH;
+  public static final net.minecraft.core.particles.SimpleParticleType WITCH;
+  public static final net.minecraft.core.particles.SimpleParticleType BUBBLE_POP;
+  public static final net.minecraft.core.particles.SimpleParticleType CURRENT_DOWN;
+  public static final net.minecraft.core.particles.SimpleParticleType BUBBLE_COLUMN_UP;
+  public static final net.minecraft.core.particles.SimpleParticleType NAUTILUS;
+  public static final net.minecraft.core.particles.SimpleParticleType DOLPHIN;
+  public static final net.minecraft.core.particles.SimpleParticleType CAMPFIRE_COSY_SMOKE;
+  public static final net.minecraft.core.particles.SimpleParticleType CAMPFIRE_SIGNAL_SMOKE;
+  public static final net.minecraft.core.particles.SimpleParticleType DRIPPING_HONEY;
+  public static final net.minecraft.core.particles.SimpleParticleType FALLING_HONEY;
+  public static final net.minecraft.core.particles.SimpleParticleType LANDING_HONEY;
+  public static final net.minecraft.core.particles.SimpleParticleType FALLING_NECTAR;
+  public static final net.minecraft.core.particles.SimpleParticleType FALLING_SPORE_BLOSSOM;
+  public static final net.minecraft.core.particles.SimpleParticleType ASH;
+  public static final net.minecraft.core.particles.SimpleParticleType CRIMSON_SPORE;
+  public static final net.minecraft.core.particles.SimpleParticleType WARPED_SPORE;
+  public static final net.minecraft.core.particles.SimpleParticleType SPORE_BLOSSOM_AIR;
+  public static final net.minecraft.core.particles.SimpleParticleType DRIPPING_OBSIDIAN_TEAR;
+  public static final net.minecraft.core.particles.SimpleParticleType FALLING_OBSIDIAN_TEAR;
+  public static final net.minecraft.core.particles.SimpleParticleType LANDING_OBSIDIAN_TEAR;
+  public static final net.minecraft.core.particles.SimpleParticleType REVERSE_PORTAL;
+  public static final net.minecraft.core.particles.SimpleParticleType WHITE_ASH;
+  public static final net.minecraft.core.particles.SimpleParticleType SMALL_FLAME;
+  public static final net.minecraft.core.particles.SimpleParticleType SNOWFLAKE;
+  public static final net.minecraft.core.particles.SimpleParticleType DRIPPING_DRIPSTONE_LAVA;
+  public static final net.minecraft.core.particles.SimpleParticleType FALLING_DRIPSTONE_LAVA;
+  public static final net.minecraft.core.particles.SimpleParticleType DRIPPING_DRIPSTONE_WATER;
+  public static final net.minecraft.core.particles.SimpleParticleType FALLING_DRIPSTONE_WATER;
+  public static final net.minecraft.core.particles.SimpleParticleType GLOW_SQUID_INK;
+  public static final net.minecraft.core.particles.SimpleParticleType GLOW;
+  public static final net.minecraft.core.particles.SimpleParticleType WAX_ON;
+  public static final net.minecraft.core.particles.SimpleParticleType WAX_OFF;
+  public static final net.minecraft.core.particles.SimpleParticleType ELECTRIC_SPARK;
+  public static final net.minecraft.core.particles.SimpleParticleType SCRAPE;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.ShriekParticleOption> SHRIEK;
+  public static final net.minecraft.core.particles.SimpleParticleType EGG_CRACK;
+  public static final net.minecraft.core.particles.SimpleParticleType DUST_PLUME;
+  public static final net.minecraft.core.particles.SimpleParticleType TRIAL_SPAWNER_DETECTED_PLAYER;
+  public static final net.minecraft.core.particles.SimpleParticleType TRIAL_SPAWNER_DETECTED_PLAYER_OMINOUS;
+  public static final net.minecraft.core.particles.SimpleParticleType VAULT_CONNECTION;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.BlockParticleOption> DUST_PILLAR;
+  public static final net.minecraft.core.particles.SimpleParticleType OMINOUS_SPAWNING;
+  public static final net.minecraft.core.particles.SimpleParticleType RAID_OMEN;
+  public static final net.minecraft.core.particles.SimpleParticleType TRIAL_OMEN;
+  public static final net.minecraft.core.particles.ParticleType<net.minecraft.core.particles.BlockParticleOption> BLOCK_CRUMBLE;
+  public static final net.minecraft.core.particles.SimpleParticleType FIREFLY;
+  public static final net.minecraft.core.particles.SimpleParticleType SULFUR_CUBE_GOO;
+  public static final com.mojang.serialization.Codec<net.minecraft.core.particles.ParticleOptions> CODEC;
+  public static final net.minecraft.network.codec.StreamCodec<net.minecraft.network.RegistryFriendlyByteBuf, net.minecraft.core.particles.ParticleOptions> STREAM_CODEC;
+  public net.minecraft.core.particles.ParticleTypes();
+  private static net.minecraft.core.particles.SimpleParticleType register(java.lang.String, boolean);
+  private static <T extends net.minecraft.core.particles.ParticleOptions> net.minecraft.core.particles.ParticleType<T> register(java.lang.String, boolean, java.util.function.Function<net.minecraft.core.particles.ParticleType<T>, com.mojang.serialization.MapCodec<T>>, java.util.function.Function<net.minecraft.core.particles.ParticleType<T>, net.minecraft.network.codec.StreamCodec<? super net.minecraft.network.RegistryFriendlyByteBuf, T>>);
+  private static net.minecraft.network.codec.StreamCodec lambda$static$11(net.minecraft.core.particles.ParticleType);
+  private static com.mojang.serialization.MapCodec lambda$static$10(net.minecraft.core.particles.ParticleType);
+  private static net.minecraft.network.codec.StreamCodec lambda$static$9(net.minecraft.core.particles.ParticleType);
+  private static com.mojang.serialization.MapCodec lambda$static$8(net.minecraft.core.particles.ParticleType);
+  private static net.minecraft.network.codec.StreamCodec lambda$static$7(net.minecraft.core.particles.ParticleType);
+  private static com.mojang.serialization.MapCodec lambda$static$6(net.minecraft.core.particles.ParticleType);
+  private static net.minecraft.network.codec.StreamCodec lambda$static$5(net.minecraft.core.particles.ParticleType);
+  private static com.mojang.serialization.MapCodec lambda$static$4(net.minecraft.core.particles.ParticleType);
+  private static net.minecraft.network.codec.StreamCodec lambda$static$3(net.minecraft.core.particles.ParticleType);
+  private static com.mojang.serialization.MapCodec lambda$static$2(net.minecraft.core.particles.ParticleType);
+  private static net.minecraft.network.codec.StreamCodec lambda$static$1(net.minecraft.core.particles.ParticleType);
+  private static com.mojang.serialization.MapCodec lambda$static$0(net.minecraft.core.particles.ParticleType);
+  static {};
+}
+
+Compiled from "LocalPlayer.java"
+public class net.minecraft.client.player.LocalPlayer extends net.minecraft.client.player.AbstractClientPlayer implements net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider {
+  public static final org.slf4j.Logger LOGGER;
+  private static final int POSITION_REMINDER_INTERVAL;
+  private static final int WATER_VISION_MAX_TIME;
+  private static final int WATER_VISION_QUICK_TIME;
+  private static final float WATER_VISION_QUICK_PERCENT;
+  private static final double SUFFOCATING_COLLISION_CHECK_SCALE;
+  private static final double MINOR_COLLISION_ANGLE_THRESHOLD_RADIAN;
+  public final net.minecraft.client.multiplayer.ClientPacketListener connection;
+  private final net.minecraft.stats.StatsCounter stats;
+  private final net.minecraft.client.ClientRecipeBook recipeBook;
+  private final net.minecraft.util.TickThrottler dropSpamThrottler;
+  private final java.util.List<net.minecraft.client.resources.sounds.AmbientSoundHandler> ambientSoundHandlers;
+  private net.minecraft.server.permissions.PermissionSet permissions;
+  private net.minecraft.client.multiplayer.chat.ChatAbilities chatAbilities;
+  private double xLast;
+  private double yLast;
+  private double zLast;
+  private float yRotLast;
+  private float xRotLast;
+  private boolean lastOnGround;
+  private boolean lastHorizontalCollision;
+  private boolean crouching;
+  private boolean wasSprinting;
+  private int positionReminder;
+  private boolean flashOnSetHealth;
+  public net.minecraft.client.player.ClientInput input;
+  private net.minecraft.world.entity.player.Input lastSentInput;
+  protected final net.minecraft.client.Minecraft minecraft;
+  protected int sprintTriggerTime;
+  private static final int EXPERIENCE_DISPLAY_UNREADY_TO_SET;
+  private static final int EXPERIENCE_DISPLAY_READY_TO_SET;
+  public int experienceDisplayStartTick;
+  public float yBob;
+  public float xBob;
+  public float yBobO;
+  public float xBobO;
+  private int jumpRidingTicks;
+  private float jumpRidingScale;
+  public float portalEffectIntensity;
+  public float oPortalEffectIntensity;
+  private boolean startedUsingItem;
+  private net.minecraft.world.InteractionHand usingItemHand;
+  private boolean handsBusy;
+  private boolean autoJumpEnabled;
+  private int autoJumpTime;
+  private boolean wasFallFlying;
+  private int waterVisionTime;
+  private boolean showDeathScreen;
+  private boolean doLimitedCrafting;
+  public net.minecraft.client.player.LocalPlayer(net.minecraft.client.Minecraft, net.minecraft.client.multiplayer.ClientLevel, net.minecraft.client.multiplayer.ClientPacketListener, net.minecraft.stats.StatsCounter, net.minecraft.client.ClientRecipeBook, net.minecraft.world.entity.player.Input, boolean, net.minecraft.client.multiplayer.chat.ChatAbilities);
+  public void heal(float);
+  public boolean startRiding(net.minecraft.world.entity.Entity, boolean, boolean);
+  public void removeVehicle();
+  public float getViewXRot(float);
+  public float getViewYRot(float);
+  public void tick();
+  public float getCurrentMood();
+  private void sendPosition();
+  private void sendIsSprintingIfNeeded();
+  public boolean drop(boolean);
+  public void swing(net.minecraft.world.InteractionHand);
+  public void respawn();
+  public void closeContainer();
+  public void clientSideCloseContainer();
+  public void hurtTo(float);
+  public void onUpdateAbilities();
+  public void setReducedDebugInfo(boolean);
+  public boolean isLocalPlayer();
+  public boolean isSuppressingSlidingDownLadder();
+  public boolean canSpawnSprintParticle();
+  protected void sendRidingJump();
+  public void sendOpenInventory();
+  public net.minecraft.stats.StatsCounter getStats();
+  public net.minecraft.client.ClientRecipeBook getRecipeBook();
+  public void removeRecipeHighlight(net.minecraft.world.item.crafting.display.RecipeDisplayId);
+  public net.minecraft.server.permissions.PermissionSet permissions();
+  public void setPermissions(net.minecraft.server.permissions.PermissionSet);
+  public net.minecraft.client.multiplayer.chat.ChatAbilities chatAbilities();
+  public void refreshChatAbilities();
+  public void sendSystemMessage(net.minecraft.network.chat.Component);
+  public void sendOverlayMessage(net.minecraft.network.chat.Component);
+  private void moveTowardsClosestSpace(double, double);
+  private boolean suffocatesAt(net.minecraft.core.BlockPos);
+  public void setExperienceValues(float, int, int);
+  private void setExperienceDisplayStartTickToTickCount();
+  public void handleEntityEvent(byte);
+  public void setShowDeathScreen(boolean);
+  public boolean shouldShowDeathScreen();
+  public void setDoLimitedCrafting(boolean);
+  public boolean getDoLimitedCrafting();
+  public void playSound(net.minecraft.sounds.SoundEvent, float, float);
+  public void startUsingItem(net.minecraft.world.InteractionHand);
+  public boolean isUsingItem();
+  private boolean isSlowDueToUsingItem();
+  private float itemUseSpeedMultiplier();
+  public void stopUsingItem();
+  public net.minecraft.world.InteractionHand getUsedItemHand();
+  public void onSyncedDataUpdated(net.minecraft.network.syncher.EntityDataAccessor<?>);
+  public net.minecraft.world.entity.PlayerRideableJumping jumpableVehicle();
+  public float getJumpRidingScale();
+  public boolean isTextFilteringEnabled();
+  public void openTextEdit(net.minecraft.world.level.block.entity.SignBlockEntity, boolean);
+  public void openMinecartCommandBlock(net.minecraft.world.entity.vehicle.minecart.MinecartCommandBlock);
+  public void openCommandBlock(net.minecraft.world.level.block.entity.CommandBlockEntity);
+  public void openStructureBlock(net.minecraft.world.level.block.entity.StructureBlockEntity);
+  public void openTestBlock(net.minecraft.world.level.block.entity.TestBlockEntity);
+  public void openTestInstanceBlock(net.minecraft.world.level.block.entity.TestInstanceBlockEntity);
+  public void openJigsawBlock(net.minecraft.world.level.block.entity.JigsawBlockEntity);
+  public void openDialog(net.minecraft.core.Holder<net.minecraft.server.dialog.Dialog>);
+  public void openItemGui(net.minecraft.world.item.ItemStack, net.minecraft.world.InteractionHand);
+  public void crit(net.minecraft.world.entity.Entity);
+  public void magicCrit(net.minecraft.world.entity.Entity);
+  public boolean isShiftKeyDown();
+  public boolean isCrouching();
+  public boolean isMovingSlowly();
+  public void applyInput();
+  private net.minecraft.world.phys.Vec2 modifyInput(net.minecraft.world.phys.Vec2);
+  private static net.minecraft.world.phys.Vec2 modifyInputSpeedForSquareMovement(net.minecraft.world.phys.Vec2);
+  private static float distanceToUnitSquare(net.minecraft.world.phys.Vec2);
+  protected boolean isControlledCamera();
+  public void resetPos();
+  public void aiStep();
+  private boolean shouldStopRunSprinting();
+  private boolean shouldStopSwimSprinting();
+  public net.minecraft.world.level.block.Portal$Transition getActivePortalLocalTransition();
+  protected void tickDeath();
+  private void handlePortalTransitionEffect(boolean);
+  public void rideTick();
+  public boolean isHandsBusy();
+  public void move(net.minecraft.world.entity.MoverType, net.minecraft.world.phys.Vec3);
+  public boolean isAutoJumpEnabled();
+  public boolean shouldRotateWithMinecart();
+  protected void updateAutoJump(float, float);
+  protected boolean isHorizontalCollisionMinor(net.minecraft.world.phys.Vec3);
+  private boolean canAutoJump();
+  private boolean isMoving();
+  private boolean isSprintingPossible(boolean);
+  private boolean canStartSprinting();
+  private boolean vehicleCanSprint(net.minecraft.world.entity.Entity);
+  public float getWaterVision();
+  public void onGameModeChanged(net.minecraft.world.level.GameType);
+  public boolean isUnderWater();
+  protected boolean updateIsUnderwater();
+  public net.minecraft.world.phys.Vec3 getRopeHoldPosition(float);
+  public void updateTutorialInventoryAction(net.minecraft.world.item.ItemStack, net.minecraft.world.item.ItemStack, net.minecraft.world.inventory.ClickAction);
+  public float getVisualRotationYInDegrees();
+  public void handleCreativeModeItemDrop(net.minecraft.world.item.ItemStack);
+  public boolean canDropItems();
+  public net.minecraft.util.TickThrottler getDropSpamThrottler();
+  public net.minecraft.world.entity.player.Input getLastSentInput();
+  public net.minecraft.world.phys.HitResult raycastHitResult(float, net.minecraft.world.entity.Entity);
+  private static net.minecraft.world.phys.HitResult pick(net.minecraft.world.entity.Entity, double, double, float);
+  private static net.minecraft.world.phys.HitResult filterHitResult(net.minecraft.world.phys.HitResult, net.minecraft.world.phys.Vec3, double);
+  private static java.util.stream.Stream lambda$updateAutoJump$0(net.minecraft.world.phys.shapes.VoxelShape);
+  static {};
+}
+
+Compiled from "CameraRenderState.java"
+public class net.minecraft.client.renderer.state.level.CameraRenderState implements net.fabricmc.fabric.api.client.rendering.v1.FabricRenderState {
+  public net.minecraft.core.BlockPos blockPos;
+  public net.minecraft.world.phys.Vec3 pos;
+  public float xRot;
+  public float yRot;
+  public boolean initialized;
+  public boolean isPanoramicMode;
+  public boolean isFrustumCaptured;
+  public boolean smartCull;
+  public org.joml.Quaternionf orientation;
+  public net.minecraft.client.renderer.culling.Frustum cullFrustum;
+  public net.minecraft.world.level.material.FogType fogType;
+  public net.minecraft.client.renderer.fog.FogData fogData;
+  public float hudFov;
+  public float depthFar;
+  public org.joml.Matrix4f projectionMatrix;
+  public org.joml.Matrix4f viewRotationMatrix;
+  public net.minecraft.client.renderer.state.level.CameraEntityRenderState entityRenderState;
+  public net.minecraft.client.renderer.state.level.CameraRenderState();
+}
+
+Compiled from "KeyMapping.java"
+public class net.minecraft.client.KeyMapping implements java.lang.Comparable<net.minecraft.client.KeyMapping> {
+  private static final java.util.Map<java.lang.String, net.minecraft.client.KeyMapping> ALL;
+  private static final java.util.Map<com.mojang.blaze3d.platform.InputConstants$Key, java.util.List<net.minecraft.client.KeyMapping>> MAP;
+  private final java.lang.String name;
+  private final com.mojang.blaze3d.platform.InputConstants$Key defaultKey;
+  private final net.minecraft.client.KeyMapping$Category category;
+  protected com.mojang.blaze3d.platform.InputConstants$Key key;
+  private boolean isDown;
+  private int clickCount;
+  private final int order;
+  public static void click(com.mojang.blaze3d.platform.InputConstants$Key);
+  public static void set(com.mojang.blaze3d.platform.InputConstants$Key, boolean);
+  private static void forAllKeyMappings(com.mojang.blaze3d.platform.InputConstants$Key, java.util.function.Consumer<net.minecraft.client.KeyMapping>);
+  public static void setAll();
+  public static void releaseAll();
+  public static void restoreToggleStatesOnScreenClosed();
+  public static void resetToggleKeys();
+  public static void resetMapping();
+  public net.minecraft.client.KeyMapping(java.lang.String, int, net.minecraft.client.KeyMapping$Category);
+  public net.minecraft.client.KeyMapping(java.lang.String, com.mojang.blaze3d.platform.InputConstants$Type, int, net.minecraft.client.KeyMapping$Category);
+  public net.minecraft.client.KeyMapping(java.lang.String, com.mojang.blaze3d.platform.InputConstants$Type, int, net.minecraft.client.KeyMapping$Category, int);
+  public boolean isDown();
+  public net.minecraft.client.KeyMapping$Category getCategory();
+  public boolean consumeClick();
+  protected void release();
+  protected boolean shouldSetOnIngameFocus();
+  public java.lang.String getName();
+  public com.mojang.blaze3d.platform.InputConstants$Key getDefaultKey();
+  public void setKey(com.mojang.blaze3d.platform.InputConstants$Key);
+  public int compareTo(net.minecraft.client.KeyMapping);
+  public static java.util.function.Supplier<net.minecraft.network.chat.Component> createNameSupplier(java.lang.String);
+  public boolean same(net.minecraft.client.KeyMapping);
+  public boolean isUnbound();
+  public boolean matches(net.minecraft.client.input.KeyEvent);
+  public boolean matchesMouse(net.minecraft.client.input.MouseButtonEvent);
+  public boolean matches(com.mojang.blaze3d.platform.InputConstants$Key);
+  public net.minecraft.network.chat.Component getTranslatedKeyMessage();
+  public boolean isDefault();
+  public java.lang.String saveString();
+  public void setDown(boolean);
+  private void registerMapping(com.mojang.blaze3d.platform.InputConstants$Key);
+  public static net.minecraft.client.KeyMapping get(java.lang.String);
+  public int compareTo(java.lang.Object);
+  private static java.util.List lambda$registerMapping$0(com.mojang.blaze3d.platform.InputConstants$Key);
+  private static net.minecraft.network.chat.Component lambda$createNameSupplier$0(java.lang.String);
+  private static void lambda$set$0(boolean, net.minecraft.client.KeyMapping);
+  private static void lambda$click$0(net.minecraft.client.KeyMapping);
+  static {};
+}
+
+Compiled from "Attributes.java"
+public class net.minecraft.world.entity.ai.attributes.Attributes {
+  public static final double DEFAULT_ATTACK_SPEED;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> AIR_DRAG_MODIFIER;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> ARMOR;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> ARMOR_TOUGHNESS;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> ATTACK_DAMAGE;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> ATTACK_KNOCKBACK;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> ATTACK_SPEED;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> BELOW_NAME_DISTANCE;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> BLOCK_BREAK_SPEED;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> BLOCK_INTERACTION_RANGE;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> BOUNCINESS;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> BURNING_TIME;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> CAMERA_DISTANCE;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> EXPLOSION_KNOCKBACK_RESISTANCE;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> ENTITY_INTERACTION_RANGE;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> FALL_DAMAGE_MULTIPLIER;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> FLYING_SPEED;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> FOLLOW_RANGE;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> FRICTION_MODIFIER;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> GRAVITY;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> JUMP_STRENGTH;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> KNOCKBACK_RESISTANCE;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> LUCK;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> MAX_ABSORPTION;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> MAX_HEALTH;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> MINING_EFFICIENCY;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> MOVEMENT_EFFICIENCY;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> MOVEMENT_SPEED;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> NAME_TAG_DISTANCE;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> OXYGEN_BONUS;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> SAFE_FALL_DISTANCE;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> SCALE;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> SNEAKING_SPEED;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> SPAWN_REINFORCEMENTS_CHANCE;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> STEP_HEIGHT;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> SUBMERGED_MINING_SPEED;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> SWEEPING_DAMAGE_RATIO;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> TEMPT_RANGE;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> WATER_MOVEMENT_EFFICIENCY;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> WAYPOINT_TRANSMIT_RANGE;
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> WAYPOINT_RECEIVE_RANGE;
+  public net.minecraft.world.entity.ai.attributes.Attributes();
+  private static net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> register(java.lang.String, net.minecraft.world.entity.ai.attributes.Attribute);
+  public static net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> bootstrap(net.minecraft.core.Registry<net.minecraft.world.entity.ai.attributes.Attribute>);
+  static {};
+}
+
 == class index ==
 net/minecraft/client/model/HumanoidModel
 net/minecraft/client/model/player/PlayerModel
@@ -3389,7 +4096,6 @@ net/minecraft/client/renderer/blockentity/state/BannerRenderState
 net/minecraft/client/renderer/blockentity/state/BeaconRenderState
 net/minecraft/client/renderer/blockentity/state/BellRenderState
 net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState
-net/minecraft/client/renderer/blockentity/state/BlockEntityWithBoundingBoxRenderState
 net/minecraft/client/renderer/blockentity/state/BrushableBlockRenderState
 net/minecraft/client/renderer/blockentity/state/CampfireRenderState
 net/minecraft/client/renderer/blockentity/state/ChestRenderState
@@ -3401,17 +4107,18 @@ net/minecraft/client/renderer/blockentity/state/EndGatewayRenderState
 net/minecraft/client/renderer/blockentity/state/EndPortalRenderState
 net/minecraft/client/renderer/blockentity/state/HangingSignRenderState
 net/minecraft/client/renderer/blockentity/state/LecternRenderState
-net/minecraft/client/renderer/blockentity/state/PistonHeadRenderState
 net/minecraft/client/renderer/blockentity/state/ShelfRenderState
 net/minecraft/client/renderer/blockentity/state/ShulkerBoxRenderState
-net/minecraft/client/renderer/blockentity/state/SkullBlockRenderState
+net/minecraft/client/renderer/blockentity/state/SignRenderState
+net/minecraft/client/renderer/blockentity/state/BlockEntityWithBoundingBoxRenderState
+net/minecraft/client/renderer/blockentity/state/PistonHeadRenderState
+net/minecraft/client/renderer/blockentity/state/BedRenderState
 net/minecraft/client/renderer/blockentity/state/SpawnerRenderState
 net/minecraft/client/renderer/blockentity/state/StandingSignRenderState
 net/minecraft/client/renderer/blockentity/state/TestInstanceRenderState
 net/minecraft/client/renderer/blockentity/state/VaultRenderState
 net/minecraft/client/renderer/blockentity/state/package-info
-net/minecraft/client/renderer/blockentity/state/BedRenderState
-net/minecraft/client/renderer/blockentity/state/SignRenderState
+net/minecraft/client/renderer/blockentity/state/SkullBlockRenderState
 net/minecraft/client/renderer/entity/layers/
 net/minecraft/client/renderer/entity/layers/ArrowLayer
 net/minecraft/client/renderer/entity/layers/BeeStingerLayer
@@ -3421,17 +4128,17 @@ net/minecraft/client/renderer/entity/layers/BreezeWindLayer
 net/minecraft/client/renderer/entity/layers/CarriedBlockLayer
 net/minecraft/client/renderer/entity/layers/CapeLayer
 net/minecraft/client/renderer/entity/layers/CreeperPowerLayer
+net/minecraft/client/renderer/entity/layers/CatCollarLayer
 net/minecraft/client/renderer/entity/layers/CrossedArmsItemLayer
 net/minecraft/client/renderer/entity/layers/Deadmau5EarsLayer
 net/minecraft/client/renderer/entity/layers/DolphinCarryingItemLayer
 net/minecraft/client/renderer/entity/layers/CustomHeadLayer
-net/minecraft/client/renderer/entity/layers/DrownedOuterLayer
-net/minecraft/client/renderer/entity/layers/CatCollarLayer
-net/minecraft/client/renderer/entity/layers/EnergySwirlLayer
-net/minecraft/client/renderer/entity/layers/EyesLayer
-net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer
-net/minecraft/client/renderer/entity/layers/FoxHeldItemLayer
 net/minecraft/client/renderer/entity/layers/EnderEyesLayer
+net/minecraft/client/renderer/entity/layers/DrownedOuterLayer
+net/minecraft/client/renderer/entity/layers/EyesLayer
+net/minecraft/client/renderer/entity/layers/FoxHeldItemLayer
+net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer
+net/minecraft/client/renderer/entity/layers/HorseMarkingLayer
 net/minecraft/client/renderer/entity/layers/HumanoidArmorLayer
 net/minecraft/client/renderer/entity/layers/IronGolemCrackinessLayer
 net/minecraft/client/renderer/entity/layers/IronGolemFlowerLayer
@@ -3441,34 +4148,35 @@ net/minecraft/client/renderer/entity/layers/LlamaDecorLayer
 net/minecraft/client/renderer/entity/layers/MushroomCowMushroomLayer
 net/minecraft/client/renderer/entity/layers/PandaHoldsItemLayer
 net/minecraft/client/renderer/entity/layers/PhantomEyesLayer
-net/minecraft/client/renderer/entity/layers/PlayerItemInHandLayer
-net/minecraft/client/renderer/entity/layers/HorseMarkingLayer
-net/minecraft/client/renderer/entity/layers/RopesLayer
 net/minecraft/client/renderer/entity/layers/ParrotOnShoulderLayer
-net/minecraft/client/renderer/entity/layers/SheepWoolUndercoatLayer
+net/minecraft/client/renderer/entity/layers/PlayerItemInHandLayer
+net/minecraft/client/renderer/entity/layers/RenderLayer
+net/minecraft/client/renderer/entity/layers/RopesLayer
 net/minecraft/client/renderer/entity/layers/SheepWoolLayer
+net/minecraft/client/renderer/entity/layers/SheepWoolUndercoatLayer
+net/minecraft/client/renderer/entity/layers/SimpleEquipmentLayer
 net/minecraft/client/renderer/entity/layers/SkeletonClothingLayer
+net/minecraft/client/renderer/entity/layers/SlimeOuterLayer
 net/minecraft/client/renderer/entity/layers/SnowGolemHeadLayer
 net/minecraft/client/renderer/entity/layers/SpiderEyesLayer
-net/minecraft/client/renderer/entity/layers/SlimeOuterLayer
 net/minecraft/client/renderer/entity/layers/SpinAttackEffectLayer
-net/minecraft/client/renderer/entity/layers/StuckInBodyLayer
 net/minecraft/client/renderer/entity/layers/SulfurCubeInnerLayer
+net/minecraft/client/renderer/entity/layers/StuckInBodyLayer
 net/minecraft/client/renderer/entity/layers/TropicalFishPatternLayer
+net/minecraft/client/renderer/entity/layers/WingsLayer
 net/minecraft/client/renderer/entity/layers/VillagerProfessionLayer
 net/minecraft/client/renderer/entity/layers/WitchItemLayer
 net/minecraft/client/renderer/entity/layers/WitherArmorLayer
-net/minecraft/client/renderer/entity/layers/WolfArmorLayer
 net/minecraft/client/renderer/entity/layers/WolfCollarLayer
-net/minecraft/client/renderer/entity/layers/package-info
-net/minecraft/client/renderer/entity/layers/SimpleEquipmentLayer
+net/minecraft/client/renderer/entity/layers/WolfArmorLayer
+net/minecraft/client/renderer/entity/layers/EnergySwirlLayer
 net/minecraft/client/renderer/entity/player/
 net/minecraft/client/renderer/entity/player/package-info
 net/minecraft/client/renderer/entity/state/
 net/minecraft/client/renderer/entity/state/AllayRenderState
 net/minecraft/client/renderer/entity/state/ArmadilloRenderState
 net/minecraft/client/renderer/entity/state/ArmedEntityRenderState
-net/minecraft/client/renderer/entity/layers/RenderLayer
+net/minecraft/client/renderer/entity/state/ArmorStandRenderState
 net/minecraft/client/renderer/entity/state/ArrowRenderState
 net/minecraft/client/renderer/entity/player/AvatarRenderer
 net/minecraft/client/renderer/entity/state/AvatarRenderState
@@ -3480,48 +4188,46 @@ net/minecraft/client/renderer/entity/state/BoatRenderState
 net/minecraft/client/renderer/entity/state/BoggedRenderState
 net/minecraft/client/renderer/entity/state/BreezeRenderState
 net/minecraft/client/renderer/entity/state/CamelRenderState
-net/minecraft/client/renderer/entity/state/ChickenRenderState
 net/minecraft/client/renderer/entity/state/CatRenderState
+net/minecraft/client/renderer/entity/state/ChickenRenderState
 net/minecraft/client/renderer/entity/state/CowRenderState
 net/minecraft/client/renderer/entity/state/CopperGolemRenderState
-net/minecraft/client/renderer/entity/state/CreeperRenderState
 net/minecraft/client/renderer/entity/state/CreakingRenderState
-net/minecraft/client/renderer/entity/state/DisplayEntityRenderState
+net/minecraft/client/renderer/entity/state/CreeperRenderState
+net/minecraft/client/renderer/entity/layers/package-info
 net/minecraft/client/renderer/entity/state/DolphinRenderState
-net/minecraft/client/renderer/entity/state/DonkeyRenderState
+net/minecraft/client/renderer/entity/state/DisplayEntityRenderState
 net/minecraft/client/renderer/entity/state/EndCrystalRenderState
 net/minecraft/client/renderer/entity/state/EndermanRenderState
 net/minecraft/client/renderer/entity/state/EnderDragonRenderState
 net/minecraft/client/renderer/entity/state/EntityRenderState
 net/minecraft/client/renderer/entity/state/EquineRenderState
 net/minecraft/client/renderer/entity/state/EvokerFangsRenderState
-net/minecraft/client/renderer/entity/state/EvokerRenderState
+net/minecraft/client/renderer/entity/state/DonkeyRenderState
 net/minecraft/client/renderer/entity/state/ExperienceOrbRenderState
 net/minecraft/client/renderer/entity/state/FallingBlockRenderState
 net/minecraft/client/renderer/entity/state/FelineRenderState
 net/minecraft/client/renderer/entity/state/FireworkRocketRenderState
-net/minecraft/client/renderer/entity/state/FoxRenderState
 net/minecraft/client/renderer/entity/state/FishingHookRenderState
-net/minecraft/client/renderer/entity/state/GhastRenderState
+net/minecraft/client/renderer/entity/state/FoxRenderState
 net/minecraft/client/renderer/entity/state/FrogRenderState
+net/minecraft/client/renderer/entity/state/GhastRenderState
 net/minecraft/client/renderer/entity/state/GoatRenderState
-net/minecraft/client/renderer/entity/layers/WingsLayer
+net/minecraft/client/renderer/entity/state/GuardianRenderState
 net/minecraft/client/renderer/entity/state/HappyGhastRenderState
-net/minecraft/client/renderer/entity/state/ArmorStandRenderState
+net/minecraft/client/renderer/entity/state/HoglinRenderState
 net/minecraft/client/renderer/entity/state/HitboxRenderState
 net/minecraft/client/renderer/entity/state/HoldingEntityRenderState
 net/minecraft/client/renderer/entity/state/HorseRenderState
-net/minecraft/client/renderer/entity/state/IllagerRenderState
 net/minecraft/client/renderer/entity/state/HumanoidRenderState
+net/minecraft/client/renderer/entity/state/IllagerRenderState
 net/minecraft/client/renderer/entity/state/IllusionerRenderState
 net/minecraft/client/renderer/entity/state/IronGolemRenderState
-net/minecraft/client/renderer/entity/state/ItemDisplayEntityRenderState
 net/minecraft/client/renderer/entity/state/ItemClusterRenderState
-net/minecraft/client/renderer/entity/state/ItemEntityRenderState
 net/minecraft/client/renderer/entity/state/ItemFrameRenderState
 net/minecraft/client/renderer/entity/state/LightningBoltRenderState
-net/minecraft/client/renderer/entity/state/LlamaRenderState
 net/minecraft/client/renderer/entity/state/LivingEntityRenderState
+net/minecraft/client/renderer/entity/state/LlamaRenderState
 net/minecraft/client/renderer/entity/state/LlamaSpitRenderState
 net/minecraft/client/renderer/entity/state/MinecartRenderState
 net/minecraft/client/renderer/entity/state/MinecartTntRenderState
@@ -3529,8 +4235,8 @@ net/minecraft/client/renderer/entity/state/MushroomCowRenderState
 net/minecraft/client/renderer/entity/state/NautilusRenderState
 net/minecraft/client/renderer/entity/state/PaintingRenderState
 net/minecraft/client/renderer/entity/state/PandaRenderState
-net/minecraft/client/renderer/entity/state/PhantomRenderState
 net/minecraft/client/renderer/entity/state/ParrotRenderState
+net/minecraft/client/renderer/entity/state/PhantomRenderState
 net/minecraft/client/renderer/entity/state/PigRenderState
 net/minecraft/client/renderer/entity/state/PiglinRenderState
 net/minecraft/client/renderer/entity/state/PolarBearRenderState
@@ -3539,6 +4245,7 @@ net/minecraft/client/renderer/entity/state/RabbitRenderState
 net/minecraft/client/renderer/entity/state/RavagerRenderState
 net/minecraft/client/renderer/entity/state/SalmonRenderState
 net/minecraft/client/renderer/entity/state/SheepRenderState
+net/minecraft/client/renderer/entity/state/ItemDisplayEntityRenderState
 net/minecraft/client/renderer/entity/state/ShulkerBulletRenderState
 net/minecraft/client/renderer/entity/state/SkeletonRenderState
 net/minecraft/client/renderer/entity/state/ShulkerRenderState
@@ -3548,28 +4255,28 @@ net/minecraft/client/renderer/entity/state/SnowGolemRenderState
 net/minecraft/client/renderer/entity/state/SquidRenderState
 net/minecraft/client/renderer/entity/state/StriderRenderState
 net/minecraft/client/renderer/entity/state/SulfurCubeRenderState
+net/minecraft/client/renderer/entity/state/TextDisplayEntityRenderState
 net/minecraft/client/renderer/entity/state/ThrownItemRenderState
-net/minecraft/client/renderer/entity/state/HoglinRenderState
 net/minecraft/client/renderer/entity/state/ThrownTridentRenderState
 net/minecraft/client/renderer/entity/state/TippableArrowRenderState
 net/minecraft/client/renderer/entity/state/TntRenderState
 net/minecraft/client/renderer/entity/state/TropicalFishRenderState
 net/minecraft/client/renderer/entity/state/TurtleRenderState
-net/minecraft/client/renderer/entity/state/GuardianRenderState
-net/minecraft/client/renderer/entity/state/UndeadRenderState
 net/minecraft/client/renderer/entity/state/VexRenderState
+net/minecraft/client/renderer/entity/state/ItemEntityRenderState
 net/minecraft/client/renderer/entity/state/VillagerDataHolderRenderState
 net/minecraft/client/renderer/entity/state/VillagerRenderState
+net/minecraft/client/renderer/entity/state/EvokerRenderState
 net/minecraft/client/renderer/entity/state/WardenRenderState
-net/minecraft/client/renderer/entity/state/WitchRenderState
 net/minecraft/client/renderer/entity/state/WitherRenderState
 net/minecraft/client/renderer/entity/state/WitherSkullRenderState
 net/minecraft/client/renderer/entity/state/ZombieRenderState
 net/minecraft/client/renderer/entity/state/WolfRenderState
-net/minecraft/client/renderer/entity/state/ZombieVillagerRenderState
-net/minecraft/client/renderer/entity/state/package-info
 net/minecraft/client/renderer/entity/state/ZombifiedPiglinRenderState
-net/minecraft/client/renderer/entity/state/TextDisplayEntityRenderState
+net/minecraft/client/renderer/entity/state/UndeadRenderState
+net/minecraft/client/renderer/entity/state/package-info
+net/minecraft/client/renderer/entity/state/WitchRenderState
+net/minecraft/client/renderer/entity/state/ZombieVillagerRenderState
 net/fabricmc/fabric/api/client/rendering/v1/FeatureRendererRegistry
 net/fabricmc/fabric/api/client/rendering/v1/LivingEntityFeatureRenderEvents
 net/fabricmc/fabric/api/client/rendering/v1/LivingEntityRenderLayerRegistrationCallback
