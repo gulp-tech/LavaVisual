@@ -49,3 +49,12 @@ net.fabricmc.fabric.api.event.player.UseEntityCallback
 net.minecraft.world.entity.ai.attributes.Attributes
 net.minecraft.world.entity.player.PlayerModelPart
 net.minecraft.client.renderer.ItemInHandRenderer
+net.minecraft.client.MouseHandler
+net.minecraft.client.particle.ParticleEngine
+net.minecraft.util.Util
+net.minecraft.util.Util$OS
+net.minecraft.core.particles.ParticleTypes
+net.minecraft.client.player.LocalPlayer
+net.minecraft.client.renderer.state.level.CameraRenderState
+net.minecraft.client.KeyMapping
+net.minecraft.world.entity.ai.attributes.Attributes
