@@ -2,6 +2,9 @@ package tech.gulp.lavavisual.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.client.player.LocalPlayer;
+import tech.gulp.lavavisual.effects.CameraControl;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.input.MouseButtonInfo;
@@ -29,6 +32,7 @@ public abstract class MouseHandlerMixin {
 
     @WrapMethod(method = "onScroll")
     private void lava$wheel(long handle, double x, double y, Operation<Void> original) {
+        if (y != 0 && Minecraft.getInstance().gui.screen() == null && CameraControl.scroll(y)) return;
         if (y != 0 && !lava$accept(y)) return;
         original.call(handle, x, y);
     }
@@ -55,6 +59,14 @@ public abstract class MouseHandlerMixin {
             return true;
         }
         return false;
+    }
+
+    /** FreeLook takes the mouse movement for the camera; zoom slows the mouse down. Client-side view only. */
+    @WrapOperation(method = "turnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;turn(DD)V"), require = 0)
+    private void lava$turn(LocalPlayer player, double dx, double dy, Operation<Void> original) {
+        if (CameraControl.turn(dx, dy)) return;
+        double k = CameraControl.sensitivity();
+        original.call(player, dx * k, dy * k);
     }
 
     @Inject(method = "onButton", at = @At("RETURN"))

@@ -41,7 +41,9 @@ public final class ClickGuiScreen extends Screen {
             Map.entry("watermark", Icons.STAMP), Map.entry("badge", Icons.BADGE_CHECK), Map.entry("badge_share", Icons.USER), Map.entry("crosshair", Icons.CROSSHAIR),
             Map.entry("jump", Icons.CIRCLE_DOT), Map.entry("particles", Icons.SPARKLE), Map.entry("ambient", Icons.SPARKLES),
             Map.entry("marker", Icons.TARGET), Map.entry("esp", Icons.SCAN_EYE), Map.entry("kill", Icons.SKULL),
-            Map.entry("hat", Icons.CROWN), Map.entry("wings", Icons.WIND), Map.entry("hat_others", Icons.EYE), Map.entry("trail", Icons.WIND), Map.entry("hands", Icons.HAND),
+            Map.entry("hat", Icons.CROWN), Map.entry("wings", Icons.WIND), Map.entry("hat_others", Icons.EYE), Map.entry("trail", Icons.WIND), Map.entry("hands", Icons.HAND), Map.entry("crit", Icons.ZAP), Map.entry("zoom", Icons.SEARCH),
+            Map.entry("freelook", Icons.EYE), Map.entry("mute_vanilla", Icons.VOLUME_X), Map.entry("trail_glow", Icons.SPARKLES), Map.entry("dummy_spin", Icons.ROTATE_CW),
+            Map.entry("zoom_smooth", Icons.WAND_SPARKLES), Map.entry("zoom_mouse", Icons.MOUSE), Map.entry("crit_color", Icons.PALETTE), Map.entry("crit_magic", Icons.SPARKLES), Map.entry("crit_always", Icons.SWORDS),
             Map.entry("sound0", Icons.SWORDS), Map.entry("sound1", Icons.ZAP), Map.entry("sound2", Icons.HEART_PULSE),
             Map.entry("sound3", Icons.SKULL), Map.entry("shadows", Icons.LAYERS), Map.entry("animations", Icons.WAND_SPARKLES),
             Map.entry("sky", Icons.CLOUD_SUN), Map.entry("boost", Icons.ROCKET), Map.entry("setting", Icons.EYE),
@@ -154,6 +156,7 @@ public final class ClickGuiScreen extends Screen {
     private void button(GuiGraphicsExtractor g, String title, Runnable callback) { button(g, null, title, callback); }
     private static final String[] ESP_STYLES = {"Призраки", "Круг", "Кристаллы", "Маркер", "Орбиты"};
     private static final String[] AIR_STYLES = {"Светлячки", "Снег", "Звёзды", "Угольки", "Сердечки"};
+    private static final String[] TRAIL_STYLES = {"Лента", "Неон", "Спираль", "Искры", "Комета"};
     /** One-of-N choice as a row of chips; the chosen one is filled with the theme gradient. */
     private void chips(GuiGraphicsExtractor g, String[] options, int current, java.util.function.IntConsumer pick) { chips(g, options, current, pick, options.length); }
     private void chips(GuiGraphicsExtractor g, String[] options, int current, java.util.function.IntConsumer pick, int wide) {
@@ -313,7 +316,7 @@ public final class ClickGuiScreen extends Screen {
             text(g, TABS[i], left + 33, y + tabPad + 1, tabColor, side - 40);
             hit(left + 8, y, side - 16, tabH, () -> navigate(next));
         }
-        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.16", left + 13, top + panelH - 21, 0xFF586272, side - 18);
+        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.17", left + 13, top + panelH - 21, 0xFF586272, side - 18);
         boolean searching = !query.isBlank();
         String heading = searching ? "Поиск" : selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : selected.equals("hat") ? "Шляпы" : selected.equals("wings") ? "Крылья" : HudRenderer.title(selected);
         searchW = Math.max(70, Math.min(150, bodyW / 2 - 20)); searchX = left + panelW - 58 - searchW; searchY = top + 11;
@@ -560,6 +563,11 @@ public final class ClickGuiScreen extends Screen {
         action(g, "Форма: " + shapes[c.particleShape], bodyX, cursor, half, () -> { c.particleShape = (c.particleShape + 1) % 3; changed(); });
         action(g, "Разлёт: " + patterns[c.particlePattern], bodyX + half + 8, cursor, half, () -> { c.particlePattern = (c.particlePattern + 1) % 3; changed(); });
         cursor += 32;
+        toggle(g, "crit", "Насыщенный крит", "Больше искр крита, цветной взрыв звёзд · только у вас", c.critBoost, () -> { c.critBoost = !c.critBoost; changed(); }, null);
+        slider(g, "Сила · множитель искр", c.critMultiplier, 1, 6, v -> c.critMultiplier = (int) Math.round(v), true);
+        toggle(g, "crit_color", "Цветные звёзды", "Взрыв в цвете «Насыщенный крит» (вкладка «Цвета»)", c.critColored, () -> { c.critColored = !c.critColored; changed(); }, null);
+        toggle(g, "crit_magic", "Магические искры", "Добавить бирюзовые искры зачарования", c.critMagic, () -> { c.critMagic = !c.critMagic; changed(); }, null);
+        toggle(g, "crit_always", "На каждый удар", "Эффект крита при любом ударе, не только в падении", c.critAlways, () -> { c.critAlways = !c.critAlways; changed(); }, null);
         toggle(g, "ambient", "Частицы в воздухе", "Светлячки, снег, звёзды, угольки или сердечки вокруг вас", c.ambientEnabled, () -> { c.ambientEnabled = !c.ambientEnabled; changed(); }, null);
         chips(g, AIR_STYLES, c.ambientStyle, i -> { c.ambientStyle = i; c.ambientEnabled = true; changed(); });
         slider(g, "Количество", c.ambientCount, 10, 200, v -> c.ambientCount = (int) Math.round(v), true);
@@ -578,6 +586,11 @@ public final class ClickGuiScreen extends Screen {
         toggle(g, "wings", "Крылья", Hats.WING_COUNT + " видов: ангел, демон, бабочка, дракон, феникс · по стрелке", c.wingsEnabled,
                 () -> { c.wingsEnabled = !c.wingsEnabled; changed(); }, () -> select("wings"));
         toggle(g, "trail", "Trails", "Светящийся след из тела", c.trailEnabled, () -> { c.trailEnabled = !c.trailEnabled; changed(); }, null);
+        chips(g, TRAIL_STYLES, c.trailStyle, i -> { c.trailStyle = i; c.trailEnabled = true; changed(); });
+        slider(g, "Длина следа · сек", c.trailLength, 0.4, 3, v -> c.trailLength = v, false);
+        slider(g, "Толщина", c.trailWidth, 0.4, 2, v -> c.trailWidth = v, false);
+        slider(g, "Яркость", c.trailBrightness, 0.3, 1, v -> c.trailBrightness = v, false);
+        toggle(g, "trail_glow", "Свечение", "Насыщенный светящийся след (аддитивный)", c.trailGlow, () -> { c.trailGlow = !c.trailGlow; changed(); }, null);
         note(g, "Эффекты не видны сквозь блоки.");
         section(g, "Манекен");
         button(g, Icons.USER, tech.gulp.lavavisual.effects.Dummy.active() ? "Убрать манекен" : "Поставить манекен перед собой",
@@ -627,6 +640,8 @@ public final class ClickGuiScreen extends Screen {
         String[] titles = {"Удары", "Криты", "Тотем", "Убийство"};
         String[] descriptions = {"Вместо ванильного звука удара", "Вместо звука критического удара", "Когда срабатывает тотем", "Когда ваша цель погибает"};
         for (int i = 0; i < 4; i++) {
+            if (i == 1) toggle(g, "mute_vanilla", "Без ванильного звука", "С вашим звуком удара ванильный звук урона цели не играет", c.muteVanillaHits,
+                    () -> { c.muteVanillaHits = !c.muteVanillaHits; changed(); }, null);
             int group = i;
             boolean on = switch (i) { case 0 -> c.hitSoundEnabled; case 1 -> c.critSoundEnabled; case 2 -> c.totemSoundEnabled; default -> c.killSoundEnabled; };
             double volume = switch (i) { case 0 -> c.hitVolume; case 1 -> c.critVolume; case 2 -> c.totemVolume; default -> c.killVolume; };
@@ -738,7 +753,19 @@ public final class ClickGuiScreen extends Screen {
             if (i % 3 == 2) cursor += 32;
         }
         if (presets.length % 3 != 0) cursor += 32;
-        toggle(g, "boost", "FPS Boost", "Тихая оптимизация без заметной потери картинки", c.fpsBoost, () -> { c.fpsBoost = !c.fpsBoost; tech.gulp.lavavisual.effects.PerformanceMode.update(minecraft); changed(); }, null);
+        section(g, "Камера");
+        toggle(g, "zoom", "Зум", "Удерживайте " + tech.gulp.lavavisual.input.Binds.keyName(tech.gulp.lavavisual.input.Binds.Action.ZOOM) + " · колесо меняет приближение", c.zoomEnabled,
+                () -> { c.zoomEnabled = !c.zoomEnabled; changed(); }, null);
+        slider(g, "Приближение · раз", c.zoomLevel, 1.5, 15, v -> c.zoomLevel = v, false);
+        int halfCam = (bodyW - 8) / 2;
+        action(g, Icons.WAND_SPARKLES, "Плавность: " + (c.zoomSmooth ? "вкл" : "выкл"), bodyX, cursor, halfCam, () -> { c.zoomSmooth = !c.zoomSmooth; changed(); });
+        action(g, Icons.MOUSE, "Медленная мышь: " + (c.zoomSlowMouse ? "вкл" : "выкл"), bodyX + halfCam + 8, cursor, halfCam, () -> { c.zoomSlowMouse = !c.zoomSlowMouse; changed(); });
+        cursor += 32;
+        toggle(g, "freelook", "FreeLook", "Удерживайте " + tech.gulp.lavavisual.input.Binds.keyName(tech.gulp.lavavisual.input.Binds.Action.FREELOOK) + " · камера вокруг вас, взгляд и прицел не двигаются", c.freeLookEnabled,
+                () -> { c.freeLookEnabled = !c.freeLookEnabled; changed(); }, null);
+        note(g, "Клавиши меняются во вкладке «Бинды».");
+        section(g, "Производительность");
+        toggle(g, "boost", "FPS Boost", "Дальность до 12, меньше частиц, без теней, мягче биомы, лимит FPS в AFK", c.fpsBoost, () -> { c.fpsBoost = !c.fpsBoost; tech.gulp.lavavisual.effects.PerformanceMode.update(minecraft); changed(); }, null);
         note(g, "Выключение возвращает прежние настройки.");
     }
     private void settings(GuiGraphicsExtractor g) {
@@ -837,6 +864,7 @@ public final class ClickGuiScreen extends Screen {
         action(g, Icons.SCALING, "Масштаб: " + zooms[c.mapZoom], bodyX, cursor, half, () -> { c.mapZoom = (c.mapZoom + 1) % 3; changed(); });
         action(g, Icons.LOCATE_FIXED, "Координаты: " + (c.mapCoords ? "вкл" : "выкл"), bodyX + half + 8, cursor, half, () -> { c.mapCoords = !c.mapCoords; changed(); });
         cursor += 32;
+        button(g, Icons.CIRCLE_DOT, "Форма карты: " + (c.mapShape == 0 ? "круг" : "квадрат"), () -> { c.mapShape = 1 - c.mapShape; changed(); });
         button(g, Icons.MAP_PINNED, "Метки на карте: " + (c.mapWaypoints ? "вкл" : "выкл"), () -> { c.mapWaypoints = !c.mapWaypoints; changed(); });
     }
     private void map(GuiGraphicsExtractor g) {
@@ -932,7 +960,7 @@ public final class ClickGuiScreen extends Screen {
         colorRow(g, "badge", "Значок у ников");
         section(g, "Эффекты");
         String[][] effects = {{"crosshair", "Прицел"}, {"jump", "Jump Circle"}, {"particles", "Hit Particles"}, {"ambient", "Частицы в воздухе"},
-                {"marker", "Маркер удара"}, {"esp", "Target ESP"}, {"kill", "Kill Effect"}, {"hat", "Шляпа"}, {"wings", "Крылья"}, {"trail", "Trails"}, {"waypoint", "Новые метки"}};
+                {"marker", "Маркер удара"}, {"esp", "Target ESP"}, {"kill", "Kill Effect"}, {"hat", "Шляпа"}, {"wings", "Крылья"}, {"trail", "Trails"}, {"crit", "Насыщенный крит"}, {"waypoint", "Новые метки"}};
         for (String[] e : effects) colorRow(g, e[0], e[1]);
         button(g, Icons.ROTATE_CCW, "Все цвета — как тема", () -> { c.colors.clear(); c.chroma.clear(); hsvCache.clear(); changed(); });
     }

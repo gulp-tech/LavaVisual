@@ -36,7 +36,10 @@ import tech.gulp.lavavisual.ui.UiDraw;
 public final class WorldCosmetics {
     private record Ring(Vec3 origin, int born) { }
     private record Mark(Vec3 origin, long born, int shape) { }
-    private record Spark(Vec3 origin, Vec3 velocity, int born, int life, float size, boolean ambient, int shape, boolean kill) { }
+    /** kind: 0 hit particles, 1 ambient, 2 kill effect, 3 saturated crit, 4 trail sparks. */
+    private record Spark(Vec3 origin, Vec3 velocity, int born, int life, float size, int kind, int shape) {
+        boolean ambient() { return kind == 1; }
+    }
     private record Beam(Vec3 origin, int born) { }
     private record BeamFrame(Vec3 origin, float alpha, float age) { }
     private record RingFrame(Vec3 origin, float radius, float alpha, boolean echo) { }
@@ -78,6 +81,15 @@ public final class WorldCosmetics {
                     .withDepthStencilState(new DepthStencilState(DepthStencilState.DEFAULT.depthTest(), false))
                     .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
                     .withCull(false).build())).sortOnUpload().createRenderSetup());
+    /** Additive (alpha-weighted) glow: trails look saturated and luminous instead of a flat strip. */
+    public static final RenderType GLOW_ADD = RenderType.create("lavavisual_cosmetic_glow_add",
+            RenderSetup.builder(RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
+                    .withLocation(net.minecraft.resources.Identifier.fromNamespaceAndPath("lavavisual", "pipeline/cosmetic_glow_add"))
+                    .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
+                    .withPrimitiveTopology(PrimitiveTopology.QUADS)
+                    .withDepthStencilState(new DepthStencilState(DepthStencilState.DEFAULT.depthTest(), false))
+                    .withColorTargetState(new ColorTargetState(BlendFunction.LIGHTNING))
+                    .withCull(false).build())).sortOnUpload().createRenderSetup());
     /** Solid hats: depth-tested and depth-writing; back faces are dropped on the CPU (see Hats). */
     public static final RenderType HAT = RenderType.create("lavavisual_hat",
             RenderSetup.builder(RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
@@ -108,7 +120,7 @@ public final class WorldCosmetics {
                         case 2 -> new Vec3((RANDOM.nextDouble() - .5) * .06, .1 + RANDOM.nextDouble() * .08, (RANDOM.nextDouble() - .5) * .06);
                         default -> new Vec3((RANDOM.nextDouble() - .5) * .16, .015 + RANDOM.nextDouble() * .08, (RANDOM.nextDouble() - .5) * .16);
                     };
-                    add(new Spark(origin, velocity, tick, 14 + RANDOM.nextInt(9), (float) c.particleSize, false, c.particleShape, false));
+                    add(new Spark(origin, velocity, tick, 14 + RANDOM.nextInt(9), (float) c.particleSize, 0, c.particleShape));
                 }
             }
             if (c.markerEnabled && player == mc.player && level == mc.level && !player.isSpectator()
@@ -117,6 +129,13 @@ public final class WorldCosmetics {
                     && player.distanceTo(entity) <= 6 && player.hasLineOfSight(entity)) {
                 if (MARKS.size() >= 6) MARKS.removeFirst();
                 MARKS.add(new Mark(marked.getBoundingBox().getCenter(), tick, c.markerShape));
+            }
+            if (player == mc.player && level == mc.level && entity instanceof LivingEntity target && target.isAlive()) {
+                lastAttacked = target; lastAttackNanos = System.nanoTime();
+                float strength = player.getAttackStrengthScale(0.5f);
+                boolean crit = strength > 0.9f && player.fallDistance > 0 && !player.onGround() && !player.onClimbable()
+                        && !player.isInWater() && !player.isPassenger() && !player.isSprinting();
+                if (c.critBoost && (crit || c.critAlways)) critBurst(mc, target, c);
             }
             if (player == mc.player && level == mc.level) {
                 CLICKS.addLast((int) (System.currentTimeMillis() / 50));
@@ -160,7 +179,8 @@ public final class WorldCosmetics {
                 espWidth = snapshot.entity().getBbWidth();
             }
             if (RINGS.isEmpty() && SPARKS.isEmpty() && MARKS.isEmpty() && TRAIL.isEmpty() && BEAMS.isEmpty() && hats.isEmpty() && esp == null && waypointBeams.isEmpty()) { context.levelState().setData(DATA, null); return; }
-            int particleColor = c.color("particles") & 0xFFFFFF, ambientColor = c.color("ambient") & 0xFFFFFF, killColor = c.color("kill") & 0xFFFFFF;
+            int particleColor = c.color("particles") & 0xFFFFFF, ambientColor = c.color("ambient") & 0xFFFFFF, killColor = c.color("kill") & 0xFFFFFF,
+                    critColor = c.color("crit") & 0xFFFFFF, trailColor = c.color2("trail") & 0xFFFFFF;
             double now = tick + context.deltaTracker().getGameTimeDeltaPartialTick(false);
             var rings = new ArrayList<RingFrame>(); var sparks = new ArrayList<SparkFrame>();
             if (c.jumpEnabled) for (Ring r : RINGS) {
@@ -170,11 +190,11 @@ public final class WorldCosmetics {
                 if (now - r.born > 5) rings.add(new RingFrame(r.origin, (float) (c.jumpRadius * 0.85 * (0.2 + 0.8 * (1 - Math.pow(1 - echo, 2)))), (float) ((1 - echo) * 0.6), true));
             }
             for (Spark s : SPARKS) {
-                if (s.ambient ? !c.ambientEnabled : s.kill ? !c.killEffect : !c.particlesEnabled) continue;
+                if (!sparkOn(s, c)) continue;
                 double age = Math.clamp(now - s.born, 0, s.life);
                 double alpha = Math.sin(Math.PI * age / s.life);
-                Vec3 position = s.origin.add(s.velocity.scale(age)).add(0, s.ambient ? 0 : -0.0015 * age * age, 0);
-                sparks.add(new SparkFrame(position, s.size, (float) alpha, s.shape, s.ambient ? ambientColor : s.kill ? killColor : particleColor));
+                Vec3 position = s.origin.add(s.velocity.scale(age)).add(0, s.ambient() || s.kind == 4 ? 0 : -0.0015 * age * age, 0);
+                sparks.add(new SparkFrame(position, s.size, (float) alpha, s.shape, switch (s.kind) { case 1 -> ambientColor; case 2 -> killColor; case 3 -> critColor; case 4 -> trailColor; default -> particleColor; }));
             }
             var markers = new ArrayList<MarkerFrame>();
             if (c.markerEnabled) for (Mark m : MARKS) {
@@ -185,7 +205,8 @@ public final class WorldCosmetics {
             if (c.trailEnabled && self != null && !TRAIL.isEmpty()) {
                 // Nodes sit at the torso centre, so the ribbon comes out of the body (not from between the feet).
                 float half = self.getBbHeight() * 0.2f;
-                for (TrailNode node : TRAIL) trail.add(new TrailPoint(node.position(), (float) Math.clamp(1 - (now - node.born()) / 22.0, 0, 1), half));
+                double life = trailLife(c);
+                for (TrailNode node : TRAIL) trail.add(new TrailPoint(node.position(), (float) Math.clamp(1 - (now - node.born()) / life, 0, 1), half));
                 trail.add(new TrailPoint(self.getPosition(partial).add(0, self.getBbHeight() * TORSO, 0), 1f, half));
             }
             var beams = new ArrayList<BeamFrame>();
@@ -219,6 +240,34 @@ public final class WorldCosmetics {
         if (SPARKS.size() >= (PerformanceMode.active() ? 48 : 96)) SPARKS.removeFirst();
         SPARKS.add(spark);
     }
+    private static boolean sparkOn(Spark s, tech.gulp.lavavisual.config.HudConfig c) {
+        return switch (s.kind) { case 1 -> c.ambientEnabled; case 2 -> c.killEffect; case 3 -> c.critBoost; case 4 -> c.trailEnabled; default -> c.particlesEnabled; };
+    }
+    private static double trailLife(tech.gulp.lavavisual.config.HudConfig c) { return Math.max(8, c.trailLength * 20); }
+    private static LivingEntity lastAttacked;
+    private static long lastAttackNanos;
+    /** A sound at this spot right after your own hit (0.7 s, 3 blocks from the target): the target's vanilla hurt sound. */
+    public static boolean recentHitNear(double x, double y, double z) {
+        var target = lastAttacked;
+        if (target == null || System.nanoTime() - lastAttackNanos > 700_000_000L) return false;
+        return target.position().distanceToSqr(x, y, z) < 9;
+    }
+    /** Saturated crit: several extra vanilla crit emitters, optional magic sparks and a coloured star burst. Client-side only. */
+    private static void critBurst(Minecraft mc, LivingEntity target, tech.gulp.lavavisual.config.HudConfig c) {
+        int n = PerformanceMode.active() ? Math.min(2, c.critMultiplier) : c.critMultiplier;
+        for (int i = 0; i < n; i++) mc.particleEngine.createTrackingEmitter(target, net.minecraft.core.particles.ParticleTypes.CRIT);
+        if (c.critMagic) for (int i = 0; i < Math.max(1, n / 2); i++) mc.particleEngine.createTrackingEmitter(target, net.minecraft.core.particles.ParticleTypes.ENCHANTED_HIT);
+        if (!c.critColored) return;
+        Vec3 chest = target.position().add(0, target.getBbHeight() * 0.62, 0);
+        int count = (PerformanceMode.active() ? 6 : 10) + 3 * n;
+        for (int i = 0; i < count; i++) {
+            double a = RANDOM.nextDouble() * Math.PI * 2, up = (RANDOM.nextDouble() - 0.35) * 0.16, speed = 0.1 + RANDOM.nextDouble() * 0.12;
+            Vec3 velocity = new Vec3(Math.cos(a) * speed, up, Math.sin(a) * speed);
+            add(new Spark(chest.add(Math.cos(a) * 0.2, 0, Math.sin(a) * 0.2), velocity, tick, 12 + RANDOM.nextInt(8), (float) (0.07 + RANDOM.nextDouble() * 0.05), 3, i % 3 == 0 ? 0 : 1));
+        }
+    }
+    /** CI smoke: the crit burst on an entity. */
+    public static void testCrit(Minecraft mc, LivingEntity target) { critBurst(mc, target, LavaVisualClient.config()); }
     public static int combo() { return tick - lastComboTick <= 40 ? combo : 0; }
     public static int clicksPerSecond() {
         int now = (int) (System.currentTimeMillis() / 50); int count = 0;
@@ -236,7 +285,7 @@ public final class WorldCosmetics {
         var player = mc.player;
         RINGS.removeIf(r -> !c.jumpEnabled || tick - r.born >= 24);
         MARKS.removeIf(m -> !c.markerEnabled || tick - m.born >= (long) (c.markerDuration * 20));
-        SPARKS.removeIf(s -> (s.ambient ? !c.ambientEnabled : s.kill ? !c.killEffect : !c.particlesEnabled) || tick - s.born >= s.life);
+        SPARKS.removeIf(s -> !sparkOn(s, c) || tick - s.born >= s.life);
         BEAMS.removeIf(b -> !c.killEffect || tick - b.born() >= 26);
         var snapshot = tech.gulp.lavavisual.hud.TargetSnapshot.current;
         espVisible = c.espEnabled && snapshot != null && snapshot.entity() != null && snapshot.entity().isAlive()
@@ -251,16 +300,22 @@ public final class WorldCosmetics {
                 Vec3 chest = at.add(0, victim.getBbHeight() * 0.55, 0);
                 for (int i = 0; i < 28; i++) {
                     Vec3 velocity = new Vec3((RANDOM.nextDouble() - .5) * .24, .03 + RANDOM.nextDouble() * .12, (RANDOM.nextDouble() - .5) * .24);
-                    add(new Spark(chest, velocity, tick, 18 + RANDOM.nextInt(10), (float) c.particleSize * 1.25f, false, c.particleShape, true));
+                    add(new Spark(chest, velocity, tick, 18 + RANDOM.nextInt(10), (float) c.particleSize * 1.25f, 2, c.particleShape));
                 }
             }
         }
-        TRAIL.removeIf(n -> !c.trailEnabled || tick - n.born() >= 22);
+        double trailLife = trailLife(c);
+        TRAIL.removeIf(n -> !c.trailEnabled || tick - n.born() >= trailLife);
         if (c.trailEnabled && !player.isSpectator() && !player.isInvisible()) {
             Vec3 here = player.position().add(0, player.getBbHeight() * TORSO, 0);
             if (TRAIL.isEmpty() || TRAIL.peekLast().position().distanceToSqr(here) > 0.04) {
                 TRAIL.addLast(new TrailNode(here, tick));
-                while (TRAIL.size() > 40) TRAIL.removeFirst();
+                while (TRAIL.size() > 90) TRAIL.removeFirst();
+                // "Sparks" style: glittering stars shed from the body while you move.
+                if (c.trailStyle == 3 && tick % (PerformanceMode.active() ? 2 : 1) == 0)
+                    for (int i = 0; i < 2; i++) add(new Spark(here.add((RANDOM.nextDouble() - .5) * .3, (RANDOM.nextDouble() - .5) * player.getBbHeight() * .35, (RANDOM.nextDouble() - .5) * .3),
+                            new Vec3((RANDOM.nextDouble() - .5) * .025, (RANDOM.nextDouble() - .3) * .02, (RANDOM.nextDouble() - .5) * .025),
+                            tick, 12 + RANDOM.nextInt(10), (float) (0.045 * c.trailWidth), 4, i == 0 ? 1 : 0));
             }
         }
         if (ready && c.jumpEnabled && grounded && !player.onGround() && player.getDeltaMovement().y > 0.08
@@ -306,7 +361,6 @@ public final class WorldCosmetics {
                     }
                 }
                 for (BeamFrame beam : frame.beams) beam(pose, out, beam.origin().subtract(camera), beam.alpha(), beam.age(), frame.colors[2], frame.lights[2], frame.spin);
-                trail(pose, out, frame.trail, camera, frame.colors[3], frame.lights[3]);
                 for (MarkerFrame mark : frame.markers) marker(pose, out, mark.origin().subtract(camera), mark, frame.colors[4], right, up);
                 for (var waypoint : frame.waypoints) waypointBeam(pose, out, waypoint.base().subtract(camera), waypoint.color(), frame.spin);
                 for (SparkFrame spark : frame.sparks) {
@@ -320,6 +374,8 @@ public final class WorldCosmetics {
                     }
                 }
             });
+            if (frame.trail.size() > 1) context.submitNodeCollector().submitCustomGeometry(context.poseStack(), LavaVisualClient.config().trailGlow ? GLOW_ADD : GLOW,
+                    (pose, out) -> trail(pose, out, frame.trail, camera, frame.colors[3], frame.lights[3], right, up, frame.spin));
             if (!frame.hats.isEmpty()) context.submitNodeCollector().submitCustomGeometry(context.poseStack(), HAT, (pose, out) -> {
                 for (HatFrame h : frame.hats) Hats.draw(pose, out, world(h, camera), h.model(), h.look());
             });
@@ -356,7 +412,7 @@ public final class WorldCosmetics {
         float seconds = (float) (frameNow / 20.0);
         long nanos = System.nanoTime();
         if (s.id == mc.player.getId() || Dummy.is(s.id)) {
-            if (c.hatEnabled) hat(model, pose, collector, s, Hats.hat(c.hatType), c.color("hat"), c.color2("hat"), c.hatStyle, (float) c.hatOpacity,
+            if (c.hatEnabled) hat(model, pose, collector, s, c.hatType, Hats.hat(c.hatType), c.color("hat"), c.color2("hat"), c.hatStyle, (float) c.hatOpacity,
                     c.hatSize, c.hatLift, c.hatCone, (float) (frameNow * 0.06 * c.hatSpin), seconds);
             if (c.wingsEnabled) wings(model, pose, collector, s, Hats.wing(c.wingsType), c.color("wings"), c.color2("wings"), c.wingsStyle,
                     (float) c.wingsOpacity, c.wingsSize, (float) c.wingsFlap, seconds, nanos);
@@ -369,7 +425,7 @@ public final class WorldCosmetics {
         if (remote.hat() > 0) {
             int color = remote.hatRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue, 0.72, 1) : remote.hatRgb();
             int light = remote.hatRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue + 0.16, 0.72, 1) : tech.gulp.lavavisual.config.ColorMath.companion(color);
-            hat(model, pose, collector, s, Hats.hat(remote.hat()), color, light, 0, 0.95f, 1, 0, 1, 0, seconds);
+            hat(model, pose, collector, s, remote.hat(), Hats.hat(remote.hat()), color, light, 0, 0.95f, 1, 0, 1, 0, seconds);
         }
         if (remote.wings() > 0) {
             int color = remote.wingRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue, 0.72, 1) : remote.wingRgb();
@@ -382,17 +438,19 @@ public final class WorldCosmetics {
      * hat layer or the helmet, a hair above it so the bottom never shimmers on the skin.
      */
     private static void hat(net.minecraft.client.model.player.PlayerModel model, PoseStack pose, net.minecraft.client.renderer.SubmitNodeCollector collector,
-                            net.minecraft.client.renderer.entity.state.AvatarRenderState s, Hats.Model hat, int color, int light, int style,
+                            net.minecraft.client.renderer.entity.state.AvatarRenderState s, int type, Hats.Model hat, int color, int light, int style,
                             float opacity, double size, double lift, double stretch, float spin, float seconds) {
         if (hat == null) return;
+        float fit = Hats.fit(type);
         double top = (s.headEquipment != null && !s.headEquipment.isEmpty() ? 9.0 : s.showHat ? 8.5 : 8.0) + 0.06;
         pose.pushPose();
         model.head.translateAndRotate(pose);
         pose.scale(1, -1, -1); // model space (y down, face towards -z) -> cosmetic space (y up, face towards +z)
-        pose.translate(0, top / 16.0 + lift / 0.9375, 0);
+        // Worn hats wrap the head: wider than the 8 px head and sunk half a pixel, so they never float above it.
+        pose.translate(0, top / 16.0 + (lift - Hats.sink(type) * size) / 0.9375, 0);
         pose.mulPose(new Quaternionf().rotationY(spin));
         float k = (float) (size / 0.9375);
-        pose.scale(k, (float) (k * stretch), k);
+        pose.scale(k * fit, (float) (k * stretch), k * fit);
         submitModel(collector, pose, hat, new Hats.Look(color, light, style, opacity, seconds, seconds, 1, env(s)), (float) (size * Math.max(0.2, s.scale)));
         pose.popPose();
     }
@@ -470,25 +528,107 @@ public final class WorldCosmetics {
         }
         if (horizontal < 64) ripple(pose, out, new Vec3(x, y + 0.05, z), 0.35f, 0.62f, bright, color, 0.7f, 0.05f, spin * 2);
     }
-    /** Fading light ribbon along your recent path. */
-    private static void trail(PoseStack.Pose pose, VertexConsumer out, List<TrailPoint> points, Vec3 camera, int color, int light) {
-        for (int i = 0; i + 1 < points.size(); i++) {
-            TrailPoint a = points.get(i), b = points.get(i + 1);
-            Vec3 pa = a.position().subtract(camera), pb = b.position().subtract(camera);
-            float fa = a.alpha(), fb = b.alpha();
-            // Soft band around the torso: bright core, transparent edges, narrowing towards the tail.
-            double ha = a.half() * (0.35 + 0.65 * fa), hb = b.half() * (0.35 + 0.65 * fb);
-            int ea = UiDraw.alpha(color, fa * 0.06), eb = UiDraw.alpha(color, fb * 0.06);
-            int ca = UiDraw.alpha(light, fa * 0.58), cb = UiDraw.alpha(light, fb * 0.58);
-            vertex(pose, out, pa.x, pa.y - ha, pa.z, ea);
-            vertex(pose, out, pb.x, pb.y - hb, pb.z, eb);
-            vertex(pose, out, pb.x, pb.y, pb.z, cb);
-            vertex(pose, out, pa.x, pa.y, pa.z, ca);
-            vertex(pose, out, pa.x, pa.y, pa.z, ca);
-            vertex(pose, out, pb.x, pb.y, pb.z, cb);
-            vertex(pose, out, pb.x, pb.y + hb, pb.z, eb);
-            vertex(pose, out, pa.x, pa.y + ha, pa.z, ea);
+    /**
+     * Trail from the torso, in five styles: ribbon (bright core, soft edges), neon (glowing edge lines), helix (two strands
+     * winding around the path), sparks (thin ribbon + stars shed in tick) and comet (crossed ribbons with a glowing head).
+     * Colour runs from the element colour at the body to its second colour at the tail; brightness and width are settings.
+     */
+    private static void trail(PoseStack.Pose pose, VertexConsumer out, List<TrailPoint> points, Vec3 camera, int color, int light, Vector3f right, Vector3f up, float spin) {
+        int n = points.size();
+        if (n < 2) return;
+        var c = LavaVisualClient.config();
+        float bright = (float) c.trailBrightness, width = (float) c.trailWidth;
+        boolean glow = c.trailGlow;
+        Vec3[] p = new Vec3[n];
+        float[] f = new float[n], h = new float[n];
+        int[] col = new int[n];
+        for (int i = 0; i < n; i++) {
+            TrailPoint t = points.get(i);
+            p[i] = t.position().subtract(camera);
+            f[i] = t.alpha();
+            h[i] = t.half() * width * (0.35f + 0.65f * f[i]);
+            col[i] = lerp(light, color, f[i]);
         }
+        switch (c.trailStyle) {
+            case 1 -> { // neon: faint fill, two bright edge lines and a thin centre line
+                for (int i = 0; i + 1 < n; i++) {
+                    ribbon(pose, out, p[i], p[i + 1], h[i], h[i + 1], col[i], col[i + 1], f[i] * 0.16f * bright, f[i + 1] * 0.16f * bright, 0.6f);
+                    for (int side = -1; side <= 1; side += 2) {
+                        Vec3 a0 = p[i].add(0, side * h[i], 0), a1 = p[i + 1].add(0, side * h[i + 1], 0);
+                        if (glow) line(pose, out, a0, a1, 0.07f * width, col[i], col[i + 1], f[i] * 0.22f * bright, f[i + 1] * 0.22f * bright);
+                        line(pose, out, a0, a1, 0.022f * width, brighten(col[i]), brighten(col[i + 1]), f[i] * bright, f[i + 1] * bright);
+                    }
+                    line(pose, out, p[i], p[i + 1], 0.012f * width, col[i], col[i + 1], f[i] * 0.5f * bright, f[i + 1] * 0.5f * bright);
+                }
+            }
+            case 2 -> { // helix: two strands around the path
+                Vec3[] s0 = new Vec3[n], s1 = new Vec3[n];
+                for (int i = 0; i < n; i++) {
+                    Vec3 d = p[Math.min(n - 1, i + 1)].subtract(p[Math.max(0, i - 1)]);
+                    double len = Math.sqrt(d.x * d.x + d.z * d.z);
+                    double sx = len > 1e-4 ? -d.z / len : 1, sz = len > 1e-4 ? d.x / len : 0;
+                    double angle = i * 0.8 - spin * 9, r = h[i] * 0.9;
+                    double ox = sx * Math.cos(angle) * r, oy = Math.sin(angle) * r, oz = sz * Math.cos(angle) * r;
+                    s0[i] = p[i].add(ox, oy, oz);
+                    s1[i] = p[i].add(-ox, -oy, -oz);
+                }
+                for (int i = 0; i + 1 < n; i++) {
+                    ribbon(pose, out, p[i], p[i + 1], h[i] * 0.45f, h[i + 1] * 0.45f, col[i], col[i + 1], f[i] * 0.14f * bright, f[i + 1] * 0.14f * bright, 0.5f);
+                    for (Vec3[] strand : new Vec3[][]{s0, s1}) {
+                        if (glow) line(pose, out, strand[i], strand[i + 1], 0.08f * width, col[i], col[i + 1], f[i] * 0.2f * bright, f[i + 1] * 0.2f * bright);
+                        line(pose, out, strand[i], strand[i + 1], 0.028f * width, brighten(col[i]), brighten(col[i + 1]), f[i] * bright, f[i + 1] * bright);
+                    }
+                }
+            }
+            case 3 -> { // sparks: a thin bright ribbon; the stars come from tick()
+                for (int i = 0; i + 1 < n; i++)
+                    ribbon(pose, out, p[i], p[i + 1], h[i] * 0.35f, h[i + 1] * 0.35f, col[i], col[i + 1], f[i] * 0.7f * bright, f[i + 1] * 0.7f * bright, 0.25f);
+            }
+            case 4 -> { // comet: vertical + horizontal ribbons and a glowing head
+                for (int i = 0; i + 1 < n; i++) {
+                    ribbon(pose, out, p[i], p[i + 1], h[i], h[i + 1], col[i], col[i + 1], f[i] * 0.6f * bright, f[i + 1] * 0.6f * bright, 0.3f);
+                    flat(pose, out, p[i], p[i + 1], h[i], h[i + 1], col[i], col[i + 1], f[i] * 0.45f * bright, f[i + 1] * 0.45f * bright);
+                }
+                Vec3 head = p[n - 1];
+                glow(pose, out, head, right, up, 0.55f * width, color, 0.55f * bright, 16);
+                glow(pose, out, head, right, up, 0.22f * width, 0xFFFFFF, 0.6f * bright, 12);
+            }
+            default -> { // ribbon: soft outer glow and a bright saturated core
+                for (int i = 0; i + 1 < n; i++) {
+                    if (glow) ribbon(pose, out, p[i], p[i + 1], h[i] * 1.9f, h[i + 1] * 1.9f, col[i], col[i + 1], f[i] * 0.2f * bright, f[i + 1] * 0.2f * bright, 0f);
+                    ribbon(pose, out, p[i], p[i + 1], h[i], h[i + 1], col[i], col[i + 1], f[i] * 0.85f * bright, f[i + 1] * 0.85f * bright, 0.1f);
+                    ribbon(pose, out, p[i], p[i + 1], h[i] * 0.3f, h[i + 1] * 0.3f, brighten(col[i]), brighten(col[i + 1]), f[i] * 0.7f * bright, f[i + 1] * 0.7f * bright, 0.2f);
+                }
+            }
+        }
+    }
+    /** Vertical band a..b: brightest in the middle, fading to edge*core alpha at +-h. */
+    private static void ribbon(PoseStack.Pose pose, VertexConsumer out, Vec3 a, Vec3 b, double ha, double hb, int ca, int cb, float fa, float fb, float edge) {
+        int ea = UiDraw.alpha(ca, fa * edge), eb = UiDraw.alpha(cb, fb * edge), ma = UiDraw.alpha(ca, fa), mb = UiDraw.alpha(cb, fb);
+        vertex(pose, out, a.x, a.y - ha, a.z, ea); vertex(pose, out, b.x, b.y - hb, b.z, eb); vertex(pose, out, b.x, b.y, b.z, mb); vertex(pose, out, a.x, a.y, a.z, ma);
+        vertex(pose, out, a.x, a.y, a.z, ma); vertex(pose, out, b.x, b.y, b.z, mb); vertex(pose, out, b.x, b.y + hb, b.z, eb); vertex(pose, out, a.x, a.y + ha, a.z, ea);
+    }
+    /** Horizontal band a..b (perpendicular to the path), fading to the sides. */
+    private static void flat(PoseStack.Pose pose, VertexConsumer out, Vec3 a, Vec3 b, double ha, double hb, int ca, int cb, float fa, float fb) {
+        double dx = b.x - a.x, dz = b.z - a.z, len = Math.sqrt(dx * dx + dz * dz);
+        if (len < 1e-4) return;
+        double sx = -dz / len, sz = dx / len;
+        int ea = UiDraw.alpha(ca, 0), eb = UiDraw.alpha(cb, 0), ma = UiDraw.alpha(ca, fa), mb = UiDraw.alpha(cb, fb);
+        vertex(pose, out, a.x - sx * ha, a.y, a.z - sz * ha, ea); vertex(pose, out, b.x - sx * hb, b.y, b.z - sz * hb, eb); vertex(pose, out, b.x, b.y, b.z, mb); vertex(pose, out, a.x, a.y, a.z, ma);
+        vertex(pose, out, a.x, a.y, a.z, ma); vertex(pose, out, b.x, b.y, b.z, mb); vertex(pose, out, b.x + sx * hb, b.y, b.z + sz * hb, eb); vertex(pose, out, a.x + sx * ha, a.y, a.z + sz * ha, ea);
+    }
+    /** Camera-facing line a..b of the given width (camera at the origin: positions are camera-relative). */
+    private static void line(PoseStack.Pose pose, VertexConsumer out, Vec3 a, Vec3 b, float w, int ca, int cb, float fa, float fb) {
+        Vec3 d = b.subtract(a), mid = a.add(b).scale(0.5);
+        Vec3 side = d.cross(mid);
+        double len = side.length();
+        if (len < 1e-6) return;
+        side = side.scale(w / len);
+        int a0 = UiDraw.alpha(ca, fa), b0 = UiDraw.alpha(cb, fb);
+        vertex(pose, out, a.x - side.x, a.y - side.y, a.z - side.z, a0);
+        vertex(pose, out, b.x - side.x, b.y - side.y, b.z - side.z, b0);
+        vertex(pose, out, b.x + side.x, b.y + side.y, b.z + side.z, b0);
+        vertex(pose, out, a.x + side.x, a.y + side.y, a.z + side.z, a0);
     }
     private static void band(PoseStack.Pose pose, VertexConsumer out, Vec3 p, float inner, float outer, int color, float innerAlpha, float outerAlpha) {
         int a = UiDraw.alpha(color, innerAlpha), b = UiDraw.alpha(color, outerAlpha);

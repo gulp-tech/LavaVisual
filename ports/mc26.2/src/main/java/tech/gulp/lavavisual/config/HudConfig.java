@@ -18,7 +18,7 @@ public final class HudConfig {
     public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark", "minimap");
     /** Every element with its own colour. Missing from {@link #colors} means "follow the theme colour". */
     public static final List<String> COLOR_KEYS = List.of("menu", "menu_bg", "hud_bg", "watermark", "target", "keys", "armor", "coordinates",
-            "performance", "totems", "minimap", "badge", "crosshair", "jump", "particles", "ambient", "marker", "esp", "kill", "hat", "trail", "waypoint");
+            "performance", "totems", "minimap", "badge", "crosshair", "jump", "particles", "ambient", "marker", "esp", "kill", "hat", "trail", "waypoint", "crit");
     public int schemaVersion = SCHEMA;
     /** Theme: accent and second gradient colour. Default = the logo's lava orange to amethyst. */
     public int rgb = 0xFF6A2B, rgb2 = 0xA77BFF;
@@ -44,6 +44,22 @@ public final class HudConfig {
     public double killVolume = 0.65;
     public double menuScale = 0.8, menuOpacity = 0.9, menuDim = 0.12;
     public boolean markerEnabled, skyEnabled, fpsBoost;
+    /** Camera: zoom and FreeLook while their keys are held (CameraControl). */
+    public boolean zoomEnabled = true, zoomSmooth = true, zoomSlowMouse = true, freeLookEnabled = true;
+    public double zoomLevel = 4;
+    /** Saturated crits: more vanilla crit particles, a coloured burst, optional magic sparks / on every hit. */
+    public boolean critBoost = true, critColored = true, critMagic, critAlways;
+    public int critMultiplier = 3;
+    /** Trails: 0 ribbon, 1 neon, 2 helix, 3 sparks, 4 comet; length in seconds, width and brightness multipliers. */
+    public int trailStyle;
+    public double trailLength = 1.1, trailWidth = 1, trailBrightness = 0.9;
+    public boolean trailGlow = true;
+    /** Minimap window: 0 circle, 1 square. */
+    public int mapShape;
+    /** With a LavaVisual hit sound on, the target's vanilla hurt / no-damage sounds of your hits are muted. */
+    public boolean muteVanillaHits = true;
+    /** Extra vanilla options stored by FPS Boost (-1 = not stored). */
+    public int savedBiomeBlend = -1, savedSimulation = -1, savedInactivity = -1;
     /** badgeEnabled: show other LavaVisual players' marks. badgeShare: mark your own skin and share the hat (opt-in, see HatSync). */
     public boolean badgeEnabled = true, badgeShare = true;
     /** Menu position as a fraction of the free space around the panel (0.5 = centred); set by dragging the header. */
@@ -138,7 +154,7 @@ public final class HudConfig {
         waypointBeams = waypointLabels = false;
         crosshairEnabled = jumpEnabled = particlesEnabled = ambientEnabled = viewModelEnabled = false;
         hitSoundEnabled = critSoundEnabled = totemSoundEnabled = killSoundEnabled = false;
-        markerEnabled = skyEnabled = fpsBoost = false;
+        markerEnabled = skyEnabled = fpsBoost = critBoost = false;
         hatEnabled = wingsEnabled = trailEnabled = espEnabled = killEffect = false;
         swingStyle = 0;
         noCooldownDip = false;
@@ -207,6 +223,9 @@ public final class HudConfig {
         wingsStyle = Math.floorMod(wingsStyle, 3);
         hudFont = Math.floorMod(hudFont, 3);
         mapZoom = Math.floorMod(mapZoom, 3);
+        mapShape = Math.floorMod(mapShape, 2); trailStyle = Math.floorMod(trailStyle, 5);
+        zoomLevel = bounded(zoomLevel, 1.5, 15, 4); critMultiplier = Math.max(1, Math.min(6, critMultiplier));
+        trailLength = bounded(trailLength, 0.4, 3, 1.1); trailWidth = bounded(trailWidth, 0.4, 2, 1); trailBrightness = bounded(trailBrightness, 0.3, 1, 0.9);
         schemaVersion = SCHEMA;
     }
     public static double bounded(double value, double min, double max, double fallback) {

@@ -134,6 +134,7 @@ public final class LavaVisualClient implements ClientModInitializer {
             tech.gulp.lavavisual.hud.TargetSnapshot.update(client);
             tech.gulp.lavavisual.effects.WorldCosmetics.tick(client);
             tech.gulp.lavavisual.effects.Dummy.tick(client);
+            tech.gulp.lavavisual.effects.CameraControl.tick(client);
             tech.gulp.lavavisual.effects.AirParticles.tick(client);
             tech.gulp.lavavisual.effects.SwingStyles.tick(client);
             tech.gulp.lavavisual.effects.HatSync.tick(client);

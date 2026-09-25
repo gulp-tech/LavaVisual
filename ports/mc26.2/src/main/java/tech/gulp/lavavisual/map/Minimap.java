@@ -147,19 +147,25 @@ public final class Minimap {
     public static int baseWidth() { return 104; }
     public static int baseHeight() { return LavaVisualClient.config().mapCoords ? 117 : 104; }
 
-    /** Draws at the widget origin in widget units. */
+    /** Draws at the widget origin in widget units. Round window by default (square optional); no letters. */
     public static void draw(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, float partial, boolean edit) {
         Font font = mc.font;
         int bw = baseWidth(), bh = baseHeight(), m = 4, size = 96;
         int bg = c.color("hud_bg") & 0xFFFFFF;
         int accent2 = c.color2("minimap");
+        boolean round = c.mapShape == 0;
+        // The round window is cut from the square map with the panel colour, so that panel stays (almost) opaque.
+        double op = round ? Math.max(w.opacity, 0.92) : w.opacity;
+        int panelTop = UiDraw.alpha(UiDraw.mix(bg, 0xFFFFFF, 0.05), op), panelBottom = UiDraw.alpha(bg, op);
+        int maskTop = UiDraw.alpha(UiDraw.mix(bg, 0xFFFFFF, 0.05), 1), maskBottom = UiDraw.alpha(bg, 1);
         if (c.shadows) {
             UiDraw.round(g, -1, 1, bw + 2, bh + 2, 8, UiDraw.alpha(0, w.opacity * 0.12));
             UiDraw.round(g, 0, 2, bw, bh, 7, UiDraw.alpha(0, w.opacity * 0.22));
         }
-        UiDraw.roundV(g, 0, 0, bw, bh, 7, UiDraw.alpha(UiDraw.mix(bg, 0xFFFFFF, 0.05), w.opacity), UiDraw.alpha(bg, w.opacity));
-        UiDraw.roundV(g, m - 1, m - 1, size + 2, size + 2, 3, UiDraw.alpha(accent, 0.75), UiDraw.alpha(accent2, 0.75));
-        g.fill(m, m, m + size, m + size, 0xFF0B0D11);
+        UiDraw.roundV(g, 0, 0, bw, bh, 7, panelTop, panelBottom);
+        double cx = m + size / 2.0, cy = m + size / 2.0, r = size / 2.0;
+        if (round) UiDraw.circle(g, cx, cy, r, 0xFF0B0D11);
+        else UiDraw.round(g, m, m, size, size, 6, 0xFF0B0D11);
         var player = mc.player;
         boolean live = player != null && mc.level != null && uploaded && valid && texture != null;
         double px = 0, pz = 0, view = VIEW[Math.floorMod(c.mapZoom, 3)];
@@ -172,45 +178,113 @@ public final class Minimap {
             g.enableScissor(m, m, m + size, m + size);
             g.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, m, m, u, v, size, size, (int) view, (int) view, SIZE, SIZE, 0xFFFFFFFF);
             g.disableScissor();
+        } else if (!edit) UiFont.centered(g, font, "загрузка", m + size / 2, m + size / 2 - 4, 0xFF8C93A1, UiFont.Face.SMALL);
+        // Cut the square texture to the window shape with the panel colour, then the soft vignette, glow and ring.
+        if (round) {
+            ring(g, cx, cy, r, r * 1.5, m, m, m + size, m + size, maskTop, maskBottom, 0, bh);
+            ring(g, cx, cy, r - 7, r, m, m, m + size, m + size, 0x00000000, 0x00000000, 0, 0, 0x38000000);
+            ring(g, cx, cy, r + 0.6, r + 2.6, -2, -2, bw + 2, bh + 2, UiDraw.alpha(accent, 0.16), UiDraw.alpha(accent2, 0.16), m, m + size);
+            ring(g, cx, cy, r - 0.5, r + 0.9, -2, -2, bw + 2, bh + 2, UiDraw.alpha(accent, 0.95), UiDraw.alpha(accent2, 0.95), m, m + size);
         } else {
-            for (int i = 1; i < 4; i++) {
-                g.fill(m + i * size / 4, m, m + i * size / 4 + 1, m + size, 0x14FFFFFF);
-                g.fill(m, m + i * size / 4, m + size, m + i * size / 4 + 1, 0x14FFFFFF);
-            }
-            if (!edit) UiFont.centered(g, font, "загрузка", m + size / 2, m + size / 2 + 12, 0xFF8C93A1, UiFont.Face.SMALL);
+            corners(g, m, m, size, 6, maskTop, maskBottom, bh);
+            UiDraw.roundV(g, m - 1, m - 1, size + 2, 1, 0, UiDraw.alpha(accent, 0.9), UiDraw.alpha(accent, 0.9));
         }
         double scale = size / view;
-        int cx = m + size / 2, cy = m + size / 2;
         if (c.mapWaypoints && player != null && mc.level != null) {
             for (Waypoints.Point p : Waypoints.here(mc)) {
                 if (!p.visible) continue;
                 double dx = (p.x + 0.5 - px) * scale, dz = (p.z + 0.5 - pz) * scale;
-                double limit = size / 2.0 - 4, out = Math.max(Math.abs(dx), Math.abs(dz));
+                double limit = size / 2.0 - 5, out = round ? Math.hypot(dx, dz) : Math.max(Math.abs(dx), Math.abs(dz));
                 boolean edge = out > limit;
                 if (edge) { dx *= limit / out; dz *= limit / out; }
-                int wx = cx + (int) Math.round(dx), wz = cy + (int) Math.round(dz), r = edge ? 2 : 3;
-                g.fill(wx - r - 1, wz - r - 1, wx + r + 1, wz + r + 1, 0xC0000000);
-                g.fill(wx - r, wz - r, wx + r, wz + r, 0xFF000000 | p.color);
-                if (!edge) g.fill(wx - 1, wz - 1, wx + 1, wz + 1, 0xFFFFFFFF);
+                double wx = cx + dx, wz = cy + dz;
+                UiDraw.circle(g, wx, wz, edge ? 3 : 3.8, 0xC0000000);
+                UiDraw.circle(g, wx, wz, edge ? 2.2 : 3, 0xFF000000 | p.color);
+                if (!edge) UiDraw.circle(g, wx, wz, 1.1, 0xFFFFFFFF);
             }
         }
-        UiDraw.round(g, cx - 5, m + 1, 10, 9, 3, 0xB0000000);
-        UiFont.centered(g, font, "С", cx, m + 2, 0xFFFF6B6B, UiFont.Face.SMALL);
         float yaw = player == null ? 180 : Mth.lerp(partial, player.yRotO, player.getYRot());
         g.pose().pushMatrix();
-        g.pose().translate(cx, cy);
+        g.pose().translate((float) cx, (float) cy);
         g.pose().rotate((float) Math.toRadians(yaw - 180));
-        arrow(g, 0xE0000000, 1);
-        arrow(g, 0xFFFFFFFF, 0);
+        arrow(g, 1.45, 0x90000000);
+        arrow(g, 1.0, 0xFFFFFFFF);
         g.pose().popMatrix();
         if (c.mapCoords) {
             String text = player == null ? "X 0  Y 64  Z 0" : "X " + Mth.floor(px) + "  Y " + Mth.floor(player.getY()) + "  Z " + Mth.floor(pz);
-            UiFont.centered(g, font, text, bw / 2, m + size + 4, 0xFFE8EAF0, UiFont.Face.SMALL);
+            UiFont.centered(g, font, text, bw / 2, m + size + 4, 0xFFC9CED8, UiFont.Face.SMALL);
         }
     }
-    /** Arrow pointing up, built from horizontal strips so it rotates cleanly. */
-    private static void arrow(GuiGraphicsExtractor g, int color, int grow) {
-        int[][] rows = {{-6, 0, 1}, {-5, -1, 2}, {-4, -1, 2}, {-3, -2, 3}, {-2, -2, 3}, {-1, -3, 4}, {0, -3, 4}, {1, -4, 5}, {2, -4, -1}, {2, 2, 5}, {3, -4, -2}, {3, 3, 5}};
-        for (int[] r : rows) g.fill(r[1] - grow, r[0] - grow, r[2] + grow, r[0] + 1 + grow, color);
+    private static double pixels(GuiGraphicsExtractor g) {
+        var p = g.pose();
+        return UiFont.guiScale() * Math.sqrt(Math.abs(p.m00() * p.m11() - p.m01() * p.m10()));
+    }
+    /**
+     * Paints, one physical pixel row at a time, the part of the box (x0..x1, y0..y1) between radius r0 and r1 around
+     * (cx, cy), with anti-aliased ends. Colour runs top -> bottom between gy0 and gy1. With a vignette colour the band is
+     * split into rings that darken towards r1 (inner shadow at the window edge).
+     */
+    private static void ring(GuiGraphicsExtractor g, double cx, double cy, double r0, double r1, double x0, double y0, double x1, double y1,
+                             int top, int bottom, double gy0, double gy1) { ring(g, cx, cy, r0, r1, x0, y0, x1, y1, top, bottom, gy0, gy1, 0); }
+    private static void ring(GuiGraphicsExtractor g, double cx, double cy, double r0, double r1, double x0, double y0, double x1, double y1,
+                             int top, int bottom, double gy0, double gy1, int vignette) {
+        double s = pixels(g);
+        if (s <= 0.01) return;
+        g.pose().pushMatrix();
+        try {
+            g.pose().scale((float) (1 / s));
+            int rowFrom = (int) Math.floor(Math.max(y0, cy - r1) * s), rowTo = (int) Math.ceil(Math.min(y1, cy + r1) * s);
+            int steps = vignette != 0 ? 6 : 1;
+            for (int row = rowFrom; row < rowTo; row++) {
+                double y = (row + 0.5) / s, dy = y - cy;
+                if (Math.abs(dy) >= r1) continue;
+                for (int k = 0; k < steps; k++) {
+                    // Vignette: concentric bands, darker towards the outer edge.
+                    double a0 = vignette != 0 ? r0 + (r1 - r0) * k / steps : r0, a1 = vignette != 0 ? r0 + (r1 - r0) * (k + 1) / steps : r1;
+                    int color = vignette != 0 ? UiDraw.fade(vignette, (k + 1.0) / steps) : gy1 > gy0 ? UiDraw.lerpArgb(top, bottom, Math.clamp((y - gy0) / (gy1 - gy0), 0, 1)) : top;
+                    if ((color >>> 24) == 0) continue;
+                    double outer = Math.sqrt(Math.max(0, a1 * a1 - dy * dy)), inner = Math.abs(dy) < a0 ? Math.sqrt(a0 * a0 - dy * dy) : 0;
+                    if (inner <= 0) span(g, s, cx - outer, cx + outer, x0, x1, row, color);
+                    else { span(g, s, cx - outer, cx - inner, x0, x1, row, color); span(g, s, cx + inner, cx + outer, x0, x1, row, color); }
+                }
+            }
+        } finally { g.pose().popMatrix(); }
+    }
+    /** One row segment [a, b] (GUI units) clipped to [x0, x1], in physical pixels with fractional end coverage. */
+    private static void span(GuiGraphicsExtractor g, double s, double a, double b, double x0, double x1, int row, int color) {
+        a = Math.max(a, x0) * s; b = Math.min(b, x1) * s;
+        if (b <= a) return;
+        int ia = (int) Math.ceil(a), ib = (int) Math.floor(b);
+        if (ib > ia) g.fill(ia, row, ib, row + 1, color);
+        if (ia > a && ia - 1 >= Math.floor(a)) g.fill(ia - 1, row, ia, row + 1, UiDraw.fade(color, Math.min(1, ia - a)));
+        if (b > ib && ib >= ia) g.fill(ib, row, ib + 1, row + 1, UiDraw.fade(color, Math.min(1, b - ib)));
+    }
+    /** Rounds the square window's corners with the panel colour. */
+    private static void corners(GuiGraphicsExtractor g, int x, int y, int size, int radius, int top, int bottom, int panelHeight) {
+        double[][] centres = {{x + radius, y + radius, x, y}, {x + size - radius, y + radius, x + size - radius, y},
+                {x + radius, y + size - radius, x, y + size - radius}, {x + size - radius, y + size - radius, x + size - radius, y + size - radius}};
+        for (double[] c : centres) ring(g, c[0], c[1], radius, radius * 1.5, c[2], c[3], c[2] + radius, c[3] + radius, top, bottom, 0, panelHeight);
+    }
+    /** Smooth navigation arrow (pointing up), scan-converted in physical pixels in the current rotated frame. */
+    private static void arrow(GuiGraphicsExtractor g, double grow, int color) {
+        double[][] shape = {{0, -6.6}, {4.9, 5.2}, {0, 2.5}, {-4.9, 5.2}};
+        double s = pixels(g);
+        if (s <= 0.01) return;
+        g.pose().pushMatrix();
+        try {
+            g.pose().scale((float) (1 / s));
+            int rowFrom = (int) Math.floor(-6.6 * grow * s), rowTo = (int) Math.ceil(5.2 * grow * s);
+            double[] xs = new double[4];
+            for (int row = rowFrom; row < rowTo; row++) {
+                double y = (row + 0.5) / s / grow;
+                int count = 0;
+                for (int i = 0; i < 4; i++) {
+                    double[] p0 = shape[i], p1 = shape[(i + 1) % 4];
+                    if ((p0[1] <= y) != (p1[1] <= y)) xs[count++] = p0[0] + (y - p0[1]) / (p1[1] - p0[1]) * (p1[0] - p0[0]);
+                }
+                java.util.Arrays.sort(xs, 0, count);
+                for (int i = 0; i + 1 < count; i += 2) span(g, s, xs[i] * grow, xs[i + 1] * grow, -100, 100, row, color);
+            }
+        } finally { g.pose().popMatrix(); }
     }
 }

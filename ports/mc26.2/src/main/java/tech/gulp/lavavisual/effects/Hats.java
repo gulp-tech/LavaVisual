@@ -58,6 +58,12 @@ public final class Hats {
 
     public static String name(int type) { return NAMES[Math.floorMod(type - 1, COUNT)]; }
     public static String wingName(int type) { return WING_NAMES[Math.floorMod(type - 1, WING_COUNT)]; }
+    /** Worn hats were narrower than the head (base 0.19-0.22 vs 0.25 blocks) and perched on top; they widen to wrap it. */
+    private static final float[] FIT = {1f, 1f, 1.33f, 1.4f, 1f, 1.3f, 1.3f, 1.2f, 1f, 1f, 1f, 1f, 1.25f, 1f};
+    /** How far (blocks at size 1) a worn hat sinks onto the head so no gap shows; the halo and the crystal float. */
+    private static final float[] SINK = {0.03f, 0f, 0.035f, 0.035f, 0.03f, 0.035f, 0.03f, 0.03f, 0f, 0.03f, 0.03f, 0.02f, 0.035f, 0.03f};
+    public static float fit(int type) { return FIT[Math.floorMod(type - 1, FIT.length)]; }
+    public static float sink(int type) { return SINK[Math.floorMod(type - 1, SINK.length)]; }
     public static Model hat(int type) { if (!loaded) load(); return hats == null ? null : hats[Math.floorMod(type - 1, Math.min(COUNT, hats.length))]; }
     public static Model wing(int type) { if (!loaded) load(); return wings == null ? null : wings[Math.floorMod(type - 1, Math.min(WING_COUNT, wings.length))]; }
 

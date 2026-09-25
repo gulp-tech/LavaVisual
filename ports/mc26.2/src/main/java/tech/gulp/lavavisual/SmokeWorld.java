@@ -12,8 +12,9 @@ import net.minecraft.world.Difficulty;
  */
 final class SmokeWorld {
     private static final int[] HATS = {1, 3, 5, 13};
-    private static final int WING_STEP = 90, HAT_STEP = 40, HATS_AT = 60 + 5 * WING_STEP + 10,
-            DUMMY_AT = HATS_AT + HATS.length * HAT_STEP + 10, HANDS_AT = DUMMY_AT + 70, END_AT = HANDS_AT + 50;
+    private static final int WING_STEP = 60, HAT_STEP = 40, HATS_AT = 60 + 5 * WING_STEP + 10,
+            DUMMY_AT = HATS_AT + HATS.length * HAT_STEP + 10, HANDS_AT = DUMMY_AT + 70, CRIT_AT = HANDS_AT + 50,
+            TRAIL_AT = CRIT_AT + 50, ZOOM_AT = TRAIL_AT + 95, FREE_AT = ZOOM_AT + 40, MAP_AT = FREE_AT + 40, END_AT = MAP_AT + 15;
     private static int stage = -1, ticks;
     private SmokeWorld() { }
 
@@ -73,8 +74,8 @@ final class SmokeWorld {
             int w = (ticks - 60) / WING_STEP + 1, at = (ticks - 60) % WING_STEP;
             if (at == 0) { c.wingsType = w; mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }
             if (at == 35) LavaVisual.LOGGER.info("LavaVisual smoke shot world_wings" + w + "_back");
-            if (at == 45) mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
-            if (at == 80) LavaVisual.LOGGER.info("LavaVisual smoke shot world_wings" + w + "_front");
+            if (at == 40) mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+            if (at == 55) LavaVisual.LOGGER.info("LavaVisual smoke shot world_wings" + w + "_front");
         }
         if (ticks == HATS_AT - 10) { c.wingsEnabled = false; mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT); }
         if (ticks >= HATS_AT && ticks < HATS_AT + HATS.length * HAT_STEP) {
@@ -108,6 +109,43 @@ final class SmokeWorld {
         }
         if (ticks == HANDS_AT + 30) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hands");
         if (ticks == HANDS_AT + 40) { mc.gui.setScreen(null); c.mainHand = new tech.gulp.lavavisual.config.HudConfig.Hand(); c.viewModelEnabled = false; }
+        // Saturated crit on the dummy (extra vanilla crit emitters + coloured stars).
+        if (ticks == CRIT_AT) {
+            tech.gulp.lavavisual.effects.Dummy.spawn(mc);
+            mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+            c.critBoost = true; c.critColored = true; c.critMagic = true; c.critMultiplier = 4;
+        }
+        if (ticks == CRIT_AT + 25 && mc.level.getEntity(tech.gulp.lavavisual.effects.Dummy.ID) instanceof net.minecraft.world.entity.LivingEntity target)
+            tech.gulp.lavavisual.effects.WorldCosmetics.testCrit(mc, target);
+        if (ticks == CRIT_AT + 27) LavaVisual.LOGGER.info("LavaVisual smoke shot world_crit");
+        // Trails: walk sideways so the trail stretches across the view; ribbon, then helix.
+        if (ticks == TRAIL_AT) { tech.gulp.lavavisual.effects.Dummy.remove(); c.trailEnabled = true; c.trailStyle = 0; c.trailLength = 1.6; }
+        if (ticks == TRAIL_AT + 45) c.trailStyle = 2;
+        if (ticks >= TRAIL_AT && ticks < TRAIL_AT + 90) {
+            double dir = ticks < TRAIL_AT + 45 ? 1 : -1;
+            player.setPos(player.getX() + 0.28 * dir, player.getY(), player.getZ());
+        }
+        if (ticks == TRAIL_AT + 38) LavaVisual.LOGGER.info("LavaVisual smoke shot world_trail");
+        if (ticks == TRAIL_AT + 83) LavaVisual.LOGGER.info("LavaVisual smoke shot world_trail_helix");
+        // Zoom and FreeLook (camera only).
+        if (ticks == ZOOM_AT) { c.trailEnabled = false; tech.gulp.lavavisual.effects.CameraControl.force(4, false); }
+        if (ticks == ZOOM_AT + 25) {
+            LavaVisual.LOGGER.info(tech.gulp.lavavisual.effects.CameraControl.zooming() ? "LavaVisual smoke zoom ok" : "LavaVisual smoke zoom failed");
+            LavaVisual.LOGGER.info("LavaVisual smoke shot world_zoom");
+        }
+        if (ticks == ZOOM_AT + 32) tech.gulp.lavavisual.effects.CameraControl.force(0, false);
+        if (ticks == FREE_AT) tech.gulp.lavavisual.effects.CameraControl.force(0, true);
+        if (ticks == FREE_AT + 3) tech.gulp.lavavisual.effects.CameraControl.orbit(140);
+        if (ticks == FREE_AT + 25) {
+            boolean ok = tech.gulp.lavavisual.effects.CameraControl.freeLook() && tech.gulp.lavavisual.effects.CameraControl.hooked
+                    && Math.abs(player.getYRot() - 180f) < 0.01f;
+            LavaVisual.LOGGER.info(ok ? "LavaVisual smoke freelook ok" : "LavaVisual smoke freelook failed: hooked=" + tech.gulp.lavavisual.effects.CameraControl.hooked);
+            LavaVisual.LOGGER.info("LavaVisual smoke shot world_freelook");
+        }
+        if (ticks == FREE_AT + 32) tech.gulp.lavavisual.effects.CameraControl.force(0, false);
+        // Minimap: round window, no letters.
+        if (ticks == MAP_AT) { c.widgets.get("minimap").visible = true; c.mapShape = 0; mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }
+        if (ticks == MAP_AT + 12) LavaVisual.LOGGER.info("LavaVisual smoke shot world_minimap");
         if (ticks == END_AT) finish(null);
     }
 

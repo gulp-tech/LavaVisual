@@ -33,7 +33,9 @@ public final class Binds {
         PARTICLES("particles", "Hit Particles", Icons.SPARKLE, -1),
         SOUNDS("sounds", "Звуки ударов", Icons.VOLUME_2, -1),
         BOOST("fps_boost", "FPS Boost", Icons.ROCKET, -1),
-        DUMMY("dummy", "Манекен", Icons.USER, -1);
+        DUMMY("dummy", "Манекен", Icons.USER, -1),
+        ZOOM("zoom", "Зум · удерживать", Icons.SEARCH, GLFW.GLFW_KEY_C),
+        FREELOOK("freelook", "FreeLook · удерживать", Icons.EYE, GLFW.GLFW_KEY_LEFT_ALT);
         public final String id, title, icon;
         public final int defaultKey;
         Action(String id, String title, String icon, int defaultKey) { this.id = id; this.title = title; this.icon = icon; this.defaultKey = defaultKey; }
@@ -56,7 +58,9 @@ public final class Binds {
         if (mapping == null || mapping.isUnbound() || mc.options == null) return false;
         // Debug hotkeys (F3 + B, F3 + V, ...) only fire with the debug modifier held; they are not real conflicts.
         for (KeyMapping other : mc.options.keyMappings)
-            if (other != mapping && other.same(mapping) && !other.getName().startsWith("key.debug.")) return true;
+            if (other != mapping && other.same(mapping) && !other.getName().startsWith("key.debug.")
+                    // Creative-only hotbar save / load (C / X + a number) never fire in normal play.
+                    && !other.getName().equals("key.saveToolbarActivator") && !other.getName().equals("key.loadToolbarActivator")) return true;
         return false;
     }
     public static void set(Action action, InputConstants.Key key, Minecraft mc) {
@@ -109,6 +113,7 @@ public final class Binds {
             case SOUNDS -> { boolean on = !(c.hitSoundEnabled || c.critSoundEnabled); c.hitSoundEnabled = on; c.critSoundEnabled = on; }
             case BOOST -> { c.fpsBoost = !c.fpsBoost; tech.gulp.lavavisual.effects.PerformanceMode.update(mc); }
             case DUMMY -> tech.gulp.lavavisual.effects.Dummy.toggle(mc);
+            case ZOOM, FREELOOK -> { return; } // held keys, polled by CameraControl
         }
         LavaVisualClient.save();
         if (action != Action.MENU && action != Action.WAYPOINT_ADD && action != Action.WAYPOINTS) Toast.show(action.title + status(action, c));
