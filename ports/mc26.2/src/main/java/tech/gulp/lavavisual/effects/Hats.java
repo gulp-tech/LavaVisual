@@ -310,7 +310,9 @@ public final class Hats {
             this.alpha = Math.clamp(look.alpha(), 0, 1); this.time = look.time(); this.swingTime = look.swingTime(); this.flap = look.flap();
             this.env = Math.clamp(look.env(), 0.2f, 1f); this.glowPass = glowPass; this.scale = scale; this.right = right; this.up = up;
             this.rim = mix(this.l, 0xFFFFFF, 0.5f);
-            this.quality = (float) PerformanceMode.quality();
+            // Fixed detail level: it used to follow the live FPS, so near 30/40/50 FPS the mesh was re-tessellated
+            // every second and hats and wings visibly twitched. Only the FPS Boost switch lowers it now.
+            this.quality = PerformanceMode.active() ? 0.75f : 1f;
             return this;
         }
 

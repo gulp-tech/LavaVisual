@@ -44,7 +44,7 @@ with log.open('w') as output:
                                env={**os.environ, 'JAVA_TOOL_OPTIONS': os.environ.get('JAVA_TOOL_OPTIONS', '') + ' -Dlavavisual.uiSmoke=true'})
     ready_since = None
     try:
-        deadline = time.monotonic() + 300
+        deadline = time.monotonic() + 540
         while time.monotonic() < deadline:
             text = log.read_text(errors='replace')
             if process.poll() is not None:

@@ -352,7 +352,8 @@ public final class WorldCosmetics {
         if (model == null || hidden(s)) return;
         double scale = Math.max(0.2, s.scale), px = scale * 0.9375 / 16.0;
         double pivot = s.isCrouching ? 19.816 * px - 0.125 * scale : 24.016 * px;
-        double top = s.headEquipment != null && !s.headEquipment.isEmpty() ? 9.0 : s.showHat ? 8.5 : 8.0;
+        // A hair above the hat layer / helmet so flat hat bottoms never z-fight with the skin (shimmer when moving).
+        double top = (s.headEquipment != null && !s.headEquipment.isEmpty() ? 9.0 : s.showHat ? 8.5 : 8.0) + 0.06;
         float yaw = (float) Math.toRadians(s.bodyRot + s.yRot), pitch = (float) Math.toRadians(s.xRot);
         Matrix3f rotation = new Matrix3f().rotationY(-yaw).rotateX(pitch);
         Vector3f offset = rotation.transform(new Vector3f(0, (float) (top * px + lift), 0));
@@ -369,7 +370,8 @@ public final class WorldCosmetics {
         if (armor && chest.is(net.minecraft.world.item.Items.ELYTRA)) return;
         double scale = Math.max(0.2, s.scale), px = scale * 0.9375 / 16.0;
         double pivot = s.isCrouching ? 20.816 * px - 0.125 * scale : 24.016 * px;
-        Matrix3f rotation = new Matrix3f().rotationY((float) -Math.toRadians(s.bodyRot));
+        // Same body transform as the vanilla model: yaw, the attack twist of the torso, then the crouch lean.
+        Matrix3f rotation = new Matrix3f().rotationY((float) -Math.toRadians(s.bodyRot) - bodyTwist(s));
         if (s.isCrouching) rotation.rotateX(0.5f);
         Vector3f offset = rotation.transform(new Vector3f(0, (float) (-3 * px), (float) (-(armor ? 3.3 : 2.2) * px)));
         float walk = Math.clamp(s.walkAnimationSpeed, 0, 1);
@@ -380,6 +382,28 @@ public final class WorldCosmetics {
         s.showCape = false;
         out.add(new HatFrame(new Vec3(s.x + offset.x, s.y + pivot + offset.y, s.z + offset.z), rotation, (float) (size * scale), 1f, model,
                 new Hats.Look(color, light, style, opacity, seconds, (float) clock.phase, flap * (0.8f + 0.5f * walk), env(s))));
+    }
+    private static java.lang.reflect.Field attackTime, attackArm;
+    private static boolean attackLookup;
+    /** HumanoidModel.setupAttackAnimation turns the torso by sin(sqrt(t) * 2pi) * 0.2 (mirrored for the left arm) while
+     *  swinging; wings follow it so they do not slide over the back during hits. Fields are looked up once by name. */
+    private static float bodyTwist(net.minecraft.client.renderer.entity.state.AvatarRenderState s) {
+        if (!attackLookup) {
+            attackLookup = true;
+            try { attackTime = s.getClass().getField("attackTime"); } catch (ReflectiveOperationException | RuntimeException ignored) { }
+            try { attackArm = s.getClass().getField("attackArm"); } catch (ReflectiveOperationException | RuntimeException ignored) { }
+        }
+        if (attackTime == null) return 0;
+        try {
+            float t = attackTime.getFloat(s);
+            if (t <= 0) return 0;
+            float twist = (float) (Math.sin(Math.sqrt(t) * Math.PI * 2) * 0.2);
+            Object arm = attackArm != null ? attackArm.get(s) : null;
+            return arm != null && "LEFT".equals(String.valueOf(arm)) ? -twist : twist;
+        } catch (ReflectiveOperationException | RuntimeException error) {
+            attackTime = null;
+            return 0;
+        }
     }
     private static int brighten(int rgb) {
         int r = rgb >> 16 & 255, g = rgb >> 8 & 255, b = rgb & 255;
