@@ -120,13 +120,13 @@ final class SmokeWorld {
         if (ticks == CRIT_AT + 27) LavaVisual.LOGGER.info("LavaVisual smoke shot world_crit");
         // Trails: walk sideways so the trail stretches across the view; ribbon, then helix.
         if (ticks == TRAIL_AT) { tech.gulp.lavavisual.effects.Dummy.remove(); c.trailEnabled = true; c.trailStyle = 0; c.trailLength = 1.6; }
-        if (ticks == TRAIL_AT + 45) c.trailStyle = 2;
+        if (ticks == TRAIL_AT + 55) c.trailStyle = 2;
         if (ticks >= TRAIL_AT && ticks < TRAIL_AT + 90) {
-            double dir = ticks < TRAIL_AT + 45 ? 1 : -1;
+            double dir = ticks < TRAIL_AT + 50 ? 1 : -1;
             player.setPos(player.getX() + 0.28 * dir, player.getY(), player.getZ());
         }
-        if (ticks == TRAIL_AT + 38) LavaVisual.LOGGER.info("LavaVisual smoke shot world_trail");
-        if (ticks == TRAIL_AT + 83) LavaVisual.LOGGER.info("LavaVisual smoke shot world_trail_helix");
+        if (ticks == TRAIL_AT + 32) LavaVisual.LOGGER.info("LavaVisual smoke shot world_trail");
+        if (ticks == TRAIL_AT + 86) LavaVisual.LOGGER.info("LavaVisual smoke shot world_trail_helix");
         // Zoom and FreeLook (camera only).
         if (ticks == ZOOM_AT) { c.trailEnabled = false; tech.gulp.lavavisual.effects.CameraControl.force(4, false); }
         if (ticks == ZOOM_AT + 25) {

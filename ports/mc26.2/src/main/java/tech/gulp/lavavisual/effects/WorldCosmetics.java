@@ -374,8 +374,13 @@ public final class WorldCosmetics {
                     }
                 }
             });
-            if (frame.trail.size() > 1) context.submitNodeCollector().submitCustomGeometry(context.poseStack(), LavaVisualClient.config().trailGlow ? GLOW_ADD : GLOW,
-                    (pose, out) -> trail(pose, out, frame.trail, camera, frame.colors[3], frame.lights[3], right, up, frame.spin));
+            // Trail: the saturated body with normal blending (true colours), the halo additively on top.
+            if (frame.trail.size() > 1) {
+                context.submitNodeCollector().submitCustomGeometry(context.poseStack(), GLOW,
+                        (pose, out) -> trail(pose, out, frame.trail, camera, frame.colors[3], frame.lights[3], right, up, frame.spin, false));
+                if (LavaVisualClient.config().trailGlow) context.submitNodeCollector().submitCustomGeometry(context.poseStack(), GLOW_ADD,
+                        (pose, out) -> trail(pose, out, frame.trail, camera, frame.colors[3], frame.lights[3], right, up, frame.spin, true));
+            }
             if (!frame.hats.isEmpty()) context.submitNodeCollector().submitCustomGeometry(context.poseStack(), HAT, (pose, out) -> {
                 for (HatFrame h : frame.hats) Hats.draw(pose, out, world(h, camera), h.model(), h.look());
             });
@@ -533,12 +538,12 @@ public final class WorldCosmetics {
      * winding around the path), sparks (thin ribbon + stars shed in tick) and comet (crossed ribbons with a glowing head).
      * Colour runs from the element colour at the body to its second colour at the tail; brightness and width are settings.
      */
-    private static void trail(PoseStack.Pose pose, VertexConsumer out, List<TrailPoint> points, Vec3 camera, int color, int light, Vector3f right, Vector3f up, float spin) {
+    private static void trail(PoseStack.Pose pose, VertexConsumer out, List<TrailPoint> points, Vec3 camera, int color, int light, Vector3f right, Vector3f up,
+                              float spin, boolean halo) {
         int n = points.size();
         if (n < 2) return;
         var c = LavaVisualClient.config();
         float bright = (float) c.trailBrightness, width = (float) c.trailWidth;
-        boolean glow = c.trailGlow;
         Vec3[] p = new Vec3[n];
         float[] f = new float[n], h = new float[n];
         int[] col = new int[n];
@@ -550,15 +555,17 @@ public final class WorldCosmetics {
             col[i] = lerp(light, color, f[i]);
         }
         switch (c.trailStyle) {
-            case 1 -> { // neon: faint fill, two bright edge lines and a thin centre line
+            case 1 -> { // neon: faint fill, two glowing edge lines and a thin centre line
                 for (int i = 0; i + 1 < n; i++) {
-                    ribbon(pose, out, p[i], p[i + 1], h[i], h[i + 1], col[i], col[i + 1], f[i] * 0.16f * bright, f[i + 1] * 0.16f * bright, 0.6f);
                     for (int side = -1; side <= 1; side += 2) {
                         Vec3 a0 = p[i].add(0, side * h[i], 0), a1 = p[i + 1].add(0, side * h[i + 1], 0);
-                        if (glow) line(pose, out, a0, a1, 0.07f * width, col[i], col[i + 1], f[i] * 0.22f * bright, f[i + 1] * 0.22f * bright);
-                        line(pose, out, a0, a1, 0.022f * width, brighten(col[i]), brighten(col[i + 1]), f[i] * bright, f[i + 1] * bright);
+                        if (halo) line(pose, out, a0, a1, 0.085f * width, col[i], col[i + 1], f[i] * 0.4f * bright, f[i + 1] * 0.4f * bright);
+                        else line(pose, out, a0, a1, 0.024f * width, col[i], col[i + 1], f[i] * bright, f[i + 1] * bright);
                     }
-                    line(pose, out, p[i], p[i + 1], 0.012f * width, col[i], col[i + 1], f[i] * 0.5f * bright, f[i + 1] * 0.5f * bright);
+                    if (!halo) {
+                        ribbon(pose, out, p[i], p[i + 1], h[i], h[i + 1], col[i], col[i + 1], f[i] * 0.2f * bright, f[i + 1] * 0.2f * bright, 0.6f);
+                        line(pose, out, p[i], p[i + 1], 0.012f * width, col[i], col[i + 1], f[i] * 0.6f * bright, f[i + 1] * 0.6f * bright);
+                    }
                 }
             }
             case 2 -> { // helix: two strands around the path
@@ -573,31 +580,37 @@ public final class WorldCosmetics {
                     s1[i] = p[i].add(-ox, -oy, -oz);
                 }
                 for (int i = 0; i + 1 < n; i++) {
-                    ribbon(pose, out, p[i], p[i + 1], h[i] * 0.45f, h[i + 1] * 0.45f, col[i], col[i + 1], f[i] * 0.14f * bright, f[i + 1] * 0.14f * bright, 0.5f);
+                    if (!halo) ribbon(pose, out, p[i], p[i + 1], h[i] * 0.45f, h[i + 1] * 0.45f, col[i], col[i + 1], f[i] * 0.18f * bright, f[i + 1] * 0.18f * bright, 0.5f);
                     for (Vec3[] strand : new Vec3[][]{s0, s1}) {
-                        if (glow) line(pose, out, strand[i], strand[i + 1], 0.08f * width, col[i], col[i + 1], f[i] * 0.2f * bright, f[i + 1] * 0.2f * bright);
-                        line(pose, out, strand[i], strand[i + 1], 0.028f * width, brighten(col[i]), brighten(col[i + 1]), f[i] * bright, f[i + 1] * bright);
+                        if (halo) line(pose, out, strand[i], strand[i + 1], 0.1f * width, col[i], col[i + 1], f[i] * 0.35f * bright, f[i + 1] * 0.35f * bright);
+                        else line(pose, out, strand[i], strand[i + 1], 0.03f * width, col[i], col[i + 1], f[i] * bright, f[i + 1] * bright);
                     }
                 }
             }
-            case 3 -> { // sparks: a thin bright ribbon; the stars come from tick()
-                for (int i = 0; i + 1 < n; i++)
-                    ribbon(pose, out, p[i], p[i + 1], h[i] * 0.35f, h[i + 1] * 0.35f, col[i], col[i + 1], f[i] * 0.7f * bright, f[i + 1] * 0.7f * bright, 0.25f);
+            case 3 -> { // sparks: a thin saturated ribbon; the stars come from tick()
+                for (int i = 0; i + 1 < n; i++) {
+                    if (halo) ribbon(pose, out, p[i], p[i + 1], h[i] * 0.8f, h[i + 1] * 0.8f, col[i], col[i + 1], f[i] * 0.3f * bright, f[i + 1] * 0.3f * bright, 0f);
+                    else ribbon(pose, out, p[i], p[i + 1], h[i] * 0.35f, h[i + 1] * 0.35f, col[i], col[i + 1], f[i] * 0.85f * bright, f[i + 1] * 0.85f * bright, 0.25f);
+                }
             }
             case 4 -> { // comet: vertical + horizontal ribbons and a glowing head
-                for (int i = 0; i + 1 < n; i++) {
-                    ribbon(pose, out, p[i], p[i + 1], h[i], h[i + 1], col[i], col[i + 1], f[i] * 0.6f * bright, f[i + 1] * 0.6f * bright, 0.3f);
-                    flat(pose, out, p[i], p[i + 1], h[i], h[i + 1], col[i], col[i + 1], f[i] * 0.45f * bright, f[i + 1] * 0.45f * bright);
+                if (halo) {
+                    for (int i = 0; i + 1 < n; i++)
+                        ribbon(pose, out, p[i], p[i + 1], h[i] * 1.7f, h[i + 1] * 1.7f, col[i], col[i + 1], f[i] * 0.25f * bright, f[i + 1] * 0.25f * bright, 0f);
+                    glow(pose, out, p[n - 1], right, up, 0.6f * width, color, 0.6f * bright, 16);
+                    glow(pose, out, p[n - 1], right, up, 0.22f * width, 0xFFFFFF, 0.5f * bright, 12);
+                } else for (int i = 0; i + 1 < n; i++) {
+                    ribbon(pose, out, p[i], p[i + 1], h[i], h[i + 1], col[i], col[i + 1], f[i] * 0.75f * bright, f[i + 1] * 0.75f * bright, 0.2f);
+                    flat(pose, out, p[i], p[i + 1], h[i], h[i + 1], col[i], col[i + 1], f[i] * 0.55f * bright, f[i + 1] * 0.55f * bright);
                 }
-                Vec3 head = p[n - 1];
-                glow(pose, out, head, right, up, 0.55f * width, color, 0.55f * bright, 16);
-                glow(pose, out, head, right, up, 0.22f * width, 0xFFFFFF, 0.6f * bright, 12);
             }
-            default -> { // ribbon: soft outer glow and a bright saturated core
+            default -> { // ribbon: saturated body + light centre line; the halo pass adds a wide soft glow
                 for (int i = 0; i + 1 < n; i++) {
-                    if (glow) ribbon(pose, out, p[i], p[i + 1], h[i] * 1.9f, h[i + 1] * 1.9f, col[i], col[i + 1], f[i] * 0.2f * bright, f[i + 1] * 0.2f * bright, 0f);
-                    ribbon(pose, out, p[i], p[i + 1], h[i], h[i + 1], col[i], col[i + 1], f[i] * 0.85f * bright, f[i + 1] * 0.85f * bright, 0.1f);
-                    ribbon(pose, out, p[i], p[i + 1], h[i] * 0.3f, h[i + 1] * 0.3f, brighten(col[i]), brighten(col[i + 1]), f[i] * 0.7f * bright, f[i + 1] * 0.7f * bright, 0.2f);
+                    if (halo) ribbon(pose, out, p[i], p[i + 1], h[i] * 1.9f, h[i + 1] * 1.9f, col[i], col[i + 1], f[i] * 0.3f * bright, f[i + 1] * 0.3f * bright, 0f);
+                    else {
+                        ribbon(pose, out, p[i], p[i + 1], h[i], h[i + 1], col[i], col[i + 1], f[i] * 0.9f * bright, f[i + 1] * 0.9f * bright, 0.12f);
+                        ribbon(pose, out, p[i], p[i + 1], h[i] * 0.22f, h[i + 1] * 0.22f, brighten(col[i]), brighten(col[i + 1]), f[i] * 0.55f * bright, f[i + 1] * 0.55f * bright, 0.3f);
+                    }
                 }
             }
         }

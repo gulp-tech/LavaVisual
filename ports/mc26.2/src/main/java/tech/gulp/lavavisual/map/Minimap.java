@@ -155,7 +155,7 @@ public final class Minimap {
         int accent2 = c.color2("minimap");
         boolean round = c.mapShape == 0;
         // The round window is cut from the square map with the panel colour, so that panel stays (almost) opaque.
-        double op = round ? Math.max(w.opacity, 0.92) : w.opacity;
+        double op = round ? 1 : w.opacity;
         int panelTop = UiDraw.alpha(UiDraw.mix(bg, 0xFFFFFF, 0.05), op), panelBottom = UiDraw.alpha(bg, op);
         int maskTop = UiDraw.alpha(UiDraw.mix(bg, 0xFFFFFF, 0.05), 1), maskBottom = UiDraw.alpha(bg, 1);
         if (c.shadows) {
