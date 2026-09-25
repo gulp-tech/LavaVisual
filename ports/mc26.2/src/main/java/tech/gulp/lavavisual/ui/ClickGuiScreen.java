@@ -41,7 +41,7 @@ public final class ClickGuiScreen extends Screen {
             Map.entry("watermark", Icons.STAMP), Map.entry("badge", Icons.BADGE_CHECK), Map.entry("badge_share", Icons.USER), Map.entry("crosshair", Icons.CROSSHAIR),
             Map.entry("jump", Icons.CIRCLE_DOT), Map.entry("particles", Icons.SPARKLE), Map.entry("ambient", Icons.SPARKLES),
             Map.entry("marker", Icons.TARGET), Map.entry("esp", Icons.SCAN_EYE), Map.entry("kill", Icons.SKULL),
-            Map.entry("hat", Icons.CROWN), Map.entry("hat_others", Icons.EYE), Map.entry("trail", Icons.WIND), Map.entry("hands", Icons.HAND),
+            Map.entry("hat", Icons.CROWN), Map.entry("wings", Icons.WIND), Map.entry("hat_others", Icons.EYE), Map.entry("trail", Icons.WIND), Map.entry("hands", Icons.HAND),
             Map.entry("sound0", Icons.SWORDS), Map.entry("sound1", Icons.ZAP), Map.entry("sound2", Icons.HEART_PULSE),
             Map.entry("sound3", Icons.SKULL), Map.entry("shadows", Icons.LAYERS), Map.entry("animations", Icons.WAND_SPARKLES),
             Map.entry("sky", Icons.CLOUD_SUN), Map.entry("boost", Icons.ROCKET), Map.entry("setting", Icons.EYE),
@@ -79,7 +79,7 @@ public final class ClickGuiScreen extends Screen {
     public ClickGuiScreen(int page, String selected) {
         super(UiFont.component("LavaVisual")); this.page = Math.clamp(page, 0, TABS.length - 1); indicator = -1;
         if (selected != null && selected.startsWith("color:")) { colorOpen = selected.substring(6); selected = null; }
-        this.selected = selected != null && (selected.equals("crosshair") || selected.equals("hat") || HudConfig.IDS.contains(selected)) ? selected : null;
+        this.selected = selected != null && (selected.equals("crosshair") || selected.equals("hat") || selected.equals("wings") || HudConfig.IDS.contains(selected)) ? selected : null;
     }
     private String flash;
     private long flashAt;
@@ -296,9 +296,9 @@ public final class ClickGuiScreen extends Screen {
             text(g, TABS[i], left + 33, y + tabPad + 1, tabColor, side - 40);
             hit(left + 8, y, side - 16, tabH, () -> navigate(next));
         }
-        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.12", left + 13, top + panelH - 21, 0xFF586272, side - 18);
+        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.13", left + 13, top + panelH - 21, 0xFF586272, side - 18);
         boolean searching = !query.isBlank();
-        String heading = searching ? "Поиск" : selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : selected.equals("hat") ? "Шляпы" : HudRenderer.title(selected);
+        String heading = searching ? "Поиск" : selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : selected.equals("hat") ? "Шляпы" : selected.equals("wings") ? "Крылья" : HudRenderer.title(selected);
         searchW = Math.max(70, Math.min(150, bodyW / 2 - 20)); searchX = left + panelW - 58 - searchW; searchY = top + 11;
         text(g, heading, bodyX, top + 17, 0xFFF0F3F7, searchX - bodyX - 10, UiFont.Face.HEADING);
         searchField(g, ac, ac2);
@@ -386,6 +386,7 @@ public final class ClickGuiScreen extends Screen {
             for (int i = 0; i < TABS.length; i++) collect(g, i, null);
             collect(g, PAGE_EFFECTS, "crosshair");
             collect(g, PAGE_EFFECTS, "hat");
+            collect(g, PAGE_EFFECTS, "wings");
         } finally {
             g.disableScissor();
             collecting = false; page = savedPage; selected = savedSelected; colorOpen = savedColor; capturing = savedCapture; mx = savedMx; my = savedMy;
@@ -408,7 +409,7 @@ public final class ClickGuiScreen extends Screen {
     private void index(String title, String extra, int y) {
         if (title == null || title.isBlank()) return;
         String context = indexContext == null || indexContext.equals(title) ? null : indexContext;
-        String where = TABS[indexPage] + (indexSub == null ? "" : indexSub.equals("hat") ? " шляпы шляпа hat корона нимб цилиндр" : " прицел");
+        String where = TABS[indexPage] + (indexSub == null ? "" : indexSub.equals("hat") ? " шляпы шляпа hat корона нимб цилиндр" : indexSub.equals("wings") ? " крылья wings ангел демон бабочка дракон феникс" : " прицел");
         String haystack = norm(title + " " + (extra == null ? "" : extra) + " " + (context == null ? "" : context) + " " + where);
         searchIndex.add(new Entry(title, context, indexPage, indexSub, Math.max(0, y - (clipTop + 3)), norm(title), haystack));
     }
@@ -482,6 +483,7 @@ public final class ClickGuiScreen extends Screen {
         if (e.context() == null && e.sub() == null && e.title().equals(TABS[e.page()])) return "Открыть вкладку";
         String where = TABS[e.page()];
         if ("hat".equals(e.sub())) where += " · Шляпы";
+        if ("wings".equals(e.sub())) where += " · Крылья";
         else if ("crosshair".equals(e.sub())) where += " · Прицел";
         if (e.context() != null) where += " · " + e.context();
         return where;
@@ -521,7 +523,7 @@ public final class ClickGuiScreen extends Screen {
         var cfg = LavaVisualClient.config();
         toggle(g, "badge", "Значки LavaVisual", "Иконка у ников игроков, которые делятся значком", cfg.badgeEnabled,
                 () -> { cfg.badgeEnabled = !cfg.badgeEnabled; changed(); }, null);
-        toggle(g, "badge_share", "Делиться значком и шляпой", "Другие игроки LavaVisual увидят значок и вашу шляпу", cfg.badgeShare,
+        toggle(g, "badge_share", "Делиться значком, шляпой и крыльями", "Игроки с LavaVisual увидят значок, шляпу и крылья", cfg.badgeShare,
                 () -> { cfg.badgeShare = !cfg.badgeShare; changed(); }, null);
         note(g, "По умолчанию выключено: мод ничего не отправляет серверу.");
     }
@@ -556,6 +558,8 @@ public final class ClickGuiScreen extends Screen {
         toggle(g, "hat", "Шляпы", Hats.COUNT + " видов: корона, нимб, цилиндр, рожки… · выбор по стрелке", c.hatEnabled,
                 () -> { c.hatEnabled = !c.hatEnabled; changed(); }, () -> select("hat"));
         button(g, Icons.PENCIL, "Редактор шляпы · вид, цвет, размер", () -> minecraft.gui.setScreen(new HatEditorScreen(this)));
+        toggle(g, "wings", "Крылья", Hats.WING_COUNT + " видов: ангел, демон, бабочка, дракон, феникс · по стрелке", c.wingsEnabled,
+                () -> { c.wingsEnabled = !c.wingsEnabled; changed(); }, () -> select("wings"));
         toggle(g, "trail", "Trails", "Светящийся след за вами", c.trailEnabled, () -> { c.trailEnabled = !c.trailEnabled; changed(); }, null);
         note(g, "Эффекты не видны сквозь блоки.");
     }
@@ -713,6 +717,7 @@ public final class ClickGuiScreen extends Screen {
     private void settings(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config(); boolean cross = selected.equals("crosshair");
         if (selected.equals("hat")) { hatSettings(g); return; }
+        if (selected.equals("wings")) { wingsSettings(g); return; }
         var w = cross ? null : c.widgets.get(selected);
         toggle(g, "setting:" + selected, "Отображение", "Показывать на экране", cross ? c.crosshairEnabled : w.visible, () -> {
             if (cross) c.crosshairEnabled = !c.crosshairEnabled; else w.visible = !w.visible; changed();
@@ -746,18 +751,36 @@ public final class ClickGuiScreen extends Screen {
         slider(g, "Прозрачность", c.hatOpacity, 0.15, 1, v -> c.hatOpacity = v, false);
         slider(g, "Вращение · 0 = стоит ровно", c.hatSpin, 0, 3, v -> c.hatSpin = v < 0.08 ? 0 : v, false);
         String[] styles = {"узор", "сплошной", "градиент"};
-        int half = (bodyW - 8) / 2;
-        action(g, "Стиль: " + styles[c.hatStyle], bodyX, cursor, half, () -> { c.hatStyle = (c.hatStyle + 1) % 3; changed(); });
-        action(g, "Наклон: " + (c.hatTilt ? "с головой" : "ровно"), bodyX + half + 8, cursor, half, () -> { c.hatTilt = !c.hatTilt; changed(); });
-        cursor += 32;
-        section(g, "Другие игроки");
-        toggle(g, "hat_others", "Шляпы других игроков", "Видны шляпы игроков LavaVisual, которые ими делятся", c.hatOthers,
-                () -> { c.hatOthers = !c.hatOthers; changed(); }, null);
-        toggle(g, "badge_share", "Делиться значком и шляпой", "Другие игроки LavaVisual увидят вид и цвет вашей шляпы", c.badgeShare,
-                () -> { c.badgeShare = !c.badgeShare; changed(); }, null);
-        note(g, "Без сервера: шляпа передаётся через невидимый бит скина, ~30 сек.");
+        button(g, Icons.PAINTBRUSH, "Стиль: " + styles[c.hatStyle], () -> { c.hatStyle = (c.hatStyle + 1) % 3; changed(); });
+        othersSection(g);
         section(g, "Цвет");
         colorRow(g, "hat", "Цвет шляпы");
+    }
+    private void wingsSettings(GuiGraphicsExtractor g) {
+        var c = LavaVisualClient.config();
+        toggle(g, "wings", "Крылья", "Вид от 3-го лица · машут сильнее при ходьбе", c.wingsEnabled, () -> { c.wingsEnabled = !c.wingsEnabled; changed(); }, null);
+        section(g, "Вид крыльев");
+        java.util.function.IntConsumer pickWings = i -> { c.wingsType = i + 1; c.wingsEnabled = true; changed(); };
+        carousel(g, "Вид крыльев", Hats.WING_NAMES, c.wingsType - 1, pickWings);
+        chips(g, Hats.WING_NAMES, c.wingsType - 1, pickWings, 5);
+        section(g, "Настройка");
+        slider(g, "Размер", c.wingsSize, 0.5, 1.6, v -> c.wingsSize = v, false);
+        slider(g, "Взмахи · 0 = неподвижно", c.wingsFlap, 0, 2, v -> c.wingsFlap = v < 0.05 ? 0 : v, false);
+        slider(g, "Прозрачность", c.wingsOpacity, 0.15, 1, v -> c.wingsOpacity = v, false);
+        String[] styles = {"узор", "сплошной", "градиент"};
+        button(g, Icons.PAINTBRUSH, "Стиль: " + styles[c.wingsStyle], () -> { c.wingsStyle = (c.wingsStyle + 1) % 3; changed(); });
+        othersSection(g);
+        section(g, "Цвет");
+        colorRow(g, "wings", "Цвет крыльев");
+    }
+    private void othersSection(GuiGraphicsExtractor g) {
+        var c = LavaVisualClient.config();
+        section(g, "Другие игроки");
+        toggle(g, "hat_others", "Шляпы и крылья других игроков", "Видны у игроков LavaVisual, которые ими делятся", c.hatOthers,
+                () -> { c.hatOthers = !c.hatOthers; changed(); }, null);
+        toggle(g, "badge_share", "Делиться значком, шляпой и крыльями", "Игроки с LavaVisual увидят ваши шляпу и крылья", c.badgeShare,
+                () -> { c.badgeShare = !c.badgeShare; changed(); }, null);
+        note(g, "Без сервера: вид и цвет передаются через невидимый бит скина, ~30 сек.");
     }
     /** Arrow selector: ‹ name › with the position underneath; the arrows wrap around. */
     private void carousel(GuiGraphicsExtractor g, String title, String[] names, int current, java.util.function.IntConsumer pick) {
@@ -882,7 +905,7 @@ public final class ClickGuiScreen extends Screen {
         colorRow(g, "badge", "Значок у ников");
         section(g, "Эффекты");
         String[][] effects = {{"crosshair", "Прицел"}, {"jump", "Jump Circle"}, {"particles", "Hit Particles"}, {"ambient", "Частицы в воздухе"},
-                {"marker", "Маркер удара"}, {"esp", "Target ESP"}, {"kill", "Kill Effect"}, {"hat", "Шляпа"}, {"trail", "Trails"}, {"waypoint", "Новые метки"}};
+                {"marker", "Маркер удара"}, {"esp", "Target ESP"}, {"kill", "Kill Effect"}, {"hat", "Шляпа"}, {"wings", "Крылья"}, {"trail", "Trails"}, {"waypoint", "Новые метки"}};
         for (String[] e : effects) colorRow(g, e[0], e[1]);
         button(g, Icons.ROTATE_CCW, "Все цвета — как тема", () -> { c.colors.clear(); c.chroma.clear(); hsvCache.clear(); changed(); });
     }

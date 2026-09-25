@@ -44,7 +44,10 @@ public final class WorldCosmetics {
     private record TrailPoint(Vec3 position, float alpha) { }
     private record SparkFrame(Vec3 origin, float size, float alpha, int shape, int color) { }
     /** A hat on one player's head: base on top of the head, rotation hat space -> world (head yaw, optional tilt, spin). */
-    private record HatFrame(Vec3 base, Matrix3f rotation, float scale, float stretch, int type, int style, int color, int light, float opacity, float time) { }
+    private record HatFrame(Vec3 base, Matrix3f rotation, float scale, float stretch, Hats.Model model, Hats.Look look) { }
+    /** Wing beat clock per player: advances faster while walking, so the beat never jumps. */
+    private static final class WingClock { double phase; long last; WingClock(long now) { last = now; } }
+    private static final java.util.Map<Integer, WingClock> WING_CLOCKS = new java.util.HashMap<>();
     private record MarkerFrame(Vec3 origin, int shape, float size, float alpha) { }
     /** colors: jump, esp, kill, trail, marker (theme or per-element). */
     private record Frame(List<RingFrame> rings, List<SparkFrame> sparks, List<MarkerFrame> markers, int[] colors, int[] lights, List<HatFrame> hats, float spin, List<TrailPoint> trail, Vec3 esp, float espHeight, float espWidth, int espStyle, List<BeamFrame> beams, List<tech.gulp.lavavisual.map.WaypointOverlay.Beam> waypoints) { }
@@ -124,25 +127,34 @@ public final class WorldCosmetics {
             // Hats sit on the head of the player's own render state (same position, crouch and head angles the model uses
             // this frame), so they never trail the head; no state means first person or the player is not drawn.
             var hats = new ArrayList<HatFrame>();
-            if (self != null && mc.level != null && (c.hatEnabled || c.hatOthers && HatSync.any())) {
+            boolean remoteAny = c.hatOthers && HatSync.any();
+            if (self != null && mc.level != null && (c.hatEnabled || c.wingsEnabled || remoteAny)) {
                 float seconds = (float) (now0 / 20.0);
+                long nanos = System.nanoTime();
                 for (var state : context.levelState().entityRenderStates) {
                     if (!(state instanceof net.minecraft.client.renderer.entity.state.AvatarRenderState avatar)) continue;
                     if (avatar.id == self.getId()) {
-                        if (c.hatEnabled) hat(hats, avatar, c.hatType, c.color("hat"), c.color2("hat"), c.hatStyle, (float) c.hatOpacity, c.hatSize, c.hatLift,
-                                c.hatCone, (float) (now0 * 0.06 * c.hatSpin), c.hatTilt, seconds);
-                    } else if (c.hatOthers && hats.size() < 17 && avatar.distanceToCameraSq < 48 * 48) {
-                        var remote = HatSync.hatOf(mc.level.getEntity(avatar.id));
+                        if (c.hatEnabled) hat(hats, avatar, Hats.hat(c.hatType), c.color("hat"), c.color2("hat"), c.hatStyle, (float) c.hatOpacity,
+                                c.hatSize, c.hatLift, c.hatCone, (float) (now0 * 0.06 * c.hatSpin), seconds);
+                        if (c.wingsEnabled) wings(hats, avatar, Hats.wing(c.wingsType), c.color("wings"), c.color2("wings"), c.wingsStyle, (float) c.wingsOpacity,
+                                c.wingsSize, (float) c.wingsFlap, seconds, nanos);
+                    } else if (remoteAny && hats.size() < 24 && avatar.distanceToCameraSq < 48 * 48) {
+                        var remote = HatSync.of(mc.level.getEntity(avatar.id));
                         if (remote == null) continue;
-                        int color = remote.rgb(), light = tech.gulp.lavavisual.config.ColorMath.companion(color);
-                        if (remote.rainbow()) {
-                            double hue = System.nanoTime() / 1e9 * 0.12;
-                            color = tech.gulp.lavavisual.config.ColorMath.hsv(hue, 0.72, 1);
-                            light = tech.gulp.lavavisual.config.ColorMath.hsv(hue + 0.16, 0.72, 1);
+                        double hue = System.nanoTime() / 1e9 * 0.12;
+                        if (remote.hat() > 0) {
+                            int color = remote.hatRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue, 0.72, 1) : remote.hatRgb();
+                            int light = remote.hatRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue + 0.16, 0.72, 1) : tech.gulp.lavavisual.config.ColorMath.companion(color);
+                            hat(hats, avatar, Hats.hat(remote.hat()), color, light, 0, 0.95f, 1, 0, 1, 0, seconds);
                         }
-                        hat(hats, avatar, remote.type(), color, light, 0, 0.92f, 1, 0, 1, 0, false, seconds);
+                        if (remote.wings() > 0) {
+                            int color = remote.wingRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue, 0.72, 1) : remote.wingRgb();
+                            int light = remote.wingRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue + 0.16, 0.72, 1) : tech.gulp.lavavisual.config.ColorMath.companion(color);
+                            wings(hats, avatar, Hats.wing(remote.wings()), color, light, 0, 0.95f, 1, 1, seconds, nanos);
+                        }
                     }
                 }
+                if (WING_CLOCKS.size() > 64) WING_CLOCKS.values().removeIf(clock -> nanos - clock.last > 5_000_000_000L);
             }
             var waypointBeams = tech.gulp.lavavisual.map.WaypointOverlay.extract(mc, context.levelState().cameraRenderState, partial);
             Vec3 esp = null;
@@ -285,7 +297,7 @@ public final class WorldCosmetics {
                     ripple(pose, out, p, r * .95f, r, jumpLight, jump, a, a, frame.spin);
                     ripple(pose, out, p, r, r * 1.14f, jump, jumpLight, a * .75f, 0, frame.spin);
                 }
-                for (HatFrame h : frame.hats) Hats.glow(pose, out, world(h, camera), h.scale(), h.type(), h.color(), h.light(), h.style(), h.opacity(), h.time(), right, up);
+                for (HatFrame h : frame.hats) Hats.glow(pose, out, world(h, camera), h.scale(), h.model(), h.look(), right, up);
                 if (frame.esp != null) {
                     Vec3 base = frame.esp.subtract(camera);
                     int esp = frame.colors[1], espLight = frame.lights[1];
@@ -313,40 +325,61 @@ public final class WorldCosmetics {
                 }
             });
             if (!frame.hats.isEmpty()) context.submitNodeCollector().submitCustomGeometry(context.poseStack(), HAT, (pose, out) -> {
-                for (HatFrame h : frame.hats) Hats.draw(pose, out, world(h, camera), h.type(), h.color(), h.light(), h.style(), h.opacity(), h.time());
+                for (HatFrame h : frame.hats) Hats.draw(pose, out, world(h, camera), h.model(), h.look());
             });
         } finally { context.poseStack().popPose(); }
     }
     private static Matrix4f world(HatFrame h, Vec3 camera) {
+        // Per-frame matrix: camera-relative translation, head/body rotation, uniform size, hat height stretch.
         return new Matrix4f().translation((float) (h.base().x - camera.x), (float) (h.base().y - camera.y), (float) (h.base().z - camera.z))
                 .mul(new Matrix4f().set(h.rotation())).scale(h.scale(), h.scale() * h.stretch(), h.scale());
     }
+    private static boolean hidden(net.minecraft.client.renderer.entity.state.AvatarRenderState s) {
+        return s.isInvisible || s.isSpectator || s.isFallFlying || s.isVisuallySwimming || s.isAutoSpinAttack || s.isUpsideDown
+                || s.hasPose(net.minecraft.world.entity.Pose.SLEEPING);
+    }
+    /** World light at the player (block or sky light), so cosmetics darken in caves like the skin does. */
+    private static float env(net.minecraft.client.renderer.entity.state.AvatarRenderState s) {
+        int block = s.lightCoords >> 4 & 15, sky = s.lightCoords >> 20 & 15;
+        return 0.4f + 0.6f * Math.max(block, sky) / 15f;
+    }
     /**
-     * Places a hat on top of the head. The neck pivot and head size follow the vanilla player model (0.9375 scale,
-     * pivot 24 px up, crouch lowers it); the top sits on the hat layer or helmet. "Level" keeps the hat upright but
-     * moves it with the head: when you look down it rests on the back of the head, like a real hat would.
+     * Places a hat on the head, rigidly: it turns and tilts exactly like the vanilla head (neck pivot 24 px up,
+     * 0.9375 player scale, crouch lowers the pivot) and sits on the hat layer or the helmet.
      */
-    private static void hat(List<HatFrame> out, net.minecraft.client.renderer.entity.state.AvatarRenderState s, int type, int color, int light, int style,
-                            float opacity, double size, double lift, double stretch, float spin, boolean tilt, float seconds) {
-        if (s.isInvisible || s.isSpectator || s.isFallFlying || s.isVisuallySwimming || s.isAutoSpinAttack || s.isUpsideDown
-                || s.hasPose(net.minecraft.world.entity.Pose.SLEEPING)) return;
+    private static void hat(List<HatFrame> out, net.minecraft.client.renderer.entity.state.AvatarRenderState s, Hats.Model model, int color, int light, int style,
+                            float opacity, double size, double lift, double stretch, float spin, float seconds) {
+        if (model == null || hidden(s)) return;
         double scale = Math.max(0.2, s.scale), px = scale * 0.9375 / 16.0;
-        double pivot = s.isCrouching ? 19.8 * px - 0.125 * scale : 24 * px;
+        double pivot = s.isCrouching ? 19.816 * px - 0.125 * scale : 24.016 * px;
         double top = s.headEquipment != null && !s.headEquipment.isEmpty() ? 9.0 : s.showHat ? 8.5 : 8.0;
         float yaw = (float) Math.toRadians(s.bodyRot + s.yRot), pitch = (float) Math.toRadians(s.xRot);
-        Matrix3f rotation = new Matrix3f().rotationY(-yaw);
-        Vector3f offset;
-        if (tilt) {
-            rotation.rotateX(pitch);
-            offset = rotation.transform(new Vector3f(0, (float) (top * px + lift), 0));
-        } else {
-            double cos = Math.cos(pitch), sin = Math.sin(pitch);
-            offset = rotation.transform(new Vector3f(0, (float) ((top * cos + top / 2 * Math.abs(sin)) * px), (float) (top / 2 * sin * px)));
-            offset.y += (float) lift;
-        }
+        Matrix3f rotation = new Matrix3f().rotationY(-yaw).rotateX(pitch);
+        Vector3f offset = rotation.transform(new Vector3f(0, (float) (top * px + lift), 0));
         rotation.rotateY(spin);
-        out.add(new HatFrame(new Vec3(s.x + offset.x, s.y + pivot + offset.y, s.z + offset.z), rotation, (float) (size * scale), (float) stretch,
-                type, style, color, light, opacity, seconds));
+        out.add(new HatFrame(new Vec3(s.x + offset.x, s.y + pivot + offset.y, s.z + offset.z), rotation, (float) (size * scale), (float) stretch, model,
+                new Hats.Look(color, light, style, opacity, seconds, seconds, 1, env(s))));
+    }
+    /** Wings on the upper back, following the body (not the head); hidden with an elytra, the cape is hidden under them. */
+    private static void wings(List<HatFrame> out, net.minecraft.client.renderer.entity.state.AvatarRenderState s, Hats.Model model, int color, int light, int style,
+                              float opacity, double size, float flap, float seconds, long nanos) {
+        if (model == null || hidden(s)) return;
+        var chest = s.chestEquipment;
+        boolean armor = chest != null && !chest.isEmpty();
+        if (armor && chest.is(net.minecraft.world.item.Items.ELYTRA)) return;
+        double scale = Math.max(0.2, s.scale), px = scale * 0.9375 / 16.0;
+        double pivot = s.isCrouching ? 20.816 * px - 0.125 * scale : 24.016 * px;
+        Matrix3f rotation = new Matrix3f().rotationY((float) -Math.toRadians(s.bodyRot));
+        if (s.isCrouching) rotation.rotateX(0.5f);
+        Vector3f offset = rotation.transform(new Vector3f(0, (float) (-3 * px), (float) (-(armor ? 3.3 : 2.2) * px)));
+        float walk = Math.clamp(s.walkAnimationSpeed, 0, 1);
+        WingClock clock = WING_CLOCKS.computeIfAbsent(s.id, id -> new WingClock(nanos));
+        double dt = Math.min(0.1, Math.max(0, (nanos - clock.last) / 1e9));
+        clock.phase += dt * (1 + 1.4 * walk);
+        clock.last = nanos;
+        s.showCape = false;
+        out.add(new HatFrame(new Vec3(s.x + offset.x, s.y + pivot + offset.y, s.z + offset.z), rotation, (float) (size * scale), 1f, model,
+                new Hats.Look(color, light, style, opacity, seconds, (float) clock.phase, flap * (0.8f + 0.5f * walk), env(s))));
     }
     private static int brighten(int rgb) {
         int r = rgb >> 16 & 255, g = rgb >> 8 & 255, b = rgb & 255;

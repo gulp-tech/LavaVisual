@@ -15,13 +15,17 @@ import tech.gulp.lavavisual.LavaVisualClient;
  *
  * The only client-controlled value that every vanilla server relays to other players without drawing anything is
  * the unused 0x80 bit of the skin-parts byte. While sharing, the bit stays set (that is the badge); now and then it
- * spells out a short frame, one bit per second: 0 0 1, then 21 data bits (hat type 4, colour RGB444 12, rainbow 1,
- * check 4) with a 0 stuffed after every two 1s, so no run of 1s inside a frame lasts more than two seconds and a
- * frame can only start after three or more seconds of idle 1. That is at most one settings packet per second, only
- * while other players are around, and a frame takes about half a minute. Receivers sample the bit every tick.
+ * spells out a short frame, one bit per second: 0 0 0 1, then 21 data bits (hat 4, hat colour 5, wings 3, wing
+ * colour 5, check 4) with a 0 stuffed after every two 1s, so no run of 1s inside a frame lasts more than two seconds
+ * and a frame can only start after three or more seconds of idle 1. That is at most one settings packet per second,
+ * only while other players are around, and a frame takes about half a minute. Receivers sample the bit every tick.
+ * Colour codes: 0 rainbow, 1..27 hues, 28..31 white, light grey, dark grey, black. (2.12 used 0 0 1 + RGB444; the
+ * preambles differ, so the versions simply ignore each other's frames.)
  */
 public final class HatSync {
-    public record Remote(int type, int rgb, boolean rainbow) { }
+    /** Shared cosmetics of another player; type 0 = none. */
+    public record Remote(int hat, int hatRgb, boolean hatRainbow, int wings, int wingRgb, boolean wingRainbow) { }
+    private static final int[] PREAMBLE = {0, 0, 0, 1};
     static final long SLOT = 1000, IDLE_BEFORE_FRAME = 3000;
     private static final long JOIN_DELAY = 10_000, MARK_MEMORY = 30_000, PEER_MEMORY = 600_000, NEW_PLAYER_MEMORY = 300_000;
     // sender
@@ -53,7 +57,7 @@ public final class HatSync {
             int current = signature(c);
             if (current != signature) { signature = current; dirtyAt = now; }
             if (frame == null && now - highSince >= IDLE_BEFORE_FRAME + 2000 && now - frameEnd >= 10_000 && wanted(mc, now)) {
-                frame = encode(current >>> 17 & 15, current >>> 5 & 0xFFF, (current >>> 4 & 1) == 1);
+                frame = encode(current);
                 frameStart = lastFrameStart = now; dirtyAt = -1; pendingMarked = pendingAny = false;
             }
             if (frame != null) {
@@ -74,25 +78,35 @@ public final class HatSync {
         NEARBY.clear(); PEERS.clear();
     }
 
-    /** type 4 | rgb444 12 | rainbow 1 | check 4, as the low 21 bits. */
+    /** hat 4 | hat colour 5 | wings 3 | wing colour 5 | check 4, as the low 21 bits. */
     private static int signature(tech.gulp.lavavisual.config.HudConfig c) {
-        boolean rainbow = c.chroma != null && c.chroma.contains("hat");
-        int type = c.hatEnabled ? Math.clamp(c.hatType, 1, 15) : 0;
-        int rgb = rainbow ? 0 : c.color("hat") & 0xFFFFFF;
-        int rgb444 = (rgb >> 20 & 15) << 8 | (rgb >> 12 & 15) << 4 | (rgb >> 4 & 15);
-        return pack(type, rgb444, rainbow);
+        int hat = c.hatEnabled ? Math.clamp(c.hatType, 1, 15) : 0, wings = c.wingsEnabled ? Math.clamp(c.wingsType, 1, 7) : 0;
+        return pack(hat, colorCode(c, "hat"), wings, colorCode(c, "wings"));
     }
-    static int pack(int type, int rgb444, boolean rainbow) {
-        int check = check(type, rgb444, rainbow);
-        return type << 17 | rgb444 << 5 | (rainbow ? 1 : 0) << 4 | check;
+    private static int colorCode(tech.gulp.lavavisual.config.HudConfig c, String key) {
+        if (c.chroma != null && c.chroma.contains(key)) return 0;
+        double[] hsv = tech.gulp.lavavisual.config.ColorMath.toHsv(c.color(key) & 0xFFFFFF);
+        if (hsv[1] < 0.22) return hsv[2] > 0.85 ? 28 : hsv[2] > 0.55 ? 29 : hsv[2] > 0.25 ? 30 : 31;
+        return 1 + (int) Math.round(hsv[0] * 27) % 27;
     }
-    private static int check(int type, int rgb444, boolean rainbow) {
-        return (type + 3 * (rgb444 >> 8 & 15) + 5 * (rgb444 >> 4 & 15) + 7 * (rgb444 & 15) + (rainbow ? 11 : 0)) & 15;
+    static int color(int code) {
+        return switch (code) {
+            case 28 -> 0xF2F2F2;
+            case 29 -> 0xA8ADB6;
+            case 30 -> 0x555A63;
+            case 31 -> 0x1A1B20;
+            default -> tech.gulp.lavavisual.config.ColorMath.hsv((code - 1) / 27.0, 0.75, 1) & 0xFFFFFF;
+        };
     }
-    static int[] encode(int type, int rgb444, boolean rainbow) {
-        int payload = pack(type, rgb444, rainbow);
+    static int pack(int hat, int hatColor, int wings, int wingColor) {
+        return hat << 17 | hatColor << 12 | wings << 9 | wingColor << 4 | check(hat, hatColor, wings, wingColor);
+    }
+    private static int check(int hat, int hatColor, int wings, int wingColor) {
+        return (hat + 3 * hatColor + 5 * wings + 7 * wingColor + 9 * (hatColor >> 4) + 13 * (wingColor >> 4)) & 15;
+    }
+    static int[] encode(int payload) {
         ArrayList<Integer> bits = new ArrayList<>(40);
-        bits.add(0); bits.add(0); bits.add(1);
+        for (int bit : PREAMBLE) bits.add(bit);
         int ones = 1;
         for (int i = 20; i >= 0; i--) {
             int bit = payload >>> i & 1;
@@ -166,7 +180,8 @@ public final class HatSync {
                 if (result == -1) continue;
                 it.remove();
                 if (result >= 0) {
-                    hat = new Remote(result >>> 17 & 15, expand(result >>> 5 & 0xFFF), (result >>> 4 & 1) == 1);
+                    int hatColor = result >>> 12 & 31, wingColor = result >>> 4 & 31;
+                    hat = new Remote(result >>> 17 & 15, color(hatColor), hatColor == 0, result >>> 9 & 7, color(wingColor), wingColor == 0);
                     decoded = true;
                     candidates.removeIf(other -> other < start + 40 * SLOT);
                     break;
@@ -179,8 +194,7 @@ public final class HatSync {
     /** Payload (21 bits) of the frame that started at start; -1 while incomplete, -2 when it is not a valid frame. */
     static int decode(Peer peer, long start, long now) {
         int slot = 0;
-        int[] preamble = {0, 0, 1};
-        for (int expected : preamble) {
+        for (int expected : PREAMBLE) {
             long time = start + slot++ * SLOT + SLOT / 2;
             if (time > now) return -1;
             if (peer.at(time) != expected) return -2;
@@ -196,12 +210,7 @@ public final class HatSync {
             count++;
             ones = bit == 1 ? ones + 1 : 0;
         }
-        int type = payload >>> 17 & 15, rgb444 = payload >>> 5 & 0xFFF;
-        boolean rainbow = (payload >>> 4 & 1) == 1;
-        return check(type, rgb444, rainbow) == (payload & 15) ? payload : -2;
-    }
-    private static int expand(int rgb444) {
-        return (rgb444 >> 8 & 15) * 17 << 16 | (rgb444 >> 4 & 15) * 17 << 8 | (rgb444 & 15) * 17;
+        return check(payload >>> 17 & 15, payload >>> 12 & 31, payload >>> 9 & 7, payload >>> 4 & 31) == (payload & 15) ? payload : -2;
     }
 
     private static void receive(Minecraft mc, long now) {
@@ -227,25 +236,25 @@ public final class HatSync {
         if (peer == null || peer.lastHigh < 0) return Badge.marked(player);
         return System.nanoTime() / 1_000_000L - peer.lastHigh <= MARK_MEMORY;
     }
-    /** The hat another LavaVisual player shares, or null. */
-    public static Remote hatOf(Entity entity) {
+    /** What another LavaVisual player shares (hat and/or wings), or null. */
+    public static Remote of(Entity entity) {
         Peer peer = peer(entity);
-        if (peer == null || peer.hat == null || peer.hat.type() == 0 || peer.lastHigh < 0) return null;
+        if (peer == null || peer.hat == null || peer.hat.hat() == 0 && peer.hat.wings() == 0 || peer.lastHigh < 0) return null;
         return System.nanoTime() / 1_000_000L - peer.lastHigh <= MARK_MEMORY ? peer.hat : null;
     }
     public static boolean any() {
-        for (Peer peer : PEERS.values()) if (peer.hat != null && peer.hat.type() != 0) return true;
+        for (Peer peer : PEERS.values()) if (peer.hat != null && (peer.hat.hat() != 0 || peer.hat.wings() != 0)) return true;
         return false;
     }
 
     /** CI check: frames survive jitter and bit stuffing; mid-frame starts are never taken for frames. */
     public static String selfTest() {
-        int[][] cases = {{3, 0xF80, 0}, {14, 0xFFF, 1}, {1, 0x000, 0}, {0, 0x123, 0}, {7, 0xB6D, 1}, {15, 0xFFF, 1}};
+        int[][] cases = {{3, 5, 2, 0}, {14, 31, 5, 31}, {1, 0, 0, 0}, {0, 28, 1, 17}, {7, 13, 7, 27}, {15, 31, 7, 31}};
         java.util.Random random = new java.util.Random(2612);
         for (int[] test : cases) {
-            int[] bits = encode(test[0], test[1], test[2] == 1);
+            int[] bits = encode(pack(test[0], test[1], test[2], test[3]));
             int run = 0;
-            for (int i = 3; i < bits.length; i++) { run = bits[i] == 1 ? run + 1 : 0; if (run > 2) return "LavaVisual hat sync self-test failed: run of " + run; }
+            for (int i = PREAMBLE.length - 1; i < bits.length; i++) { run = bits[i] == 1 ? run + 1 : 0; if (run > 2) return "LavaVisual hat sync self-test failed: run of " + run; }
             Peer peer = new Peer();
             long base = 1_000_000, start = base + 8000;
             // Transitions reach the receiver up to 250 ms late; it samples every 50 ms.
@@ -257,9 +266,9 @@ public final class HatSync {
                 for (int i = 0; i < bits.length; i++) if (now >= arrive[i] && now < arrive[i + 1]) bit = bits[i] == 1;
                 if (peer.sample(now, bit)) decoded = peer.hat;
             }
-            int rgb = expand(test[1]);
-            if (decoded == null || decoded.type() != test[0] || decoded.rgb() != rgb || decoded.rainbow() != (test[2] == 1))
-                return "LavaVisual hat sync self-test failed: " + test[0] + "/" + Integer.toHexString(test[1]) + " -> " + decoded;
+            if (decoded == null || decoded.hat() != test[0] || decoded.hatRgb() != color(test[1]) || decoded.hatRainbow() != (test[1] == 0)
+                    || decoded.wings() != test[2] || decoded.wingRgb() != color(test[3]) || decoded.wingRainbow() != (test[3] == 0))
+                return "LavaVisual hat sync self-test failed: " + java.util.Arrays.toString(test) + " -> " + decoded;
         }
         return "LavaVisual hat sync self-test passed";
     }

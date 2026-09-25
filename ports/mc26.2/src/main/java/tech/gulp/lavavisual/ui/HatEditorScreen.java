@@ -101,7 +101,7 @@ public final class HatEditorScreen extends Screen {
         int half = (pw - 20) / 2;
         String[] styles = {"узор", "сплошной", "градиент"};
         button(g, mx, my, "Стиль: " + styles[c.hatStyle], px + 8, half, () -> c.hatStyle = (c.hatStyle + 1) % 3);
-        button(g, mx, my, "Наклон: " + (c.hatTilt ? "с головой" : "ровно"), px + 12 + half, half, () -> c.hatTilt = !c.hatTilt);
+        button(g, mx, my, "Радуга: " + (c.chroma.contains("hat") ? "вкл" : "выкл"), px + 12 + half, half, () -> { if (!c.chroma.remove("hat")) c.chroma.add("hat"); });
         cursor += buttonRow;
         button(g, mx, my, c.customColor("hat") || c.chroma.contains("hat") ? "Цвет темы" : "Цвет: тема", px + 8, half, () -> { c.colors.remove("hat"); c.chroma.remove("hat"); });
         button(g, mx, my, "Вид: " + (front ? "спереди" : "сзади"), px + 12 + half, half, () -> {

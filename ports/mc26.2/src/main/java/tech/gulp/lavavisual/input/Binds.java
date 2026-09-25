@@ -27,6 +27,7 @@ public final class Binds {
         TARGET("target", "Target HUD", Icons.TARGET, -1),
         CROSSHAIR("crosshair", "Прицел", Icons.CROSSHAIR, -1),
         HAT("hat", "Шляпа", Icons.CROWN, -1),
+        WINGS("wings", "Крылья", Icons.WIND, -1),
         ESP("esp", "Target ESP", Icons.SCAN_EYE, -1),
         TRAIL("trail", "Trails", Icons.WIND, -1),
         PARTICLES("particles", "Hit Particles", Icons.SPARKLE, -1),
@@ -100,6 +101,7 @@ public final class Binds {
             case TARGET -> { var w = c.widgets.get("target"); w.visible = !w.visible; }
             case CROSSHAIR -> c.crosshairEnabled = !c.crosshairEnabled;
             case HAT -> c.hatEnabled = !c.hatEnabled;
+            case WINGS -> c.wingsEnabled = !c.wingsEnabled;
             case ESP -> c.espEnabled = !c.espEnabled;
             case TRAIL -> c.trailEnabled = !c.trailEnabled;
             case PARTICLES -> c.particlesEnabled = !c.particlesEnabled;
@@ -118,6 +120,7 @@ public final class Binds {
             case TARGET -> onOff(c.widgets.get("target").visible);
             case CROSSHAIR -> onOff(c.crosshairEnabled);
             case HAT -> onOff(c.hatEnabled);
+            case WINGS -> onOff(c.wingsEnabled);
             case ESP -> onOff(c.espEnabled);
             case TRAIL -> onOff(c.trailEnabled);
             case PARTICLES -> onOff(c.particlesEnabled);

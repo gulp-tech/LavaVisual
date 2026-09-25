@@ -2,6 +2,7 @@ package tech.gulp.lavavisual.hud;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -46,7 +47,7 @@ public final class HudRenderer {
             case "target" -> 80;
             case "keys" -> 92;
             case "armor" -> 36;
-            case "watermark" -> 26;
+            case "watermark" -> 20;
             case "minimap" -> tech.gulp.lavavisual.map.Minimap.baseHeight();
             default -> 30;
         };
@@ -245,35 +246,61 @@ public final class HudRenderer {
         var info = mc.getConnection().getPlayerInfo(mc.player.getUUID());
         return info == null ? 0 : Math.max(0, info.getLatency());
     }
+    /** Watermark segments after the brand: icon + value, e.g. nickname, fps, ping, time. */
+    private record Segment(String icon, String text, int color) { }
+    private static List<Segment> segments(Minecraft mc, int accent2) {
+        String name = mc.player != null ? mc.player.getName().getString() : mc.getUser().getName();
+        int latency = ping(mc);
+        int pingColor = latency < 80 ? 0xFF8BE07A : latency < 160 ? 0xFFE6C75A : 0xFFE9755A;
+        LocalTime time = LocalTime.now();
+        List<Segment> list = new ArrayList<>(4);
+        list.add(new Segment(Icons.USER, name, 0xFFF2F4F8));
+        list.add(new Segment(Icons.MONITOR, mc.getFps() + " fps", 0xFFF2F4F8));
+        if (mc.getConnection() != null && !mc.isLocalServer()) list.add(new Segment(Icons.WIFI, latency + " ms", pingColor));
+        list.add(new Segment(Icons.CLOCK, String.format(Locale.ROOT, "%02d:%02d", time.getHour(), time.getMinute()), 0xFFF2F4F8));
+        return list;
+    }
+    private static final int WM_H = 20, WM_GAP = 7, WM_ICON = 12;
     private static int watermarkWidth(int scale) {
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
-        int text = Math.max(UiFont.width(font, "LavaVisual", Face.BOLD, scale), UiFont.width(font, subtitle(mc), Face.SMALL, scale));
-        int stats = Math.max(UiFont.width(font, ping(mc) + " ms", Face.SMALL, scale), UiFont.width(font, mc.getFps() + " fps", Face.SMALL, scale));
-        return LOGO_LEAD + text + 15 + stats + 7;
+        int width = 5 + tech.gulp.lavavisual.ui.Logo.width(true) + 4 + UiFont.width(font, "LavaVisual", Face.BOLD, scale) + WM_GAP;
+        for (Segment segment : segments(mc, 0)) width += 1 + WM_GAP + WM_ICON + UiFont.width(font, segment.text(), Face.REGULAR, scale) + WM_GAP;
+        return width;
     }
-
-    /** Watermark in the spirit of PulseVisual's: logo, name, place and time, ping and FPS. */
-    /** Logo box of the watermark: 4 units padding, the LV logo, 5 units gap. */
-    private static final int LOGO_LEAD = 4 + tech.gulp.lavavisual.ui.Logo.width(true) + 5;
+    /**
+     * Watermark: one flat line like the watermarks of visual clients (Celestial, Expensive): dark plate, thin accent
+     * outline, logo and name, then icon + value segments split by hairlines. No gradients or glow on purpose.
+     */
     private static void watermark(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2) {
         Font font = mc.font;
         int scale = UiFont.halfScale(g);
-        String sub = subtitle(mc), ms = ping(mc) + " ms", fps = mc.getFps() + " fps";
-        int textW = Math.max(UiFont.width(font, "LavaVisual", Face.BOLD, scale), UiFont.width(font, sub, Face.SMALL, scale));
-        int statsW = Math.max(UiFont.width(font, ms, Face.SMALL, scale), UiFont.width(font, fps, Face.SMALL, scale));
-        int bw = LOGO_LEAD + textW + 15 + statsW + 7, bh = 26;
-        panel(g, c, 0, 0, bw, bh, 7, w.opacity, accent, accent2);
-        UiDraw.roundH(g, 2, 3, LOGO_LEAD - 3, 20, 6, UiDraw.alpha(accent, 0.12), UiDraw.alpha(accent2, 0.12));
-        tech.gulp.lavavisual.ui.Logo.draw(g, true, 4, 5, 0xFFFFFFFF);
-        UiFont.gradient(g, font, "LavaVisual", LOGO_LEAD, 4, UiDraw.mix(accent, 0xFFFFFF, 0.12), UiDraw.mix(accent2, 0xFFFFFF, 0.12), 1, Face.BOLD);
-        UiFont.text(g, font, sub, LOGO_LEAD, 14, UiDraw.alpha(MUTED, 1), textW + 2, Face.SMALL);
-        int divider = LOGO_LEAD + textW + 7;
-        g.fill(divider, 6, divider + 1, 20, 0xFF2A2E37);
-        int right = divider + 8 + statsW, latency = ping(mc);
-        int pingColor = latency < 80 ? 0xFF7ADB6A : latency < 160 ? 0xFFE0C14C : 0xFFE06A4C;
-        UiFont.text(g, font, ms, right - UiFont.width(font, ms, Face.SMALL, scale), 3, pingColor, statsW + 2, Face.SMALL);
-        UiFont.text(g, font, fps, right - UiFont.width(font, fps, Face.SMALL, scale), 13, UiDraw.alpha(accent2, 1), statsW + 2, Face.SMALL);
+        List<Segment> list = segments(mc, accent2);
+        int brandW = UiFont.width(font, "LavaVisual", Face.BOLD, scale), logoW = tech.gulp.lavavisual.ui.Logo.width(true);
+        int bw = 5 + logoW + 4 + brandW + WM_GAP;
+        int[] widths = new int[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            widths[i] = UiFont.width(font, list.get(i).text(), Face.REGULAR, scale);
+            bw += 1 + WM_GAP + WM_ICON + widths[i] + WM_GAP;
+        }
+        double op = Math.clamp(w.opacity, 0.2, 1);
+        if (c.shadows) UiDraw.round(g, 0, 1, bw, WM_H, 5, UiDraw.alpha(0, 0.28 * op));
+        UiDraw.round(g, 0, 0, bw, WM_H, 5, UiDraw.alpha(accent, 0.55 * op));
+        UiDraw.round(g, 1, 1, bw - 2, WM_H - 2, 4, UiDraw.alpha(0x0E0F13, 0.94 * op));
+        UiDraw.round(g, 1, 1, 5 + logoW + 4 + brandW + WM_GAP - 2, WM_H - 2, 4, UiDraw.alpha(accent, 0.1 * op));
+        tech.gulp.lavavisual.ui.Logo.draw(g, true, 5, 2, 0xFFFFFFFF);
+        int x = 5 + logoW + 4;
+        UiFont.text(g, font, "LavaVisual", x, 6, 0xFF000000 | accent, brandW + 2, Face.BOLD);
+        x += brandW + WM_GAP;
+        for (int i = 0; i < list.size(); i++) {
+            Segment segment = list.get(i);
+            g.fill(x, 5, x + 1, WM_H - 5, 0x24FFFFFF);
+            x += 1 + WM_GAP;
+            UiFont.icon(g, font, segment.icon(), x, 6, 0xFF000000 | UiDraw.mix(accent2, 0xFFFFFF, 0.25));
+            x += WM_ICON;
+            UiFont.text(g, font, segment.text(), x, 6, segment.color(), widths[i] + 2, Face.REGULAR);
+            x += widths[i] + WM_GAP;
+        }
     }
 
     /**

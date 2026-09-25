@@ -13,6 +13,8 @@ public final class HudConfig {
     public static final int OLD_CUSTOM_SOUND = 27;
     /** Written to every saved file; files without it come from before 2.11 (see ConfigStore). */
     public int soundVersion = 1;
+    /** 1 since 2.13: sharing hats and wings is on by default (see ConfigStore.migrateShare). */
+    public int shareVersion = 1;
     public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark", "minimap");
     /** Every element with its own colour. Missing from {@link #colors} means "follow the theme colour". */
     public static final List<String> COLOR_KEYS = List.of("menu", "menu_bg", "hud_bg", "watermark", "target", "keys", "armor", "coordinates",
@@ -43,7 +45,7 @@ public final class HudConfig {
     public double menuScale = 0.8, menuOpacity = 0.9, menuDim = 0.12;
     public boolean markerEnabled, skyEnabled, fpsBoost;
     /** badgeEnabled: show other LavaVisual players' marks. badgeShare: mark your own skin and share the hat (opt-in, see HatSync). */
-    public boolean badgeEnabled = true, badgeShare;
+    public boolean badgeEnabled = true, badgeShare = true;
     /** Menu position as a fraction of the free space around the panel (0.5 = centred); set by dragging the header. */
     public double menuX = 0.5, menuY = 0.5;
     /** Air particles: style (fireflies, snow, stars, embers, hearts), count, size, radius around you, speed. */
@@ -66,6 +68,10 @@ public final class HudConfig {
     public double hatSize = 1, hatLift = 0, hatCone = 1, hatOpacity = 0.9, hatSpin = 0;
     public boolean hatTilt, hatOthers = true;
     public int hatStyle, hatType = 1;
+    /** Wings: model 1..Hats.WING_COUNT on the upper back; wingsFlap scales the wing beat (0 = still). */
+    public boolean wingsEnabled;
+    public int wingsType = 1, wingsStyle;
+    public double wingsSize = 1, wingsOpacity = 0.95, wingsFlap = 1;
     /** Minimap: terrain only, north up. Zoom index into blocks-per-view {48, 64, 96}. */
     public int mapZoom = 1;
     public boolean mapCoords = true, mapWaypoints = true;
@@ -127,7 +133,7 @@ public final class HudConfig {
         crosshairEnabled = jumpEnabled = particlesEnabled = ambientEnabled = viewModelEnabled = false;
         hitSoundEnabled = critSoundEnabled = totemSoundEnabled = killSoundEnabled = false;
         markerEnabled = skyEnabled = fpsBoost = false;
-        hatEnabled = trailEnabled = espEnabled = killEffect = false;
+        hatEnabled = wingsEnabled = trailEnabled = espEnabled = killEffect = false;
         swingStyle = 0;
         noCooldownDip = false;
     }
@@ -190,6 +196,9 @@ public final class HudConfig {
         hatSize = bounded(hatSize, 0.5, 1.8, 1); hatLift = bounded(hatLift, -0.3, 0.6, 0); hatCone = bounded(hatCone, 0.3, 2.5, 1);
         hatOpacity = bounded(hatOpacity, 0.15, 1, 0.9); hatSpin = bounded(hatSpin, 0, 3, 0); hatStyle = Math.floorMod(hatStyle, 3);
         hatType = hatType < 1 || hatType > tech.gulp.lavavisual.effects.Hats.COUNT ? 1 : hatType;
+        wingsType = wingsType < 1 || wingsType > tech.gulp.lavavisual.effects.Hats.WING_COUNT ? 1 : wingsType;
+        wingsSize = bounded(wingsSize, 0.5, 1.6, 1); wingsOpacity = bounded(wingsOpacity, 0.15, 1, 0.95); wingsFlap = bounded(wingsFlap, 0, 2, 1);
+        wingsStyle = Math.floorMod(wingsStyle, 3);
         mapZoom = Math.floorMod(mapZoom, 3);
         schemaVersion = SCHEMA;
     }

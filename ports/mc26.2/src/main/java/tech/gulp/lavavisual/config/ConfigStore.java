@@ -25,6 +25,7 @@ public final class ConfigStore {
             HudConfig config = JSON.fromJson(document, HudConfig.class);
             if (config == null) return new HudConfig();
             migrateSounds(document, config);
+            migrateShare(document, config);
             config.sanitize();
             // One-time migration of 2.0 defaults: preserve layout, but do not surprise users with enabled panels.
             if (!document.isJsonObject() || !document.getAsJsonObject().has("schemaVersion")
@@ -45,6 +46,12 @@ public final class ConfigStore {
         if (oldCustom(o, "killSound")) config.killSound = HudConfig.SOUND_LIBRARY;
         config.soundVersion = 1;
     }
+    /** 2.13: hats and wings are meant to be seen by other LavaVisual players, so sharing is switched on once. */
+    private static void migrateShare(com.google.gson.JsonElement document, HudConfig config) {
+        if (!document.isJsonObject() || document.getAsJsonObject().has("shareVersion")) return;
+        config.badgeShare = true;
+        config.shareVersion = 1;
+    }
     private static boolean oldCustom(com.google.gson.JsonObject o, String key) {
         try { return o.has(key) && o.get(key).getAsInt() == HudConfig.OLD_CUSTOM_SOUND; }
         catch (RuntimeException error) { return false; }
@@ -59,6 +66,7 @@ public final class ConfigStore {
             HudConfig parsed = JSON.fromJson(document, HudConfig.class);
             if (parsed == null || parsed.widgets == null) return null;
             migrateSounds(document, parsed);
+            migrateShare(document, parsed);
             parsed.sanitize();
             return parsed;
         } catch (RuntimeException error) {
