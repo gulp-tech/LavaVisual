@@ -42,7 +42,7 @@ public final class HudConfig {
     public double killVolume = 0.65;
     public double menuScale = 0.8, menuOpacity = 0.9, menuDim = 0.12;
     public boolean markerEnabled, skyEnabled, fpsBoost;
-    /** badgeEnabled: show other LavaVisual players' marks. badgeShare: mark your own skin (opt-in, servers may reject it). */
+    /** badgeEnabled: show other LavaVisual players' marks. badgeShare: mark your own skin and share the hat (opt-in, see HatSync). */
     public boolean badgeEnabled = true, badgeShare;
     /** Menu position as a fraction of the free space around the panel (0.5 = centred); set by dragging the header. */
     public double menuX = 0.5, menuY = 0.5;
@@ -61,10 +61,11 @@ public final class HudConfig {
     public Map<String, Integer> colors = new LinkedHashMap<>();
     public List<String> chroma = new ArrayList<>();
     public double chromaSpeed = 1;
-    /** China Hat: level by default; tilt follows the head only when enabled. */
-    public double hatSize = 1, hatLift = 0, hatCone = 1, hatOpacity = 0.7, hatSpin = 0;
-    public boolean hatTilt;
-    public int hatStyle;
+    /** Hats: model 1..Hats.COUNT, level by default (tilt follows the head only when enabled); hatCone stretches the height.
+        hatOthers shows the hats other LavaVisual players share. */
+    public double hatSize = 1, hatLift = 0, hatCone = 1, hatOpacity = 0.9, hatSpin = 0;
+    public boolean hatTilt, hatOthers = true;
+    public int hatStyle, hatType = 1;
     /** Minimap: terrain only, north up. Zoom index into blocks-per-view {48, 64, 96}. */
     public int mapZoom = 1;
     public boolean mapCoords = true, mapWaypoints = true;
@@ -187,7 +188,8 @@ public final class HudConfig {
         ambientStyle = Math.floorMod(ambientStyle, 5); ambientCount = Math.max(10, Math.min(200, ambientCount));
         ambientSize = bounded(ambientSize, 0.5, 2, 1); ambientRange = bounded(ambientRange, 4, 24, 10); ambientSpeed = bounded(ambientSpeed, 0.2, 3, 1);
         hatSize = bounded(hatSize, 0.5, 1.8, 1); hatLift = bounded(hatLift, -0.3, 0.6, 0); hatCone = bounded(hatCone, 0.3, 2.5, 1);
-        hatOpacity = bounded(hatOpacity, 0.15, 1, 0.7); hatSpin = bounded(hatSpin, 0, 3, 0); hatStyle = Math.floorMod(hatStyle, 3);
+        hatOpacity = bounded(hatOpacity, 0.15, 1, 0.9); hatSpin = bounded(hatSpin, 0, 3, 0); hatStyle = Math.floorMod(hatStyle, 3);
+        hatType = hatType < 1 || hatType > tech.gulp.lavavisual.effects.Hats.COUNT ? 1 : hatType;
         mapZoom = Math.floorMod(mapZoom, 3);
         schemaVersion = SCHEMA;
     }

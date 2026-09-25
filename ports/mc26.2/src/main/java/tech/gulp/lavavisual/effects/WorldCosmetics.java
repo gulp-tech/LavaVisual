@@ -25,6 +25,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import tech.gulp.lavavisual.LavaVisualClient;
@@ -41,10 +43,11 @@ public final class WorldCosmetics {
     private record TrailNode(Vec3 position, int born) { }
     private record TrailPoint(Vec3 position, float alpha) { }
     private record SparkFrame(Vec3 origin, float size, float alpha, int shape, int color) { }
-    private record HatFrame(Vec3 base, float yaw, float pitch, float radius, float height, float opacity, float spin, int color, int light, int style, float pivot) { }
+    /** A hat on one player's head: base on top of the head, rotation hat space -> world (head yaw, optional tilt, spin). */
+    private record HatFrame(Vec3 base, Matrix3f rotation, float scale, float stretch, int type, int style, int color, int light, float opacity, float time) { }
     private record MarkerFrame(Vec3 origin, int shape, float size, float alpha) { }
     /** colors: jump, esp, kill, trail, marker (theme or per-element). */
-    private record Frame(List<RingFrame> rings, List<SparkFrame> sparks, List<MarkerFrame> markers, int[] colors, int[] lights, HatFrame hat, float spin, List<TrailPoint> trail, Vec3 esp, float espHeight, float espWidth, int espStyle, List<BeamFrame> beams, List<tech.gulp.lavavisual.map.WaypointOverlay.Beam> waypoints) { }
+    private record Frame(List<RingFrame> rings, List<SparkFrame> sparks, List<MarkerFrame> markers, int[] colors, int[] lights, List<HatFrame> hats, float spin, List<TrailPoint> trail, Vec3 esp, float espHeight, float espWidth, int espStyle, List<BeamFrame> beams, List<tech.gulp.lavavisual.map.WaypointOverlay.Beam> waypoints) { }
     private static final RenderStateDataKey<Frame> DATA = RenderStateDataKey.create(() -> "lavavisual:cosmetics");
     private static final ArrayList<Ring> RINGS = new ArrayList<>();
     private static final ArrayList<Mark> MARKS = new ArrayList<>();
@@ -65,6 +68,15 @@ public final class WorldCosmetics {
                     .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
                     .withPrimitiveTopology(PrimitiveTopology.QUADS)
                     .withDepthStencilState(new DepthStencilState(DepthStencilState.DEFAULT.depthTest(), false))
+                    .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+                    .withCull(false).build())).sortOnUpload().createRenderSetup());
+    /** Solid hats: depth-tested and depth-writing; back faces are dropped on the CPU (see Hats). */
+    public static final RenderType HAT = RenderType.create("lavavisual_hat",
+            RenderSetup.builder(RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
+                    .withLocation(net.minecraft.resources.Identifier.fromNamespaceAndPath("lavavisual", "pipeline/hat"))
+                    .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
+                    .withPrimitiveTopology(PrimitiveTopology.QUADS)
+                    .withDepthStencilState(new DepthStencilState(DepthStencilState.DEFAULT.depthTest(), true))
                     .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
                     .withCull(false).build())).sortOnUpload().createRenderSetup());
     private WorldCosmetics() { }
@@ -108,24 +120,29 @@ public final class WorldCosmetics {
             var mc = Minecraft.getInstance();
             var self = mc.player;
             float partial = context.deltaTracker().getGameTimeDeltaPartialTick(false);
-            HatFrame hat = null;
             double now0 = tick + partial;
-            // The hat follows the player's own render state (same position, crouch and head angles the model uses this
-            // frame), so it never trails the body; no state means first person or the player is not drawn.
-            net.minecraft.client.renderer.entity.state.AvatarRenderState me = null;
-            if (c.hatEnabled && self != null)
-                for (var state : context.levelState().entityRenderStates)
-                    if (state instanceof net.minecraft.client.renderer.entity.state.AvatarRenderState avatar && avatar.id == self.getId()) { me = avatar; break; }
-            if (me != null && !me.isInvisible && !me.isSpectator && !me.isFallFlying && !me.isVisuallySwimming && !me.isAutoSpinAttack) {
-                // Level by default ("stands straight"); optional tilt follows the head around the neck pivot.
-                double top = me.boundingBoxHeight + (me.isCrouching ? 0.035 : 0.02) + c.hatLift;
-                Vec3 base = new Vec3(me.x, me.y + top, me.z);
-                float yaw = c.hatTilt ? (float) Math.toRadians(me.bodyRot + me.yRot) : 0;
-                float pitch = c.hatTilt ? (float) Math.toRadians(me.xRot) : 0;
-                float pivot = (float) (top - (me.eyeHeight - 0.2));
-                float size = Math.max(0.2f, me.scale);
-                hat = new HatFrame(base, yaw, pitch, (float) (0.52 * c.hatSize) * size, (float) (0.26 * c.hatSize * c.hatCone) * size, (float) c.hatOpacity,
-                        (float) (now0 * 0.06 * c.hatSpin), c.color("hat") & 0xFFFFFF, c.color2("hat") & 0xFFFFFF, c.hatStyle, pivot);
+            // Hats sit on the head of the player's own render state (same position, crouch and head angles the model uses
+            // this frame), so they never trail the head; no state means first person or the player is not drawn.
+            var hats = new ArrayList<HatFrame>();
+            if (self != null && mc.level != null && (c.hatEnabled || c.hatOthers && HatSync.any())) {
+                float seconds = (float) (now0 / 20.0);
+                for (var state : context.levelState().entityRenderStates) {
+                    if (!(state instanceof net.minecraft.client.renderer.entity.state.AvatarRenderState avatar)) continue;
+                    if (avatar.id == self.getId()) {
+                        if (c.hatEnabled) hat(hats, avatar, c.hatType, c.color("hat"), c.color2("hat"), c.hatStyle, (float) c.hatOpacity, c.hatSize, c.hatLift,
+                                c.hatCone, (float) (now0 * 0.06 * c.hatSpin), c.hatTilt, seconds);
+                    } else if (c.hatOthers && hats.size() < 17 && avatar.distanceToCameraSq < 48 * 48) {
+                        var remote = HatSync.hatOf(mc.level.getEntity(avatar.id));
+                        if (remote == null) continue;
+                        int color = remote.rgb(), light = tech.gulp.lavavisual.config.ColorMath.companion(color);
+                        if (remote.rainbow()) {
+                            double hue = System.nanoTime() / 1e9 * 0.12;
+                            color = tech.gulp.lavavisual.config.ColorMath.hsv(hue, 0.72, 1);
+                            light = tech.gulp.lavavisual.config.ColorMath.hsv(hue + 0.16, 0.72, 1);
+                        }
+                        hat(hats, avatar, remote.type(), color, light, 0, 0.92f, 1, 0, 1, 0, false, seconds);
+                    }
+                }
             }
             var waypointBeams = tech.gulp.lavavisual.map.WaypointOverlay.extract(mc, context.levelState().cameraRenderState, partial);
             Vec3 esp = null;
@@ -136,7 +153,7 @@ public final class WorldCosmetics {
                 espHeight = snapshot.entity().getBbHeight();
                 espWidth = snapshot.entity().getBbWidth();
             }
-            if (RINGS.isEmpty() && SPARKS.isEmpty() && MARKS.isEmpty() && TRAIL.isEmpty() && BEAMS.isEmpty() && hat == null && esp == null && waypointBeams.isEmpty()) { context.levelState().setData(DATA, null); return; }
+            if (RINGS.isEmpty() && SPARKS.isEmpty() && MARKS.isEmpty() && TRAIL.isEmpty() && BEAMS.isEmpty() && hats.isEmpty() && esp == null && waypointBeams.isEmpty()) { context.levelState().setData(DATA, null); return; }
             int particleColor = c.color("particles") & 0xFFFFFF, ambientColor = c.color("ambient") & 0xFFFFFF, killColor = c.color("kill") & 0xFFFFFF;
             double now = tick + context.deltaTracker().getGameTimeDeltaPartialTick(false);
             var rings = new ArrayList<RingFrame>(); var sparks = new ArrayList<SparkFrame>();
@@ -171,7 +188,7 @@ public final class WorldCosmetics {
             int[] colors = {c.color("jump") & 0xFFFFFF, c.color("esp") & 0xFFFFFF, killColor, c.color("trail") & 0xFFFFFF, c.color("marker") & 0xFFFFFF};
             // Second tones: the theme gradient (lava orange to amethyst by default) instead of a lighter shade.
             int[] lights = {c.color2("jump") & 0xFFFFFF, c.color2("esp") & 0xFFFFFF, c.color2("kill") & 0xFFFFFF, c.color2("trail") & 0xFFFFFF, c.color2("marker") & 0xFFFFFF};
-            context.levelState().setData(DATA, new Frame(List.copyOf(rings), List.copyOf(sparks), List.copyOf(markers), colors, lights, hat, (float) (now * 0.06),
+            context.levelState().setData(DATA, new Frame(List.copyOf(rings), List.copyOf(sparks), List.copyOf(markers), colors, lights, List.copyOf(hats), (float) (now * 0.06),
                     List.copyOf(trail), esp, espHeight, espWidth, c.espStyle, List.copyOf(beams), waypointBeams));
         });
         LevelRenderEvents.BEFORE_TRANSLUCENT_TERRAIN.register(WorldCosmetics::render);
@@ -268,7 +285,7 @@ public final class WorldCosmetics {
                     ripple(pose, out, p, r * .95f, r, jumpLight, jump, a, a, frame.spin);
                     ripple(pose, out, p, r, r * 1.14f, jump, jumpLight, a * .75f, 0, frame.spin);
                 }
-                if (frame.hat != null) hat(pose, out, frame.hat, camera);
+                for (HatFrame h : frame.hats) Hats.glow(pose, out, world(h, camera), h.scale(), h.type(), h.color(), h.light(), h.style(), h.opacity(), h.time(), right, up);
                 if (frame.esp != null) {
                     Vec3 base = frame.esp.subtract(camera);
                     int esp = frame.colors[1], espLight = frame.lights[1];
@@ -295,7 +312,41 @@ public final class WorldCosmetics {
                     }
                 }
             });
+            if (!frame.hats.isEmpty()) context.submitNodeCollector().submitCustomGeometry(context.poseStack(), HAT, (pose, out) -> {
+                for (HatFrame h : frame.hats) Hats.draw(pose, out, world(h, camera), h.type(), h.color(), h.light(), h.style(), h.opacity(), h.time());
+            });
         } finally { context.poseStack().popPose(); }
+    }
+    private static Matrix4f world(HatFrame h, Vec3 camera) {
+        return new Matrix4f().translation((float) (h.base().x - camera.x), (float) (h.base().y - camera.y), (float) (h.base().z - camera.z))
+                .mul(new Matrix4f().set(h.rotation())).scale(h.scale(), h.scale() * h.stretch(), h.scale());
+    }
+    /**
+     * Places a hat on top of the head. The neck pivot and head size follow the vanilla player model (0.9375 scale,
+     * pivot 24 px up, crouch lowers it); the top sits on the hat layer or helmet. "Level" keeps the hat upright but
+     * moves it with the head: when you look down it rests on the back of the head, like a real hat would.
+     */
+    private static void hat(List<HatFrame> out, net.minecraft.client.renderer.entity.state.AvatarRenderState s, int type, int color, int light, int style,
+                            float opacity, double size, double lift, double stretch, float spin, boolean tilt, float seconds) {
+        if (s.isInvisible || s.isSpectator || s.isFallFlying || s.isVisuallySwimming || s.isAutoSpinAttack || s.isUpsideDown
+                || s.hasPose(net.minecraft.world.entity.Pose.SLEEPING)) return;
+        double scale = Math.max(0.2, s.scale), px = scale * 0.9375 / 16.0;
+        double pivot = s.isCrouching ? 19.8 * px - 0.125 * scale : 24 * px;
+        double top = s.headEquipment != null && !s.headEquipment.isEmpty() ? 9.0 : s.showHat ? 8.5 : 8.0;
+        float yaw = (float) Math.toRadians(s.bodyRot + s.yRot), pitch = (float) Math.toRadians(s.xRot);
+        Matrix3f rotation = new Matrix3f().rotationY(-yaw);
+        Vector3f offset;
+        if (tilt) {
+            rotation.rotateX(pitch);
+            offset = rotation.transform(new Vector3f(0, (float) (top * px + lift), 0));
+        } else {
+            double cos = Math.cos(pitch), sin = Math.sin(pitch);
+            offset = rotation.transform(new Vector3f(0, (float) ((top * cos + top / 2 * Math.abs(sin)) * px), (float) (top / 2 * sin * px)));
+            offset.y += (float) lift;
+        }
+        rotation.rotateY(spin);
+        out.add(new HatFrame(new Vec3(s.x + offset.x, s.y + pivot + offset.y, s.z + offset.z), rotation, (float) (size * scale), (float) stretch,
+                type, style, color, light, opacity, seconds));
     }
     private static int brighten(int rgb) {
         int r = rgb >> 16 & 255, g = rgb >> 8 & 255, b = rgb & 255;
@@ -319,49 +370,6 @@ public final class WorldCosmetics {
             vertex(pose, out, p.x + Math.cos(next) * outer, p.y, p.z + Math.sin(next) * outer, UiDraw.alpha(c1, outerAlpha));
             vertex(pose, out, p.x + Math.cos(next) * inner, p.y, p.z + Math.sin(next) * inner, UiDraw.alpha(c1, innerAlpha));
         }
-    }
-    /** China Hat: level cone above the head (third person only); size, lift, cone height, opacity, spin, style and colour are configurable. */
-    private static void hat(PoseStack.Pose pose, VertexConsumer out, HatFrame h, Vec3 camera) {
-        int segments = PerformanceMode.quality() < 0.5 ? 24 : 36;
-        int color = h.color(), light = h.light();
-        double radius = h.radius(), height = h.height(), alpha = h.opacity();
-        Vec3 base = h.base().subtract(camera);
-        Vector3f tip = hatPoint(h, 0, height, 0);
-        double previousX = 0, previousZ = 0;
-        for (int i = 0; i <= segments; i++) {
-            double angle = i * Math.PI * 2 / segments + h.spin();
-            double x = Math.cos(angle) * radius, z = Math.sin(angle) * radius;
-            if (i > 0) {
-                int stripe = switch (h.style()) {
-                    case 1 -> color;
-                    case 2 -> lerp(color, light, (float) (0.5 + 0.5 * Math.sin(angle * 2)));
-                    default -> (i & 1) == 0 ? color : lerp(color, light, 0.55f);
-                };
-                Vector3f a = hatPoint(h, previousX, 0, previousZ), b = hatPoint(h, x, 0, z);
-                vertex(pose, out, base.x + tip.x, base.y + tip.y, base.z + tip.z, UiDraw.alpha(light, Math.min(1, alpha + 0.1)));
-                vertex(pose, out, base.x + a.x, base.y + a.y, base.z + a.z, UiDraw.alpha(stripe, alpha * 0.8));
-                vertex(pose, out, base.x + b.x, base.y + b.y, base.z + b.z, UiDraw.alpha(stripe, alpha * 0.8));
-                vertex(pose, out, base.x + tip.x, base.y + tip.y, base.z + tip.z, UiDraw.alpha(light, Math.min(1, alpha + 0.1)));
-                // Bright rim.
-                Vector3f ai = hatPoint(h, previousX * 0.95, 0, previousZ * 0.95), bi = hatPoint(h, x * 0.95, 0, z * 0.95);
-                Vector3f ao = hatPoint(h, previousX * 1.02, 0, previousZ * 1.02), bo = hatPoint(h, x * 1.02, 0, z * 1.02);
-                vertex(pose, out, base.x + ai.x, base.y + ai.y, base.z + ai.z, UiDraw.alpha(light, Math.min(1, alpha + 0.25)));
-                vertex(pose, out, base.x + ao.x, base.y + ao.y, base.z + ao.z, UiDraw.alpha(light, Math.min(1, alpha + 0.25)));
-                vertex(pose, out, base.x + bo.x, base.y + bo.y, base.z + bo.z, UiDraw.alpha(light, Math.min(1, alpha + 0.25)));
-                vertex(pose, out, base.x + bi.x, base.y + bi.y, base.z + bi.z, UiDraw.alpha(light, Math.min(1, alpha + 0.25)));
-            }
-            previousX = x; previousZ = z;
-        }
-    }
-    /** Local hat point → offset from the hat base, rotated around the neck pivot when tilt is enabled. */
-    private static Vector3f hatPoint(HatFrame h, double x, double y, double z) {
-        Vector3f v = new Vector3f((float) x, (float) y, (float) z);
-        if (h.yaw() == 0 && h.pitch() == 0) return v;
-        v.add(0, h.pivot(), 0);
-        v.rotateX(h.pitch());
-        v.rotateY(-h.yaw());
-        v.sub(0, h.pivot(), 0);
-        return v;
     }
     /** Waypoint: tall camera-facing light column, kept within 240 blocks so it stays visible in the right direction. */
     private static void waypointBeam(PoseStack.Pose pose, VertexConsumer out, Vec3 p, int color, float spin) {

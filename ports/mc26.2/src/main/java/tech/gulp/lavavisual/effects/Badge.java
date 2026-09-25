@@ -4,18 +4,18 @@ import java.lang.reflect.Field;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.world.entity.player.Player;
-import tech.gulp.lavavisual.LavaVisualClient;
 
 /** Server-free LavaVisual detection. Opt-in (badgeShare): sets the unused 0x80 bit of the skin-parts byte that
-    servers relay to other players; vanilla renders nothing for this bit, but strict anti-bot filters may reject it,
-    so it is off by default. Reading other players' marks is always safe. */
+    servers relay to other players; vanilla renders nothing for this bit. HatSync decides when the bit is set: never
+    while joining, only after ten seconds in the world, and it briefly spells out the hat. Reading marks is always safe. */
 public final class Badge {
     public static final int BIT = 0x80;
     private static Field field;
     private static boolean searched;
     private Badge() { }
-    public static ClientInformation mark(ClientInformation info) {
-        if (info == null || !LavaVisualClient.config().badgeShare) return info;
+    public static ClientInformation mark(ClientInformation info) { return withBit(info, HatSync.advertised()); }
+    public static ClientInformation withBit(ClientInformation info, boolean bit) {
+        if (info == null || !bit && !marked(info)) return info;
         try {
             var components = ClientInformation.class.getRecordComponents();
             Object[] values = new Object[components.length];
@@ -25,7 +25,7 @@ public final class Badge {
                 types[i] = components[i].getType();
                 values[i] = components[i].getAccessor().invoke(info);
                 if (components[i].getName().equals("modelCustomisation") && values[i] instanceof Integer parts) {
-                    values[i] = parts | BIT;
+                    values[i] = bit ? parts | BIT : parts & ~BIT;
                     found = true;
                 }
             }

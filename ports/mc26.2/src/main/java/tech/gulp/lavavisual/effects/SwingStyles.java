@@ -6,7 +6,8 @@ import net.minecraft.world.InteractionHand;
 import org.joml.Quaternionf;
 import tech.gulp.lavavisual.LavaVisualClient;
 
-/** First-person swing styles. Render-only: never calls swing(), touches cooldown or sends packets.
+/** First-person swing styles. Render-only: never calls swing(), touches cooldown or sends packets. A swing lasts as
+    long as the held item takes to recharge (sword ~0.6 s, axe ~1 s), so slow weapons swing slowly instead of dipping.
     Preset table and envelope adapted from PulseVisual (MIT, Copyright (c) 2026 PulseVisual contributors). */
 public final class SwingStyles {
     public static final String[] NAMES = {"Ваниль", "Плавный", "Быстрый", "Резкий", "Мягкий", "Размах", "Рубящий"};
@@ -15,6 +16,7 @@ public final class SwingStyles {
         Profile(float d, float s, float r, float x, float y, float z, float smooth, int ease) { this(d, s, r, x, y, z, smooth, ease, -r * .25f, r * .25f, .36f); }
     }
     private static final long[] STARTED = new long[2];
+    private static final float[] DURATION = new float[2];
     private static final Profile[] ACTIVE = new Profile[2];
     private static final Quaternionf ROTATION = new Quaternionf();
     private SwingStyles() { }
@@ -33,20 +35,25 @@ public final class SwingStyles {
     public static void tick(Minecraft mc) {
         var player = mc.player;
         if (player == null || !active()) { ACTIVE[0] = ACTIVE[1] = null; return; }
-        if (player.swinging && player.swingTime == 0) start(player.swingingArm == null ? InteractionHand.MAIN_HAND : player.swingingArm);
+        if (player.swinging && player.swingTime == 0)
+            start(player.swingingArm == null ? InteractionHand.MAIN_HAND : player.swingingArm, player.getCurrentItemAttackStrengthDelay() / 20f);
     }
-    private static void start(InteractionHand hand) {
+    private static void start(InteractionHand hand, float recharge) {
         int i = hand.ordinal();
         long now = System.nanoTime();
         float running = progress(i, now);
         if (running >= 0 && running < 0.6f) return;
-        ACTIVE[i] = profile(LavaVisualClient.config().swingStyle);
+        Profile profile = profile(LavaVisualClient.config().swingStyle);
+        ACTIVE[i] = profile;
         STARTED[i] = now;
+        // Fist and blocks keep the style's own tempo; weapons stretch it to their recharge time (capped for maces).
+        float base = profile == null ? .3f : profile.duration();
+        DURATION[i] = Math.clamp(Float.isFinite(recharge) ? Math.max(base, recharge) : base, .05f, 1.6f);
     }
     private static float progress(int i, long now) {
         Profile p = ACTIVE[i];
         if (p == null) return -1;
-        double t = (now - STARTED[i]) / (Math.max(.05, p.duration()) * 1e9);
+        double t = (now - STARTED[i]) / (Math.max(.05, DURATION[i]) * 1e9);
         return t >= 1 ? -1 : (float) Math.max(0, t);
     }
     static float envelope(float t, float smoothness, int easing, float peak) {

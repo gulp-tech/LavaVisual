@@ -30,11 +30,12 @@ public abstract class HandViewMixin {
     /**
      * No weapon dip after an attack: vanilla lowers the held item towards cooldown³ every tick. With the option on, the
      * height follows the vanilla rule with a full cooldown instead, so only the item-switch animation remains.
-     * The attack indicator under the crosshair reads the player's cooldown directly and is untouched.
+     * The attack indicator under the crosshair reads the player's cooldown directly and is untouched. With a swing
+     * style the dip is always removed: the styled swing itself lasts as long as the recharge (see SwingStyles).
      */
     @Inject(method = "tick", at = @At("TAIL"))
     private void lava$noCooldownDip(CallbackInfo ci) {
-        if (!LavaVisualClient.config().noCooldownDip) return;
+        if (!LavaVisualClient.config().noCooldownDip && !SwingStyles.active()) return;
         var player = minecraft.player;
         if (player == null || player.isHandsBusy()) return;
         // Same item still in hand (durability or count may change on a hit): not a switch, so rise like a charged hit.

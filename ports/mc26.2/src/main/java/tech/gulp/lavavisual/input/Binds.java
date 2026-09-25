@@ -26,7 +26,7 @@ public final class Binds {
         HUD("hud", "Скрыть / показать HUD", Icons.EYE_OFF, -1),
         TARGET("target", "Target HUD", Icons.TARGET, -1),
         CROSSHAIR("crosshair", "Прицел", Icons.CROSSHAIR, -1),
-        HAT("hat", "China Hat", Icons.CONE, -1),
+        HAT("hat", "Шляпа", Icons.CROWN, -1),
         ESP("esp", "Target ESP", Icons.SCAN_EYE, -1),
         TRAIL("trail", "Trails", Icons.WIND, -1),
         PARTICLES("particles", "Hit Particles", Icons.SPARKLE, -1),

@@ -32,7 +32,7 @@ public final class PlayerTags {
             var tags = new ArrayList<Tag>();
             for (var player : mc.level.players()) {
                 if (player == mc.player || player.isInvisible()) continue;
-                if (!Badge.marked(player)) continue;
+                if (!HatSync.marked(player)) continue;
                 if (player.distanceToSqr(mc.player) > 48 * 48) continue;
                 Vec3 anchor = player.getPosition(partial).add(0, player.getBbHeight() + 0.39, 0);
                 tags.add(new Tag(anchor, mc.font.width(player.getDisplayName()) * 0.0125f));

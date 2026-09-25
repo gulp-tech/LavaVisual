@@ -12,11 +12,12 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import tech.gulp.lavavisual.LavaVisualClient;
+import tech.gulp.lavavisual.effects.Hats;
 import tech.gulp.lavavisual.config.ColorMath;
 import tech.gulp.lavavisual.config.HudConfig;
 
 /**
- * Live China Hat editor: the menu closes, the camera turns to third person so the real hat is visible,
+ * Live hat editor: the menu closes, the camera turns to third person so the real hat is visible,
  * and the previous camera is restored when the editor closes.
  */
 public final class HatEditorScreen extends Screen {
@@ -32,7 +33,7 @@ public final class HatEditorScreen extends Screen {
     private CameraType previous;
     private boolean front = true;
     private int px, py, pw, cursor, row = 24, buttonRow = 24;
-    public HatEditorScreen(Screen parent) { super(UiFont.component("China Hat")); this.parent = parent; }
+    public HatEditorScreen(Screen parent) { super(UiFont.component("Шляпы")); this.parent = parent; }
 
     @Override protected void init() {
         if (previous == null && minecraft.options != null) {
@@ -60,16 +61,30 @@ public final class HatEditorScreen extends Screen {
         // Compact rows on short screens (phones with a large GUI scale).
         boolean compact = height < 290;
         row = compact ? 20 : 24; buttonRow = compact ? 22 : 24;
-        int ph = Math.min(height - 16, 34 + row * 6 + 18 + buttonRow * 3 + 6);
+        int ph = Math.min(height - 16, 34 + row * 7 + 18 + buttonRow * 3 + 6);
         UiDraw.round(g, px, py, pw, ph, 9, UiDraw.alpha(c.color("menu_bg") & 0xFFFFFF, 0.9));
         UiDraw.round(g, px + 8, py + 8, 18, 18, 6, accent());
-        UiFont.icon(g, font, Icons.CONE, px + 12, py + 12, 0xFF11181A);
-        UiFont.text(g, font, "China Hat · редактор", px + 32, py + 9, 0xFFF1F4F8, pw - 40, UiFont.Face.BOLD);
+        UiFont.icon(g, font, Icons.CROWN, px + 12, py + 12, 0xFF11181A);
+        UiFont.text(g, font, "Шляпа · редактор", px + 32, py + 9, 0xFFF1F4F8, pw - 40, UiFont.Face.BOLD);
         UiFont.text(g, font, minecraft.level == null ? "зайдите в мир, чтобы видеть шляпу" : "изменения видны сразу", px + 32, py + 20, 0xFF8C93A1, pw - 40, UiFont.Face.SMALL);
         cursor = py + 34;
+        // Model: ‹ name › like every selector in the menu; the arrows wrap around.
+        int ty = cursor;
+        for (int side = 0; side < 2; side++) {
+            int x = side == 0 ? px + 8 : px + pw - 28, step = side == 0 ? -1 : 1;
+            boolean hover = over(mx, my, x, ty, 20, 18);
+            UiDraw.round(g, x, ty, 20, 18, 5, hover ? 0xFF3A3F4B : 0xFF2A2E37);
+            UiFont.icon(g, font, side == 0 ? Icons.CHEVRON_LEFT : Icons.CHEVRON_RIGHT, x + 4, ty + 3, hover ? accent() : 0xFFD5DAE3);
+            hits.add(new Hit(x, ty, 20, 18, () -> c.hatType = Math.floorMod(c.hatType - 1 + step, Hats.COUNT) + 1));
+        }
+        String hatName = Hats.name(c.hatType), position = c.hatType + "/" + Hats.COUNT;
+        int nw = UiFont.width(g, font, hatName, UiFont.Face.BOLD), cw = UiFont.width(g, font, position, UiFont.Face.SMALL), nx = px + (pw - nw - cw - 5) / 2;
+        UiFont.text(g, font, hatName, nx, ty + 5, 0xFFF1F4F8, nw + 2, UiFont.Face.BOLD);
+        UiFont.text(g, font, position, nx + nw + 5, ty + 6, 0xFF8C93A1, cw + 2, UiFont.Face.SMALL);
+        cursor += row;
         bar(g, mx, my, "Размер", c.hatSize, 0.5, 1.8, v -> c.hatSize = v, "%.2f");
         bar(g, mx, my, "Высота над головой", c.hatLift, -0.3, 0.6, v -> c.hatLift = v, "%+.2f");
-        bar(g, mx, my, "Высота конуса", c.hatCone, 0.3, 2.5, v -> c.hatCone = v, "%.2f");
+        bar(g, mx, my, "Высота шляпы", c.hatCone, 0.3, 2.5, v -> c.hatCone = v, "%.2f");
         bar(g, mx, my, "Прозрачность", c.hatOpacity, 0.15, 1, v -> c.hatOpacity = v, "%.2f");
         bar(g, mx, my, "Вращение · 0 = стоит ровно", c.hatSpin, 0, 3, v -> c.hatSpin = v < 0.08 ? 0 : v, "%.1f");
         double[] hsv = ColorMath.toHsv(c.color("hat") & 0xFFFFFF);
@@ -84,7 +99,7 @@ public final class HatEditorScreen extends Screen {
         }
         cursor += 18;
         int half = (pw - 20) / 2;
-        String[] styles = {"полосы", "сплошной", "градиент"};
+        String[] styles = {"узор", "сплошной", "градиент"};
         button(g, mx, my, "Стиль: " + styles[c.hatStyle], px + 8, half, () -> c.hatStyle = (c.hatStyle + 1) % 3);
         button(g, mx, my, "Наклон: " + (c.hatTilt ? "с головой" : "ровно"), px + 12 + half, half, () -> c.hatTilt = !c.hatTilt);
         cursor += buttonRow;
