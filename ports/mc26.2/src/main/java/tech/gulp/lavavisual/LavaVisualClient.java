@@ -18,6 +18,8 @@ public final class LavaVisualClient implements ClientModInitializer {
     public static final SessionState STATE = new SessionState();
     private static final ConfigStore STORE = new ConfigStore(FabricLoader.getInstance().getConfigDir().resolve("lavavisual-hud"));
     private static HudConfig config = STORE.load(0);
+    private static volatile long reloadMillis = -1;
+    private static boolean worldStarted;
     private long nextSample;
     private Object previousWorld;
     private final boolean uiSmoke = Boolean.getBoolean("lavavisual.uiSmoke");
@@ -61,6 +63,14 @@ public final class LavaVisualClient implements ClientModInitializer {
         tech.gulp.lavavisual.effects.PlayerTags.registerClient();
         var category = KeyMapping.Category.register(id("hud"));
         tech.gulp.lavavisual.input.Binds.register(category);
+        // Pause menu button: on phones (touch) there is no Right Shift, so the menu has to be reachable by a tap.
+        net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
+            if (!(screen instanceof net.minecraft.client.gui.screens.PauseScreen)) return;
+            var widgets = net.fabricmc.fabric.api.client.screen.v1.Screens.getWidgets(screen);
+            if (widgets.isEmpty()) return; // F3 + Esc: paused without the menu
+            widgets.add(net.minecraft.client.gui.components.Button.builder(tech.gulp.lavavisual.ui.UiFont.component("LavaVisual"),
+                    button -> client.gui.setScreen(new ClickGuiScreen())).bounds(6, 6, 96, 20).build());
+        });
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             // Explicit CI-only switch; never enabled by normal game or server settings.
             if (uiSmoke) {
@@ -119,7 +129,15 @@ public final class LavaVisualClient implements ClientModInitializer {
                     if (smokeTicks == 1026) LavaVisual.LOGGER.info("LavaVisual smoke shot title");
                     if (smokeTicks == 1030) LavaVisual.LOGGER.info("LavaVisual title screen replaced=" + tech.gulp.lavavisual.ui.LavaTitleScreen.replaced
                             + " client title: " + Edition.retitle("Minecraft* 26.2 - Singleplayer"));
-                    if (smokeTicks == 1048) SmokeWorld.start(client);
+                    if (smokeTicks == 1032) {
+                        // A full resource reload, as when a server sends a resource pack.
+                        long started = System.nanoTime();
+                        client.reloadResourcePacks().whenComplete((ignored, error) -> {
+                            reloadMillis = Math.max(0, (System.nanoTime() - started) / 1_000_000L);
+                            LavaVisual.LOGGER.info("LavaVisual smoke resource reload " + (error == null ? "ok" : "failed") + ": " + reloadMillis + " ms");
+                        });
+                    }
+                    if (smokeTicks >= 1048 && !worldStarted && reloadMillis >= 0) { worldStarted = true; SmokeWorld.start(client); }
                     SmokeWorld.tick(client);
                 }
             }

@@ -108,7 +108,7 @@ public final class HudConfig {
     public int capeType = 1, capeStyle = 2, outfitStyle = 2;
     public double capeOpacity = 1, capeSway = 1;
     /** Cloth physics for the cape (off: the old rigid lean); the custom title screen. */
-    public boolean capePhysics = true, customTitle = true;
+    public boolean capePhysics = true, customTitle = true, menuSounds = true;
     public List<Integer> extras = new ArrayList<>();
     /** Dropped items: tumble in the air, settle on the ground (flat items lie down). */
     public boolean itemPhysics, itemPhysicsFlat = true;

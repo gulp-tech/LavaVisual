@@ -19,7 +19,7 @@ import tech.gulp.lavavisual.LavaVisual;
 import tech.gulp.lavavisual.LavaVisualClient;
 
 /**
- * Music from config/lavavisual-hud/music (MP3, Ogg Vorbis, Opus, WAV; the format is read from the file itself), played
+ * Music from .minecraft/LavaVisual/music (MP3, Ogg Vorbis, Opus, WAV; the format is read from the file itself), played
  * through Minecraft's OpenAL device: play / pause, seeking, previous / next, shuffle and repeat. A small daemon thread keeps four 0.4 s buffers queued, so lag spikes
  * in the game do not stutter the music. The master volume and the player's own volume apply; vanilla background music
  * is kept quiet while a track plays.

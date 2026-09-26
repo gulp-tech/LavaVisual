@@ -19,10 +19,6 @@
    ],
    "size": 9,
    "oversample": 7
-  },
-  {
-   "type": "reference",
-   "id": "minecraft:default"
   }
  ]
 }

@@ -18,6 +18,7 @@ public final class PerformanceMode {
     public static double quality() {
         int fps = LavaVisualClient.STATE.fps;
         double q = fps <= 0 ? 1 : fps >= 50 ? 1 : fps >= 40 ? 0.75 : fps >= 30 ? 0.5 : 0.35;
+        if (tech.gulp.lavavisual.Platform.android()) q = Math.min(q, 0.7); // phones: fewer particles, same look
         return active() ? Math.min(q, new double[] {0.85, 0.7, 0.55, 0.4}[level() - 1]) : q;
     }
     public static void update(Minecraft client) {

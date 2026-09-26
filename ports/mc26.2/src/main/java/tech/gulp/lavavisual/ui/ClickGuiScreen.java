@@ -60,7 +60,9 @@ public final class ClickGuiScreen extends Screen {
     private int page, left, top, panelW, panelH, side, bodyX, bodyW, clipTop, clipBottom, cursor, mx, my;
     private int contentHeight;
     private boolean clippingHits;
-    private double scroll, indicator, frameFactor, renderScale = 1;
+    private double scroll, indicator, frameFactor, renderScale = 1, pressY, pressScroll;
+    private Hit pending;
+    private boolean touching, touchScrolled;
     private String selected, colorOpen;
     private Slider dragging;
     /** Menu drag from the header or the logo block: grab offset in menu units and the free space of the last frame. */
@@ -347,7 +349,7 @@ public final class ClickGuiScreen extends Screen {
             text(g, TABS[i], left + 33, y + tabPad + 1, tabColor, side - 40);
             hit(left + 8, y, side - 16, tabH, () -> navigate(next));
         }
-        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.21", left + 13, top + panelH - 21, 0xFF586272, side - 18);
+        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · " + tech.gulp.lavavisual.Edition.label(), left + 13, top + panelH - 21, 0xFF586272, side - 18);
         boolean searching = !query.isBlank();
         String heading = searching ? "Поиск" : selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : selected.equals("hat") ? "Шляпы" : selected.equals("wings") ? "Крылья" : SUBPAGES.containsKey(selected) ? SUBPAGES.get(selected) : HudRenderer.title(selected);
         searchW = Math.max(70, Math.min(150, bodyW / 2 - 20)); searchX = left + panelW - 58 - searchW; searchY = top + 11;
@@ -578,7 +580,7 @@ public final class ClickGuiScreen extends Screen {
         var cfg = LavaVisualClient.config();
         toggle(g, "badge", "Значки LavaVisual", "Иконка у ников игроков, которые делятся значком", cfg.badgeEnabled,
                 () -> { cfg.badgeEnabled = !cfg.badgeEnabled; changed(); }, null);
-        toggle(g, "badge_share", "Делиться значком, шляпой и крыльями", "Игроки с LavaVisual увидят значок, шляпу и крылья", cfg.badgeShare,
+        toggle(g, "badge_share", "Делиться значком и косметикой", "Игроки с LavaVisual увидят значок, шляпу, крылья, плащ и аксессуары", cfg.badgeShare,
                 () -> { cfg.badgeShare = !cfg.badgeShare; changed(); }, null);
         note(g, "По умолчанию выключено: мод ничего не отправляет серверу.");
     }
@@ -664,6 +666,7 @@ public final class ClickGuiScreen extends Screen {
         toggle(g, "dummy_spin", "Вращать манекен", "Медленный поворот, чтобы видеть образ со всех сторон", c.dummySpin,
                 () -> { c.dummySpin = !c.dummySpin; changed(); }, null);
         note(g, "Манекен видите только вы: на нём ваш скин, броня и вся косметика.");
+        othersSection(g);
     }
     private void hands(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
@@ -759,6 +762,7 @@ public final class ClickGuiScreen extends Screen {
             tech.gulp.lavavisual.input.Binds.Toast.show("Своих звуков: " + tech.gulp.lavavisual.effects.CustomSounds.files());
         });
         cursor += 32;
+        folderNote(g, tech.gulp.lavavisual.effects.CustomSounds.dir());
         int skippedSounds = tech.gulp.lavavisual.effects.CustomSounds.skipped();
         note(g, "Своих файлов: " + tech.gulp.lavavisual.effects.CustomSounds.files() + (skippedSounds > 0 ? " · не читаются: " + skippedSounds : "") + " · в списках отмечены ★");
         note(g, "Папки: hits — удары, crits — криты, totems — тотем, kills — убийство");
@@ -796,9 +800,17 @@ public final class ClickGuiScreen extends Screen {
         action(g, Icons.FOLDER_OPEN, "Открыть папку", bodyX, cursor, half, () -> tech.gulp.lavavisual.effects.CustomSounds.open(tech.gulp.lavavisual.effects.CustomSounds.musicDir()));
         action(g, Icons.REFRESH_CW, "Обновить список", bodyX + half + 8, cursor, half, () -> tech.gulp.lavavisual.audio.MusicPlayer.rescan(tech.gulp.lavavisual.effects.CustomSounds.musicDir()));
         cursor += 32;
+        folderNote(g, tech.gulp.lavavisual.effects.CustomSounds.musicDir());
         int bad = tech.gulp.lavavisual.audio.MusicPlayer.skipped();
         note(g, "Треков: " + tracks.size() + (bad > 0 ? " · не читаются: " + bad : "") + " · " + tech.gulp.lavavisual.audio.AudioInfo.EXTENSIONS);
         note(g, "Файлы можно перетащить в окно игры. Клавиши плеера — во вкладке «Бинды».");
+    }
+    /** Where the folder is (inside .minecraft) and a button that copies the full path, for phones and file managers. */
+    private void folderNote(GuiGraphicsExtractor g, java.nio.file.Path folder) {
+        java.nio.file.Path game = net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir();
+        String shown = folder.startsWith(game) ? ".minecraft/" + game.relativize(folder).toString().replace('\\', '/') : folder.toString();
+        note(g, "Папка: " + shown);
+        button(g, Icons.COPY, "Скопировать путь", () -> { minecraft.keyboardHandler.setClipboard(folder.toAbsolutePath().toString()); flash("Путь скопирован"); });
     }
     /** Audio files dropped onto the menu go to the music folder on the Music page, otherwise to the shared sounds folder. */
     @Override public void onFilesDrop(List<java.nio.file.Path> files) {
@@ -821,6 +833,7 @@ public final class ClickGuiScreen extends Screen {
     private void appearance(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
         toggle(g, "title", "Своё главное меню", "Меню LavaVisual вместо обычного главного меню", c.customTitle, () -> { c.customTitle = !c.customTitle; changed(); }, null);
+        toggle(g, "menu_sounds", "Звук кнопок", "Щелчок при нажатии в меню LavaVisual", c.menuSounds, () -> { c.menuSounds = !c.menuSounds; changed(); }, null);
         note(g, "Шрифт HUD · Montserrat как у визуалов, Rubik мягче, Inter как в меню");
         chips(g, UiFont.FAMILIES, c.hudFont, i -> { c.hudFont = i; changed(); });
         slider(g, "Масштаб меню", c.menuScale, 0.6, 1.2, v -> c.menuScale = v, false);
@@ -938,7 +951,7 @@ public final class ClickGuiScreen extends Screen {
         slider(g, "Высота над головой", c.hatLift, -0.3, 0.6, v -> c.hatLift = v, false);
         slider(g, "Высота шляпы", c.hatCone, 0.3, 2.5, v -> c.hatCone = v, false);
         slider(g, "Прозрачность", c.hatOpacity, 0.15, 1, v -> c.hatOpacity = v, false);
-        slider(g, "Вращение · 0 = стоит ровно", c.hatSpin, 0, 3, v -> c.hatSpin = v < 0.08 ? 0 : v, false);
+        slider(g, "Вращение · кепки с козырьком не крутятся", c.hatSpin, 0, 3, v -> c.hatSpin = v < 0.08 ? 0 : v, false);
         caption(g, "Узор");
         chips(g, STYLES, c.hatStyle, i -> { c.hatStyle = i; changed(); });
         othersSection(g);
@@ -1049,11 +1062,11 @@ public final class ClickGuiScreen extends Screen {
     private void othersSection(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
         section(g, "Другие игроки");
-        toggle(g, "hat_others", "Шляпы и крылья других игроков", "Видны у игроков LavaVisual, которые ими делятся", c.hatOthers,
+        toggle(g, "hat_others", "Косметика других игроков", "Шляпы, крылья, плащи и аксессуары игроков LavaVisual", c.hatOthers,
                 () -> { c.hatOthers = !c.hatOthers; changed(); }, null);
-        toggle(g, "badge_share", "Делиться значком, шляпой и крыльями", "Игроки с LavaVisual увидят ваши шляпу и крылья", c.badgeShare,
+        toggle(g, "badge_share", "Делиться значком и косметикой", "Игроки с LavaVisual увидят вашу шляпу, крылья, плащ и аксессуары", c.badgeShare,
                 () -> { c.badgeShare = !c.badgeShare; changed(); }, null);
-        note(g, "Без сервера: вид и цвет передаются через невидимый бит скина, ~30 сек.");
+        note(g, "Без сервера: вид и цвет передаются через невидимый бит скина, около минуты.");
     }
     /** Arrow selector: ‹ name › with the position underneath; the arrows wrap around. */
     private void mapOptions(GuiGraphicsExtractor g) {
@@ -1336,9 +1349,14 @@ public final class ClickGuiScreen extends Screen {
             }
         }
         for (Hit hit : hits) {
-            if (hit.clipped && ((event.y() / renderScale) < clipTop || (event.y() / renderScale) >= clipBottom)) continue;
-            if ((event.x() / renderScale) >= hit.x && (event.x() / renderScale) < hit.x + hit.w && (event.y() / renderScale) >= hit.y && (event.y() / renderScale) < hit.y + hit.h) { hit.action.run(); return true; }
+            if (hit.clipped && (uy < clipTop || uy >= clipBottom)) continue;
+            if (ux >= hit.x && ux < hit.x + hit.w && uy >= hit.y && uy < hit.y + hit.h) {
+                // Page content reacts on release, so a finger (or the mouse) can also drag the page to scroll it.
+                if (hit.clipped) { press(hit, uy); return true; }
+                UiSound.click(); hit.action.run(); return true;
+            }
         }
+        if (ux >= bodyX && ux < bodyX + bodyW && uy >= clipTop && uy < clipBottom) { press(null, uy); return true; }
         if (grabZone((int) ux, (int) uy)) {
             var c = LavaVisualClient.config();
             if (doubleClick) { c.menuX = 0.5; c.menuY = 0.5; changed(); return true; }
@@ -1353,7 +1371,14 @@ public final class ClickGuiScreen extends Screen {
         boolean brand = x >= left + 4 && x < left + side - 2 && y >= top + 4 && y < top + 66;
         return panelW > 0 && (header || brand);
     }
+    private void press(Hit hit, double uy) { pending = hit; touching = true; touchScrolled = false; pressY = uy; pressScroll = scroll; }
     @Override public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        if (touching) {
+            double uy = event.y() / renderScale;
+            if (!touchScrolled && Math.abs(uy - pressY) > 5) { touchScrolled = true; pending = null; }
+            if (touchScrolled) scroll = Math.clamp(pressScroll - (uy - pressY), 0, Math.max(0, contentHeight - (clipBottom - clipTop)));
+            return true;
+        }
         if (moving) {
             var c = LavaVisualClient.config();
             double nx = event.x() / renderScale - grabX, ny = event.y() / renderScale - grabY;
@@ -1365,6 +1390,13 @@ public final class ClickGuiScreen extends Screen {
         dragging.set((event.x() / renderScale)); return true;
     }
     @Override public boolean mouseReleased(MouseButtonEvent event) {
+        if (touching) {
+            touching = false;
+            Hit hit = pending;
+            pending = null;
+            if (hit != null && !touchScrolled) { UiSound.click(); hit.action.run(); }
+            return true;
+        }
         if (moving) { moving = false; changed(); return true; }
         if (dragging != null) { dragging = null; changed(); return true; }
         return super.mouseReleased(event);

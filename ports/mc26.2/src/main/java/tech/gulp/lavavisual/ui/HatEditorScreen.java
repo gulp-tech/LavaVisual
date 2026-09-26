@@ -86,7 +86,7 @@ public final class HatEditorScreen extends Screen {
         bar(g, mx, my, "Высота над головой", c.hatLift, -0.3, 0.6, v -> c.hatLift = v, "%+.2f");
         bar(g, mx, my, "Высота шляпы", c.hatCone, 0.3, 2.5, v -> c.hatCone = v, "%.2f");
         bar(g, mx, my, "Прозрачность", c.hatOpacity, 0.15, 1, v -> c.hatOpacity = v, "%.2f");
-        bar(g, mx, my, "Вращение · 0 = стоит ровно", c.hatSpin, 0, 3, v -> c.hatSpin = v < 0.08 ? 0 : v, "%.1f");
+        bar(g, mx, my, "Вращение · кепки с козырьком не крутятся", c.hatSpin, 0, 3, v -> c.hatSpin = v < 0.08 ? 0 : v, "%.1f");
         double[] hsv = ColorMath.toHsv(c.color("hat") & 0xFFFFFF);
         hueBar(g, mx, my, hsv, c);
         int sw = (pw - 16 - (SWATCHES.length - 1) * 3) / SWATCHES.length;

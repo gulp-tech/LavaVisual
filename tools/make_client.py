@@ -28,7 +28,16 @@ TLauncher или обычный лаунчер
   2. Откройте папку игры (.minecraft) и скопируйте туда папки mods и config из этого архива.
   3. Запустите версию Fabric {mc}.
 
-Меню LavaVisual открывается клавишей Right Shift. Только мод, без клиента: lavavisual-{version}-mc{mc}.jar в папку mods.
+Телефон (PojavLauncher, MojoLauncher, Amethyst и похожие)
+  1. Установите в лаунчере Fabric {mc} (Fabric Loader {loader}) и запустите его один раз.
+  2. Скопируйте папки mods и config из этого архива в папку игры лаунчера (.minecraft)
+     или импортируйте .mrpack, если лаунчер это умеет.
+  3. Меню LavaVisual открывается кнопкой «LavaVisual» в главном меню и в меню паузы.
+
+Свои треки и звуки: папка .minecraft/LavaVisual (music и sounds), создаётся при первом запуске.
+На телефоне она видна в файловом менеджере и в приложении «Файлы» → «Расположения» → лаунчер.
+
+Меню LavaVisual на компьютере открывается клавишей Right Shift. Только мод, без клиента: lavavisual-{version}-mc{mc}.jar в папку mods.
 Fabric API распространяется по лицензии Apache-2.0 (licenses/fabric-api-LICENSE.txt).
 """
 

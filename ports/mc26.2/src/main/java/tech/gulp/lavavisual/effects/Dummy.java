@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 /**
- * Local practice dummy: a player model that exists only in this client's world. The server never learns about it —
+ * Local practice dummy: a player model that exists only in this client's world. The server never learns about it -
  * hits and right clicks on it are cancelled before any packet is built (the swing itself is the same as swinging at
  * air), it pushes nobody and cannot be pushed. It wears your skin, armour, held items, hat and wings, flashes red,
  * loses health and plays the hit / crit / kill sounds and effects, so visuals can be tried on and tested anywhere.

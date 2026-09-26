@@ -25,10 +25,11 @@ public final class LavaTitleScreen extends Screen {
     /** CI: the title screen was swapped in by the hook (not opened by hand). */
     public static boolean replaced;
     private static boolean logged;
-    private static final String[] NEWS = {"Плащи с физикой ткани", "Новый плащ «Лава»", "Раздел «Косметика»", "Новое главное меню"};
+    private static final String[] NEWS = {"Быстрая загрузка ресурс-паков", "Плащи с физикой ткани", "Аксессуары видят другие игроки", "Поддержка телефонов"};
     private final long opened = System.nanoTime();
     private final List<Hit> hits = new ArrayList<>();
     private final Map<String, Double> motions = new HashMap<>();
+    private List<Item> items = List.of();
     private long lastFrame = System.nanoTime();
     private double ease = 1;
     private int mx, my;
@@ -52,6 +53,7 @@ public final class LavaTitleScreen extends Screen {
     }
 
     @Override protected void init() {
+        items = items();
         if (!logged) { logged = true; LavaVisual.LOGGER.info("LavaVisual title screen ready"); }
     }
     @Override public boolean shouldCloseOnEsc() { return false; }
@@ -93,7 +95,7 @@ public final class LavaTitleScreen extends Screen {
         g.fillGradient(0, height - 70, width, height, 0x00000000, UiDraw.alpha(UiDraw.mix(ac, ac2, 0.35), 0.1 * enter));
         embers(g, now, ac, ac2, enter);
 
-        List<Item> list = items();
+        List<Item> list = items;
         int left = Math.max(22, (int) (width * 0.075)), buttonW = Math.clamp(width / 3, 160, 214), buttonH = 24, gap = 6;
         int logoW = Logo.width(false), logoH = Logo.MENU_H, headH = logoH * 2 + 30;
         int blockH = headH + list.size() * (buttonH + gap);
@@ -102,8 +104,7 @@ public final class LavaTitleScreen extends Screen {
         // Logo (twice the menu size, pixel-exact texture), name and edition.
         int lift = (int) Math.round((1 - enter) * 10);
         // Soft glow behind the logo: many faint discs read as a smooth radial gradient, without a visible edge.
-        for (int ring = 10; ring >= 1; ring--)
-            UiDraw.circle(g, left + logoW, top + logoH + lift, 12 + ring * 10, UiDraw.alpha(UiDraw.mix(ac, ac2, 0.3), 0.011 * enter));
+        UiDraw.glowDisc(g, left + logoW, top + logoH + lift, 150, UiDraw.alpha(UiDraw.mix(ac, ac2, 0.3), 0.2 * enter));
         g.pose().pushMatrix();
         g.pose().translate(left, top + lift);
         g.pose().scale(2f);
@@ -152,14 +153,14 @@ public final class LavaTitleScreen extends Screen {
             int cardW = 164, cardH = 22 + NEWS.length * 14, cx = width - cardW - 14, cy = height - cardH - 30;
             UiDraw.round(g, cx, cy, cardW, cardH, 8, UiDraw.alpha(0x14161B, 0.72 * enter));
             UiDraw.roundV(g, cx + 1, cy + 8, 2, 10, 1, UiDraw.alpha(ac, enter), UiDraw.alpha(ac2, enter));
-            UiFont.text(g, font, "Новое в " + shortVersion(), cx + 10, cy + 8, UiDraw.alpha(0xF0F3F7, enter), cardW - 16, UiFont.Face.BOLD);
+            UiFont.text(g, font, "Новое в " + Edition.label(), cx + 10, cy + 8, UiDraw.alpha(0xF0F3F7, enter), cardW - 16, UiFont.Face.BOLD);
             for (int i = 0; i < NEWS.length; i++) {
                 int ly = cy + 24 + i * 14;
                 UiDraw.round(g, cx + 11, ly + 3, 3, 3, 1, UiDraw.alpha(UiDraw.mix(ac, ac2, i / 3.0), enter));
                 UiFont.text(g, font, NEWS[i], cx + 19, ly, UiDraw.alpha(0xB5BDC9, enter), cardW - 26, UiFont.Face.SMALL);
             }
         }
-        String version = "LavaVisual " + Edition.version().replaceFirst("-mc.*$", "");
+        String version = "LavaVisual " + Edition.label();
         UiFont.text(g, font, version, 8, height - 14, UiDraw.alpha(0x7D8795, enter), width / 2, UiFont.Face.SMALL);
         String legal = "Copyright Mojang AB. Do not distribute!";
         int legalW = UiFont.width(g, font, legal, UiFont.Face.SMALL);
@@ -179,15 +180,10 @@ public final class LavaTitleScreen extends Screen {
         }
         hits.add(new Hit(x, y, 24, 24, action));
     }
-    private static String shortVersion() {
-        String v = Edition.version();
-        int second = v.indexOf('.', v.indexOf('.') + 1);
-        return second > 0 ? v.substring(0, second) : v;
-    }
     /** Slow embers rising in both theme colours; positions are pure functions of time. */
     private void embers(GuiGraphicsExtractor g, long now, int ac, int ac2, double enter) {
         double t = now / 1e9, span = height + 24;
-        for (int i = 0; i < 40; i++) {
+        for (int i = 0, n = tech.gulp.lavavisual.Platform.android() ? 22 : 40; i < n; i++) {
             double r1 = frac(Math.sin(i * 12.9898) * 43758.5453), r2 = frac(Math.sin(i * 78.233) * 24634.6345), r3 = frac(Math.sin(i * 39.425) * 12345.6789);
             double rise = (t * (6 + 14 * r2) + r3 * span) % span, life = rise / span;
             int x = (int) (r1 * width + Math.sin(t * (0.25 + r3 * 0.5) + i) * 8), y = (int) (height + 12 - rise);
@@ -210,6 +206,7 @@ public final class LavaTitleScreen extends Screen {
             for (int i = hits.size() - 1; i >= 0; i--) {
                 Hit hit = hits.get(i);
                 if (event.x() >= hit.x() && event.x() < hit.x() + hit.w() && event.y() >= hit.y() && event.y() < hit.y() + hit.h()) {
+                    UiSound.click();
                     hit.action().run();
                     return true;
                 }

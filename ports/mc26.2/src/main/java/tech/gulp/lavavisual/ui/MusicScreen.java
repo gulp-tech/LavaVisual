@@ -172,15 +172,23 @@ public final class MusicScreen extends Screen {
     }
 
     @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == 0 && event.x() >= listX && event.x() < listX + listW && event.y() >= listY && event.y() < listY + listH) {
+            // Track list: a tap plays on release, a drag scrolls (phones have no mouse wheel).
+            listPress = true; listDragged = false; pressX = event.x(); pressY = event.y(); pressScroll = scroll;
+            return true;
+        }
         if (event.button() == 0 && click(event.x(), event.y())) return true;
         return super.mouseClicked(event, doubleClick);
     }
+    private boolean listPress, listDragged;
+    private double pressX, pressY;
+    private int pressScroll;
     /** Centre of the play / pause button in the last frame (CI clicks it). */
     public int playX() { return playX; }
     public int playY() { return playY; }
     /** Left click at a screen position; true when something was hit. */
     public boolean click(double x, double y) {
-        if (buttons.click(x, y)) return true;
+        if (buttons.click(x, y)) { UiSound.click(); return true; }
         if (y >= barY - 5 && y < barY + 9 && x >= barX - 4 && x <= barX + barW + 4 && MusicPlayer.active()) { seeking = true; seekTo(x); return true; }
         if (y >= volY - 5 && y < volY + 8 && x >= volX - 4 && x <= volX + volW + 4) { volumeDrag = true; volumeTo(x); return true; }
         for (Hit hit : List.copyOf(hits))
@@ -188,11 +196,21 @@ public final class MusicScreen extends Screen {
         return false;
     }
     @Override public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        if (listPress) {
+            if (Math.abs(event.y() - pressY) > 4) listDragged = true;
+            if (listDragged) scroll = pressScroll - (int) Math.round(event.y() - pressY);
+            return true;
+        }
         if (seeking) { seekTo(event.x()); return true; }
         if (volumeDrag) { volumeTo(event.x()); return true; }
         return super.mouseDragged(event, dx, dy);
     }
     @Override public boolean mouseReleased(MouseButtonEvent event) {
+        if (listPress) {
+            listPress = false;
+            if (!listDragged && click(pressX, pressY)) UiSound.click();
+            return true;
+        }
         if (seeking) { seeking = false; MusicPlayer.seek(seekPreview); return true; }
         if (volumeDrag) { volumeDrag = false; LavaVisualClient.save(); return true; }
         return super.mouseReleased(event);

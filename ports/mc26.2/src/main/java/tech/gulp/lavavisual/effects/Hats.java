@@ -79,6 +79,8 @@ public final class Hats {
     private static final float[] FIT = {1f, 1f, 1.33f, 1.4f, 1f, 1.3f, 1.3f, 1.2f, 1f, 1f, 1f, 1f, 1.25f, 1f};
     /** How far (blocks at size 1) a worn hat sinks onto the head so no gap shows; the halo and the crystal float. */
     private static final float[] SINK = {0.03f, 0f, 0.035f, 0.035f, 0.03f, 0.035f, 0.03f, 0.03f, 0f, 0.03f, 0.03f, 0.02f, 0.035f, 0.03f};
+    /** Caps with a visor (propeller cap, cap): the visor always faces forward, so the whole hat never turns. */
+    public static boolean visor(int type) { int t = Math.floorMod(type - 1, COUNT) + 1; return t == 11 || t == 14; }
     public static float fit(int type) { return FIT[Math.floorMod(type - 1, FIT.length)]; }
     public static float sink(int type) { return SINK[Math.floorMod(type - 1, SINK.length)]; }
     public static Model hat(int type) { if (!loaded) load(); return hats == null ? null : hats[Math.floorMod(type - 1, Math.min(COUNT, hats.length))]; }
@@ -347,7 +349,7 @@ public final class Hats {
             this.rim = mix(this.l, 0xFFFFFF, 0.5f);
             // Fixed detail level. Deriving it from the live FPS would re-tessellate the mesh whenever the FPS crosses
             // a threshold and make the models jitter; only FPS Boost lowers it.
-            this.quality = PerformanceMode.active() ? 0.75f : 1f;
+            this.quality = PerformanceMode.active() || tech.gulp.lavavisual.Platform.android() ? 0.75f : 1f;
             return this;
         }
 

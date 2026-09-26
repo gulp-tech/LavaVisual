@@ -70,6 +70,41 @@ public final class UiDraw {
         }
     }
 
+    /** Soft radial glow (white texels, alpha easing out to the edge), drawn scaled as a single quad. */
+    private static final class Glow {
+        static final int SIZE = 256;
+        static final Identifier ID = Identifier.fromNamespaceAndPath("lavavisual", "ui_glow");
+        static DynamicTexture texture;
+        static boolean failed;
+        static boolean ready() {
+            if (texture != null) return true;
+            if (failed) return false;
+            try {
+                DynamicTexture created = new DynamicTexture(() -> "lavavisual ui glow", SIZE, SIZE, true);
+                NativeImage image = created.getPixels();
+                if (image == null) { failed = true; return false; }
+                for (int j = 0; j < SIZE; j++) for (int i = 0; i < SIZE; i++) {
+                    double dx = (i + 0.5) / SIZE * 2 - 1, dy = (j + 0.5) / SIZE * 2 - 1, d = Math.min(1, Math.sqrt(dx * dx + dy * dy));
+                    double a = (1 - d) * (1 - d) * (1 + 2 * d) * (1 - d);
+                    image.setPixel(i, j, ((int) Math.round(Math.clamp(a, 0, 1) * 255) << 24) | 0xFFFFFF);
+                }
+                created.upload();
+                Minecraft.getInstance().getTextureManager().register(ID, created);
+                texture = created;
+                return true;
+            } catch (RuntimeException | LinkageError error) {
+                failed = true;
+                return false;
+            }
+        }
+    }
+    /** Soft glow centred at (cx, cy) fading out at radius r (GUI units); one textured quad at any size. */
+    public static void glowDisc(GuiGraphicsExtractor g, double cx, double cy, double r, int color) {
+        if (r <= 0 || (color >>> 24) == 0 || !Glow.ready()) return;
+        int x = (int) Math.round(cx - r), y = (int) Math.round(cy - r), d = Math.max(1, (int) Math.round(2 * r));
+        g.blit(RenderPipelines.GUI_TEXTURED, Glow.ID, x, y, 0, 0, d, d, Glow.SIZE, Glow.SIZE, Glow.SIZE, Glow.SIZE, color);
+    }
+
     /** Physical pixels per local unit at the current pose. */
     private static double pixels(GuiGraphicsExtractor g) {
         var m = g.pose();

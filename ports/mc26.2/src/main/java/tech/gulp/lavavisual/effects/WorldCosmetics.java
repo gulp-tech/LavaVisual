@@ -174,7 +174,8 @@ public final class WorldCosmetics {
             if (self != null && mc.level != null && (c.wingsEnabled || c.capeEnabled || remoteAny)) {
                 for (var state : context.levelState().entityRenderStates) {
                     if (state instanceof net.minecraft.client.renderer.entity.state.AvatarRenderState avatar && avatar.showCape
-                            && (wearsWings(avatar, self.getId(), remoteAny) || c.capeEnabled && (avatar.id == self.getId() || Dummy.is(avatar.id))))
+                            && (wearsWings(avatar, self.getId(), remoteAny) || c.capeEnabled && (avatar.id == self.getId() || Dummy.is(avatar.id))
+                                || remoteAny && remoteCape(avatar)))
                         avatar.showCape = false;
                 }
                 long nanos = System.nanoTime();
@@ -439,6 +440,13 @@ public final class WorldCosmetics {
         int block = s.lightCoords >> 4 & 15, sky = s.lightCoords >> 20 & 15;
         return 0.4f + 0.6f * Math.max(block, sky) / 15f;
     }
+    /** Another LavaVisual player shares a cape: the vanilla one is hidden under it. */
+    private static boolean remoteCape(net.minecraft.client.renderer.entity.state.AvatarRenderState s) {
+        if (s.distanceToCameraSq >= 48 * 48) return false;
+        var level = Minecraft.getInstance().level;
+        var dress = level == null ? null : HatSync.outfit(level.getEntity(s.id));
+        return dress != null && dress.cape() > 0;
+    }
     private static boolean wearsWings(net.minecraft.client.renderer.entity.state.AvatarRenderState s, int selfId, boolean remoteAny) {
         var c = LavaVisualClient.config();
         if (s.id == selfId || Dummy.is(s.id)) return c.wingsEnabled;
@@ -457,7 +465,7 @@ public final class WorldCosmetics {
         long nanos = System.nanoTime();
         if (s.id == mc.player.getId() || Dummy.is(s.id)) {
             if (c.hatEnabled) hat(model, pose, collector, s, c.hatType, Hats.hat(c.hatType), c.color("hat"), c.color2("hat"), c.hatStyle, (float) c.hatOpacity,
-                    c.hatSize, c.hatLift, c.hatCone, (float) (frameNow * 0.06 * c.hatSpin), seconds);
+                    c.hatSize, c.hatLift, c.hatCone, (float) (Hats.visor(c.hatType) ? 0 : frameNow * 0.06 * c.hatSpin), seconds);
             if (c.wingsEnabled) wings(model, pose, collector, s, Hats.wing(c.wingsType), c.color("wings"), c.color2("wings"), c.wingsStyle,
                     (float) c.wingsOpacity, c.wingsSize, (float) c.wingsFlap, WingFit.of(c), seconds, nanos);
             if (c.capeEnabled) cape(model, pose, collector, s, Hats.cape(c.capeType), c.color("cape"), c.color2("cape"), c.capeStyle, (float) c.capeOpacity, (float) c.capeSway, seconds);
@@ -466,9 +474,23 @@ public final class WorldCosmetics {
             return;
         }
         if (!c.hatOthers || !HatSync.any() || s.distanceToCameraSq >= 48 * 48) return;
-        var remote = HatSync.of(mc.level.getEntity(s.id));
-        if (remote == null) return;
+        var entity = mc.level.getEntity(s.id);
+        var remote = HatSync.of(entity);
+        var dress = HatSync.outfit(entity);
+        if (remote == null && dress == null) return;
         double hue = nanos / 1e9 * 0.12;
+        if (dress != null) {
+            if (dress.cape() > 0) {
+                int color = dress.capeRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue, 0.72, 1) : dress.capeRgb();
+                int light = dress.capeRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue + 0.16, 0.72, 1) : tech.gulp.lavavisual.config.ColorMath.companion(color);
+                cape(model, pose, collector, s, Hats.cape(dress.cape()), color, light, dress.capeStyle(), 1f, 1f, seconds);
+            }
+            int color = dress.extrasRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue, 0.72, 1) : dress.extrasRgb();
+            int light = dress.extrasRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue + 0.16, 0.72, 1) : tech.gulp.lavavisual.config.ColorMath.companion(color);
+            for (int i = 1; i <= Hats.EXTRA_COUNT; i++)
+                if ((dress.extras() & 1 << (i - 1)) != 0) extra(model, pose, collector, s, i, color, light, 0, seconds);
+        }
+        if (remote == null) return;
         if (remote.hat() > 0) {
             int color = remote.hatRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue, 0.72, 1) : remote.hatRgb();
             int light = remote.hatRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue + 0.16, 0.72, 1) : tech.gulp.lavavisual.config.ColorMath.companion(color);

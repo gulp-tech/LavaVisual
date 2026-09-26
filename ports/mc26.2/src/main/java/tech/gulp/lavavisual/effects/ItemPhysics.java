@@ -14,7 +14,7 @@ import tech.gulp.lavavisual.LavaVisualClient;
 
 /**
  * Item physics for dropped items (client rendering only): no hovering or spinning; in the air items tumble, in water
- * they drift, on the ground they settle — flat items lie down, blocks stand on the ground. Each item eases into its
+ * they drift, on the ground they settle - flat items lie down, blocks stand on the ground. Each item eases into its
  * rest pose, so landing never snaps.
  */
 public final class ItemPhysics {

@@ -21,11 +21,20 @@ import tech.gulp.lavavisual.LavaVisualClient;
  * only while other players are around, and a frame takes about half a minute. Receivers sample the bit every tick.
  * Colour codes: 0 rainbow, 1..27 hues, 28..31 white, light grey, dark grey, black. Frames with another preamble
  * (the first protocol used 0 0 1 + RGB444) are ignored.
+ *
+ * Cape and accessories follow a few seconds after the hat frame in a second frame, 0 0 1 0 then 22 data bits (cape 3,
+ * cape colour 5, cape style 2, accessories 3 as a bit mask, accessory colour 5, check 4). Versions without it reject
+ * that preamble and simply keep ignoring the frame.
  */
 public final class HatSync {
     /** Shared cosmetics of another player; type 0 = none. */
     public record Remote(int hat, int hatRgb, boolean hatRainbow, int wings, int wingRgb, boolean wingRainbow) { }
-    private static final int[] PREAMBLE = {0, 0, 0, 1};
+    /** Shared cape and accessories of another player; cape 0 = none, extras is a bit mask (1 glasses, 2 headphones, 4 scarf). */
+    public record Outfit(int cape, int capeRgb, boolean capeRainbow, int capeStyle, int extras, int extrasRgb, boolean extrasRainbow) { }
+    private static final int[] PREAMBLE = {0, 0, 0, 1}, OUTFIT = {0, 0, 1, 0};
+    static final int HAT_BITS = 21, OUTFIT_BITS = 22;
+    private static int lastOutfit = Integer.MIN_VALUE, outfitSent;
+    private static boolean outfitDue;
     static final long SLOT = 1000, IDLE_BEFORE_FRAME = 3000;
     private static final long JOIN_DELAY = 10_000, MARK_MEMORY = 30_000, PEER_MEMORY = 600_000, NEW_PLAYER_MEMORY = 300_000;
     // sender
@@ -54,11 +63,18 @@ public final class HatSync {
         if (!share) { frame = null; highSince = -1; }
         else {
             if (highSince < 0) highSince = now;
-            int current = signature(c);
-            if (current != signature) { signature = current; dirtyAt = now; }
-            if (frame == null && now - highSince >= IDLE_BEFORE_FRAME + 2000 && now - frameEnd >= 10_000 && wanted(mc, now)) {
-                frame = encode(current);
-                frameStart = lastFrameStart = now; dirtyAt = -1; pendingMarked = pendingAny = false;
+            int current = signature(c), outfit = outfitSignature(c);
+            if (current != signature || outfit != lastOutfit) { signature = current; lastOutfit = outfit; dirtyAt = now; }
+            if (frame == null && now - highSince >= IDLE_BEFORE_FRAME + 2000) {
+                if (outfitDue && now - frameEnd >= 2000) {
+                    frame = encode(OUTFIT, outfit, OUTFIT_BITS);
+                    frameStart = now; outfitDue = false; outfitSent = outfit;
+                } else if (now - frameEnd >= 10_000 && wanted(mc, now)) {
+                    frame = encode(current);
+                    frameStart = lastFrameStart = now; dirtyAt = -1; pendingMarked = pendingAny = false;
+                    // The outfit frame follows when there is a cape or accessory to show (or one to take off).
+                    outfitDue = hasOutfit(outfit) || hasOutfit(outfitSent);
+                }
             }
             if (frame != null) {
                 int slot = (int) ((now - frameStart) / SLOT);
@@ -74,6 +90,7 @@ public final class HatSync {
 
     private static void reset() {
         level = null; frame = null; advertised = false; highSince = -1; dirtyAt = -1; signature = Integer.MIN_VALUE;
+        lastOutfit = Integer.MIN_VALUE; outfitSent = 0; outfitDue = false;
         frameEnd = lastFrameStart = -1_000_000; pendingMarked = pendingAny = false;
         NEARBY.clear(); PEERS.clear();
     }
@@ -82,6 +99,23 @@ public final class HatSync {
     private static int signature(tech.gulp.lavavisual.config.HudConfig c) {
         int hat = c.hatEnabled ? Math.clamp(c.hatType, 1, 15) : 0, wings = c.wingsEnabled ? Math.clamp(c.wingsType, 1, 7) : 0;
         return pack(hat, colorCode(c, "hat"), wings, colorCode(c, "wings"));
+    }
+    /** cape 3 | cape colour 5 | cape style 2 | accessories 3 | accessory colour 5 | check 4, as the low 22 bits. */
+    private static int outfitSignature(tech.gulp.lavavisual.config.HudConfig c) {
+        int cape = c.capeEnabled ? Math.clamp(c.capeType, 1, 7) : 0, extras = 0;
+        for (int i = 1; i <= 3; i++) if (c.extras.contains(i)) extras |= 1 << (i - 1);
+        return packOutfit(cape, colorCode(c, "cape"), Math.floorMod(c.capeStyle, 3), extras, colorCode(c, "outfit"));
+    }
+    private static boolean hasOutfit(int payload) { return (payload >>> 19 & 7) != 0 || (payload >>> 9 & 7) != 0; }
+    static int packOutfit(int cape, int capeColor, int capeStyle, int extras, int extrasColor) {
+        return cape << 19 | capeColor << 14 | capeStyle << 12 | extras << 9 | extrasColor << 4 | checkOutfit(cape, capeColor, capeStyle, extras, extrasColor);
+    }
+    private static int checkOutfit(int cape, int capeColor, int capeStyle, int extras, int extrasColor) {
+        return (11 + cape + 3 * capeColor + 5 * capeStyle + 7 * extras + 9 * extrasColor + 13 * (capeColor >> 4) + 15 * (extrasColor >> 4)) & 15;
+    }
+    private static Outfit outfitOf(int payload) {
+        int capeColor = payload >>> 14 & 31, extrasColor = payload >>> 4 & 31;
+        return new Outfit(payload >>> 19 & 7, color(capeColor), capeColor == 0, Math.min(2, payload >>> 12 & 3), payload >>> 9 & 7, color(extrasColor), extrasColor == 0);
     }
     private static int colorCode(tech.gulp.lavavisual.config.HudConfig c, String key) {
         if (c.chroma != null && c.chroma.contains(key)) return 0;
@@ -104,11 +138,12 @@ public final class HatSync {
     private static int check(int hat, int hatColor, int wings, int wingColor) {
         return (hat + 3 * hatColor + 5 * wings + 7 * wingColor + 9 * (hatColor >> 4) + 13 * (wingColor >> 4)) & 15;
     }
-    static int[] encode(int payload) {
-        ArrayList<Integer> bits = new ArrayList<>(40);
-        for (int bit : PREAMBLE) bits.add(bit);
-        int ones = 1;
-        for (int i = 20; i >= 0; i--) {
+    static int[] encode(int payload) { return encode(PREAMBLE, payload, HAT_BITS); }
+    static int[] encode(int[] preamble, int payload, int count) {
+        ArrayList<Integer> bits = new ArrayList<>(44);
+        for (int bit : preamble) bits.add(bit);
+        int ones = preamble[preamble.length - 1];
+        for (int i = count - 1; i >= 0; i--) {
             int bit = payload >>> i & 1;
             bits.add(bit);
             ones = bit == 1 ? ones + 1 : 0;
@@ -150,6 +185,7 @@ public final class HatSync {
         long highSince = -1, lastHigh = -1, seen;
         final ArrayList<Long> candidates = new ArrayList<>(4);
         Remote hat;
+        Outfit outfit;
 
         void record(long time, boolean value) {
             times[head] = time; values[head] = value;
@@ -178,10 +214,19 @@ public final class HatSync {
                 long start = it.next();
                 int result = decode(this, start, now);
                 if (result == -1) continue;
-                it.remove();
                 if (result >= 0) {
+                    it.remove();
                     int hatColor = result >>> 12 & 31, wingColor = result >>> 4 & 31;
                     hat = new Remote(result >>> 17 & 15, color(hatColor), hatColor == 0, result >>> 9 & 7, color(wingColor), wingColor == 0);
+                    decoded = true;
+                    candidates.removeIf(other -> other < start + 40 * SLOT);
+                    break;
+                }
+                int dressed = decodeOutfit(this, start, now);
+                if (dressed == -1) continue;
+                it.remove();
+                if (dressed >= 0) {
+                    outfit = outfitOf(dressed);
                     decoded = true;
                     candidates.removeIf(other -> other < start + 40 * SLOT);
                     break;
@@ -193,14 +238,25 @@ public final class HatSync {
 
     /** Payload (21 bits) of the frame that started at start; -1 while incomplete, -2 when it is not a valid frame. */
     static int decode(Peer peer, long start, long now) {
+        int payload = read(peer, start, now, PREAMBLE, HAT_BITS);
+        if (payload < 0) return payload;
+        return check(payload >>> 17 & 15, payload >>> 12 & 31, payload >>> 9 & 7, payload >>> 4 & 31) == (payload & 15) ? payload : -2;
+    }
+    /** Payload (22 bits) of an outfit frame; -1 while incomplete, -2 when it is not one. */
+    static int decodeOutfit(Peer peer, long start, long now) {
+        int payload = read(peer, start, now, OUTFIT, OUTFIT_BITS);
+        if (payload < 0) return payload;
+        return checkOutfit(payload >>> 19 & 7, payload >>> 14 & 31, payload >>> 12 & 3, payload >>> 9 & 7, payload >>> 4 & 31) == (payload & 15) ? payload : -2;
+    }
+    private static int read(Peer peer, long start, long now, int[] preamble, int bits) {
         int slot = 0;
-        for (int expected : PREAMBLE) {
+        for (int expected : preamble) {
             long time = start + slot++ * SLOT + SLOT / 2;
             if (time > now) return -1;
             if (peer.at(time) != expected) return -2;
         }
-        int payload = 0, ones = 1, count = 0;
-        while (count < 21) {
+        int payload = 0, ones = preamble[preamble.length - 1], count = 0;
+        while (count < bits) {
             long time = start + slot++ * SLOT + SLOT / 2;
             if (time > now) return -1;
             int bit = peer.at(time);
@@ -210,7 +266,7 @@ public final class HatSync {
             count++;
             ones = bit == 1 ? ones + 1 : 0;
         }
-        return check(payload >>> 17 & 15, payload >>> 12 & 31, payload >>> 9 & 7, payload >>> 4 & 31) == (payload & 15) ? payload : -2;
+        return payload;
     }
 
     private static void receive(Minecraft mc, long now) {
@@ -242,8 +298,17 @@ public final class HatSync {
         if (peer == null || peer.hat == null || peer.hat.hat() == 0 && peer.hat.wings() == 0 || peer.lastHigh < 0) return null;
         return System.nanoTime() / 1_000_000L - peer.lastHigh <= MARK_MEMORY ? peer.hat : null;
     }
+    /** Cape and accessories another LavaVisual player shares, or null. */
+    public static Outfit outfit(Entity entity) {
+        Peer peer = peer(entity);
+        if (peer == null || peer.outfit == null || peer.outfit.cape() == 0 && peer.outfit.extras() == 0 || peer.lastHigh < 0) return null;
+        return System.nanoTime() / 1_000_000L - peer.lastHigh <= MARK_MEMORY ? peer.outfit : null;
+    }
     public static boolean any() {
-        for (Peer peer : PEERS.values()) if (peer.hat != null && (peer.hat.hat() != 0 || peer.hat.wings() != 0)) return true;
+        for (Peer peer : PEERS.values()) {
+            if (peer.hat != null && (peer.hat.hat() != 0 || peer.hat.wings() != 0)) return true;
+            if (peer.outfit != null && (peer.outfit.cape() != 0 || peer.outfit.extras() != 0)) return true;
+        }
         return false;
     }
 
@@ -269,6 +334,23 @@ public final class HatSync {
             if (decoded == null || decoded.hat() != test[0] || decoded.hatRgb() != color(test[1]) || decoded.hatRainbow() != (test[1] == 0)
                     || decoded.wings() != test[2] || decoded.wingRgb() != color(test[3]) || decoded.wingRainbow() != (test[3] == 0))
                 return "LavaVisual hat sync self-test failed: " + java.util.Arrays.toString(test) + " -> " + decoded;
+        }
+        int[][] outfits = {{2, 5, 1, 3, 17}, {6, 0, 2, 7, 0}, {1, 31, 0, 0, 28}, {0, 13, 0, 4, 9}, {7, 31, 2, 7, 31}};
+        for (int[] test : outfits) {
+            int[] bits = encode(OUTFIT, packOutfit(test[0], test[1], test[2], test[3], test[4]), OUTFIT_BITS);
+            Peer peer = new Peer();
+            long base = 1_000_000, start = base + 8000;
+            long[] arrive = new long[bits.length + 1];
+            for (int i = 0; i <= bits.length; i++) arrive[i] = start + i * SLOT + 40 + random.nextInt(210);
+            Outfit decoded = null;
+            for (long now = base; now < start + (bits.length + 6) * SLOT; now += 50) {
+                boolean bit = true;
+                for (int i = 0; i < bits.length; i++) if (now >= arrive[i] && now < arrive[i + 1]) bit = bits[i] == 1;
+                if (peer.sample(now, bit)) decoded = peer.outfit;
+            }
+            if (decoded == null || decoded.cape() != test[0] || decoded.capeRgb() != color(test[1]) || decoded.capeRainbow() != (test[1] == 0)
+                    || decoded.capeStyle() != test[2] || decoded.extras() != test[3] || decoded.extrasRgb() != color(test[4]) || peer.hat != null)
+                return "LavaVisual hat sync self-test failed: outfit " + java.util.Arrays.toString(test) + " -> " + decoded;
         }
         return "LavaVisual hat sync self-test passed";
     }

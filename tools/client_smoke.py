@@ -55,15 +55,20 @@ with log.open('w') as output:
                 raise RuntimeError('Client or mixin initialization failed')
             if re.search(r'Failed to load font|Unable to load font|Failed to load[^\n]*lavavisual|Couldn\'t load font|Unable to load[^\n]*lavavisual', text):
                 raise RuntimeError('LavaVisual resource loading failed')
+            if 'LavaVisual smoke resource reload failed' in text:
+                raise RuntimeError('Resource reload failed')
             for name in re.findall(r'LavaVisual smoke shot (\w+)', text):
                 if name not in shots:
                     shots.add(name)
                     capture(project / 'build' / f'shot-{name}.png')
             # Atlas creation follows model/shader loading. Stay alive for a few seconds afterwards.
-            if re.search(r'LavaVisual 2\.[0-9]+\.[0-9]+', text) and re.search(r'Created:.*(atlas|textures)', text) and 'LavaVisual UI smoke complete' in text and 'LavaVisual audio regression passed' in text and 'LavaVisual badge marker on' in text and 'LavaVisual hat sync self-test passed' in text and 'LavaVisual hats ready' in text and 'LavaVisual menu restore page 9' in text and 'LavaVisual smoke dummy ok' in text and 'LavaVisual smoke hand editor ok' in text and 'LavaVisual smoke zoom ok' in text and 'LavaVisual smoke freelook ok' in text and 'LavaVisual smoke minimap fast' in text and 'LavaVisual smoke custom sounds ok' in text and 'LavaVisual smoke music ok' in text and 'LavaVisual smoke formats ok' in text and 'LavaVisual smoke minimap fps ok' in text and 'LavaVisual smoke wings editor ok' in text and 'LavaVisual smoke time ok' in text and 'LavaVisual smoke item physics ok' in text and 'LavaVisual smoke projectile trails ok' in text and 'LavaVisual smoke outfit ok' in text and 'LavaVisual smoke trail clear ok' in text and 'LavaVisual smoke cape cloth ok' in text and 'LavaVisual title screen replaced=true' in text and 'LavaVisual title screen ready' in text:
+            if re.search(r'LavaVisual [0-9]+\.[0-9]+\.[0-9]+', text) and 'LavaVisual smoke resource reload ok' in text and re.search(r'Created:.*(atlas|textures)', text) and 'LavaVisual UI smoke complete' in text and 'LavaVisual audio regression passed' in text and 'LavaVisual badge marker on' in text and 'LavaVisual hat sync self-test passed' in text and 'LavaVisual hats ready' in text and 'LavaVisual menu restore page 9' in text and 'LavaVisual smoke dummy ok' in text and 'LavaVisual smoke hand editor ok' in text and 'LavaVisual smoke zoom ok' in text and 'LavaVisual smoke freelook ok' in text and 'LavaVisual smoke minimap fast' in text and 'LavaVisual smoke custom sounds ok' in text and 'LavaVisual smoke music ok' in text and 'LavaVisual smoke formats ok' in text and 'LavaVisual smoke minimap fps ok' in text and 'LavaVisual smoke wings editor ok' in text and 'LavaVisual smoke time ok' in text and 'LavaVisual smoke item physics ok' in text and 'LavaVisual smoke projectile trails ok' in text and 'LavaVisual smoke outfit ok' in text and 'LavaVisual smoke trail clear ok' in text and 'LavaVisual smoke cape cloth ok' in text and 'LavaVisual title screen replaced=true' in text and 'LavaVisual title screen ready' in text:
                 ready_since = ready_since or time.monotonic()
                 if time.monotonic() - ready_since >= 12:
                     capture(project / 'build' / 'ui-smoke.png')
+                    reload = re.search(r'LavaVisual smoke resource reload ok: ([0-9]+) ms', text)
+                    if reload:
+                        print(f'::notice title=Resource reload::{reload.group(1)} ms')
                     print('Client startup smoke passed; in-world visual correctness is NOT asserted.')
                     result = 0
                     break

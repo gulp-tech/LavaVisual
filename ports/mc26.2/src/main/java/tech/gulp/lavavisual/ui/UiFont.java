@@ -72,13 +72,31 @@ public final class UiFont {
     }
     public static Component component(String value) { return component(value, Face.REGULAR, 2 * guiScale()); }
     public static Component component(String value, Face face, int scale) {
+        if (face.ordinal() <= Face.HEADING.ordinal() && !covered(value)) return Component.literal(value);
         FontDescription description = face(face, scale);
         return Component.literal(value).withStyle(style -> style.withFont(description));
     }
+    /**
+     * True when every character is in our font subsets (Latin, Cyrillic, punctuation, arrows and a few symbols; see
+     * tools/build_fonts.py). Other text (CJK or emoji in track titles, world or server names) uses the vanilla font,
+     * because our font sets deliberately carry no Unicode fallback.
+     */
+    public static boolean covered(String value) {
+        if (value == null) return true;
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (c < 0x7F || c >= 0xA0 && c < 0x180 || c >= 0x400 && c < 0x530 || c >= 0x2000 && c < 0x2070 || c >= 0x2190 && c < 0x2200) continue;
+            switch (c) {
+                case 0x20BD, 0x20AC, 0x2116, 0x2122, 0x2212, 0x221E, 0x2248, 0x2260, 0x2264, 0x2265, 0x2713, 0x2715, 0x25CF, 0x25CB, 0x2605, 0x2606, 0x2764 -> { }
+                default -> { return false; }
+            }
+        }
+        return true;
+    }
     /** One component whose glyphs fade from {@code left} to {@code right} (RGB); drawn in a single text call. */
     public static Component gradient(String value, Face face, int scale, int left, int right) {
-        FontDescription description = face(face, scale);
         String shown = value == null ? "" : value;
+        FontDescription description = covered(shown) ? face(face, scale) : null;
         int count = Math.max(1, shown.codePointCount(0, shown.length())), index = 0;
         net.minecraft.network.chat.MutableComponent out = Component.literal("");
         for (int i = 0; i < shown.length(); ) {
@@ -86,7 +104,7 @@ public final class UiFont {
             String glyph = new String(Character.toChars(cp));
             i += Character.charCount(cp);
             int rgb = UiDraw.mix(left, right, count <= 1 ? 0 : index++ / (double) (count - 1));
-            out.append(Component.literal(glyph).withStyle(style -> style.withFont(description).withColor(rgb)));
+            out.append(Component.literal(glyph).withStyle(style -> description == null ? style.withColor(rgb) : style.withFont(description).withColor(rgb)));
         }
         return out;
     }
@@ -103,12 +121,28 @@ public final class UiFont {
     public static void text(GuiGraphicsExtractor g, Font font, String value, int x, int y, int color, int width) { text(g, font, value, x, y, color, width, Face.REGULAR); }
     public static void text(GuiGraphicsExtractor g, Font font, String value, int x, int y, int color, int width, Face face) {
         int scale = halfScale(g);
-        String shown = value == null ? "" : value;
+        draw(g, font, component(fit(font, value == null ? "" : value, face, scale, width), face, scale), x, y, color);
+    }
+    private static final java.util.HashMap<String, String> FITTED = new java.util.HashMap<>();
+    /** The text shortened with an ellipsis to the width; remembered, so long titles are not re-measured every frame. */
+    private static String fit(Font font, String value, Face face, int scale, int width) {
+        if (value.isEmpty()) return value;
+        String key = family + "|" + face.ordinal() + "|" + scale + "|" + width + "|" + value;
+        String cached = FITTED.get(key);
+        if (cached != null) return cached;
+        String shown = value;
         if (font.width(component(shown, face, scale)) > width) {
-            while (!shown.isEmpty() && font.width(component(shown + "…", face, scale)) > width) shown = shown.substring(0, shown.length() - 1);
-            shown = shown.isEmpty() ? "" : shown.stripTrailing() + "…";
+            // Binary search for the longest prefix that fits together with the ellipsis.
+            int low = 0, high = shown.length();
+            while (low < high) {
+                int mid = (low + high + 1) >>> 1;
+                if (font.width(component(shown.substring(0, mid) + "…", face, scale)) <= width) low = mid; else high = mid - 1;
+            }
+            shown = low == 0 ? "" : shown.substring(0, low).stripTrailing() + "…";
         }
-        draw(g, font, component(shown, face, scale), x, y, color);
+        if (FITTED.size() > 2048) FITTED.clear();
+        FITTED.put(key, shown);
+        return shown;
     }
     public static void centered(GuiGraphicsExtractor g, Font font, String value, int centerX, int y, int color, Face face) {
         Component text = component(value, face, halfScale(g));

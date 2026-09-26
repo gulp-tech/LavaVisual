@@ -305,20 +305,44 @@ def hats():
             {'sphere': [0, 0.047, 0.662], 'r': 0.017, 'seg': 8, 'paint': {'cycle': ['g', 'l', 'w', 'c']}, 'mat': 'fur'},
         ]},
     ]})
-    blade = [[0.018, -0.016], [0.13, -0.034], [0.205, -0.026], [0.218, 0.0], [0.205, 0.022], [0.12, 0.028], [0.018, 0.016]]
+    def cap_visor():
+        # Bill of a baseball cap: starts under the crown's front, widest in the middle (0.145 past the crown),
+        # tapering to nothing at the sides, bending down a little towards the edge and more at the sides.
+        rows, cols, reach = 6, 17, math.radians(70)
+        grid = []
+        for i in range(rows):
+            u = i / (rows - 1)
+            row = []
+            for j in range(cols):
+                v = j / (cols - 1)
+                phi = -reach + 2 * reach * v
+                inner = (0.248 * math.sin(phi), 0.248 * math.cos(phi))
+                outer = (0.262 * math.sin(phi), 0.40 * math.cos(phi))
+                taper = math.sin(math.pi * v) ** 0.55
+                x = inner[0] + (outer[0] - inner[0]) * u * taper
+                z = inner[1] + (outer[1] - inner[1]) * u * taper
+                y = 0.014 - 0.026 * u * u * taper - 0.018 * (2 * v - 1) ** 2 * u
+                row.append(v4((x, y, z), u))
+            grid.append(row)
+        front, back, rim = slab(grid, 0.012)
+        return [{'sheet': front, 'paint': 'd', 'mat': 'satin', 'two': False},
+                {'sheet': back, 'paint': 'd', 'mat': 'satin', 'ao': [0.8, 0.65], 'two': False},
+                {'sheet': rim, 'paint': 'd', 'mat': 'satin'}]
+    # Propeller cap: the same dome and curved visor as the cap below, a small propeller on a short mast.
+    blade = [[0.012, -0.011], [0.085, -0.023], [0.135, -0.018], [0.145, 0.0], [0.135, 0.015], [0.08, 0.019], [0.012, 0.011]]
     h.append({'name': 'Пропеллер', 'parts': [
-        {'revolve': [[0.25, 0.0], [0.246, 0.04], [0.228, 0.085], [0.19, 0.123], [0.13, 0.149], [0.065, 0.161], [0.0, 0.164]], 'seg': 32,
+        {'revolve': [[0.255, 0.0], [0.25, 0.045], [0.228, 0.092], [0.185, 0.13], [0.12, 0.155], [0.06, 0.166], [0.0, 0.169]], 'seg': 36,
          'paint': 'c', 'alt': 'l', 'pattern': {'stripes': 4}, 'mat': 'satin'},
-        {'revolve': [[0.4, 0.005], [0.34, 0.017], [0.28, 0.021], [0.235, 0.021]], 'arc': [-55, 55], 'seg': 18, 'two': True, 'paint': 'd', 'mat': 'satin'},
-        {'torus': [0.249, 0.012], 'y': 0.006, 'seg': 32, 'sides': 6, 'paint': 'd', 'mat': 'satin'},
-        {'revolve': [[0.014, 0.158], [0.014, 0.2], [0.0, 0.2]], 'seg': 10, 'paint': 'g', 'mat': 'metal'},
-        {'sphere': [0, 0.206, 0], 'r': 0.024, 'seg': 12, 'paint': 'g', 'mat': 'metal'},
-        {'group': {'at': [0, 0.207, 0], 'repeat': 3, 'spin': ['y', 9.0]}, 'parts': [
+        *cap_visor(),
+        {'torus': [0.253, 0.01], 'y': 0.006, 'seg': 36, 'sides': 6, 'paint': 'd', 'mat': 'satin'},
+        {'revolve': [[0.01, 0.164], [0.01, 0.196], [0.0, 0.196]], 'seg': 10, 'paint': 'g', 'mat': 'metal'},
+        {'sphere': [0, 0.2, 0], 'r': 0.017, 'seg': 12, 'paint': 'g', 'mat': 'metal'},
+        {'group': {'at': [0, 0.2, 0], 'repeat': 3, 'spin': ['y', 9.0]}, 'parts': [
             {'group': {'rot': [-76, 0, 0]}, 'parts': [
-                {'prism': blade, 'z': [-0.0035, 0.0035], 'paint': {'cycle': ['c', 'l', 'w']}, 'mat': 'gloss'},
+                {'prism': blade, 'z': [-0.003, 0.003], 'paint': {'cycle': ['c', 'l', 'w']}, 'mat': 'gloss'},
             ]},
         ]},
-        {'glowflat': [0.22], 'y': 0.207, 'paint': 'l', 'alpha': 0.12},
+        {'glowflat': [0.15], 'y': 0.2, 'paint': 'l', 'alpha': 0.1},
     ]})
     cycle = {'cycle': ['c', 'l', 'g', 'c', 'l']}
     h.append({'name': 'Звёзды', 'parts': [
@@ -349,29 +373,6 @@ def hats():
             {'sphere': [0.014, -0.004, 0.012], 'r': 0.011, 'seg': 8, 'paint': 'r', 'mat': 'gloss'},
         ]},
     ]})
-    def cap_visor():
-        # Bill of a baseball cap: starts under the crown's front, widest in the middle (0.145 past the crown),
-        # tapering to nothing at the sides, bending down a little towards the edge and more at the sides.
-        rows, cols, reach = 6, 17, math.radians(70)
-        grid = []
-        for i in range(rows):
-            u = i / (rows - 1)
-            row = []
-            for j in range(cols):
-                v = j / (cols - 1)
-                phi = -reach + 2 * reach * v
-                inner = (0.248 * math.sin(phi), 0.248 * math.cos(phi))
-                outer = (0.262 * math.sin(phi), 0.40 * math.cos(phi))
-                taper = math.sin(math.pi * v) ** 0.55
-                x = inner[0] + (outer[0] - inner[0]) * u * taper
-                z = inner[1] + (outer[1] - inner[1]) * u * taper
-                y = 0.014 - 0.026 * u * u * taper - 0.018 * (2 * v - 1) ** 2 * u
-                row.append(v4((x, y, z), u))
-            grid.append(row)
-        front, back, rim = slab(grid, 0.012)
-        return [{'sheet': front, 'paint': 'd', 'mat': 'satin', 'two': False},
-                {'sheet': back, 'paint': 'd', 'mat': 'satin', 'ao': [0.8, 0.65], 'two': False},
-                {'sheet': rim, 'paint': 'd', 'mat': 'satin'}]
     h.append({'name': 'Кепка', 'parts': [
         {'revolve': [[0.255, 0.0], [0.25, 0.045], [0.228, 0.092], [0.185, 0.13], [0.12, 0.155], [0.06, 0.166], [0.0, 0.169]], 'seg': 36,
          'paint': 'c', 'alt': 'm', 'pattern': {'stripes': 6}, 'mat': 'satin'},

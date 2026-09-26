@@ -9,10 +9,6 @@
    ],
    "size": 12,
    "oversample": 8
-  },
-  {
-   "type": "reference",
-   "id": "minecraft:default"
   }
  ]
 }

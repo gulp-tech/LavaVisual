@@ -110,9 +110,10 @@ def faces():
         for half in range(2, 17):
             n = half // 2 if half % 2 == 0 else half / 2
             name = f'{face}{half // 2}' + ('' if half % 2 == 0 else '_5')
+            # Only our own glyphs: a reference to minecraft:default would pull the whole Unicode fallback (unifont,
+            # ~57k glyphs) into every one of these font sets and make each resource reload (server resource packs
+            # included) walk millions of glyphs. Text with other characters is drawn in the vanilla font (UiFont).
             providers = [{'type': 'ttf', 'file': 'lavavisual:' + file, 'shift': [0, shift(dy, n)], 'size': size, 'oversample': n}]
-            if face in 'rbsh':
-                providers.append({'type': 'reference', 'id': 'minecraft:default'})
             (OUT / f'{name}.json').write_text(json.dumps({'providers': providers}, indent=1) + '\n')
             if face in 'rbsh':  # the same face in every HUD family; symbols the family lacks fall back to Inter
                 for prefix, (_, _, _, stem) in FAMILIES.items():

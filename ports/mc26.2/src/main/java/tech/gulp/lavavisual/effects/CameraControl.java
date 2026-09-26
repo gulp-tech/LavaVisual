@@ -6,7 +6,7 @@ import tech.gulp.lavavisual.LavaVisualClient;
 import tech.gulp.lavavisual.input.Binds;
 
 /**
- * Zoom and FreeLook — camera only, nothing is sent to the server.
+ * Zoom and FreeLook - camera only, nothing is sent to the server.
  * Zoom: hold the key (C by default); the wheel changes the zoom while held (not the hotbar); eased, slower mouse.
  * FreeLook: hold the key (Left Alt by default) to orbit the third-person camera around you with the mouse; your view
  * direction, aim and movement stay exactly where they were, and the previous perspective returns on release.
