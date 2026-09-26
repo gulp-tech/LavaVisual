@@ -60,3 +60,4 @@ jobs:
 # touch 1790408479
 # touch: clocks, item entity, projectiles
 # touch: title screen, gui, options screens
+# touch: pause screen button, sound instance

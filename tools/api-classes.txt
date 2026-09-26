@@ -111,3 +111,11 @@ net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen
 net.minecraft.client.gui.screens.options.OptionsScreen
 net.minecraft.client.gui.screens.options.LanguageSelectScreen
 net.minecraft.client.Minecraft
+net.minecraft.client.gui.components.Button
+net.minecraft.client.gui.components.Button$Builder
+net.minecraft.client.gui.components.Button$OnPress
+net.minecraft.client.gui.screens.PauseScreen
+net.fabricmc.fabric.api.client.screen.v1.ScreenEvents
+net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterInit
+net.fabricmc.fabric.api.client.screen.v1.Screens
+net.minecraft.client.resources.sounds.SimpleSoundInstance
