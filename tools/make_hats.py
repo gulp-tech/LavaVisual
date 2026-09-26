@@ -385,6 +385,145 @@ def hats():
     return h
 
 
+# ---------------------------------------------------------------------------------------------- capes
+
+def cape_sheet(length=16.0, bottom=None, rows=14, cols=13, paint=('c', 'l'), mat='satin', thick=0.9, width=10.0):
+    """Cape cloth in cape space: the top edge runs across the shoulders at y=0, the cloth hangs down (-y) behind the
+    back (-z). bottom(u) adds length (px) to the column at u in -1..1 (flame tongues, torn teeth)."""
+    grid = []
+    for i in range(rows):
+        v = i / (rows - 1)
+        row = []
+        for j in range(cols):
+            u = -1 + 2 * j / (cols - 1)
+            extra = bottom(u) if bottom else 0.0
+            x = u * width / 2 * (1 + 0.08 * v) * PX
+            y = -v * (length + extra) * PX
+            z = (0.25 * u * u - 0.55 * math.sin(math.pi * min(v, 1.0)) - 0.35 * v) * PX
+            row.append(v4((x, y, z), v))
+        grid.append(row)
+    front, back, rim = slab(grid, thick * PX)
+    return grid, [{'sheet': front, 'paint': list(paint), 'mat': mat, 'two': False},
+                  {'sheet': back, 'paint': list(paint), 'mat': mat, 'ao': [0.8, 0.95], 'two': False},
+                  {'sheet': rim, 'paint': paint[-1], 'mat': mat}]
+
+
+def cape_edge(grid, paint='g', mat='metal', r=0.5, bottom=True):
+    """Piping along both sides (and the bottom) of the cloth, slightly behind its middle so it wraps the edge."""
+    rows, cols = len(grid), len(grid[0])
+    left = [[q[0], q[1], q[2] - 0.45 * PX] for q in (grid[i][0] for i in range(rows))]
+    right = [[q[0], q[1], q[2] - 0.45 * PX] for q in (grid[i][cols - 1] for i in range(rows))]
+    parts = [{'tube': left, 'radius': [r * PX, r * PX], 'sides': 6, 'caps': False, 'paint': paint, 'mat': mat},
+             {'tube': right, 'radius': [r * PX, r * PX], 'sides': 6, 'caps': False, 'paint': paint, 'mat': mat}]
+    if bottom:
+        low = [[q[0], q[1], q[2] - 0.45 * PX] for q in grid[rows - 1]]
+        parts.append({'tube': low, 'radius': [r * PX, r * PX], 'sides': 6, 'caps': False, 'paint': paint, 'mat': mat})
+    return parts
+
+
+def on_cape(grid, u, v, lift=1.2):
+    """Point on the back of the cloth at (u, v) in 0..1, lifted off it (px) so details sit on the outside."""
+    rows, cols = len(grid), len(grid[0])
+    q = grid[min(rows - 1, round(v * (rows - 1)))][min(cols - 1, round(u * (cols - 1)))]
+    return [r4(q[0]), r4(q[1]), r4(q[2] - lift * PX)]
+
+
+def capes():
+    c = []
+    grid, cloth = cape_sheet(paint=('c', 'l'))
+    c.append({'name': 'Классический', 'parts': cloth + cape_edge(grid)})
+
+    grid, cloth = cape_sheet(length=17.5, paint=('d', 'c'))
+    rows, cols = len(grid), len(grid[0])
+    band_top = round(0.84 * (rows - 1))
+    band = [[[q[0], q[1], q[2] - 1.2 * PX, 0.0], [p2[0], p2[1], p2[2] - 1.2 * PX, 1.0]]
+            for q, p2 in zip(grid[band_top], grid[rows - 1])]
+    spots = [{'sphere': on_cape(grid, u, v, 1.35), 'r': [0.38 * PX, 0.62 * PX, 0.3 * PX], 'seg': 6, 'paint': 'k', 'mat': 'fur', 'detail': True}
+             for u, v in ((0.12, 0.93), (0.37, 0.95), (0.63, 0.95), (0.88, 0.93), (0.25, 0.88), (0.5, 0.89), (0.75, 0.88))]
+    collar = []
+    for k in range(11):
+        x = (-5.6 + 11.2 * k / 10) * PX
+        collar.append({'sphere': [r4(x), r4(0.25 * PX), r4((-0.9 - 0.35 * (1 - abs(k - 5) / 5)) * PX)],
+                       'r': (1.3 if k % 2 == 0 else 1.1) * PX, 'seg': 9, 'paint': 'w', 'mat': 'fur'})
+    c.append({'name': 'Королевский', 'parts': cloth + cape_edge(grid, r=0.5, bottom=False) + collar + spots + [
+        {'strip': band, 'paint': 'w', 'mat': 'fur'},
+        {'sphere': [-5.9 * PX, -1.2 * PX, -1.6 * PX], 'r': 0.75 * PX, 'seg': 10, 'paint': 'g', 'mat': 'metal'},
+        {'sphere': [5.9 * PX, -1.2 * PX, -1.6 * PX], 'r': 0.75 * PX, 'seg': 10, 'paint': 'g', 'mat': 'metal'},
+    ]})
+
+    grid, cloth = cape_sheet(paint=('k', 'd'))
+    stars = []
+    for u, v, r in ((0.22, 0.14, 1.0), (0.7, 0.2, 0.75), (0.45, 0.35, 1.3), (0.15, 0.5, 0.7), (0.82, 0.45, 1.05),
+                    (0.55, 0.6, 0.8), (0.3, 0.72, 1.1), (0.75, 0.78, 0.7), (0.5, 0.88, 0.9), (0.1, 0.9, 0.6), (0.92, 0.9, 0.8)):
+        stars.append({'group': {'at': on_cape(grid, u, v, 1.15)}, 'parts': [
+            {'prism': star_polygon(r * 1.45 * PX, r * 0.55 * PX), 'z': [-0.003, 0.0], 'paint': 'lw', 'mat': 'glow'},
+            {'glowdisc': [0, 0, -0.004], 'size': r * 1.5 * PX, 'paint': 'l', 'alpha': 0.3, 'detail': True}]})
+    c.append({'name': 'Звёздный', 'parts': cloth + cape_edge(grid, paint='l', mat='glow', r=0.35) + stars})
+
+    def tongues(u, n=5, depth=5.0):
+        phase = (u + 1) / 2 * n
+        return depth * (0.5 - 0.5 * math.cos(2 * math.pi * phase)) ** 1.4
+    grid, cloth = cape_sheet(length=13.0, bottom=tongues, rows=16, cols=31, paint=('c', 'l', 'lw'))
+    c.append({'name': 'Пламя', 'parts': cloth + cape_edge(grid, paint='lw', mat='glow', r=0.3, bottom=False)})
+
+    def teeth(u, n=6, depth=3.4):
+        phase = (u + 1) / 2 * n
+        return depth * (1 - abs(2 * (phase % 1.0) - 1))
+    grid, cloth = cape_sheet(length=14.5, bottom=teeth, rows=15, cols=25, paint=('l', 'c', 'd'), mat='matte')
+    c.append({'name': 'Рваный', 'parts': cloth + cape_edge(grid, paint='d', mat='satin', r=0.35, bottom=False)})
+    return c
+
+
+# ---------------------------------------------------------------------------------------------- accessories
+
+def rounded_rect(cx, cy, w, h, r, n=4):
+    pts = []
+    for qx, qy, a0 in ((1, 1, 0), (-1, 1, 90), (-1, -1, 180), (1, -1, 270)):
+        ox, oy = cx + qx * (w / 2 - r), cy + qy * (h / 2 - r)
+        for k in range(n + 1):
+            a = math.radians(a0 + 90 * k / n)
+            pts.append([r4(ox + r * math.cos(a)), r4(oy + r * math.sin(a))])
+    return pts
+
+
+def extras():
+    """Accessories. attach 'head': hat space (origin on top of the head, +z the face at z=0.2344); 'body': origin at
+    the neck (top centre of the torso, 12 px tall, 8 px wide, 4 px deep), +z the chest."""
+    e = []
+    face, eye = 0.2344, -0.262
+    lens = []
+    for side in (-1, 1):
+        cx = side * 0.112
+        outline = rounded_rect(cx, eye, 0.118, 0.078, 0.026)
+        lens.append({'prism': outline, 'z': [face + 0.006, face + 0.012], 'paint': ['k', 'd'], 'mat': 'gem'})
+        lens.append({'tube': [[q[0], q[1], face + 0.013] for q in outline], 'closed': True, 'radius': [0.0065, 0.0065], 'sides': 5, 'paint': 'c', 'mat': 'metal'})
+        lens.append({'tube': [[side * 0.171, eye + 0.018, face + 0.012], [side * 0.243, eye + 0.02, face - 0.02], [side * 0.244, eye + 0.02, 0.02], [side * 0.243, eye - 0.01, -0.07]],
+                     'radius': [0.0065, 0.0055], 'sides': 5, 'paint': 'c', 'mat': 'metal'})
+        lens.append({'poly': [[cx - 0.035, eye + 0.028, face + 0.0125], [cx - 0.012, eye + 0.028, face + 0.0125], [cx - 0.042, eye - 0.018, face + 0.0125]], 'paint': 'w', 'mat': 'glow', 'detail': True})
+    lens.append({'tube': bezier([-0.053, eye + 0.012, face + 0.013], [-0.02, eye + 0.03, face + 0.02], [0.02, eye + 0.03, face + 0.02], [0.053, eye + 0.012, face + 0.013], 6),
+                 'radius': [0.006, 0.006], 'sides': 5, 'paint': 'c', 'mat': 'metal'})
+    e.append({'name': 'Очки', 'attach': 'head', 'parts': lens})
+
+    cup = [{'revolve': [[0.0, 0.0], [0.07, 0.0], [0.08, 0.018], [0.074, 0.042], [0.0, 0.046]], 'seg': 24, 'paint': ['c', 'l'], 'mat': 'gloss'},
+           {'torus': [0.055, 0.007], 'y': 0.046, 'seg': 24, 'sides': 6, 'paint': 'l', 'mat': 'glow'},
+           {'torus': [0.066, 0.017], 'y': -0.004, 'seg': 24, 'sides': 8, 'paint': 'k', 'mat': 'fur'}]
+    e.append({'name': 'Наушники', 'attach': 'head', 'parts': [
+        {'tube': bezier([-0.262, -0.19, 0.0], [-0.29, 0.1, 0.0], [0.29, 0.1, 0.0], [0.262, -0.19, 0.0], 18), 'radius': [0.017, 0.017], 'sides': 8, 'paint': 'k', 'mat': 'satin'},
+        {'tube': bezier([-0.2, 0.0, 0.0], [-0.12, 0.052, 0.0], [0.12, 0.052, 0.0], [0.2, 0.0, 0.0], 12), 'radius': [0.013, 0.013], 'sides': 6, 'paint': 'c', 'mat': 'gloss', 'detail': True},
+        {'group': {'mirror': True}, 'parts': [{'group': {'at': [0.25, -0.265, 0.0], 'rot': [0, 0, -90]}, 'parts': cup}]},
+    ]})
+
+    ring = [[r4(0.245 * math.sin(a)), r4(-0.03 + 0.012 * math.cos(2 * a)), r4(0.15 * math.cos(a) + 0.01)] for a in (2 * math.pi * i / 28 for i in range(28))]
+    tail = bezier([0.1, -0.05, 0.16], [0.14, -0.2, 0.21], [0.11, -0.33, 0.2], [0.13, -0.44, 0.19], 10)
+    fringe = [{'tube': [[0.13 + dx, -0.44, 0.19], [0.13 + dx * 1.2, -0.49, 0.19]], 'radius': [0.0055, 0.004], 'sides': 4, 'paint': 'l', 'mat': 'fur', 'detail': True}
+              for dx in (-0.024, -0.008, 0.008, 0.024)]
+    e.append({'name': 'Шарф', 'attach': 'body', 'parts': [
+        {'tube': ring, 'closed': True, 'radius': [0.047, 0.047], 'sides': 10, 'paint': ['c', 'l'], 'alt': ['l', 'c'], 'pattern': {'stripes': 7}, 'mat': 'fur'},
+        {'tube': tail, 'radius': [0.042, 0.036], 'sides': 9, 'paint': ['c', 'l'], 'mat': 'fur'},
+    ] + fringe})
+    return e
+
+
 # ---------------------------------------------------------------------------------------------- wings
 
 COVERT = [0.46, 0.84, 1.0, 0.98, 0.84, 0.56, 0.0]
@@ -1343,6 +1482,44 @@ def preview(path, data, main=0xFF6A2B, second=0xB45CFF):
     sheet.save(path)
 
 
+def preview_outfit(path, data, main=0xFF6A2B, second=0xB45CFF, cell=340):
+    """Capes (back, three-quarter, side) and accessories (front three-quarter, side, back) on the body."""
+    from PIL import Image, ImageDraw, ImageFont
+    p = PX
+    body = (box((-4 * p, 24 * p, -4 * p), (4 * p, 32 * p, 4 * p), (200, 152, 118)) + box((-4 * p, 12 * p, -2 * p), (4 * p, 24 * p, 2 * p), (70, 110, 170))
+            + box((4 * p, 12 * p, -2 * p), (8 * p, 24 * p, 2 * p), (200, 152, 118)) + box((-8 * p, 12 * p, -2 * p), (-4 * p, 24 * p, 2 * p), (200, 152, 118))
+            + box((-4 * p, 0, -2 * p), (4 * p, 12 * p, 2 * p), (60, 60, 120)))
+    items = [('cape', m) for m in data['capes']] + [('extra', m) for m in data['extras']]
+    sheet = Image.new('RGB', (3 * cell, len(items) * (cell + 22)), (35, 38, 45))
+    draw = ImageDraw.Draw(sheet)
+    try:
+        font = ImageFont.truetype(str(ROOT / 'ports/mc26.2/src/main/resources/assets/lavavisual/font/inter-semibold.ttf'), 15)
+    except OSError:
+        font = ImageFont.load_default()
+    for index, (kind, model) in enumerate(items):
+        if kind == 'cape':
+            anchor = matmul(translate(0.0, 24 * p, -2.3 * p), rot_x(math.radians(8)))
+            views = [((0.0, 1.2, -2.4), (0.0, 0.95, 0.0)), ((1.8, 1.35, -1.8), (0.0, 0.95, 0.0)), ((2.5, 1.1, 0.1), (0.0, 0.9, 0.0))]
+        elif model.get('attach') == 'head':
+            anchor = translate(0.0, 32 * p, 0.0)
+            views = [((0.55, 1.95, 1.1), (0.0, 1.7, 0.0)), ((1.25, 1.85, 0.05), (0.0, 1.7, 0.0)), ((-0.6, 1.95, -1.05), (0.0, 1.7, 0.0))]
+        else:
+            anchor = translate(0.0, 24 * p, 0.0)
+            views = [((0.9, 1.75, 1.6), (0.0, 1.25, 0.0)), ((1.9, 1.5, 0.2), (0.0, 1.2, 0.0)), ((-0.8, 1.6, -1.7), (0.0, 1.25, 0.0))]
+        for v, (eye, target) in enumerate(views):
+            world = matmul(translate(-eye[0], -eye[1], -eye[2]), anchor)
+            b = Builder(main, second, time=0.9, world=world)
+            b.build(model['parts'])
+            quads = [([add(q, eye) for q in cam], colors, n) for cam, colors, n in b.quads]
+            glows = [(add(c, eye), sz, col, a) for c, sz, col, a in glow_list(b)]
+            img = render(quads, body, eye, target, cell, glows)
+            x, y = v * cell, index * (cell + 22)
+            sheet.paste(Image.fromarray(img), (x, y + 22))
+            if v == 0:
+                draw.text((x + 8, y + 3), f"{'Плащ' if kind == 'cape' else 'Аксессуар'}: {model['name']}  ({len(b.quads)} видимых)", fill=(235, 238, 245), font=font)
+    sheet.save(path)
+
+
 def preview_wings(path, data, main=0xFF6A2B, second=0xB45CFF, cell=380):
     """Wings only, large: straight behind, three-quarter back, side and front views (shape and volume check)."""
     from PIL import Image, ImageDraw, ImageFont
@@ -1375,23 +1552,25 @@ def preview_wings(path, data, main=0xFF6A2B, second=0xB45CFF, cell=380):
 
 
 def main():
-    data = {'version': 2, 'hats': hats(), 'wings': wings()}
+    data = {'version': 2, 'hats': hats(), 'wings': wings(), 'capes': capes(), 'extras': extras()}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, separators=(',', ':')) + '\n', encoding='utf-8')
     total = 0
     far = translate(0.0, -0.3, -2.4)
-    for kind in ('hats', 'wings'):
+    for kind in ('hats', 'wings', 'capes', 'extras'):
         for model in data[kind]:
             b = Builder(0xFF6A2B, 0xB45CFF, world=far)
             b.build(model['parts'])
             total += len(b.quads)
             print(f"{kind[:-1]:<5} {model['name']:<10} {len(b.quads):5d} visible quads")
-    print('hats', len(data['hats']), 'wings', len(data['wings']), 'visible quads', total, '->', OUT.relative_to(ROOT),
+    print('hats', len(data['hats']), 'wings', len(data['wings']), 'capes', len(data['capes']), 'extras', len(data['extras']), 'visible quads', total, '->', OUT.relative_to(ROOT),
           f"{OUT.stat().st_size // 1024} KB")
     if '--preview' in sys.argv:
         preview(sys.argv[sys.argv.index('--preview') + 1], data)
     if '--wings' in sys.argv:
         preview_wings(sys.argv[sys.argv.index('--wings') + 1], data)
+    if '--outfit' in sys.argv:
+        preview_outfit(sys.argv[sys.argv.index('--outfit') + 1], data)
 
 
 if __name__ == '__main__':

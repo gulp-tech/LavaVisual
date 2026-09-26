@@ -134,6 +134,7 @@ public final class LavaVisualClient implements ClientModInitializer {
             if (!boostChecked && client.options != null) { boostChecked = true; if (config.fpsBoost) tech.gulp.lavavisual.effects.PerformanceMode.update(client); }
             tech.gulp.lavavisual.hud.TargetSnapshot.update(client);
             tech.gulp.lavavisual.effects.WorldCosmetics.tick(client);
+            tech.gulp.lavavisual.effects.ProjectileTrails.tick(client);
             tech.gulp.lavavisual.effects.Dummy.tick(client);
             tech.gulp.lavavisual.effects.CameraControl.tick(client);
             tech.gulp.lavavisual.audio.MusicPlayer.tick(client);

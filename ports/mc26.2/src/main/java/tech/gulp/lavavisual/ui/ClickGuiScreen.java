@@ -35,6 +35,8 @@ public final class ClickGuiScreen extends Screen {
     private static final String[] TABS = {"HUD", "Эффекты", "Руки", "Звуки", "Музыка", "Карта", "Бинды", "Цвета", "Мир / FPS", "Интерфейс"};
     private static final String[] TAB_ICONS = {Icons.LAYOUT_DASHBOARD, Icons.SPARKLES, Icons.HAND, Icons.VOLUME_2, Icons.MUSIC, Icons.MAP, Icons.KEYBOARD, Icons.PALETTE, Icons.EARTH, Icons.SETTINGS};
     private static final int[] PRESETS = {0xFF5A36, 0xFF8A3C, 0xFFC233, 0xE8FF5A, 0x85F56A, 0x2CE08A, 0x36C8FF, 0x4C6BFF, 0xB45CFF, 0xFF5C9A, 0xFFFFFF, 0x9AA3B2};
+    /** Settings pages opened from the Effects page (key -> heading). */
+    private static final Map<String, String> SUBPAGES = Map.of("cape", "Плащ", "outfit", "Аксессуары", "projectile", "Следы снарядов", "items", "Физика предметов");
     private static final Map<String, String> CARD_ICONS = Map.ofEntries(
             Map.entry("target", Icons.TARGET), Map.entry("coordinates", Icons.MAP_PIN), Map.entry("performance", Icons.GAUGE),
             Map.entry("keys", Icons.KEYBOARD), Map.entry("armor", Icons.SHIELD), Map.entry("totems", Icons.HEART_PULSE),
@@ -46,7 +48,7 @@ public final class ClickGuiScreen extends Screen {
             Map.entry("zoom_smooth", Icons.WAND_SPARKLES), Map.entry("zoom_mouse", Icons.MOUSE), Map.entry("crit_color", Icons.PALETTE), Map.entry("crit_magic", Icons.SPARKLES), Map.entry("crit_always", Icons.SWORDS),
             Map.entry("sound0", Icons.SWORDS), Map.entry("sound1", Icons.ZAP), Map.entry("sound2", Icons.HEART_PULSE),
             Map.entry("sound3", Icons.SKULL), Map.entry("shadows", Icons.LAYERS), Map.entry("animations", Icons.WAND_SPARKLES),
-            Map.entry("sky", Icons.CLOUD_SUN), Map.entry("boost", Icons.ROCKET), Map.entry("setting", Icons.EYE),
+            Map.entry("sky", Icons.CLOUD_SUN), Map.entry("time", Icons.SUN), Map.entry("cape", Icons.FLAG), Map.entry("outfit", Icons.HEADPHONES), Map.entry("outfit1", Icons.EYE), Map.entry("outfit2", Icons.HEADPHONES), Map.entry("outfit3", Icons.WIND), Map.entry("projectile", Icons.NAVIGATION_2), Map.entry("proj_mine", Icons.USER), Map.entry("proj_glow", Icons.SPARKLES), Map.entry("proj_item", Icons.PALETTE), Map.entry("items", Icons.GEM), Map.entry("items_flat", Icons.LAYERS), Map.entry("boost", Icons.ROCKET), Map.entry("setting", Icons.EYE),
             Map.entry("minimap", Icons.MAP), Map.entry("beams", Icons.SIGNPOST), Map.entry("labels", Icons.NAVIGATION),
             Map.entry("mapcoords", Icons.LOCATE_FIXED), Map.entry("mapmarks", Icons.MAP_PINNED), Map.entry("tilt", Icons.MOVE_VERTICAL), Map.entry("cooldown", Icons.TIMER));
     private final List<Hit> hits = new ArrayList<>();
@@ -98,7 +100,7 @@ public final class ClickGuiScreen extends Screen {
     public ClickGuiScreen(int page, String selected) {
         super(UiFont.component("LavaVisual")); this.page = Math.clamp(page, 0, TABS.length - 1); indicator = -1;
         if (selected != null && selected.startsWith("color:")) { colorOpen = selected.substring(6); selected = null; }
-        this.selected = selected != null && (selected.equals("crosshair") || selected.equals("hat") || selected.equals("wings") || HudConfig.IDS.contains(selected)) ? selected : null;
+        this.selected = selected != null && (selected.equals("crosshair") || selected.equals("hat") || selected.equals("wings") || SUBPAGES.containsKey(selected) || HudConfig.IDS.contains(selected)) ? selected : null;
     }
     private String flash;
     private long flashAt;
@@ -316,9 +318,9 @@ public final class ClickGuiScreen extends Screen {
             text(g, TABS[i], left + 33, y + tabPad + 1, tabColor, side - 40);
             hit(left + 8, y, side - 16, tabH, () -> navigate(next));
         }
-        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.19", left + 13, top + panelH - 21, 0xFF586272, side - 18);
+        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.20", left + 13, top + panelH - 21, 0xFF586272, side - 18);
         boolean searching = !query.isBlank();
-        String heading = searching ? "Поиск" : selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : selected.equals("hat") ? "Шляпы" : selected.equals("wings") ? "Крылья" : HudRenderer.title(selected);
+        String heading = searching ? "Поиск" : selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : selected.equals("hat") ? "Шляпы" : selected.equals("wings") ? "Крылья" : SUBPAGES.containsKey(selected) ? SUBPAGES.get(selected) : HudRenderer.title(selected);
         searchW = Math.max(70, Math.min(150, bodyW / 2 - 20)); searchX = left + panelW - 58 - searchW; searchY = top + 11;
         text(g, heading, bodyX, top + 17, 0xFFF0F3F7, searchX - bodyX - 10, UiFont.Face.HEADING);
         searchField(g, ac, ac2);
@@ -589,6 +591,14 @@ public final class ClickGuiScreen extends Screen {
         button(g, Icons.PENCIL, "Редактор крыльев · положение, взмахи, цвет", () -> minecraft.gui.setScreen(new WingsEditorScreen(this)));
         toggle(g, "trail", "Trails", "Светящийся след из тела", c.trailEnabled, () -> { c.trailEnabled = !c.trailEnabled; changed(); }, null);
         chips(g, TRAIL_STYLES, c.trailStyle, i -> { c.trailStyle = i; c.trailEnabled = true; changed(); });
+        toggle(g, "cape", "Плащ", Hats.CAPE_COUNT + " видов: классический, королевский, звёздный, пламя, рваный · по стрелке", c.capeEnabled,
+                () -> { c.capeEnabled = !c.capeEnabled; changed(); }, () -> select("cape"));
+        toggle(g, "outfit", "Аксессуары", "Очки, наушники, шарф — в любом сочетании · по стрелке", !c.extras.isEmpty(),
+                () -> { if (c.extras.isEmpty()) c.extras.add(1); else c.extras.clear(); changed(); }, () -> select("outfit"));
+        toggle(g, "projectile", "Следы снарядов", "Жемчуг, стрелы, снежки, зелья… · видно только вам", c.projTrails,
+                () -> { c.projTrails = !c.projTrails; changed(); }, () -> select("projectile"));
+        toggle(g, "items", "Физика предметов", "Выброшенные предметы кувыркаются в воздухе и ложатся на землю", c.itemPhysics,
+                () -> { c.itemPhysics = !c.itemPhysics; changed(); }, () -> select("items"));
         slider(g, "Длина следа · сек", c.trailLength, 0.4, 3, v -> c.trailLength = v, false);
         slider(g, "Толщина", c.trailWidth, 0.4, 2, v -> c.trailWidth = v, false);
         slider(g, "Яркость", c.trailBrightness, 0.3, 1, v -> c.trailBrightness = v, false);
@@ -787,7 +797,13 @@ public final class ClickGuiScreen extends Screen {
     }
     private void world(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
-        toggle(g, "sky", "Редактор неба", "Оттенок обычного неба, не время суток", c.skyEnabled, () -> { c.skyEnabled = !c.skyEnabled; changed(); }, null);
+        toggle(g, "time", "Своё время суток", "День, закат, ночь — только у вас, сервер и другие игроки не затронуты", c.timeEnabled,
+                () -> { c.timeEnabled = !c.timeEnabled; changed(); }, null);
+        chips(g, tech.gulp.lavavisual.effects.TimeChanger.PRESETS, tech.gulp.lavavisual.effects.TimeChanger.preset(c.timeTicks),
+                i -> { c.timeTicks = tech.gulp.lavavisual.effects.TimeChanger.PRESET_TICKS[i]; c.timeEnabled = true; changed(); }, 6);
+        slider(g, "Время · " + tech.gulp.lavavisual.effects.TimeChanger.clock(c.timeTicks), c.timeTicks, 0, 23999, v -> { c.timeTicks = v; c.timeEnabled = true; }, true);
+        section(g, "Небо");
+        toggle(g, "sky", "Редактор неба", "Оттенок обычного неба", c.skyEnabled, () -> { c.skyEnabled = !c.skyEnabled; changed(); }, null);
         String[] channels = {"Небо · R", "Небо · G", "Небо · B"};
         for (int i = 0; i < 3; i++) {
             int shift = (2 - i) * 8;
@@ -833,6 +849,10 @@ public final class ClickGuiScreen extends Screen {
         var c = LavaVisualClient.config(); boolean cross = selected.equals("crosshair");
         if (selected.equals("hat")) { hatSettings(g); return; }
         if (selected.equals("wings")) { wingsSettings(g); return; }
+        if (selected.equals("cape")) { capeSettings(g); return; }
+        if (selected.equals("outfit")) { outfitSettings(g); return; }
+        if (selected.equals("projectile")) { projectileSettings(g); return; }
+        if (selected.equals("items")) { itemSettings(g); return; }
         var w = cross ? null : c.widgets.get(selected);
         toggle(g, "setting:" + selected, "Отображение", "Показывать на экране", cross ? c.crosshairEnabled : w.visible, () -> {
             if (cross) c.crosshairEnabled = !c.crosshairEnabled; else w.visible = !w.visible; changed();
@@ -888,6 +908,90 @@ public final class ClickGuiScreen extends Screen {
         othersSection(g);
         section(g, "Цвет");
         colorRow(g, "wings", "Цвет крыльев");
+    }
+    private void capeSettings(GuiGraphicsExtractor g) {
+        var c = LavaVisualClient.config();
+        toggle(g, "cape", "Плащ", "Вид от 3-го лица · развевается при беге", c.capeEnabled, () -> { c.capeEnabled = !c.capeEnabled; changed(); }, null);
+        section(g, "Вид плаща");
+        java.util.function.IntConsumer pick = i -> { c.capeType = i + 1; c.capeEnabled = true; changed(); };
+        carousel(g, "Вид плаща", Hats.CAPE_NAMES, c.capeType - 1, pick);
+        chips(g, Hats.CAPE_NAMES, c.capeType - 1, pick, 5);
+        section(g, "Настройка");
+        slider(g, "Развевание · 0 = висит ровно", c.capeSway, 0, 2, v -> c.capeSway = v < 0.05 ? 0 : v, false);
+        slider(g, "Прозрачность", c.capeOpacity, 0.3, 1, v -> c.capeOpacity = v, false);
+        String[] styles = {"узор", "сплошной", "градиент"};
+        button(g, Icons.PAINTBRUSH, "Стиль: " + styles[c.capeStyle], () -> { c.capeStyle = (c.capeStyle + 1) % 3; changed(); });
+        section(g, "Цвет");
+        colorRow(g, "cape", "Цвет плаща");
+        note(g, "Пока плащ включён, обычный плащ скина скрыт.");
+    }
+    private void outfitSettings(GuiGraphicsExtractor g) {
+        var c = LavaVisualClient.config();
+        section(g, "Что надеть");
+        for (int i = 0; i < Hats.EXTRA_COUNT; i++) {
+            int number = i + 1;
+            toggle(g, "outfit" + number, Hats.EXTRA_NAMES[i], Hats.EXTRA_HINTS[i], c.extras.contains(number),
+                    () -> { if (!c.extras.remove(Integer.valueOf(number))) c.extras.add(number); changed(); }, null);
+        }
+        String[] styles = {"узор", "сплошной", "градиент"};
+        button(g, Icons.PAINTBRUSH, "Стиль: " + styles[c.outfitStyle], () -> { c.outfitStyle = (c.outfitStyle + 1) % 3; changed(); });
+        section(g, "Цвет");
+        colorRow(g, "outfit", "Цвет аксессуаров");
+    }
+    private void projectileSettings(GuiGraphicsExtractor g) {
+        var c = LavaVisualClient.config();
+        toggle(g, "projectile", "Следы снарядов", "Рисуются только у вас", c.projTrails, () -> { c.projTrails = !c.projTrails; changed(); }, null);
+        toggle(g, "proj_mine", "Только мои", "Выключите, чтобы видеть следы и чужих снарядов", c.projOnlyMine, () -> { c.projOnlyMine = !c.projOnlyMine; changed(); }, null);
+        section(g, "Предметы");
+        boolean[] on = new boolean[HudConfig.PROJECTILE_IDS.size()];
+        for (int i = 0; i < on.length; i++) on[i] = c.projItems.contains(HudConfig.PROJECTILE_IDS.get(i));
+        multiChips(g, tech.gulp.lavavisual.effects.ProjectileTrails.NAMES, on, i -> {
+            String id = HudConfig.PROJECTILE_IDS.get(i);
+            if (!c.projItems.remove(id)) c.projItems.add(id);
+            c.projTrails = true;
+            changed();
+        });
+        section(g, "Вид следа");
+        chips(g, TRAIL_STYLES, c.projStyle, i -> { c.projStyle = i; c.projTrails = true; changed(); });
+        slider(g, "Длина · сек", c.projLength, 0.3, 3, v -> c.projLength = v, false);
+        slider(g, "Ширина", c.projWidth, 0.3, 2.5, v -> c.projWidth = v, false);
+        slider(g, "Яркость", c.projBright, 0.3, 1.6, v -> c.projBright = v, false);
+        toggle(g, "proj_glow", "Свечение", "Мягкий ореол вокруг следа", c.projGlow, () -> { c.projGlow = !c.projGlow; changed(); }, null);
+        section(g, "Цвет");
+        toggle(g, "proj_item", "Цвет по предмету", "Жемчуг — бирюзовый, зелья — розовые, фейерверк — огненный…", c.projByItem, () -> { c.projByItem = !c.projByItem; changed(); }, null);
+        if (!c.projByItem) colorRow(g, "projectile", "Цвет следа");
+    }
+    private void itemSettings(GuiGraphicsExtractor g) {
+        var c = LavaVisualClient.config();
+        toggle(g, "items", "Физика предметов", "Без зависания и вращения на месте", c.itemPhysics, () -> { c.itemPhysics = !c.itemPhysics; changed(); }, null);
+        toggle(g, "items_flat", "Плоские предметы лежат", "Мечи, еда, ресурсы ложатся плашмя; блоки стоят", c.itemPhysicsFlat, () -> { c.itemPhysicsFlat = !c.itemPhysicsFlat; changed(); }, null);
+        slider(g, "Кувырки в воздухе · 0 = без вращения", c.itemPhysicsSpin, 0, 3, v -> { c.itemPhysicsSpin = v < 0.05 ? 0 : v; c.itemPhysics = true; }, false);
+        slider(g, "Размер предметов", c.itemPhysicsSize, 0.5, 2, v -> { c.itemPhysicsSize = v; c.itemPhysics = true; }, false);
+        note(g, "Меняется только то, как предметы нарисованы у вас.");
+    }
+    /** Chips that switch on and off independently. */
+    private void multiChips(GuiGraphicsExtractor g, String[] options, boolean[] on, java.util.function.IntConsumer flip) {
+        int perRow = bodyW >= 380 ? 4 : 2, gap = 6, w = (bodyW - gap * (perRow - 1)) / perRow, ac = accent(), ac2 = accent2();
+        if (collecting) {
+            for (String option : options) index(option, null, cursor);
+            cursor += (options.length + perRow - 1) / perRow * 30 + 4;
+            return;
+        }
+        for (int i = 0; i < options.length; i++) {
+            int column = i % perRow, x = bodyX + column * (w + gap), y = cursor, index = i;
+            boolean over = hover(x, y, w, 24);
+            mark(g, options[i], x, y, w, 24);
+            if (on[i]) {
+                UiDraw.roundH(g, x, y, w, 24, 6, ac, ac2);
+                g.fillGradient(x + 3, y + 1, x + w - 3, y + 10, 0x30FFFFFF, 0x00FFFFFF);
+            } else UiDraw.roundV(g, x, y, w, 24, 6, over ? 0xFF353945 : 0xFF282B33, over ? 0xFF2B2F38 : 0xFF212329);
+            UiFont.Face face = on[i] ? UiFont.Face.BOLD : UiFont.Face.REGULAR;
+            int lw = Math.min(w - 8, UiFont.width(g, font, options[i], face));
+            text(g, options[i], x + (w - lw) / 2, y + 8, on[i] ? 0xFFFFFFFF : 0xFFC9D0DA, lw + 2, face);
+            hit(x, y, w, 24, () -> flip.accept(index));
+            if (column == perRow - 1 || i == options.length - 1) cursor += 30;
+        }
+        cursor += 4;
     }
     private void othersSection(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
@@ -1022,7 +1126,7 @@ public final class ClickGuiScreen extends Screen {
         colorRow(g, "badge", "Значок у ников");
         section(g, "Эффекты");
         String[][] effects = {{"crosshair", "Прицел"}, {"jump", "Jump Circle"}, {"particles", "Hit Particles"}, {"ambient", "Частицы в воздухе"},
-                {"marker", "Маркер удара"}, {"esp", "Target ESP"}, {"kill", "Kill Effect"}, {"hat", "Шляпа"}, {"wings", "Крылья"}, {"trail", "Trails"}, {"crit", "Насыщенный крит"}, {"waypoint", "Новые метки"}};
+                {"marker", "Маркер удара"}, {"esp", "Target ESP"}, {"kill", "Kill Effect"}, {"hat", "Шляпа"}, {"wings", "Крылья"}, {"trail", "Trails"}, {"cape", "Плащ"}, {"outfit", "Аксессуары"}, {"projectile", "Следы снарядов"}, {"crit", "Насыщенный крит"}, {"waypoint", "Новые метки"}};
         for (String[] e : effects) colorRow(g, e[0], e[1]);
         button(g, Icons.ROTATE_CCW, "Все цвета — как тема", () -> { c.colors.clear(); c.chroma.clear(); hsvCache.clear(); changed(); });
     }

@@ -15,7 +15,8 @@ final class SmokeWorld {
     private static final int WING_STEP = 60, HAT_STEP = 40, HATS_AT = 60 + 5 * WING_STEP + 10,
             DUMMY_AT = HATS_AT + HATS.length * HAT_STEP + 10, HANDS_AT = DUMMY_AT + 70, CRIT_AT = HANDS_AT + 50,
             TRAIL_AT = CRIT_AT + 50, ZOOM_AT = TRAIL_AT + 95, FREE_AT = ZOOM_AT + 40, WINGS_EDIT_AT = FREE_AT + 40,
-            MAP_AT = WINGS_EDIT_AT + 45, SOUND_AT = MAP_AT + 110, MUSIC_AT = SOUND_AT + 12, FORMATS_AT = MUSIC_AT + 72, END_AT = FORMATS_AT + 104;
+            MAP_AT = WINGS_EDIT_AT + 45, SOUND_AT = MAP_AT + 110, MUSIC_AT = SOUND_AT + 12, FORMATS_AT = MUSIC_AT + 72, TIME_AT = FORMATS_AT + 104, ITEMS_AT = TIME_AT + 40,
+            PROJ_AT = ITEMS_AT + 70, OUTFIT_AT = PROJ_AT + 50, END_AT = OUTFIT_AT + 94;
     private static double p1, p2, p3, p4;
     private static boolean musicPlaying, musicPaused, musicStable, musicSeek, musicNext, musicPrevious;
     private static double hiddenMs, shownMs;
@@ -133,6 +134,10 @@ final class SmokeWorld {
             player.setPos(player.getX() + 0.28 * dir, player.getY(), player.getZ());
         }
         if (ticks == TRAIL_AT + 32) LavaVisual.LOGGER.info("LavaVisual smoke shot world_trail");
+        if (ticks == TRAIL_AT + 30) {
+            int skipped = tech.gulp.lavavisual.effects.WorldCosmetics.trailSkipped, ahead = tech.gulp.lavavisual.effects.WorldCosmetics.trailAhead;
+            LavaVisual.LOGGER.info((ahead == 0 && skipped > 0 ? "LavaVisual smoke trail clear ok" : "LavaVisual smoke trail clear failed") + ": skipped " + skipped + ", ahead " + ahead);
+        }
         if (ticks == TRAIL_AT + 86) LavaVisual.LOGGER.info("LavaVisual smoke shot world_trail_helix");
         // Zoom and FreeLook (camera only).
         if (ticks == ZOOM_AT) { c.trailEnabled = false; tech.gulp.lavavisual.effects.CameraControl.force(4, false); }
@@ -368,6 +373,63 @@ final class SmokeWorld {
             mc.gui.setScreen(null);
             tech.gulp.lavavisual.audio.MusicPlayer.stop();
         }
+        // Client-side time: midnight on this client only.
+        if (ticks == TIME_AT) { c.timeEnabled = true; c.timeTicks = 18000; mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }
+        if (ticks == TIME_AT + 8) {
+            var clock = mc.level.dimensionType().defaultClock();
+            long shown = clock.map(h -> mc.level.clockManager().getTotalTicks(h)).orElse(-1L);
+            boolean ok = clock.isPresent() && Math.floorMod(shown, 24000L) == 18000;
+            LavaVisual.LOGGER.info((ok ? "LavaVisual smoke time ok" : "LavaVisual smoke time failed") + ": clock " + shown);
+            LavaVisual.LOGGER.info("LavaVisual smoke shot world_time_night");
+        }
+        if (ticks == TIME_AT + 32) c.timeEnabled = false;
+        // Item physics: a sword (flat), a block and a stack of apples fall in front of the camera and settle.
+        if (ticks == ITEMS_AT) {
+            c.itemPhysics = true; c.itemPhysicsFlat = true; c.itemPhysicsSpin = 1; c.itemPhysicsSize = 1.3;
+            tech.gulp.lavavisual.effects.ItemPhysics.rendered = 0;
+            player.connection.sendCommand("summon item ~0.8 ~1.6 ~-2.6 {Item:{id:\"minecraft:diamond_sword\",count:1}}");
+            player.connection.sendCommand("summon item ~-0.9 ~1.8 ~-2.8 {Item:{id:\"minecraft:grass_block\",count:1}}");
+            player.connection.sendCommand("summon item ~0.1 ~2.4 ~-2.2 {Item:{id:\"minecraft:golden_apple\",count:3}}");
+        }
+        if (ticks == ITEMS_AT + 40) {
+            long drawn = tech.gulp.lavavisual.effects.ItemPhysics.rendered;
+            LavaVisual.LOGGER.info((drawn > 0 ? "LavaVisual smoke item physics ok" : "LavaVisual smoke item physics failed") + ": " + drawn + " item draws");
+            LavaVisual.LOGGER.info("LavaVisual smoke shot world_item_physics");
+        }
+        if (ticks == ITEMS_AT + 62) { player.connection.sendCommand("kill @e[type=item]"); c.itemPhysics = false; c.itemPhysicsSize = 1; }
+        // Projectile trails: two volleys of a snowball, an arrow and an ender pearl.
+        if (ticks == PROJ_AT) {
+            c.projTrails = true; c.projOnlyMine = false; c.projStyle = 0; c.projLength = 2; c.projByItem = true; c.projGlow = true;
+            volley(player);
+        }
+        if (ticks == PROJ_AT + 12) volley(player);
+        if (ticks == PROJ_AT + 16) {
+            int active = tech.gulp.lavavisual.effects.ProjectileTrails.active();
+            LavaVisual.LOGGER.info((active > 0 ? "LavaVisual smoke projectile trails ok" : "LavaVisual smoke projectile trails failed") + ": " + active + " trails");
+            LavaVisual.LOGGER.info("LavaVisual smoke shot world_projectile_trails");
+        }
+        if (ticks == PROJ_AT + 44) {
+            c.projTrails = false; c.projOnlyMine = true; c.projLength = 1;
+            player.connection.sendCommand("kill @e[type=arrow]");
+        }
+        // Outfit: royal cape, glasses, headphones and scarf while walking, from behind and from the front.
+        if (ticks == OUTFIT_AT) {
+            c.hatEnabled = false; c.wingsEnabled = false; c.trailEnabled = false;
+            c.capeEnabled = true; c.capeType = 2; c.capeSway = 1; c.capeStyle = 2;
+            c.extras = new java.util.ArrayList<>(java.util.List.of(1, 2, 3));
+            tech.gulp.lavavisual.effects.WorldCosmetics.capesDrawn = 0; tech.gulp.lavavisual.effects.WorldCosmetics.extrasDrawn = 0;
+            mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+        }
+        if (ticks > OUTFIT_AT && ticks < OUTFIT_AT + 40) player.setPos(player.getX(), player.getY(), player.getZ() - 0.22);
+        if (ticks == OUTFIT_AT + 22) LavaVisual.LOGGER.info("LavaVisual smoke shot world_outfit_back");
+        if (ticks == OUTFIT_AT + 46) mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+        if (ticks == OUTFIT_AT + 68) {
+            long capes = tech.gulp.lavavisual.effects.WorldCosmetics.capesDrawn, extras = tech.gulp.lavavisual.effects.WorldCosmetics.extrasDrawn;
+            boolean ok = capes > 0 && extras >= 3;
+            LavaVisual.LOGGER.info((ok ? "LavaVisual smoke outfit ok" : "LavaVisual smoke outfit failed") + ": capes " + capes + ", accessories " + extras);
+            LavaVisual.LOGGER.info("LavaVisual smoke shot world_outfit_front");
+        }
+        if (ticks == OUTFIT_AT + 90) { c.capeEnabled = false; c.extras.clear(); mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }
         if (ticks == END_AT) finish(null);
     }
 
@@ -381,6 +443,11 @@ final class SmokeWorld {
             if (in == null) throw new java.io.IOException("missing " + asset);
             java.nio.file.Files.copy(in, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         }
+    }
+    private static void volley(net.minecraft.client.player.LocalPlayer player) {
+        player.connection.sendCommand("summon snowball ~0.6 ~1.7 ~-0.8 {Motion:[0.08,0.32,-0.85]}");
+        player.connection.sendCommand("summon arrow ~-0.6 ~1.7 ~-0.8 {Motion:[-0.1,0.3,-1.1]}");
+        player.connection.sendCommand("summon ender_pearl ~0 ~2.2 ~-0.8 {Motion:[0.0,0.42,-0.7]}");
     }
     private static boolean playNamed(String name) {
         var list = tech.gulp.lavavisual.audio.MusicPlayer.tracks();

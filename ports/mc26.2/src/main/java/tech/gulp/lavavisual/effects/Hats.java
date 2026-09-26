@@ -27,7 +27,12 @@ public final class Hats {
     public static final String[] NAMES = {"Конус", "Нимб", "Корона", "Цилиндр", "Ведьмина", "Колпак", "Рожки", "Ушки",
             "Кристалл", "Сомбреро", "Пропеллер", "Звёзды", "Санта", "Кепка"};
     public static final String[] WING_NAMES = {"Ангел", "Демон", "Бабочка", "Дракон", "Феникс"};
-    public static final int COUNT = NAMES.length, WING_COUNT = WING_NAMES.length;
+    public static final String[] CAPE_NAMES = {"Классический", "Королевский", "Звёздный", "Пламя", "Рваный"};
+    public static final String[] EXTRA_NAMES = {"Очки", "Наушники", "Шарф"};
+    public static final String[] EXTRA_HINTS = {"Тёмные очки с оправой", "Наушники со светящимися чашками", "Шарф вокруг шеи"};
+    /** Accessories worn on the head (the others sit on the body). */
+    public static final boolean[] EXTRA_HEAD = {true, true, false};
+    public static final int COUNT = NAMES.length, WING_COUNT = WING_NAMES.length, CAPE_COUNT = CAPE_NAMES.length, EXTRA_COUNT = EXTRA_NAMES.length;
     private static final int GROUP = 0, REVOLVE = 1, TUBE = 2, TORUS = 3, SPHERE = 4, GEM = 5, PRISM = 6, POLY = 7, STRIP = 8,
             GLOW_RING = 9, GLOW_FLAT = 10, GLOW_DISC = 11, SHEET = 12;
     private static final String[] KEYS = {"c", "l", "m", "d", "dl", "cw", "lw", "w", "k", "g", "p", "gr", "r"};
@@ -43,7 +48,7 @@ public final class Hats {
         float lx = 0.33f, ly = 0.88f, lz = 0.34f, n = (float) Math.sqrt(lx * lx + ly * ly + lz * lz);
         LX = lx / n; LY = ly / n; LZ = lz / n;
     }
-    private static Model[] hats, wings;
+    private static Model[] hats, wings, capes, extras;
     private static boolean loaded;
     private static final Emitter EMITTER = new Emitter();
     private Hats() { }
@@ -72,6 +77,8 @@ public final class Hats {
     public static float fit(int type) { return FIT[Math.floorMod(type - 1, FIT.length)]; }
     public static float sink(int type) { return SINK[Math.floorMod(type - 1, SINK.length)]; }
     public static Model hat(int type) { if (!loaded) load(); return hats == null ? null : hats[Math.floorMod(type - 1, Math.min(COUNT, hats.length))]; }
+    public static Model cape(int type) { if (!loaded) load(); return capes == null || capes.length == 0 ? null : capes[Math.floorMod(type - 1, Math.min(CAPE_COUNT, capes.length))]; }
+    public static Model extra(int type) { if (!loaded) load(); return extras == null || type < 1 || type > extras.length ? null : extras[type - 1]; }
     public static Model wing(int type) { if (!loaded) load(); return wings == null ? null : wings[Math.floorMod(type - 1, Math.min(WING_COUNT, wings.length))]; }
 
     /** Solid pass: depth-tested, depth-writing quads. world maps model space to camera-relative coordinates. */
@@ -91,18 +98,24 @@ public final class Hats {
             if (!loaded) load();
             if (hats == null || hats.length < COUNT) return "LavaVisual hats failed: " + (hats == null ? 0 : hats.length) + " hats";
             if (wings == null || wings.length < WING_COUNT) return "LavaVisual hats failed: " + (wings == null ? 0 : wings.length) + " wings";
+            if (capes == null || capes.length < CAPE_COUNT) return "LavaVisual hats failed: " + (capes == null ? 0 : capes.length) + " capes";
+            if (extras == null || extras.length < EXTRA_COUNT) return "LavaVisual hats failed: " + (extras == null ? 0 : extras.length) + " accessories";
+            java.util.List<Model> all = new java.util.ArrayList<>(java.util.Arrays.asList(hats).subList(0, COUNT));
+            all.addAll(java.util.Arrays.asList(wings).subList(0, WING_COUNT));
+            all.addAll(java.util.Arrays.asList(capes).subList(0, CAPE_COUNT));
+            all.addAll(java.util.Arrays.asList(extras).subList(0, EXTRA_COUNT));
             int total = 0;
-            for (int i = 0; i < COUNT + WING_COUNT; i++) {
-                Model model = i < COUNT ? hats[i] : wings[i - COUNT];
+            for (int i = 0; i < all.size(); i++) {
+                Model model = all.get(i);
                 Matrix4f world = new Matrix4f().translation(0, -0.3f, -2.4f).rotateY(0.7f + i);
                 Look look = new Look(0xFF6A2B, 0xB45CFF, i % 3, 1, i * 0.37f, i * 0.21f, 1, 1);
                 Emitter e = EMITTER.setup(null, null, world, look, false, 1, null, null);
                 e.count = 0;
                 e.build(model.parts, new Matrix4f(), 0);
-                if (e.count == 0) return "LavaVisual hats failed: " + (i < COUNT ? name(i + 1) : wingName(i - COUNT + 1)) + " is empty";
+                if (e.count == 0) return "LavaVisual hats failed: model " + (i + 1) + " is empty";
                 total += e.count;
             }
-            return "LavaVisual hats ready: " + COUNT + " hats, " + WING_COUNT + " wings, " + total + " visible quads";
+            return "LavaVisual hats ready: " + COUNT + " hats, " + WING_COUNT + " wings, " + CAPE_COUNT + " capes, " + EXTRA_COUNT + " accessories, " + total + " visible quads";
         } catch (RuntimeException error) {
             LavaVisual.LOGGER.error("LavaVisual hats self-test", error);
             return "LavaVisual hats failed: " + error;
@@ -117,9 +130,11 @@ public final class Hats {
             JsonObject root = JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject();
             hats = models(root.getAsJsonArray("hats"));
             wings = root.has("wings") ? models(root.getAsJsonArray("wings")) : new Model[0];
+            capes = root.has("capes") ? models(root.getAsJsonArray("capes")) : new Model[0];
+            extras = root.has("extras") ? models(root.getAsJsonArray("extras")) : new Model[0];
         } catch (Exception error) {
             LavaVisual.LOGGER.error("LavaVisual: cannot load hat models", error);
-            hats = null; wings = null;
+            hats = null; wings = null; capes = null; extras = null;
         }
     }
     private static Model[] models(JsonArray array) {

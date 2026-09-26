@@ -18,7 +18,9 @@ public final class HudConfig {
     public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark", "minimap", "music");
     /** Every element with its own colour. Missing from {@link #colors} means "follow the theme colour". */
     public static final List<String> COLOR_KEYS = List.of("menu", "menu_bg", "hud_bg", "watermark", "target", "keys", "armor", "coordinates",
-            "performance", "totems", "minimap", "badge", "crosshair", "jump", "particles", "ambient", "marker", "esp", "kill", "hat", "trail", "waypoint", "crit", "music");
+            "performance", "totems", "minimap", "badge", "crosshair", "jump", "particles", "ambient", "marker", "esp", "kill", "hat", "trail", "waypoint", "crit", "music", "cape", "outfit", "projectile");
+    /** Thrown things that can leave a trail (ProjectileTrails.NAMES in the same order). */
+    public static final List<String> PROJECTILE_IDS = List.of("pearl", "arrow", "trident", "snowball", "egg", "potion", "bottle", "firework", "wind", "eye");
     public int schemaVersion = SCHEMA;
     /** Theme: accent and second gradient colour. Default = the logo's lava orange to amethyst. */
     public int rgb = 0xFF6A2B, rgb2 = 0xA77BFF;
@@ -101,6 +103,22 @@ public final class HudConfig {
     public double wingsSize = 1, wingsOpacity = 0.95, wingsFlap = 1;
     /** Wings editor: height and distance from the back (blocks), forward tilt and spread (degrees), beat speed. */
     public double wingsLift, wingsBack, wingsTilt, wingsSpread, wingsSpeed = 1;
+    /** Cape 1..Hats.CAPE_COUNT; accessories are numbers of Hats.EXTRA_NAMES (any combination). */
+    public boolean capeEnabled;
+    public int capeType = 1, capeStyle = 2, outfitStyle = 2;
+    public double capeOpacity = 1, capeSway = 1;
+    public List<Integer> extras = new ArrayList<>();
+    /** Dropped items: tumble in the air, settle on the ground (flat items lie down). */
+    public boolean itemPhysics, itemPhysicsFlat = true;
+    public double itemPhysicsSpin = 1, itemPhysicsSize = 1;
+    /** Trails behind thrown things (PROJECTILE_IDS), your own by default. */
+    public boolean projTrails, projOnlyMine = true, projGlow = true, projByItem = true;
+    public List<String> projItems = new ArrayList<>(PROJECTILE_IDS);
+    public int projStyle;
+    public double projLength = 1, projWidth = 1, projBright = 1;
+    /** Client-side time of day in ticks (0 = 06:00, 6000 = noon, 18000 = midnight). */
+    public boolean timeEnabled;
+    public double timeTicks = 18000;
     /** HUD text family (UiFont.FAMILIES): 0 Montserrat (default, like visual clients), 1 Rubik, 2 Inter (menu font). */
     public int hudFont;
     /** Minimap: terrain only, north up. Zoom index into blocks-per-view {48, 64, 96}. */
@@ -170,6 +188,8 @@ public final class HudConfig {
         hitSoundEnabled = critSoundEnabled = totemSoundEnabled = killSoundEnabled = false;
         markerEnabled = skyEnabled = fpsBoost = critBoost = false;
         hatEnabled = wingsEnabled = trailEnabled = espEnabled = killEffect = false;
+        capeEnabled = itemPhysics = projTrails = timeEnabled = false;
+        extras.clear();
         swingStyle = 0;
         noCooldownDip = false;
     }
@@ -235,6 +255,17 @@ public final class HudConfig {
         wingsType = wingsType < 1 || wingsType > tech.gulp.lavavisual.effects.Hats.WING_COUNT ? 1 : wingsType;
         wingsLift = bounded(wingsLift, -0.25, 0.35, 0); wingsBack = bounded(wingsBack, -0.1, 0.25, 0);
         wingsTilt = bounded(wingsTilt, -30, 30, 0); wingsSpread = bounded(wingsSpread, -35, 35, 0); wingsSpeed = bounded(wingsSpeed, 0.3, 2.5, 1);
+        capeType = capeType < 1 || capeType > tech.gulp.lavavisual.effects.Hats.CAPE_COUNT ? 1 : capeType;
+        capeStyle = Math.floorMod(capeStyle, 3); outfitStyle = Math.floorMod(outfitStyle, 3);
+        capeOpacity = bounded(capeOpacity, 0.3, 1, 1); capeSway = bounded(capeSway, 0, 2, 1);
+        if (extras == null) extras = new ArrayList<>();
+        extras = new ArrayList<>(extras.stream().filter(i -> i != null && i >= 1 && i <= tech.gulp.lavavisual.effects.Hats.EXTRA_COUNT).distinct().toList());
+        itemPhysicsSpin = bounded(itemPhysicsSpin, 0, 3, 1); itemPhysicsSize = bounded(itemPhysicsSize, 0.5, 2, 1);
+        if (projItems == null) projItems = new ArrayList<>(PROJECTILE_IDS);
+        projItems = new ArrayList<>(projItems.stream().filter(k -> k != null && PROJECTILE_IDS.contains(k)).distinct().toList());
+        projStyle = Math.clamp(projStyle, 0, 4);
+        projLength = bounded(projLength, 0.3, 3, 1); projWidth = bounded(projWidth, 0.3, 2.5, 1); projBright = bounded(projBright, 0.3, 1.6, 1);
+        timeTicks = bounded(timeTicks, 0, 23999, 18000);
         fpsBoostLevel = Math.clamp(fpsBoostLevel, 1, 4); savedClouds = Math.clamp(savedClouds, -1, 2); savedBlur = Math.clamp(savedBlur, -1, 10);
         wingsSize = bounded(wingsSize, 0.5, 1.6, 1); wingsOpacity = bounded(wingsOpacity, 0.15, 1, 0.95); wingsFlap = bounded(wingsFlap, 0, 2, 1);
         wingsStyle = Math.floorMod(wingsStyle, 3);

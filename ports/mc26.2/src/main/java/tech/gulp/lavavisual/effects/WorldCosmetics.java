@@ -44,7 +44,11 @@ public final class WorldCosmetics {
     private record BeamFrame(Vec3 origin, float alpha, float age) { }
     private record RingFrame(Vec3 origin, float radius, float alpha, boolean echo) { }
     private record TrailNode(Vec3 position, int born) { }
-    private record TrailPoint(Vec3 position, float alpha, float half) { }
+    record TrailPoint(Vec3 position, float alpha, float half) { }
+    /** A projectile trail snapshot (ProjectileTrails): points tail to head and its two colours. */
+    record ShotTrail(List<TrailPoint> points, int color, int light) { }
+    /** Trail look: style 0..4, width and brightness multipliers, comet head size (blocks). */
+    private record TrailLook(int style, float width, float bright, float head) { }
     private record SparkFrame(Vec3 origin, float size, float alpha, int shape, int color) { }
     /** A hat on one player's head: base on top of the head, rotation hat space -> world (head yaw, optional tilt, spin). */
     private record HatFrame(Vec3 base, Matrix3f rotation, float scale, float stretch, Hats.Model model, Hats.Look look) { }
@@ -53,7 +57,7 @@ public final class WorldCosmetics {
     private static final java.util.Map<Integer, WingClock> WING_CLOCKS = new java.util.HashMap<>();
     private record MarkerFrame(Vec3 origin, int shape, float size, float alpha) { }
     /** colors: jump, esp, kill, trail, marker (theme or per-element). */
-    private record Frame(List<RingFrame> rings, List<SparkFrame> sparks, List<MarkerFrame> markers, int[] colors, int[] lights, List<HatFrame> hats, float spin, List<TrailPoint> trail, Vec3 esp, float espHeight, float espWidth, int espStyle, List<BeamFrame> beams, List<tech.gulp.lavavisual.map.WaypointOverlay.Beam> waypoints) { }
+    private record Frame(List<RingFrame> rings, List<SparkFrame> sparks, List<MarkerFrame> markers, int[] colors, int[] lights, List<HatFrame> hats, float spin, List<TrailPoint> trail, Vec3 esp, float espHeight, float espWidth, int espStyle, List<BeamFrame> beams, List<tech.gulp.lavavisual.map.WaypointOverlay.Beam> waypoints, List<ShotTrail> shots) { }
     private static final RenderStateDataKey<Frame> DATA = RenderStateDataKey.create(() -> "lavavisual:cosmetics");
     private static final ArrayList<Ring> RINGS = new ArrayList<>();
     private static final ArrayList<Mark> MARKS = new ArrayList<>();
@@ -61,6 +65,10 @@ public final class WorldCosmetics {
     private static final ArrayDeque<TrailNode> TRAIL = new ArrayDeque<>();
     /** Torso centre as a share of the player's height (legs end at ~0.39, shoulders at ~0.78). */
     private static final double TORSO = 0.58;
+    /** CI: body-trail nodes skipped for being ahead of the drawn body, and drawn points still ahead of it (must be 0). */
+    public static volatile int trailSkipped, trailAhead;
+    /** CI: capes and accessories drawn. */
+    public static long capesDrawn, extrasDrawn;
     private static final PoseStack.Pose IDENTITY = new PoseStack().last();
     private static final Vector3f CAMERA_RIGHT = new Vector3f(1, 0, 0), CAMERA_UP = new Vector3f(0, 1, 0);
     private static double frameNow;
@@ -161,9 +169,10 @@ public final class WorldCosmetics {
             CAMERA_RIGHT.set(1, 0, 0).rotate(orientation);
             CAMERA_UP.set(0, 1, 0).rotate(orientation);
             boolean remoteAny = c.hatOthers && HatSync.any();
-            if (self != null && mc.level != null && (c.wingsEnabled || remoteAny)) {
+            if (self != null && mc.level != null && (c.wingsEnabled || c.capeEnabled || remoteAny)) {
                 for (var state : context.levelState().entityRenderStates) {
-                    if (state instanceof net.minecraft.client.renderer.entity.state.AvatarRenderState avatar && avatar.showCape && wearsWings(avatar, self.getId(), remoteAny))
+                    if (state instanceof net.minecraft.client.renderer.entity.state.AvatarRenderState avatar && avatar.showCape
+                            && (wearsWings(avatar, self.getId(), remoteAny) || c.capeEnabled && (avatar.id == self.getId() || Dummy.is(avatar.id))))
                         avatar.showCape = false;
                 }
                 long nanos = System.nanoTime();
@@ -206,8 +215,23 @@ public final class WorldCosmetics {
                 // Nodes sit at the torso centre, so the ribbon comes out of the body (not from between the feet).
                 float half = self.getBbHeight() * 0.2f;
                 double life = trailLife(c);
-                for (TrailNode node : TRAIL) trail.add(new TrailPoint(node.position(), (float) Math.clamp(1 - (now - node.born()) / life, 0, 1), half));
-                trail.add(new TrailPoint(self.getPosition(partial).add(0, self.getBbHeight() * TORSO, 0), 1f, half));
+                // Nodes are taken at tick positions while the body is drawn between ticks, so the newest node can be
+                // up to a tick ahead of the drawn body (on the chest when running). Only nodes behind the body are
+                // kept, and the ribbon starts behind the back.
+                Vec3 torso = self.getPosition(partial).add(0, self.getBbHeight() * TORSO, 0);
+                double mx = self.getX() - self.xo, mz = self.getZ() - self.zo, speed = Math.hypot(mx, mz);
+                Vec3 dir = speed > 0.02 ? new Vec3(mx / speed, 0, mz / speed) : null;
+                Vec3 start = dir == null ? torso : torso.subtract(dir.scale(0.24));
+                int dropped = 0;
+                for (TrailNode node : TRAIL) {
+                    if (dir != null && node.position().subtract(torso).dot(dir) > -0.26) { dropped++; continue; }
+                    trail.add(new TrailPoint(node.position(), (float) Math.clamp(1 - (now - node.born()) / life, 0, 1), half));
+                }
+                trail.add(new TrailPoint(start, 1f, half));
+                trailSkipped = dropped;
+                int ahead = 0;
+                if (dir != null) for (int i = 0; i + 1 < trail.size(); i++) if (trail.get(i).position().subtract(torso).dot(dir) > -0.1) ahead++;
+                trailAhead = ahead;
             }
             var beams = new ArrayList<BeamFrame>();
             if (c.killEffect) for (Beam b : BEAMS) {
@@ -218,7 +242,7 @@ public final class WorldCosmetics {
             // Second tones: the theme gradient (lava orange to amethyst by default) instead of a lighter shade.
             int[] lights = {c.color2("jump") & 0xFFFFFF, c.color2("esp") & 0xFFFFFF, c.color2("kill") & 0xFFFFFF, c.color2("trail") & 0xFFFFFF, c.color2("marker") & 0xFFFFFF};
             context.levelState().setData(DATA, new Frame(List.copyOf(rings), List.copyOf(sparks), List.copyOf(markers), colors, lights, List.copyOf(hats), (float) (now * 0.06),
-                    List.copyOf(trail), esp, espHeight, espWidth, c.espStyle, List.copyOf(beams), waypointBeams));
+                    List.copyOf(trail), esp, espHeight, espWidth, c.espStyle, List.copyOf(beams), waypointBeams, ProjectileTrails.frame(partial)));
         });
         LevelRenderEvents.BEFORE_TRANSLUCENT_TERRAIN.register(WorldCosmetics::render);
     }
@@ -308,12 +332,14 @@ public final class WorldCosmetics {
         TRAIL.removeIf(n -> !c.trailEnabled || tick - n.born() >= trailLife);
         if (c.trailEnabled && !player.isSpectator() && !player.isInvisible()) {
             Vec3 here = player.position().add(0, player.getBbHeight() * TORSO, 0);
+            double mx = player.getX() - player.xo, mz = player.getZ() - player.zo, speed = Math.hypot(mx, mz);
+            Vec3 behind = speed > 0.02 ? here.subtract(mx / speed * 0.3, 0, mz / speed * 0.3) : here;
             if (TRAIL.isEmpty() || TRAIL.peekLast().position().distanceToSqr(here) > 0.04) {
                 TRAIL.addLast(new TrailNode(here, tick));
                 while (TRAIL.size() > 90) TRAIL.removeFirst();
                 // "Sparks" style: glittering stars shed from the body while you move.
                 if (c.trailStyle == 3 && tick % (PerformanceMode.active() ? 2 : 1) == 0)
-                    for (int i = 0; i < 2; i++) add(new Spark(here.add((RANDOM.nextDouble() - .5) * .3, (RANDOM.nextDouble() - .5) * player.getBbHeight() * .35, (RANDOM.nextDouble() - .5) * .3),
+                    for (int i = 0; i < 2; i++) add(new Spark(behind.add((RANDOM.nextDouble() - .5) * .3, (RANDOM.nextDouble() - .5) * player.getBbHeight() * .35, (RANDOM.nextDouble() - .5) * .3),
                             new Vec3((RANDOM.nextDouble() - .5) * .025, (RANDOM.nextDouble() - .3) * .02, (RANDOM.nextDouble() - .5) * .025),
                             tick, 12 + RANDOM.nextInt(10), (float) (0.045 * c.trailWidth), 4, i == 0 ? 1 : 0));
             }
@@ -377,9 +403,19 @@ public final class WorldCosmetics {
             // Trail: the saturated body with normal blending (true colours), the halo additively on top.
             if (frame.trail.size() > 1) {
                 context.submitNodeCollector().submitCustomGeometry(context.poseStack(), GLOW,
-                        (pose, out) -> trail(pose, out, frame.trail, camera, frame.colors[3], frame.lights[3], right, up, frame.spin, false));
+                        (pose, out) -> trail(pose, out, frame.trail, camera, frame.colors[3], frame.lights[3], right, up, frame.spin, false, bodyLook()));
                 if (LavaVisualClient.config().trailGlow) context.submitNodeCollector().submitCustomGeometry(context.poseStack(), GLOW_ADD,
-                        (pose, out) -> trail(pose, out, frame.trail, camera, frame.colors[3], frame.lights[3], right, up, frame.spin, true));
+                        (pose, out) -> trail(pose, out, frame.trail, camera, frame.colors[3], frame.lights[3], right, up, frame.spin, true, bodyLook()));
+            }
+            if (!frame.shots.isEmpty()) {
+                var cfg = LavaVisualClient.config();
+                TrailLook look = new TrailLook(cfg.projStyle, (float) cfg.projWidth, (float) cfg.projBright, (float) (0.26 * cfg.projWidth));
+                context.submitNodeCollector().submitCustomGeometry(context.poseStack(), GLOW, (pose, out) -> {
+                    for (ShotTrail t : frame.shots) trail(pose, out, t.points(), camera, t.color(), t.light(), right, up, frame.spin, false, look);
+                });
+                if (cfg.projGlow) context.submitNodeCollector().submitCustomGeometry(context.poseStack(), GLOW_ADD, (pose, out) -> {
+                    for (ShotTrail t : frame.shots) trail(pose, out, t.points(), camera, t.color(), t.light(), right, up, frame.spin, true, look);
+                });
             }
             if (!frame.hats.isEmpty()) context.submitNodeCollector().submitCustomGeometry(context.poseStack(), HAT, (pose, out) -> {
                 for (HatFrame h : frame.hats) Hats.draw(pose, out, world(h, camera), h.model(), h.look());
@@ -421,6 +457,9 @@ public final class WorldCosmetics {
                     c.hatSize, c.hatLift, c.hatCone, (float) (frameNow * 0.06 * c.hatSpin), seconds);
             if (c.wingsEnabled) wings(model, pose, collector, s, Hats.wing(c.wingsType), c.color("wings"), c.color2("wings"), c.wingsStyle,
                     (float) c.wingsOpacity, c.wingsSize, (float) c.wingsFlap, WingFit.of(c), seconds, nanos);
+            if (c.capeEnabled) cape(model, pose, collector, s, Hats.cape(c.capeType), c.color("cape"), c.color2("cape"), c.capeStyle, (float) c.capeOpacity, (float) c.capeSway, seconds);
+            for (int i = 1; i <= Hats.EXTRA_COUNT; i++)
+                if (c.extras.contains(i)) extra(model, pose, collector, s, i, c.color("outfit"), c.color2("outfit"), c.outfitStyle, seconds);
             return;
         }
         if (!c.hatOthers || !HatSync.any() || s.distanceToCameraSq >= 48 * 48) return;
@@ -458,6 +497,57 @@ public final class WorldCosmetics {
         pose.scale(k * fit, (float) (k * stretch), k * fit);
         submitModel(collector, pose, hat, new Hats.Look(color, light, style, opacity, seconds, seconds, 1, env(s)), (float) (size * Math.max(0.2, s.scale)));
         pose.popPose();
+    }
+    /**
+     * Cape hinged across the shoulders on the body transform. It leans back with the same movement values as the
+     * vanilla cape (running, falling, turning), scaled by the sway setting, and further out when crouching.
+     */
+    private static void cape(net.minecraft.client.model.player.PlayerModel model, PoseStack pose, net.minecraft.client.renderer.SubmitNodeCollector collector,
+                             net.minecraft.client.renderer.entity.state.AvatarRenderState s, Hats.Model cape, int color, int light, int style,
+                             float opacity, float sway, float seconds) {
+        if (cape == null) return;
+        var chest = s.chestEquipment;
+        boolean armor = chest != null && !chest.isEmpty();
+        if (armor && chest.is(net.minecraft.world.item.Items.ELYTRA)) return;
+        float lean = 5 + Math.clamp(s.capeLean / 2 + s.capeFlap, -10, 95) * sway + (s.isCrouching ? 22 : 0);
+        float side = Math.clamp(s.capeLean2 / 2, -25, 25) * sway;
+        pose.pushPose();
+        model.body.translateAndRotate(pose);
+        pose.scale(1, -1, -1);
+        pose.translate(0, 0, -(armor ? 3.3 : 2.3) / 16.0);
+        pose.mulPose(new Quaternionf().rotationX((float) Math.toRadians(lean)).rotateZ((float) Math.toRadians(side)));
+        float k = 1 / 0.9375f;
+        pose.scale(k, k, k);
+        submitModel(collector, pose, cape, new Hats.Look(color, light, style, opacity, seconds, seconds, 1, env(s)), (float) Math.max(0.2, s.scale));
+        pose.popPose();
+        capesDrawn++;
+    }
+    /** Accessory on the head (on top of the head, over a helmet if worn) or on the body (around the neck). */
+    private static void extra(net.minecraft.client.model.player.PlayerModel model, PoseStack pose, net.minecraft.client.renderer.SubmitNodeCollector collector,
+                              net.minecraft.client.renderer.entity.state.AvatarRenderState s, int type, int color, int light, int style, float seconds) {
+        Hats.Model item = Hats.extra(type);
+        if (item == null) return;
+        boolean head = Hats.EXTRA_HEAD[type - 1];
+        pose.pushPose();
+        if (head) {
+            model.head.translateAndRotate(pose);
+            pose.scale(1, -1, -1);
+            boolean helmet = s.headEquipment != null && !s.headEquipment.isEmpty();
+            float grow = helmet ? 1.14f : s.showHat ? 1.06f : 1f;
+            pose.translate(0, 4 / 16.0, 0);
+            pose.scale(grow, grow, grow);
+            pose.translate(0, 4 / 16.0, 0);
+        } else {
+            model.body.translateAndRotate(pose);
+            pose.scale(1, -1, -1);
+            var chest = s.chestEquipment;
+            if (chest != null && !chest.isEmpty()) pose.scale(1.1f, 1.02f, 1.3f);
+        }
+        float k = 1 / 0.9375f;
+        pose.scale(k, k, k);
+        submitModel(collector, pose, item, new Hats.Look(color, light, style, 1, seconds, seconds, 1, env(s)), (float) Math.max(0.2, s.scale));
+        pose.popPose();
+        extrasDrawn++;
     }
     /** Wings on the upper back, on the model's body transform (attack twist and crouch lean included); hidden with an elytra. */
     private static void wings(net.minecraft.client.model.player.PlayerModel model, PoseStack pose, net.minecraft.client.renderer.SubmitNodeCollector collector,
@@ -547,12 +637,15 @@ public final class WorldCosmetics {
      * winding around the path), sparks (thin ribbon + stars shed in tick) and comet (crossed ribbons with a glowing head).
      * Colour runs from the element colour at the body to its second colour at the tail; brightness and width are settings.
      */
+    private static TrailLook bodyLook() {
+        var c = LavaVisualClient.config();
+        return new TrailLook(c.trailStyle, (float) c.trailWidth, (float) c.trailBrightness, (float) (0.6 * c.trailWidth));
+    }
     private static void trail(PoseStack.Pose pose, VertexConsumer out, List<TrailPoint> points, Vec3 camera, int color, int light, Vector3f right, Vector3f up,
-                              float spin, boolean halo) {
+                              float spin, boolean halo, TrailLook look) {
         int n = points.size();
         if (n < 2) return;
-        var c = LavaVisualClient.config();
-        float bright = (float) c.trailBrightness, width = (float) c.trailWidth;
+        float bright = look.bright(), width = look.width();
         Vec3[] p = new Vec3[n];
         float[] f = new float[n], h = new float[n];
         int[] col = new int[n];
@@ -563,7 +656,7 @@ public final class WorldCosmetics {
             h[i] = t.half() * width * (0.35f + 0.65f * f[i]);
             col[i] = lerp(light, color, f[i]);
         }
-        switch (c.trailStyle) {
+        switch (look.style()) {
             case 1 -> { // neon: faint fill, two glowing edge lines and a thin centre line
                 for (int i = 0; i + 1 < n; i++) {
                     for (int side = -1; side <= 1; side += 2) {
@@ -606,8 +699,8 @@ public final class WorldCosmetics {
                 if (halo) {
                     for (int i = 0; i + 1 < n; i++)
                         ribbon(pose, out, p[i], p[i + 1], h[i] * 1.7f, h[i + 1] * 1.7f, col[i], col[i + 1], f[i] * 0.25f * bright, f[i + 1] * 0.25f * bright, 0f);
-                    glow(pose, out, p[n - 1], right, up, 0.6f * width, color, 0.6f * bright, 16);
-                    glow(pose, out, p[n - 1], right, up, 0.22f * width, 0xFFFFFF, 0.5f * bright, 12);
+                    glow(pose, out, p[n - 1], right, up, look.head(), color, 0.6f * bright, 16);
+                    glow(pose, out, p[n - 1], right, up, look.head() * 0.37f, 0xFFFFFF, 0.5f * bright, 12);
                 } else for (int i = 0; i + 1 < n; i++) {
                     ribbon(pose, out, p[i], p[i + 1], h[i], h[i + 1], col[i], col[i + 1], f[i] * 0.75f * bright, f[i + 1] * 0.75f * bright, 0.2f);
                     flat(pose, out, p[i], p[i + 1], h[i], h[i + 1], col[i], col[i + 1], f[i] * 0.55f * bright, f[i + 1] * 0.55f * bright);
