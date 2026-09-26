@@ -48,7 +48,9 @@ public final class WorldCosmetics {
     /** A projectile trail snapshot (ProjectileTrails): points tail to head and its two colours. */
     record ShotTrail(List<TrailPoint> points, int color, int light) { }
     /** Trail look: style 0..4, width and brightness multipliers, comet head size (blocks). */
-    private record TrailLook(int style, float width, float bright, float head) { }
+    private record TrailLook(int style, float width, float bright, float head, boolean facing) { }
+    /** Bands turn towards the camera (projectile trails, usually seen along their path) instead of standing upright. */
+    private static boolean facing;
     private record SparkFrame(Vec3 origin, float size, float alpha, int shape, int color) { }
     /** A hat on one player's head: base on top of the head, rotation hat space -> world (head yaw, optional tilt, spin). */
     private record HatFrame(Vec3 base, Matrix3f rotation, float scale, float stretch, Hats.Model model, Hats.Look look) { }
@@ -409,7 +411,7 @@ public final class WorldCosmetics {
             }
             if (!frame.shots.isEmpty()) {
                 var cfg = LavaVisualClient.config();
-                TrailLook look = new TrailLook(cfg.projStyle, (float) cfg.projWidth, (float) cfg.projBright, (float) (0.26 * cfg.projWidth));
+                TrailLook look = new TrailLook(cfg.projStyle, (float) cfg.projWidth, (float) cfg.projBright, (float) (0.26 * cfg.projWidth), true);
                 context.submitNodeCollector().submitCustomGeometry(context.poseStack(), GLOW, (pose, out) -> {
                     for (ShotTrail t : frame.shots) trail(pose, out, t.points(), camera, t.color(), t.light(), right, up, frame.spin, false, look);
                 });
@@ -639,12 +641,18 @@ public final class WorldCosmetics {
      */
     private static TrailLook bodyLook() {
         var c = LavaVisualClient.config();
-        return new TrailLook(c.trailStyle, (float) c.trailWidth, (float) c.trailBrightness, (float) (0.6 * c.trailWidth));
+        return new TrailLook(c.trailStyle, (float) c.trailWidth, (float) c.trailBrightness, (float) (0.6 * c.trailWidth), false);
     }
     private static void trail(PoseStack.Pose pose, VertexConsumer out, List<TrailPoint> points, Vec3 camera, int color, int light, Vector3f right, Vector3f up,
                               float spin, boolean halo, TrailLook look) {
         int n = points.size();
         if (n < 2) return;
+        facing = look.facing();
+        try { trailStyles(pose, out, points, camera, color, light, right, up, spin, halo, look); } finally { facing = false; }
+    }
+    private static void trailStyles(PoseStack.Pose pose, VertexConsumer out, List<TrailPoint> points, Vec3 camera, int color, int light, Vector3f right, Vector3f up,
+                                    float spin, boolean halo, TrailLook look) {
+        int n = points.size();
         float bright = look.bright(), width = look.width();
         Vec3[] p = new Vec3[n];
         float[] f = new float[n], h = new float[n];
@@ -719,12 +727,29 @@ public final class WorldCosmetics {
     }
     /** Vertical band a..b: brightest in the middle, fading to edge*core alpha at +-h. */
     private static void ribbon(PoseStack.Pose pose, VertexConsumer out, Vec3 a, Vec3 b, double ha, double hb, int ca, int cb, float fa, float fb, float edge) {
+        double ox = 0, oy = 1, oz = 0; // upright band, or across the view when facing the camera
+        if (facing) {
+            Vec3 side = b.subtract(a).cross(a.add(b).scale(0.5));
+            double len = side.length();
+            if (len < 1e-6) return;
+            ox = side.x / len; oy = side.y / len; oz = side.z / len;
+        }
         int ea = UiDraw.alpha(ca, fa * edge), eb = UiDraw.alpha(cb, fb * edge), ma = UiDraw.alpha(ca, fa), mb = UiDraw.alpha(cb, fb);
-        vertex(pose, out, a.x, a.y - ha, a.z, ea); vertex(pose, out, b.x, b.y - hb, b.z, eb); vertex(pose, out, b.x, b.y, b.z, mb); vertex(pose, out, a.x, a.y, a.z, ma);
-        vertex(pose, out, a.x, a.y, a.z, ma); vertex(pose, out, b.x, b.y, b.z, mb); vertex(pose, out, b.x, b.y + hb, b.z, eb); vertex(pose, out, a.x, a.y + ha, a.z, ea);
+        vertex(pose, out, a.x - ox * ha, a.y - oy * ha, a.z - oz * ha, ea); vertex(pose, out, b.x - ox * hb, b.y - oy * hb, b.z - oz * hb, eb); vertex(pose, out, b.x, b.y, b.z, mb); vertex(pose, out, a.x, a.y, a.z, ma);
+        vertex(pose, out, a.x, a.y, a.z, ma); vertex(pose, out, b.x, b.y, b.z, mb); vertex(pose, out, b.x + ox * hb, b.y + oy * hb, b.z + oz * hb, eb); vertex(pose, out, a.x + ox * ha, a.y + oy * ha, a.z + oz * ha, ea);
     }
     /** Horizontal band a..b (perpendicular to the path), fading to the sides. */
     private static void flat(PoseStack.Pose pose, VertexConsumer out, Vec3 a, Vec3 b, double ha, double hb, int ca, int cb, float fa, float fb) {
+        if (facing) { // second band at a right angle to the camera-facing one
+            Vec3 d = b.subtract(a), side = d.cross(a.add(b).scale(0.5)), normal = side.cross(d);
+            double len = normal.length();
+            if (len < 1e-6) return;
+            double nx = normal.x / len, ny = normal.y / len, nz = normal.z / len;
+            int ea = UiDraw.alpha(ca, 0), eb = UiDraw.alpha(cb, 0), ma = UiDraw.alpha(ca, fa), mb = UiDraw.alpha(cb, fb);
+            vertex(pose, out, a.x - nx * ha, a.y - ny * ha, a.z - nz * ha, ea); vertex(pose, out, b.x - nx * hb, b.y - ny * hb, b.z - nz * hb, eb); vertex(pose, out, b.x, b.y, b.z, mb); vertex(pose, out, a.x, a.y, a.z, ma);
+            vertex(pose, out, a.x, a.y, a.z, ma); vertex(pose, out, b.x, b.y, b.z, mb); vertex(pose, out, b.x + nx * hb, b.y + ny * hb, b.z + nz * hb, eb); vertex(pose, out, a.x + nx * ha, a.y + ny * ha, a.z + nz * ha, ea);
+            return;
+        }
         double dx = b.x - a.x, dz = b.z - a.z, len = Math.sqrt(dx * dx + dz * dz);
         if (len < 1e-4) return;
         double sx = -dz / len, sz = dx / len;

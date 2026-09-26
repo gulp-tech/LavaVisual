@@ -102,7 +102,7 @@ public final class ProjectileTrails {
         var c = LavaVisualClient.config();
         if (!c.projTrails || TRACKS.isEmpty()) return List.of();
         double life = life(c), now = tick + partial;
-        float half = 0.085f;
+        float half = 0.11f;
         var out = new ArrayList<WorldCosmetics.ShotTrail>();
         for (Track t : TRACKS.values()) {
             if (t.nodes.isEmpty()) continue;

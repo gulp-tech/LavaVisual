@@ -15,11 +15,11 @@ final class SmokeWorld {
     private static final int WING_STEP = 60, HAT_STEP = 40, HATS_AT = 60 + 5 * WING_STEP + 10,
             DUMMY_AT = HATS_AT + HATS.length * HAT_STEP + 10, HANDS_AT = DUMMY_AT + 70, CRIT_AT = HANDS_AT + 50,
             TRAIL_AT = CRIT_AT + 50, ZOOM_AT = TRAIL_AT + 95, FREE_AT = ZOOM_AT + 40, WINGS_EDIT_AT = FREE_AT + 40,
-            MAP_AT = WINGS_EDIT_AT + 45, SOUND_AT = MAP_AT + 110, MUSIC_AT = SOUND_AT + 12, FORMATS_AT = MUSIC_AT + 72, TIME_AT = FORMATS_AT + 104, ITEMS_AT = TIME_AT + 40,
+            MAP_AT = WINGS_EDIT_AT + 45, SOUND_AT = MAP_AT + 110, MUSIC_AT = SOUND_AT + 12, FORMATS_AT = MUSIC_AT + 72, TIME_AT = FORMATS_AT + 104, ITEMS_AT = TIME_AT + 80,
             PROJ_AT = ITEMS_AT + 70, OUTFIT_AT = PROJ_AT + 50, END_AT = OUTFIT_AT + 94;
     private static double p1, p2, p3, p4;
     private static boolean musicPlaying, musicPaused, musicStable, musicSeek, musicNext, musicPrevious;
-    private static double hiddenMs, shownMs;
+    private static double hiddenMs, shownMs, timeOnMs;
     private static int buildsBefore;
     private static boolean mp3Ok, mp3Seek, opusOk, wavOk, renamedOk, clipsOk, clickOk, bindOk;
     private static String formatNotes = "";
@@ -374,22 +374,32 @@ final class SmokeWorld {
             tech.gulp.lavavisual.audio.MusicPlayer.stop();
         }
         // Client-side time: midnight on this client only.
+        // Frame time with the custom time on (midnight) and off, then the check and a shot at midnight.
         if (ticks == TIME_AT) { c.timeEnabled = true; c.timeTicks = 18000; mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }
-        if (ticks == TIME_AT + 8) {
+        if (ticks == TIME_AT + 4) tech.gulp.lavavisual.map.Minimap.clock(true);
+        if (ticks == TIME_AT + 24) { timeOnMs = tech.gulp.lavavisual.map.Minimap.clockMillis(); c.timeEnabled = false; tech.gulp.lavavisual.map.Minimap.clock(false); }
+        if (ticks == TIME_AT + 28) tech.gulp.lavavisual.map.Minimap.clock(true);
+        if (ticks == TIME_AT + 48) {
+            double off = tech.gulp.lavavisual.map.Minimap.clockMillis();
+            tech.gulp.lavavisual.map.Minimap.clock(false);
+            LavaVisual.LOGGER.info(String.format(java.util.Locale.ROOT, "LavaVisual smoke time fps: midnight %.2f ms, off %.2f ms per frame", timeOnMs, off));
+            c.timeEnabled = true;
+        }
+        if (ticks == TIME_AT + 52) {
             var clock = mc.level.dimensionType().defaultClock();
             long shown = clock.map(h -> mc.level.clockManager().getTotalTicks(h)).orElse(-1L);
             boolean ok = clock.isPresent() && Math.floorMod(shown, 24000L) == 18000;
             LavaVisual.LOGGER.info((ok ? "LavaVisual smoke time ok" : "LavaVisual smoke time failed") + ": clock " + shown);
             LavaVisual.LOGGER.info("LavaVisual smoke shot world_time_night");
         }
-        if (ticks == TIME_AT + 32) c.timeEnabled = false;
+        if (ticks == TIME_AT + 76) c.timeEnabled = false;
         // Item physics: a sword (flat), a block and a stack of apples fall in front of the camera and settle.
         if (ticks == ITEMS_AT) {
             c.itemPhysics = true; c.itemPhysicsFlat = true; c.itemPhysicsSpin = 1; c.itemPhysicsSize = 1.3;
             tech.gulp.lavavisual.effects.ItemPhysics.rendered = 0;
-            player.connection.sendCommand("summon item ~0.8 ~1.6 ~-2.6 {Item:{id:\"minecraft:diamond_sword\",count:1}}");
-            player.connection.sendCommand("summon item ~-0.9 ~1.8 ~-2.8 {Item:{id:\"minecraft:grass_block\",count:1}}");
-            player.connection.sendCommand("summon item ~0.1 ~2.4 ~-2.2 {Item:{id:\"minecraft:golden_apple\",count:3}}");
+            player.connection.sendCommand("summon item ~1.4 ~1.6 ~-3.4 {Item:{id:\"minecraft:diamond_sword\",count:1}}");
+            player.connection.sendCommand("summon item ~-1.4 ~1.8 ~-3.6 {Item:{id:\"minecraft:grass_block\",count:1}}");
+            player.connection.sendCommand("summon item ~0.7 ~2.4 ~-4.6 {Item:{id:\"minecraft:golden_apple\",count:3}}");
         }
         if (ticks == ITEMS_AT + 40) {
             long drawn = tech.gulp.lavavisual.effects.ItemPhysics.rendered;
