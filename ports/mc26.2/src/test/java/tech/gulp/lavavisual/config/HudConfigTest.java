@@ -9,7 +9,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class HudConfigTest {
     @Test void everythingIsInitiallyOff() {
         var c = new HudConfig();
-        assertTrue(c.widgets.values().stream().noneMatch(w -> w.visible));
+        // The music HUD is the one exception: it only appears while the user plays music (musicHudAuto).
+        assertTrue(c.widgets.entrySet().stream().noneMatch(e -> e.getValue().visible && !e.getKey().equals("music")));
+        assertTrue(c.musicHudAuto);
         assertFalse(c.crosshairEnabled);
         assertFalse(c.jumpEnabled || c.particlesEnabled || c.ambientEnabled || c.viewModelEnabled);
         assertFalse(c.hitSoundEnabled || c.critSoundEnabled || c.totemSoundEnabled);
@@ -20,7 +22,7 @@ class HudConfigTest {
         w.x = Double.NaN; w.y = 20; w.scale = -2; w.opacity = 100; c.sanitize();
         assertEquals(0.02, w.x); assertEquals(1, w.y);
         assertEquals(0.5, w.scale); assertEquals(1, w.opacity);
-        assertEquals(8, c.widgets.size());
+        assertEquals(9, c.widgets.size());
     }
     @Test void existingNewSettingsArePreserved(@TempDir Path dir) {
         var store = new ConfigStore(dir); var c = new HudConfig();
@@ -40,7 +42,7 @@ class HudConfigTest {
     @Test void removedPanelsDoNotSurviveMigration(@TempDir Path dir) throws Exception {
         Files.writeString(dir.resolve("hud.json"), "{\"schemaVersion\":2,\"widgets\":{\"stopwatch\":{\"visible\":true},\"island\":{\"visible\":true}}}");
         var store = new ConfigStore(dir); var c = store.load(0);
-        assertEquals(java.util.Set.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark", "minimap"), c.widgets.keySet());
+        assertEquals(java.util.Set.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark", "minimap", "music"), c.widgets.keySet());
         assertTrue(store.save(c, 0));
         assertFalse(Files.readString(dir.resolve("hud.json")).contains("stopwatch"));
         assertFalse(Files.readString(dir.resolve("hud.json")).contains("island"));

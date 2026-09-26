@@ -58,7 +58,7 @@ public final class HudConfig {
     public int mapShape;
     /** With a LavaVisual hit sound on, the target's vanilla hurt / no-damage sounds of your hits are muted. */
     public boolean muteVanillaHits = true;
-    /** Chosen user files per event ("hits/name.ogg", "*/name.ogg" for the shared folder); used when the index is CUSTOM. */
+    /** Chosen user files per event, as "folder/file.ogg" (folder "*" = the shared sounds folder); used when the index is CUSTOM. */
     public String hitCustom = "", critCustom = "", totemCustom = "", killCustom = "";
     /** Music player: volume 0..1, shuffle, repeat 0 off / 1 all / 2 one; the HUD hides while nothing plays. */
     public double musicVolume = 0.7;

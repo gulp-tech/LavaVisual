@@ -535,6 +535,7 @@ public final class ClickGuiScreen extends Screen {
                 case "totems" -> "Сколько тотемов в инвентаре";
                 case "watermark" -> "Логотип, место, время, пинг и FPS";
                 case "minimap" -> "Только местность, без игроков и мобов";
+                case "music" -> "Трек, обложка или диск, время · только пока играет";
                 default -> "Частота кадров";
             };
             toggle(g, id, HudRenderer.title(id), desc, w.visible, () -> { w.visible = !w.visible; changed(); }, () -> select(id));
