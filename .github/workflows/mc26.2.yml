@@ -57,7 +57,7 @@ jobs:
               assert 'fr/delthas/javamp3/Sound.class' in jar.namelist(), 'MP3 decoder not bundled'
               assert 'io/github/jaredmdobson/concentus/OpusDecoder.class' in jar.namelist(), 'Opus decoder not bundled'
               fonts = [n for n in jar.namelist() if n.startswith('assets/lavavisual/font/') and n.endswith('.json')]
-              assert len(fonts) == 226, len(fonts)
+              assert len(fonts) == 227, len(fonts)  # 226 UI faces + the name-tag logo
               sounds = [name for name in jar.namelist() if name.endswith('.ogg')]
               assert len(sounds) == 35, len(sounds)
               for name in sounds:
