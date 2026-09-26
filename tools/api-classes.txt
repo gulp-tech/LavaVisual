@@ -104,3 +104,10 @@ net.minecraft.client.renderer.item.ItemStackRenderState
 net.minecraft.world.entity.item.ItemEntity
 net.minecraft.world.entity.projectile.Projectile
 net.minecraft.client.renderer.entity.EntityRenderer
+net.minecraft.client.gui.Gui
+net.minecraft.client.gui.screens.TitleScreen
+net.minecraft.client.gui.screens.worldselection.SelectWorldScreen
+net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen
+net.minecraft.client.gui.screens.options.OptionsScreen
+net.minecraft.client.gui.screens.options.LanguageSelectScreen
+net.minecraft.client.Minecraft
