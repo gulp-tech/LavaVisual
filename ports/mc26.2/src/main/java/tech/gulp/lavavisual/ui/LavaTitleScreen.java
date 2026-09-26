@@ -101,8 +101,9 @@ public final class LavaTitleScreen extends Screen {
 
         // Logo (twice the menu size, pixel-exact texture), name and edition.
         int lift = (int) Math.round((1 - enter) * 10);
-        for (int ring = 3; ring >= 1; ring--)
-            UiDraw.circle(g, left + logoW, top + logoH + lift, 30 + ring * 22, UiDraw.alpha(UiDraw.mix(ac, ac2, 0.3), 0.035 * enter));
+        // Soft glow behind the logo: many faint discs read as a smooth radial gradient, without a visible edge.
+        for (int ring = 10; ring >= 1; ring--)
+            UiDraw.circle(g, left + logoW, top + logoH + lift, 12 + ring * 10, UiDraw.alpha(UiDraw.mix(ac, ac2, 0.3), 0.011 * enter));
         g.pose().pushMatrix();
         g.pose().translate(left, top + lift);
         g.pose().scale(2f);
@@ -158,7 +159,7 @@ public final class LavaTitleScreen extends Screen {
                 UiFont.text(g, font, NEWS[i], cx + 19, ly, UiDraw.alpha(0xB5BDC9, enter), cardW - 26, UiFont.Face.SMALL);
             }
         }
-        String version = "LavaVisual " + Edition.version();
+        String version = "LavaVisual " + Edition.version().replaceFirst("-mc.*$", "");
         UiFont.text(g, font, version, 8, height - 14, UiDraw.alpha(0x7D8795, enter), width / 2, UiFont.Face.SMALL);
         String legal = "Copyright Mojang AB. Do not distribute!";
         int legalW = UiFont.width(g, font, legal, UiFont.Face.SMALL);
