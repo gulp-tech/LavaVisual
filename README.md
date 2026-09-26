@@ -1,4 +1,4 @@
-# LavaVisual Beta 1.0.1 — Minecraft 26.2
+# LavaVisual Beta 1.0.2 — Minecraft 26.2
 
 <img src="ports/mc26.2/src/main/resources/assets/lavavisual/icon.png" width="96" alt="LV">
 
@@ -7,9 +7,9 @@
 
 | | Скачать | Что внутри |
 | --- | --- | --- |
-| **Мод** | [lavavisual-1.0.1-beta-mc26.2.jar](artifacts/lavavisual-1.0.1-beta-mc26.2.jar) | только LavaVisual, в папку `mods` |
-| **Клиент** | [LavaVisual-Client-1.0.1-beta-mc26.2.mrpack](artifacts/LavaVisual-Client-1.0.1-beta-mc26.2.mrpack) | готовая сборка для Modrinth App, Prism Launcher, ATLauncher |
-| **Клиент (архив)** | [LavaVisual-Client-1.0.1-beta-mc26.2.zip](artifacts/LavaVisual-Client-1.0.1-beta-mc26.2.zip) | папки `mods` и `config` для TLauncher, телефонов и ручной установки |
+| **Мод** | [lavavisual-1.0.2-beta-mc26.2.jar](artifacts/lavavisual-1.0.2-beta-mc26.2.jar) | только LavaVisual, в папку `mods` |
+| **Клиент** | [LavaVisual-Client-1.0.2-beta-mc26.2.mrpack](artifacts/LavaVisual-Client-1.0.2-beta-mc26.2.mrpack) | готовая сборка для Modrinth App, Prism Launcher, ATLauncher |
+| **Клиент (архив)** | [LavaVisual-Client-1.0.2-beta-mc26.2.zip](artifacts/LavaVisual-Client-1.0.2-beta-mc26.2.zip) | папки `mods` и `config` для TLauncher, телефонов и ручной установки |
 
 Контрольные суммы — в [SHA256SUMS](artifacts/SHA256SUMS).
 
@@ -76,8 +76,9 @@ PojavLauncher, MojoLauncher, Amethyst и другие лаунчеры на ос
 - **Своё время суток** (только у вас), **небо** с пресетами, **FPS Boost** с четырьмя уровнями, темы и отдельный
   цвет для каждого элемента, 5 слотов конфигов с экспортом и импортом.
 - **Быстрая загрузка:** ресурс-паки серверов подключаются так же быстро, как без мода.
-- **Плавность:** музыка, обложки, звуки и модели загружаются в фоне и не подвешивают игру. Пинг в водяном знаке —
-  живое измерение раз в 2 секунды, а не усреднённое значение таблицы игроков.
+- **Плавность:** музыка, обложки, звуки и модели загружаются в фоне и не подвешивают игру. Пинг в водяном знаке
+  обновляется каждую секунду: это живое измерение, а не значение таблицы игроков, которое сервер пересчитывает раз в
+  30 секунд. Если сервер завис, число сразу начинает расти.
 
 ## Папки
 
@@ -99,7 +100,7 @@ PojavLauncher, MojoLauncher, Amethyst и другие лаунчеры на ос
 ./gradlew build
 ```
 
-Нужен JDK 25. CI собирает мод, прогоняет тесты и запускает клиент: проверяет меню, главное меню, мир, физику плаща,
+Нужен JDK 25. CI собирает мод, прогоняет тесты и запускает клиент: проверяет меню, главное меню, мир, физику плаща, пинг,
 перезагрузку ресурсов, звук, музыку всех форматов и стоимость миникарты, а скриншоты кладёт в `artifacts/`. Пакеты
 клиента собирает `tools/make_client.py`.
 

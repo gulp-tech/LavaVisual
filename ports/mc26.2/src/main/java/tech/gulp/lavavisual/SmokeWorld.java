@@ -79,6 +79,9 @@ final class SmokeWorld {
         player.setYRot(180f); player.yRotO = 180f; player.setXRot(10f); player.xRotO = 10f;
         player.yBodyRot = 180f; player.yBodyRotO = 180f; player.yHeadRot = 180f; player.yHeadRotO = 180f;
         var c = LavaVisualClient.config();
+        // Live ping through the integrated server: the same request and answer as on a real server.
+        if (ticks == 5) tech.gulp.lavavisual.hud.PingMeter.test(true);
+        if (ticks == 205) { LavaVisual.LOGGER.info(tech.gulp.lavavisual.hud.PingMeter.selfTest()); tech.gulp.lavavisual.hud.PingMeter.test(false); }
         if (ticks >= 60 && ticks < HATS_AT - 10) {
             int w = (ticks - 60) / WING_STEP + 1, at = (ticks - 60) % WING_STEP;
             if (at == 0) { c.wingsType = w; mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }

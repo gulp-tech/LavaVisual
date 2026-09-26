@@ -323,24 +323,25 @@ public final class HudRenderer {
         LocalTime time = LocalTime.now();
         return place + " · " + String.format(Locale.ROOT, "%02d:%02d", time.getHour(), time.getMinute());
     }
+    /** Live ping, else the tab-list value; -1 while neither is known (the tab list says 0 until its first update). */
     private static int ping(Minecraft mc) {
-        if (mc.player == null || mc.getConnection() == null) return 0;
+        if (mc.player == null || mc.getConnection() == null) return -1;
         int live = PingMeter.latency();
         if (live >= 0) return live;
         var info = mc.getConnection().getPlayerInfo(mc.player.getUUID());
-        return info == null ? 0 : Math.max(0, info.getLatency());
+        return info == null || info.getLatency() <= 0 ? -1 : info.getLatency();
     }
     /** Watermark segments after the brand: icon + value, e.g. nickname, fps, ping, time. */
     private record Segment(String icon, String text, int color) { }
     private static List<Segment> segments(Minecraft mc, int accent2) {
         String name = mc.player != null ? mc.player.getName().getString() : mc.getUser().getName();
         int latency = ping(mc);
-        int pingColor = latency < 80 ? 0xFF8BE07A : latency < 160 ? 0xFFE6C75A : 0xFFE9755A;
+        int pingColor = latency < 0 ? 0xFF9AA0AC : latency < 80 ? 0xFF8BE07A : latency < 160 ? 0xFFE6C75A : 0xFFE9755A;
         LocalTime time = LocalTime.now();
         List<Segment> list = new ArrayList<>(4);
         list.add(new Segment(Icons.USER, name, 0xFFF2F4F8));
         list.add(new Segment(Icons.MONITOR, mc.getFps() + " fps", 0xFFF2F4F8));
-        if (mc.getConnection() != null && !mc.isLocalServer()) { list.add(new Segment(Icons.WIFI, latency + " ms", pingColor)); PingMeter.shown(); }
+        if (mc.getConnection() != null && !mc.isLocalServer()) { list.add(new Segment(Icons.WIFI, (latency < 0 ? "—" : String.valueOf(latency)) + " ms", pingColor)); PingMeter.shown(); }
         list.add(new Segment(Icons.CLOCK, String.format(Locale.ROOT, "%02d:%02d", time.getHour(), time.getMinute()), 0xFFF2F4F8));
         return list;
     }

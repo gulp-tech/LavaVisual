@@ -25,7 +25,6 @@ public final class LavaTitleScreen extends Screen {
     /** CI: the title screen was swapped in by the hook (not opened by hand). */
     public static boolean replaced;
     private static boolean logged;
-    private static final String[] NEWS = {"Логотип LV у ников", "Физика шарфа и крыльев", "Аксессуары обновляются быстрее", "Меньше подлагиваний"};
     private final long opened = System.nanoTime();
     private final List<Hit> hits = new ArrayList<>();
     private final Map<String, Double> motions = new HashMap<>();
@@ -148,18 +147,6 @@ public final class LavaTitleScreen extends Screen {
             minecraft.gui.setScreen(new TitleScreen());
         }, ac, ac2, enter);
 
-        // What is new, bottom right, on wide windows.
-        if (width >= 470 && height >= 250) {
-            int cardW = 164, cardH = 22 + NEWS.length * 14, cx = width - cardW - 14, cy = height - cardH - 30;
-            UiDraw.round(g, cx, cy, cardW, cardH, 8, UiDraw.alpha(0x14161B, 0.72 * enter));
-            UiDraw.roundV(g, cx + 1, cy + 8, 2, 10, 1, UiDraw.alpha(ac, enter), UiDraw.alpha(ac2, enter));
-            UiFont.text(g, font, "Новое в " + Edition.label(), cx + 10, cy + 8, UiDraw.alpha(0xF0F3F7, enter), cardW - 16, UiFont.Face.BOLD);
-            for (int i = 0; i < NEWS.length; i++) {
-                int ly = cy + 24 + i * 14;
-                UiDraw.round(g, cx + 11, ly + 3, 3, 3, 1, UiDraw.alpha(UiDraw.mix(ac, ac2, i / 3.0), enter));
-                UiFont.text(g, font, NEWS[i], cx + 19, ly, UiDraw.alpha(0xB5BDC9, enter), cardW - 26, UiFont.Face.SMALL);
-            }
-        }
         String version = "LavaVisual " + Edition.label();
         UiFont.text(g, font, version, 8, height - 14, UiDraw.alpha(0x7D8795, enter), width / 2, UiFont.Face.SMALL);
         String legal = "Copyright Mojang AB. Do not distribute!";

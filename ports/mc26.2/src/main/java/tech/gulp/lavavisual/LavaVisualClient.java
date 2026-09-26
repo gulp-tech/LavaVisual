@@ -131,7 +131,7 @@ public final class LavaVisualClient implements ClientModInitializer {
                     if (smokeTicks == 1026) LavaVisual.LOGGER.info("LavaVisual smoke shot title");
                     if (smokeTicks == 1030) LavaVisual.LOGGER.info("LavaVisual title screen replaced=" + tech.gulp.lavavisual.ui.LavaTitleScreen.replaced
                             + " client title: " + Edition.retitle("Minecraft* 26.2 - Singleplayer"));
-                    if (smokeTicks == 1032) {
+                    if (smokeTicks == 1056) {
                         // A full resource reload, as when a server sends a resource pack.
                         long started = System.nanoTime();
                         client.reloadResourcePacks().whenComplete((ignored, error) -> {
@@ -139,7 +139,7 @@ public final class LavaVisualClient implements ClientModInitializer {
                             LavaVisual.LOGGER.info("LavaVisual smoke resource reload " + (error == null ? "ok" : "failed") + ": " + reloadMillis + " ms");
                         });
                     }
-                    if (smokeTicks >= 1048 && !worldStarted && reloadMillis >= 0) { worldStarted = true; SmokeWorld.start(client); }
+                    if (smokeTicks >= 1072 && !worldStarted && reloadMillis >= 0) { worldStarted = true; SmokeWorld.start(client); }
                     SmokeWorld.tick(client);
                 }
             }
