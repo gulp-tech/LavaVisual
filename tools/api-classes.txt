@@ -68,3 +68,13 @@ net.minecraft.client.sounds.ChannelAccess$ChannelHandle
 com.mojang.blaze3d.audio.Channel
 com.mojang.blaze3d.platform.NativeImage
 net.minecraft.client.renderer.texture.DynamicTexture
+org.lwjgl.stb.STBVorbis
+org.lwjgl.stb.STBVorbisInfo
+org.lwjgl.openal.AL10
+org.lwjgl.openal.ALC10
+org.lwjgl.system.MemoryUtil
+org.lwjgl.system.libc.LibCStdlib
+org.lwjgl.system.MemoryStack
+net.minecraft.client.gui.screens.Screen
+net.minecraft.client.renderer.texture.AbstractTexture
+net.minecraft.client.renderer.texture.TextureManager
