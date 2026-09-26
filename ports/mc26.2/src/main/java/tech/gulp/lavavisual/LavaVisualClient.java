@@ -108,7 +108,7 @@ public final class LavaVisualClient implements ClientModInitializer {
                     if (smokeTicks == 910) LavaVisual.LOGGER.info("LavaVisual smoke shot effects");
                     if (smokeTicks == 930) client.gui.setScreen(new ClickGuiScreen().withSearch("удар"));
                     if (smokeTicks == 960) LavaVisual.LOGGER.info("LavaVisual smoke shot search");
-                    if (smokeTicks == 964) client.gui.setScreen(new ClickGuiScreen(8));
+                    if (smokeTicks == 964) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_INTERFACE));
                     if (smokeTicks == 974) client.gui.setScreen(null);
                     if (smokeTicks == 978) client.gui.setScreen(ClickGuiScreen.restore());
                     if (smokeTicks == 980) LavaVisual.LOGGER.info("LavaVisual menu restore page " + ClickGuiScreen.lastPage());
