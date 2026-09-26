@@ -63,6 +63,10 @@ public final class ClickGuiScreen extends Screen {
     private double scroll, indicator, frameFactor, renderScale = 1, pressY, pressScroll;
     private Hit pending;
     private boolean touching, touchScrolled;
+    // Scrollbar of the page body: geometry of the last frame; the thumb can be dragged and the track clicked.
+    private boolean barDragging;
+    private int barY, barH, barMax;
+    private double barGrab;
     private String selected, colorOpen;
     private Slider dragging;
     /** Menu drag from the header or the logo block: grab offset in menu units and the free space of the last frame. */
@@ -379,10 +383,16 @@ public final class ClickGuiScreen extends Screen {
         g.disableScissor();
         int max = Math.max(0, contentHeight - (clipBottom - clipTop));
         scroll = Math.clamp(scroll, 0, max);
+        barMax = max;
         if (max > 0) {
-            int h = Math.max(14, (clipBottom - clipTop) * (clipBottom - clipTop) / contentHeight);
+            int h = Math.max(18, (clipBottom - clipTop) * (clipBottom - clipTop) / contentHeight);
             int y = clipTop + (int) ((clipBottom - clipTop - h) * scroll / max);
-            UiDraw.roundV(g, left + panelW - 8, y, 2, h, 1, UiDraw.alpha(ac, 0.7), UiDraw.alpha(ac2, 0.7));
+            barY = y; barH = h;
+            boolean active = barDragging || onBar(mx, my);
+            if (active) {
+                UiDraw.round(g, left + panelW - 10, clipTop, 6, clipBottom - clipTop, 3, 0x14FFFFFF);
+                UiDraw.roundV(g, left + panelW - 9, y, 4, h, 2, UiDraw.alpha(ac, 0.95), UiDraw.alpha(ac2, 0.95));
+            } else UiDraw.roundV(g, left + panelW - 8, y, 2, h, 1, UiDraw.alpha(ac, 0.7), UiDraw.alpha(ac2, 0.7));
         }
         if (searching) text(g, "Enter · открыть первое    Esc · очистить    Ctrl+F · поиск", bodyX, top + panelH - 20, 0xFF818C9C, bodyW);
         else if (selected == null) text(g, Binds.keyName(Binds.Action.MENU) + " · меню    " + Binds.keyName(Binds.Action.DISABLE_ALL) + " · всё выкл    "
@@ -578,7 +588,7 @@ public final class ClickGuiScreen extends Screen {
         }
         button(g, Icons.MOVE, "Редактор расположения", () -> minecraft.gui.setScreen(new HudEditorScreen(this)));
         var cfg = LavaVisualClient.config();
-        toggle(g, "badge", "Значки LavaVisual", "Иконка у ников игроков, которые делятся значком", cfg.badgeEnabled,
+        toggle(g, "badge", "Значки LavaVisual", "Логотип LV перед ником игроков, которые делятся значком", cfg.badgeEnabled,
                 () -> { cfg.badgeEnabled = !cfg.badgeEnabled; changed(); }, null);
         toggle(g, "badge_share", "Делиться значком и косметикой", "Игроки с LavaVisual увидят значок, шляпу, крылья, плащ и аксессуары", cfg.badgeShare,
                 () -> { cfg.badgeShare = !cfg.badgeShare; changed(); }, null);
@@ -982,7 +992,7 @@ public final class ClickGuiScreen extends Screen {
         java.util.function.IntConsumer pick = i -> { c.capeType = i + 1; c.capeEnabled = true; changed(); };
         chips(g, Hats.CAPE_NAMES, c.capeType - 1, pick, 5);
         section(g, "Настройка");
-        toggle(g, "cape_physics", "Физика ткани", "Плащ развевается от бега, прыжков и поворотов", c.capePhysics, () -> { c.capePhysics = !c.capePhysics; changed(); }, null);
+        toggle(g, "cape_physics", "Физика аксессуаров", "Плащ, шарф и крылья двигаются от бега, прыжков и поворотов", c.capePhysics, () -> { c.capePhysics = !c.capePhysics; changed(); }, null);
         slider(g, "Ветер · 0 = висит ровно", c.capeSway, 0, 2, v -> c.capeSway = v < 0.05 ? 0 : v, false);
         slider(g, "Прозрачность", c.capeOpacity, 0.3, 1, v -> c.capeOpacity = v, false);
         caption(g, "Узор");
@@ -1169,7 +1179,6 @@ public final class ClickGuiScreen extends Screen {
         colorRow(g, "hud_bg", "Фон панелей HUD");
         section(g, "HUD");
         for (String id : List.of("watermark", "target", "keys", "armor", "coordinates", "performance", "totems", "minimap")) colorRow(g, id, HudRenderer.title(id));
-        colorRow(g, "badge", "Значок у ников");
         section(g, "Эффекты");
         String[][] effects = {{"crosshair", "Прицел"}, {"jump", "Jump Circle"}, {"particles", "Hit Particles"}, {"ambient", "Частицы в воздухе"},
                 {"marker", "Маркер удара"}, {"esp", "Target ESP"}, {"kill", "Kill Effect"}, {"hat", "Шляпа"}, {"wings", "Крылья"}, {"trail", "Trails"}, {"cape", "Плащ"}, {"outfit", "Аксессуары"}, {"projectile", "Следы снарядов"}, {"crit", "Насыщенный крит"}, {"waypoint", "Новые метки"}};
@@ -1342,6 +1351,13 @@ public final class ClickGuiScreen extends Screen {
         }
         if (event.button() != 0) return super.mouseClicked(event, doubleClick);
         double ux = event.x() / renderScale, uy = event.y() / renderScale;
+        if (onBar(ux, uy)) {
+            // On the thumb: drag it from where it was grabbed; on the track: jump there and keep dragging.
+            barGrab = uy >= barY && uy < barY + barH ? uy - barY : barH / 2.0;
+            barDragging = true;
+            dragBar(uy);
+            return true;
+        }
         if (!(ux >= searchX && ux < searchX + searchW && uy >= searchY && uy < searchY + 22)) searchFocused = false;
         if ((event.y() / renderScale) >= clipTop && (event.y() / renderScale) < clipBottom) for (Slider slider : sliders) {
             if ((event.x() / renderScale) >= slider.x - 4 && (event.x() / renderScale) <= slider.x + slider.width + 4 && (event.y() / renderScale) >= slider.y && (event.y() / renderScale) < slider.y + 20) {
@@ -1372,7 +1388,16 @@ public final class ClickGuiScreen extends Screen {
         return panelW > 0 && (header || brand);
     }
     private void press(Hit hit, double uy) { pending = hit; touching = true; touchScrolled = false; pressY = uy; pressScroll = scroll; }
+    /** Scrollbar hit zone: a finger-wide strip at the right edge of the panel, as tall as the page body. */
+    private boolean onBar(double x, double y) {
+        return barMax > 0 && panelW > 0 && x >= left + panelW - 14 && x < left + panelW && y >= clipTop && y < clipBottom;
+    }
+    private void dragBar(double uy) {
+        double span = Math.max(1, clipBottom - clipTop - barH);
+        scroll = Math.clamp((uy - barGrab - clipTop) / span * barMax, 0, barMax);
+    }
     @Override public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        if (barDragging) { dragBar(event.y() / renderScale); return true; }
         if (touching) {
             double uy = event.y() / renderScale;
             if (!touchScrolled && Math.abs(uy - pressY) > 5) { touchScrolled = true; pending = null; }
@@ -1390,6 +1415,7 @@ public final class ClickGuiScreen extends Screen {
         dragging.set((event.x() / renderScale)); return true;
     }
     @Override public boolean mouseReleased(MouseButtonEvent event) {
+        if (barDragging) { barDragging = false; return true; }
         if (touching) {
             touching = false;
             Hit hit = pending;
@@ -1403,11 +1429,11 @@ public final class ClickGuiScreen extends Screen {
     }
     @Override public boolean mouseScrolled(double x, double y, double horizontal, double vertical) {
         x /= renderScale; y /= renderScale;
-        if (x >= bodyX && x <= bodyX + bodyW && y >= clipTop && y < clipBottom && dragging == null) {
+        if (x >= bodyX && x <= left + panelW && y >= clipTop && y < clipBottom && dragging == null) {
             scroll = Math.clamp(scroll - vertical * 30, 0, Math.max(0, contentHeight - (clipBottom - clipTop))); return true;
         }
         return super.mouseScrolled(x, y, horizontal, vertical);
     }
-    @Override public void onClose() { dragging = null; moving = false; changed(); super.onClose(); }
+    @Override public void onClose() { dragging = null; moving = false; barDragging = false; changed(); super.onClose(); }
     @Override public boolean isPauseScreen() { return false; }
 }

@@ -24,26 +24,57 @@ public final class Covers {
     private static Path loaded;
     private static boolean present;
     private static DynamicTexture texture;
+    // Result of the background decode, handed over to the game thread (which uploads it).
+    private static NativeImage ready;
+    private static Path readyFor;
+    private static final java.util.concurrent.ExecutorService WORKER = java.util.concurrent.Executors.newSingleThreadExecutor(task -> {
+        Thread thread = new Thread(task, "LavaVisual covers");
+        thread.setDaemon(true);
+        return thread;
+    });
     private Covers() { }
 
+    /** Cover of the track, or null while there is none (yet): the file is read and decoded on a background thread,
+     *  only the small 64 x 64 upload happens here. */
     public static Identifier get(Minecraft mc, MusicPlayer.Track track) {
         if (track == null) return null;
         if (!track.file().equals(loaded)) {
             loaded = track.file();
             present = false;
-            try {
-                byte[] bytes = find(track.file());
-                NativeImage image = bytes == null ? null : decode(bytes);
-                if (image != null) {
+            Path file = loaded;
+            WORKER.execute(() -> {
+                NativeImage image = null;
+                try {
+                    byte[] bytes = find(file);
+                    image = bytes == null ? null : decode(bytes);
+                } catch (RuntimeException | LinkageError error) {
+                    LavaVisual.LOGGER.warn("LavaVisual: cannot read the cover of {}", file.getFileName(), error);
+                }
+                synchronized (Covers.class) {
+                    if (ready != null) ready.close(); // an older result nobody picked up
+                    ready = image;
+                    readyFor = file;
+                }
+            });
+        }
+        NativeImage image;
+        Path file;
+        synchronized (Covers.class) {
+            image = ready; file = readyFor;
+            ready = null; readyFor = null;
+        }
+        if (file != null) {
+            if (image != null && file.equals(loaded)) {
+                try {
                     // Registering under the same id replaces (and closes) the previous cover.
                     texture = new DynamicTexture(() -> "lavavisual music cover", image);
                     mc.getTextureManager().register(ID, texture);
                     texture.upload();
                     present = true;
+                } catch (RuntimeException | LinkageError error) {
+                    LavaVisual.LOGGER.warn("LavaVisual: cannot show the cover of {}", file.getFileName(), error);
                 }
-            } catch (RuntimeException | LinkageError error) {
-                LavaVisual.LOGGER.warn("LavaVisual: cannot read the cover of {}", track.file().getFileName(), error);
-            }
+            } else if (image != null) image.close();
         }
         return present ? ID : null;
     }

@@ -25,7 +25,7 @@ public final class LavaTitleScreen extends Screen {
     /** CI: the title screen was swapped in by the hook (not opened by hand). */
     public static boolean replaced;
     private static boolean logged;
-    private static final String[] NEWS = {"Быстрая загрузка ресурс-паков", "Плащи с физикой ткани", "Аксессуары видят другие игроки", "Поддержка телефонов"};
+    private static final String[] NEWS = {"Логотип LV у ников", "Физика шарфа и крыльев", "Аксессуары обновляются быстрее", "Меньше подлагиваний"};
     private final long opened = System.nanoTime();
     private final List<Hit> hits = new ArrayList<>();
     private final Map<String, Double> motions = new HashMap<>();

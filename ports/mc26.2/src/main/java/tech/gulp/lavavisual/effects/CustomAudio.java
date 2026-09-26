@@ -75,12 +75,22 @@ public final class CustomAudio {
             case 2 -> { c.totemSound = index; c.totemCustom = key; }
             default -> { c.killSound = index; c.killCustom = key; }
         }
+        prewarm();
     }
     /** Library sound id for the vanilla pipeline (a user file falls back to the event's default when it is missing). */
     public static Identifier sound(int group) {
         int index = selected(group);
         if (index >= IDS.length) index = FALLBACK[Math.clamp(group, 0, 3)];
         return Identifier.fromNamespaceAndPath("lavavisual", IDS[Math.clamp(index, 0, IDS.length - 1)]);
+    }
+    /** Decodes the chosen user sounds in the background, so the first hit plays them without a hitch. */
+    public static void prewarm() {
+        java.util.List<java.nio.file.Path> files = new java.util.ArrayList<>(4);
+        for (int g = 0; g < 4; g++) {
+            var entry = custom(g);
+            if (entry != null && entry.playable()) files.add(entry.file());
+        }
+        if (!files.isEmpty()) tech.gulp.lavavisual.audio.LavaAudio.prewarm(files);
     }
     /** Plays the event's user file through OpenAL; false when there is none (or it cannot play). */
     private static boolean playCustom(int group, double gain) {

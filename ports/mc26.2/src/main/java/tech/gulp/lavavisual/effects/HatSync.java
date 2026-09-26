@@ -14,17 +14,17 @@ import tech.gulp.lavavisual.LavaVisualClient;
  * Serverless hat sharing between LavaVisual players (opt-in together with the badge, see Badge).
  *
  * The only client-controlled value that every vanilla server relays to other players without drawing anything is
- * the unused 0x80 bit of the skin-parts byte. While sharing, the bit stays set (that is the badge); now and then it
- * spells out a short frame, one bit per second: 0 0 0 1, then 21 data bits (hat 4, hat colour 5, wings 3, wing
- * colour 5, check 4) with a 0 stuffed after every two 1s, so no run of 1s inside a frame lasts more than two seconds
- * and a frame can only start after three or more seconds of idle 1. That is at most one settings packet per second,
- * only while other players are around, and a frame takes about half a minute. Receivers sample the bit every tick.
- * Colour codes: 0 rainbow, 1..27 hues, 28..31 white, light grey, dark grey, black. Frames with another preamble
- * (the first protocol used 0 0 1 + RGB444) are ignored.
+ * the unused 0x80 bit of the skin-parts byte. While sharing, the bit stays set (that is the badge); when something
+ * changed it spells out a short frame, one bit per half second: 0 0 0 1, then 21 data bits (hat 4, hat colour 5,
+ * wings 3, wing colour 5, check 4) with a 0 stuffed after every two 1s, so no run of 1s inside a frame lasts more
+ * than two slots and a frame can only start after three seconds or more of idle 1. That is at most two settings
+ * packets per second, only while other players are around; a change reaches them in about 16 seconds. Receivers
+ * sample the bit every tick and line their sampling up with the average timing of the edges, so network jitter does
+ * not add up. Colour codes: 0 rainbow, 1..27 hues, 28..31 white, light grey, dark grey, black.
  *
- * Cape and accessories follow a few seconds after the hat frame in a second frame, 0 0 1 0 then 22 data bits (cape 3,
- * cape colour 5, cape style 2, accessories 3 as a bit mask, accessory colour 5, check 4). Versions without it reject
- * that preamble and simply keep ignoring the frame.
+ * Cape and accessories use a second frame, 0 0 1 0 then 22 data bits (cape 3, cape colour 5, cape style 2,
+ * accessories 3 as a bit mask, accessory colour 5, check 4). Only the frame whose content changed is sent (both when
+ * a new LavaVisual player comes near). Frames of version 1.0.0 (one bit per second) are still understood.
  */
 public final class HatSync {
     /** Shared cosmetics of another player; type 0 = none. */
@@ -33,17 +33,21 @@ public final class HatSync {
     public record Outfit(int cape, int capeRgb, boolean capeRainbow, int capeStyle, int extras, int extrasRgb, boolean extrasRainbow) { }
     private static final int[] PREAMBLE = {0, 0, 0, 1}, OUTFIT = {0, 0, 1, 0};
     static final int HAT_BITS = 21, OUTFIT_BITS = 22;
-    private static int lastOutfit = Integer.MIN_VALUE, outfitSent;
-    private static boolean outfitDue;
-    static final long SLOT = 1000, IDLE_BEFORE_FRAME = 3000;
-    private static final long JOIN_DELAY = 10_000, MARK_MEMORY = 30_000, PEER_MEMORY = 600_000, NEW_PLAYER_MEMORY = 300_000;
+    /** Slot length of the frames sent now, and of the frames of 1.0.0 (still decoded). */
+    static final long SLOT = 500, LEGACY_SLOT = 1000, IDLE_BEFORE_FRAME = 3000;
+    private static final long[] SLOTS = {SLOT, LEGACY_SLOT};
+    /** Nothing sent yet. */
+    private static final int NONE = Integer.MIN_VALUE;
+    private static final long JOIN_DELAY = 8_000, SETTLE = 1200, MARK_MEMORY = 30_000, PEER_MEMORY = 600_000, NEW_PLAYER_MEMORY = 300_000;
     // sender
     private static Object level;
     private static int[] frame;
-    private static long frameStart, frameEnd = -1_000_000, lastFrameStart = -1_000_000, joinedAt, highSince = -1, dirtyAt = -1;
-    private static int signature = Integer.MIN_VALUE;
-    private static boolean advertised, pendingMarked, pendingAny;
+    private static long frameStart, frameEnd = -1_000_000, lastFullSend = -1_000_000, joinedAt, highSince = -1, dirtyAt = -1;
+    private static int lastHat = NONE, lastOutfit = NONE, hatSent = NONE, outfitSent = NONE;
+    // A changed frame goes out once more a little later, for receivers whose connection garbled the first copy.
+    private static boolean advertised, resendHat, resendOutfit, repeatHat, repeatOutfit, pendingMarked, pendingAny;
     private static final Map<UUID, Long> NEARBY = new HashMap<>();
+    private static final java.util.Set<UUID> MARKED_SEEN = new java.util.HashSet<>();
     // receiver
     private static final Map<UUID, Peer> PEERS = new HashMap<>();
     private static long lastCleanup;
@@ -60,25 +64,37 @@ public final class HatSync {
         var c = LavaVisualClient.config();
         boolean share = c.badgeShare && now - joinedAt >= JOIN_DELAY;
         boolean bit = share;
-        if (!share) { frame = null; highSince = -1; }
-        else {
+        if (!share) {
+            // Others forget our cosmetics once the mark is gone; everything is sent again when sharing resumes.
+            frame = null; highSince = -1; hatSent = outfitSent = NONE; repeatHat = repeatOutfit = false;
+        } else {
             if (highSince < 0) highSince = now;
-            int current = signature(c), outfit = outfitSignature(c);
-            if (current != signature || outfit != lastOutfit) { signature = current; lastOutfit = outfit; dirtyAt = now; }
-            if (frame == null && now - highSince >= IDLE_BEFORE_FRAME + 2000) {
-                if (outfitDue && now - frameEnd >= 2000) {
+            int hat = signature(c), outfit = outfitSignature(c);
+            if (hat != lastHat || outfit != lastOutfit) { lastHat = hat; lastOutfit = outfit; dirtyAt = now; }
+            if (frame == null && now - highSince >= IDLE_BEFORE_FRAME + 400 && (dirtyAt < 0 || now - dirtyAt >= SETTLE) && viewers(mc, now)) {
+                boolean repeatDue = now - frameEnd >= 12_000;
+                if (resendHat && hasHat(hat) || differs(hat, hatSent, true)) {
+                    frame = encode(PREAMBLE, hat, HAT_BITS);
+                    repeatHat = differs(hat, hatSent, true);
+                    hatSent = hat;
+                } else if (resendOutfit && hasOutfit(outfit) || differs(outfit, outfitSent, false)) {
                     frame = encode(OUTFIT, outfit, OUTFIT_BITS);
-                    frameStart = now; outfitDue = false; outfitSent = outfit;
-                } else if (now - frameEnd >= 10_000 && wanted(mc, now)) {
-                    frame = encode(current);
-                    frameStart = lastFrameStart = now; dirtyAt = -1; pendingMarked = pendingAny = false;
-                    // The outfit frame follows when there is a cape or accessory to show (or one to take off).
-                    outfitDue = hasOutfit(outfit) || hasOutfit(outfitSent);
+                    repeatOutfit = differs(outfit, outfitSent, false);
+                    outfitSent = outfit;
+                    resendOutfit = false;
+                } else if (repeatDue && repeatHat) {
+                    frame = encode(PREAMBLE, hat, HAT_BITS);
+                    repeatHat = false;
+                } else if (repeatDue && repeatOutfit) {
+                    frame = encode(OUTFIT, outfit, OUTFIT_BITS);
+                    repeatOutfit = false;
                 }
+                resendHat = false;
+                if (frame != null) frameStart = now;
             }
             if (frame != null) {
                 int slot = (int) ((now - frameStart) / SLOT);
-                if (slot >= frame.length) { frame = null; frameEnd = now; highSince = now; }
+                if (slot >= frame.length) { frame = null; highSince = now; frameEnd = now; }
                 else bit = frame[slot] == 1;
             }
         }
@@ -89,11 +105,19 @@ public final class HatSync {
     }
 
     private static void reset() {
-        level = null; frame = null; advertised = false; highSince = -1; dirtyAt = -1; signature = Integer.MIN_VALUE;
-        lastOutfit = Integer.MIN_VALUE; outfitSent = 0; outfitDue = false;
-        frameEnd = lastFrameStart = -1_000_000; pendingMarked = pendingAny = false;
-        NEARBY.clear(); PEERS.clear();
+        level = null; frame = null; advertised = false; highSince = -1; dirtyAt = -1;
+        lastHat = lastOutfit = hatSent = outfitSent = NONE;
+        resendHat = resendOutfit = repeatHat = repeatOutfit = pendingMarked = pendingAny = false;
+        lastFullSend = frameEnd = -1_000_000;
+        NEARBY.clear(); MARKED_SEEN.clear(); PEERS.clear();
     }
+    /** Whether others have to hear about this payload: it shows something that differs from what they last got. */
+    private static boolean differs(int current, int sent, boolean hat) {
+        boolean shows = hat ? hasHat(current) : hasOutfit(current);
+        boolean showed = sent != NONE && (hat ? hasHat(sent) : hasOutfit(sent));
+        return (shows || showed) && current != sent;
+    }
+    private static boolean hasHat(int payload) { return (payload >>> 17 & 15) != 0 || (payload >>> 9 & 7) != 0; }
 
     /** hat 4 | hat colour 5 | wings 3 | wing colour 5 | check 4, as the low 21 bits. */
     private static int signature(tech.gulp.lavavisual.config.HudConfig c) {
@@ -154,25 +178,30 @@ public final class HatSync {
         return result;
     }
 
-    /** Send only when someone can see it: hat changed, a LavaVisual player or any new player came near, or a rare refresh. */
-    private static boolean wanted(Minecraft mc, long now) {
+    /** True when someone can see it. A LavaVisual player who shows up (or any new player, more rarely) makes both
+     *  frames go out again, so newcomers learn what we wear. */
+    private static boolean viewers(Minecraft mc, long now) {
         int others = 0;
         for (Player player : mc.level.players()) {
             if (player == mc.player || player.distanceToSqr(mc.player) > 64 * 64) continue;
             others++;
-            Long seen = NEARBY.put(player.getUUID(), now);
-            if (seen == null || now - seen > NEW_PLAYER_MEMORY) {
-                pendingAny = true;
-                if (Badge.marked(player)) pendingMarked = true;
-            }
+            UUID id = player.getUUID();
+            Long seen = NEARBY.put(id, now);
+            if (seen == null || now - seen > NEW_PLAYER_MEMORY) { pendingAny = true; MARKED_SEEN.remove(id); }
+            if (Badge.marked(player) && MARKED_SEEN.add(id)) pendingMarked = true;
         }
-        if (NEARBY.size() > 256) NEARBY.values().removeIf(seen -> now - seen > NEW_PLAYER_MEMORY);
+        if (NEARBY.size() > 256) {
+            NEARBY.values().removeIf(seen -> now - seen > NEW_PLAYER_MEMORY);
+            MARKED_SEEN.retainAll(NEARBY.keySet());
+        }
         if (others == 0) return false;
-        long since = now - lastFrameStart;
-        return (dirtyAt >= 0 && now - dirtyAt >= 3000)
-                || (pendingMarked && since >= 45_000)
-                || (pendingAny && since >= 150_000)
-                || since >= 600_000;
+        long since = now - lastFullSend;
+        if ((pendingMarked && since >= 20_000) || (pendingAny && since >= 120_000) || since >= 600_000) {
+            resendHat = resendOutfit = true;
+            pendingMarked = pendingAny = false;
+            lastFullSend = now;
+        }
+        return true;
     }
 
     // ------------------------------------------------------------------------------------------------ receiver
@@ -200,6 +229,23 @@ public final class HatSync {
             return -1;
         }
         void restart() { size = 0; head = 0; known = false; highSince = -1; candidates.clear(); }
+        /** Average offset of the edges after start from the slot grid (the start edge counts as 0), so samples sit in
+         *  the middle of the slots even when the first edge came in early or late. */
+        long phase(long start, long now, long slot) {
+            long sum = 0;
+            int count = 1;
+            for (int i = 1; i <= size; i++) {
+                int index = Math.floorMod(head - i, times.length);
+                long t = times[index];
+                if (t <= start) break;
+                if (t > now) continue;
+                long k = Math.round((t - start) / (double) slot);
+                if (k < 1 || k > 44) continue;
+                sum += t - start - k * slot;
+                count++;
+            }
+            return Math.clamp(sum / count, -slot / 3, slot / 3);
+        }
         /** Feeds one sample; returns true when a frame was decoded. */
         boolean sample(long now, boolean bit) {
             if (!known || bit != last) {
@@ -212,52 +258,55 @@ public final class HatSync {
             boolean decoded = false;
             for (Iterator<Long> it = candidates.iterator(); it.hasNext(); ) {
                 long start = it.next();
-                int result = decode(this, start, now);
-                if (result == -1) continue;
-                if (result >= 0) {
-                    it.remove();
-                    int hatColor = result >>> 12 & 31, wingColor = result >>> 4 & 31;
-                    hat = new Remote(result >>> 17 & 15, color(hatColor), hatColor == 0, result >>> 9 & 7, color(wingColor), wingColor == 0);
-                    decoded = true;
-                    candidates.removeIf(other -> other < start + 40 * SLOT);
-                    break;
+                boolean waiting = false;
+                int kind = 0, payload = 0;
+                long slot = SLOT;
+                for (long length : SLOTS) {
+                    int result = decode(this, start, now, length);
+                    if (result >= 0) { kind = 1; payload = result; slot = length; break; }
+                    if (result == -1) waiting = true;
+                    result = decodeOutfit(this, start, now, length);
+                    if (result >= 0) { kind = 2; payload = result; slot = length; break; }
+                    if (result == -1) waiting = true;
                 }
-                int dressed = decodeOutfit(this, start, now);
-                if (dressed == -1) continue;
+                if (kind == 0) { if (!waiting) it.remove(); continue; }
                 it.remove();
-                if (dressed >= 0) {
-                    outfit = outfitOf(dressed);
-                    decoded = true;
-                    candidates.removeIf(other -> other < start + 40 * SLOT);
-                    break;
-                }
+                if (kind == 1) {
+                    int hatColor = payload >>> 12 & 31, wingColor = payload >>> 4 & 31;
+                    hat = new Remote(payload >>> 17 & 15, color(hatColor), hatColor == 0, payload >>> 9 & 7, color(wingColor), wingColor == 0);
+                } else outfit = outfitOf(payload);
+                decoded = true;
+                long end = start + 40 * slot;
+                candidates.removeIf(other -> other < end);
+                break;
             }
             return decoded;
         }
     }
 
     /** Payload (21 bits) of the frame that started at start; -1 while incomplete, -2 when it is not a valid frame. */
-    static int decode(Peer peer, long start, long now) {
-        int payload = read(peer, start, now, PREAMBLE, HAT_BITS);
+    static int decode(Peer peer, long start, long now, long slot) {
+        int payload = read(peer, start, now, PREAMBLE, HAT_BITS, slot);
         if (payload < 0) return payload;
         return check(payload >>> 17 & 15, payload >>> 12 & 31, payload >>> 9 & 7, payload >>> 4 & 31) == (payload & 15) ? payload : -2;
     }
     /** Payload (22 bits) of an outfit frame; -1 while incomplete, -2 when it is not one. */
-    static int decodeOutfit(Peer peer, long start, long now) {
-        int payload = read(peer, start, now, OUTFIT, OUTFIT_BITS);
+    static int decodeOutfit(Peer peer, long start, long now, long slot) {
+        int payload = read(peer, start, now, OUTFIT, OUTFIT_BITS, slot);
         if (payload < 0) return payload;
         return checkOutfit(payload >>> 19 & 7, payload >>> 14 & 31, payload >>> 12 & 3, payload >>> 9 & 7, payload >>> 4 & 31) == (payload & 15) ? payload : -2;
     }
-    private static int read(Peer peer, long start, long now, int[] preamble, int bits) {
-        int slot = 0;
+    private static int read(Peer peer, long start, long now, int[] preamble, int bits, long slot) {
+        long origin = start + peer.phase(start, now, slot) + slot / 2;
+        int index = 0;
         for (int expected : preamble) {
-            long time = start + slot++ * SLOT + SLOT / 2;
+            long time = origin + index++ * slot;
             if (time > now) return -1;
             if (peer.at(time) != expected) return -2;
         }
         int payload = 0, ones = preamble[preamble.length - 1], count = 0;
         while (count < bits) {
-            long time = start + slot++ * SLOT + SLOT / 2;
+            long time = origin + index++ * slot;
             if (time > now) return -1;
             int bit = peer.at(time);
             if (bit < 0) return -2;
@@ -312,46 +361,46 @@ public final class HatSync {
         return false;
     }
 
-    /** CI check: frames survive jitter and bit stuffing; mid-frame starts are never taken for frames. */
+    /** CI check: frames survive jitter and bit stuffing at both slot lengths; mid-frame starts are never taken for
+     *  frames. Edges reach the receiver 40..240 ms late (fast frames) or 40..250 ms late (1.0.0 frames). */
     public static String selfTest() {
-        int[][] cases = {{3, 5, 2, 0}, {14, 31, 5, 31}, {1, 0, 0, 0}, {0, 28, 1, 17}, {7, 13, 7, 27}, {15, 31, 7, 31}};
         java.util.Random random = new java.util.Random(2612);
-        for (int[] test : cases) {
-            int[] bits = encode(pack(test[0], test[1], test[2], test[3]));
-            int run = 0;
-            for (int i = PREAMBLE.length - 1; i < bits.length; i++) { run = bits[i] == 1 ? run + 1 : 0; if (run > 2) return "LavaVisual hat sync self-test failed: run of " + run; }
-            Peer peer = new Peer();
-            long base = 1_000_000, start = base + 8000;
-            // Transitions reach the receiver up to 250 ms late; it samples every 50 ms.
-            long[] arrive = new long[bits.length + 1];
-            for (int i = 0; i <= bits.length; i++) arrive[i] = start + i * SLOT + 40 + random.nextInt(210);
-            Remote decoded = null;
-            for (long now = base; now < start + (bits.length + 6) * SLOT; now += 50) {
-                boolean bit = true;
-                for (int i = 0; i < bits.length; i++) if (now >= arrive[i] && now < arrive[i + 1]) bit = bits[i] == 1;
-                if (peer.sample(now, bit)) decoded = peer.hat;
-            }
-            if (decoded == null || decoded.hat() != test[0] || decoded.hatRgb() != color(test[1]) || decoded.hatRainbow() != (test[1] == 0)
-                    || decoded.wings() != test[2] || decoded.wingRgb() != color(test[3]) || decoded.wingRainbow() != (test[3] == 0))
-                return "LavaVisual hat sync self-test failed: " + java.util.Arrays.toString(test) + " -> " + decoded;
-        }
+        int[][] cases = {{3, 5, 2, 0}, {14, 31, 5, 31}, {1, 0, 0, 0}, {0, 28, 1, 17}, {7, 13, 7, 27}, {15, 31, 7, 31}};
         int[][] outfits = {{2, 5, 1, 3, 17}, {6, 0, 2, 7, 0}, {1, 31, 0, 0, 28}, {0, 13, 0, 4, 9}, {7, 31, 2, 7, 31}};
-        for (int[] test : outfits) {
-            int[] bits = encode(OUTFIT, packOutfit(test[0], test[1], test[2], test[3], test[4]), OUTFIT_BITS);
-            Peer peer = new Peer();
-            long base = 1_000_000, start = base + 8000;
-            long[] arrive = new long[bits.length + 1];
-            for (int i = 0; i <= bits.length; i++) arrive[i] = start + i * SLOT + 40 + random.nextInt(210);
-            Outfit decoded = null;
-            for (long now = base; now < start + (bits.length + 6) * SLOT; now += 50) {
-                boolean bit = true;
-                for (int i = 0; i < bits.length; i++) if (now >= arrive[i] && now < arrive[i + 1]) bit = bits[i] == 1;
-                if (peer.sample(now, bit)) decoded = peer.outfit;
+        for (long slot : SLOTS) {
+            long spread = slot == SLOT ? 200 : 210;
+            for (int[] test : cases) {
+                int[] bits = encode(PREAMBLE, pack(test[0], test[1], test[2], test[3]), HAT_BITS);
+                int run = 0;
+                for (int i = PREAMBLE.length - 1; i < bits.length; i++) { run = bits[i] == 1 ? run + 1 : 0; if (run > 2) return "LavaVisual hat sync self-test failed: run of " + run; }
+                Peer peer = simulate(bits, slot, spread, random);
+                Remote decoded = peer.hat;
+                if (decoded == null || decoded.hat() != test[0] || decoded.hatRgb() != color(test[1]) || decoded.hatRainbow() != (test[1] == 0)
+                        || decoded.wings() != test[2] || decoded.wingRgb() != color(test[3]) || decoded.wingRainbow() != (test[3] == 0) || peer.outfit != null)
+                    return "LavaVisual hat sync self-test failed: " + slot + " ms " + java.util.Arrays.toString(test) + " -> " + decoded;
             }
-            if (decoded == null || decoded.cape() != test[0] || decoded.capeRgb() != color(test[1]) || decoded.capeRainbow() != (test[1] == 0)
-                    || decoded.capeStyle() != test[2] || decoded.extras() != test[3] || decoded.extrasRgb() != color(test[4]) || peer.hat != null)
-                return "LavaVisual hat sync self-test failed: outfit " + java.util.Arrays.toString(test) + " -> " + decoded;
+            for (int[] test : outfits) {
+                int[] bits = encode(OUTFIT, packOutfit(test[0], test[1], test[2], test[3], test[4]), OUTFIT_BITS);
+                Peer peer = simulate(bits, slot, spread, random);
+                Outfit decoded = peer.outfit;
+                if (decoded == null || decoded.cape() != test[0] || decoded.capeRgb() != color(test[1]) || decoded.capeRainbow() != (test[1] == 0)
+                        || decoded.capeStyle() != test[2] || decoded.extras() != test[3] || decoded.extrasRgb() != color(test[4]) || peer.hat != null)
+                    return "LavaVisual hat sync self-test failed: " + slot + " ms outfit " + java.util.Arrays.toString(test) + " -> " + decoded;
+            }
         }
         return "LavaVisual hat sync self-test passed";
+    }
+    /** Idle high, one frame with late edges, idle high again; the receiver samples every 50 ms. */
+    private static Peer simulate(int[] bits, long slot, long spread, java.util.Random random) {
+        Peer peer = new Peer();
+        long base = 1_000_000, start = base + 8000;
+        long[] arrive = new long[bits.length + 1];
+        for (int i = 0; i <= bits.length; i++) arrive[i] = start + i * slot + 40 + random.nextInt((int) spread + 1);
+        for (long now = base; now < start + (bits.length + 8) * slot; now += 50) {
+            boolean bit = true;
+            for (int i = 0; i < bits.length; i++) if (now >= arrive[i] && now < arrive[i + 1]) bit = bits[i] == 1;
+            peer.sample(now, bit);
+        }
+        return peer;
     }
 }

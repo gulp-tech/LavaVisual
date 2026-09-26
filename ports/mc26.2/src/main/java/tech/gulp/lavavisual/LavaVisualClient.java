@@ -58,9 +58,9 @@ public final class LavaVisualClient implements ClientModInitializer {
         save();
         tech.gulp.lavavisual.effects.WorldCosmetics.register();
         tech.gulp.lavavisual.effects.Dummy.register();
+        tech.gulp.lavavisual.effects.Hats.preload();
         tech.gulp.lavavisual.effects.CustomSounds.init();
         tech.gulp.lavavisual.effects.AirParticles.register();
-        tech.gulp.lavavisual.effects.PlayerTags.registerClient();
         var category = KeyMapping.Category.register(id("hud"));
         tech.gulp.lavavisual.input.Binds.register(category);
         // Pause menu button: on phones (touch) there is no Right Shift, so the menu has to be reachable by a tap.
@@ -89,6 +89,7 @@ public final class LavaVisualClient implements ClientModInitializer {
                     if (smokeTicks == 250) tech.gulp.lavavisual.effects.AudioRegression.run(client);
                     if (smokeTicks == 255) LavaVisual.LOGGER.info(tech.gulp.lavavisual.effects.HatSync.selfTest());
                     if (smokeTicks == 256) LavaVisual.LOGGER.info(tech.gulp.lavavisual.effects.Hats.selfTest());
+                    if (smokeTicks == 257) LavaVisual.LOGGER.info(tech.gulp.lavavisual.effects.AccessoryPhysics.selfTest());
                     if (smokeTicks == 270) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MAP));
                     if (smokeTicks == 300) LavaVisual.LOGGER.info("LavaVisual smoke shot map");
                     if (smokeTicks == 360) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_BINDS));
@@ -115,6 +116,7 @@ public final class LavaVisualClient implements ClientModInitializer {
                     if (smokeTicks == 858) LavaVisual.LOGGER.info("LavaVisual smoke shot cosmetics");
                     if (smokeTicks == 866) config().badgeShare = true;
                     if (smokeTicks == 870) LavaVisual.LOGGER.info("LavaVisual badge marker " + (tech.gulp.lavavisual.effects.Badge.marked(tech.gulp.lavavisual.effects.Badge.withBit(client.options.buildPlayerInformation(), true)) ? "on" : "off"));
+                    if (smokeTicks == 872) LavaVisual.LOGGER.info(tech.gulp.lavavisual.effects.PlayerTags.selfTest());
                     if (smokeTicks == 875) config().espStyle = 2;
                     if (smokeTicks == 880) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_EFFECTS));
                     if (smokeTicks == 910) LavaVisual.LOGGER.info("LavaVisual smoke shot effects");
@@ -167,6 +169,7 @@ public final class LavaVisualClient implements ClientModInitializer {
             tech.gulp.lavavisual.effects.AirParticles.tick(client);
             tech.gulp.lavavisual.effects.SwingStyles.tick(client);
             tech.gulp.lavavisual.effects.HatSync.tick(client);
+            tech.gulp.lavavisual.hud.PingMeter.tick(client);
             tech.gulp.lavavisual.map.Minimap.tick(client);
             if (client.player != null) {
                 var pos = client.player.blockPosition();

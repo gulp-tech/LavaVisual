@@ -303,7 +303,7 @@ public final class WorldCosmetics {
         return count;
     }
     public static void clear() {
-        RINGS.clear(); SPARKS.clear(); MARKS.clear(); CLICKS.clear(); TRAIL.clear(); BEAMS.clear(); CapeCloth.clear(); espVisible = false; lastKillId = -1; ready = false; grounded = false; tick = 0; lastHitTick = -100; groundPosition = Vec3.ZERO; combo = 0; comboTarget = null;
+        RINGS.clear(); SPARKS.clear(); MARKS.clear(); CLICKS.clear(); TRAIL.clear(); BEAMS.clear(); CapeCloth.clear(); AccessoryPhysics.clear(); espVisible = false; lastKillId = -1; ready = false; grounded = false; tick = 0; lastHitTick = -100; groundPosition = Vec3.ZERO; combo = 0; comboTarget = null;
     }
     public static void tick(Minecraft mc) {
         if (mc.player == null || mc.level == null) { clear(); return; }
@@ -557,6 +557,17 @@ public final class WorldCosmetics {
         pose.popPose();
         capesDrawn++;
     }
+    /** Movement of the player drawn with this render state (blocks per second), for cloth and accessory physics. */
+    private static final double[] VELOCITY = new double[3];
+    private static double[] velocity(net.minecraft.client.renderer.entity.state.AvatarRenderState s) {
+        var level = Minecraft.getInstance().level;
+        var entity = level == null ? null : level.getEntity(s.id);
+        VELOCITY[0] = VELOCITY[1] = VELOCITY[2] = 0;
+        if (entity != null) {
+            VELOCITY[0] = (entity.getX() - entity.xo) * 20; VELOCITY[1] = (entity.getY() - entity.yo) * 20; VELOCITY[2] = (entity.getZ() - entity.zo) * 20;
+        }
+        return VELOCITY;
+    }
     /** Accessory on the head (on top of the head, over a helmet if worn) or on the body (around the neck). */
     private static void extra(net.minecraft.client.model.player.PlayerModel model, PoseStack pose, net.minecraft.client.renderer.SubmitNodeCollector collector,
                               net.minecraft.client.renderer.entity.state.AvatarRenderState s, int type, int color, int light, int style, float seconds) {
@@ -580,7 +591,13 @@ public final class WorldCosmetics {
         }
         float k = 1 / 0.9375f;
         pose.scale(k, k, k);
-        submitModel(collector, pose, item, new Hats.Look(color, light, style, 1, seconds, seconds, 1, env(s)), (float) Math.max(0.2, s.scale));
+        // Head accessories sit rigidly like hats; the scarf tail swings.
+        Hats.Deform bend = null;
+        if (!head && LavaVisualClient.config().capePhysics) {
+            double[] v = velocity(s);
+            bend = AccessoryPhysics.scarf(AccessoryPhysics.of(s.id, pose.last().pose(), v[0], v[1], v[2], frameNow));
+        }
+        submitModel(collector, pose, item, new Hats.Look(color, light, style, 1, seconds, seconds, 1, env(s), 0, bend), (float) Math.max(0.2, s.scale));
         pose.popPose();
         extrasDrawn++;
     }
@@ -604,8 +621,16 @@ public final class WorldCosmetics {
         if (fit.tilt() != 0) pose.mulPose(new org.joml.Quaternionf().rotateX((float) Math.toRadians(-fit.tilt())));
         float k = (float) (size / 0.9375);
         pose.scale(k, k, k);
-        submitModel(collector, pose, wing, new Hats.Look(color, light, style, opacity, seconds, (float) clock.phase, flap * (0.8f + 0.5f * walk), env(s),
-                        (float) Math.toRadians(fit.spread())),
+        // Inertia: the wings sweep back with speed and turns, lift while falling and beat harder then.
+        float sweep = 0, lift = 0, beat = flap * (0.8f + 0.5f * walk);
+        if (LavaVisualClient.config().capePhysics) {
+            double[] v = velocity(s);
+            AccessoryPhysics.Sim sim = AccessoryPhysics.of(s.id, pose.last().pose(), v[0], v[1], v[2], frameNow);
+            sweep = sim.sweep; lift = sim.lift;
+            beat *= 1 + Math.clamp(sim.lift * 0.9f, 0f, 0.35f);
+        }
+        submitModel(collector, pose, wing, new Hats.Look(color, light, style, opacity, seconds, (float) clock.phase, beat, env(s),
+                        (float) Math.toRadians(fit.spread()) + sweep, null, lift),
                 (float) (size * Math.max(0.2, s.scale)));
         pose.popPose();
     }

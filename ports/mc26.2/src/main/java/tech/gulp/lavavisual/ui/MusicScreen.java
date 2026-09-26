@@ -144,9 +144,12 @@ public final class MusicScreen extends Screen {
         }
         if (tracks.isEmpty()) UiFont.centered(g, font, "Папка music пуста", listX + listW / 2, listY + listH / 2 - 4, 0xFF6B7280, UiFont.Face.REGULAR);
         g.disableScissor();
+        listMax = max;
         if (max > 0) {
-            int h = Math.max(12, listH * listH / (tracks.size() * ROW)), y = listY + (int) ((listH - h) * (double) scroll / max);
-            UiDraw.round(g, listX + listW - 3, y, 2, h, 1, UiDraw.alpha(ac, 0.7));
+            int h = Math.max(16, listH * listH / (tracks.size() * ROW)), y = listY + (int) ((listH - h) * (double) scroll / max);
+            listBarY = y; listBarH = h;
+            if (listBar || onListBar(mx, my)) UiDraw.round(g, listX + listW - 5, y, 4, h, 2, UiDraw.alpha(ac, 0.95));
+            else UiDraw.round(g, listX + listW - 3, y, 2, h, 1, UiDraw.alpha(ac, 0.7));
         }
 
         int bw = (pw - 28 - 12) / 3, bx = px + 14, bottom = py + ph - 28;
@@ -172,6 +175,13 @@ public final class MusicScreen extends Screen {
     }
 
     @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == 0 && onListBar(event.x(), event.y())) {
+            // Scrollbar: drag the thumb from where it was grabbed, or jump to a point of the track.
+            listGrab = event.y() >= listBarY && event.y() < listBarY + listBarH ? event.y() - listBarY : listBarH / 2.0;
+            listBar = true;
+            dragListBar(event.y());
+            return true;
+        }
         if (event.button() == 0 && event.x() >= listX && event.x() < listX + listW && event.y() >= listY && event.y() < listY + listH) {
             // Track list: a tap plays on release, a drag scrolls (phones have no mouse wheel).
             listPress = true; listDragged = false; pressX = event.x(); pressY = event.y(); pressScroll = scroll;
@@ -180,7 +190,16 @@ public final class MusicScreen extends Screen {
         if (event.button() == 0 && click(event.x(), event.y())) return true;
         return super.mouseClicked(event, doubleClick);
     }
-    private boolean listPress, listDragged;
+    private boolean listPress, listDragged, listBar;
+    private int listBarY, listBarH, listMax;
+    private double listGrab;
+    private boolean onListBar(double x, double y) {
+        return listMax > 0 && x >= listX + listW - 11 && x < listX + listW + 3 && y >= listY && y < listY + listH;
+    }
+    private void dragListBar(double y) {
+        double span = Math.max(1, listH - listBarH);
+        scroll = (int) Math.round(Math.clamp((y - listGrab - listY) / span, 0, 1) * listMax);
+    }
     private double pressX, pressY;
     private int pressScroll;
     /** Centre of the play / pause button in the last frame (CI clicks it). */
@@ -196,6 +215,7 @@ public final class MusicScreen extends Screen {
         return false;
     }
     @Override public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        if (listBar) { dragListBar(event.y()); return true; }
         if (listPress) {
             if (Math.abs(event.y() - pressY) > 4) listDragged = true;
             if (listDragged) scroll = pressScroll - (int) Math.round(event.y() - pressY);
@@ -206,6 +226,7 @@ public final class MusicScreen extends Screen {
         return super.mouseDragged(event, dx, dy);
     }
     @Override public boolean mouseReleased(MouseButtonEvent event) {
+        if (listBar) { listBar = false; return true; }
         if (listPress) {
             listPress = false;
             if (!listDragged && click(pressX, pressY)) UiSound.click();

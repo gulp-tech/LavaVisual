@@ -20,8 +20,9 @@ import tech.gulp.lavavisual.LavaVisualClient;
 
 /**
  * Music from .minecraft/LavaVisual/music (MP3, Ogg Vorbis, Opus, WAV; the format is read from the file itself), played
- * through Minecraft's OpenAL device: play / pause, seeking, previous / next, shuffle and repeat. A small daemon thread keeps four 0.4 s buffers queued, so lag spikes
- * in the game do not stutter the music. The master volume and the player's own volume apply; vanilla background music
+ * through Minecraft's OpenAL device: play / pause, seeking, previous / next, shuffle and repeat. A small daemon thread opens,
+ * decodes and queues the audio (four 0.4 s buffers) without holding anything the game thread waits for, so neither
+ * lag spikes in the game stutter the music nor the music stutters the game. The master volume and the player's own volume apply; vanilla background music
  * is kept quiet while a track plays.
  */
 public final class MusicPlayer {
@@ -31,17 +32,29 @@ public final class MusicPlayer {
         public String line() { return artist.isBlank() ? shown() : artist + " — " + shown(); }
     }
     private static final int BUFFERS = 4, CHUNK_MS = 400;
+    /** Guards the track list, the OpenAL objects and the requests; never held while a file is read or decoded. */
     private static final Object LOCK = new Object();
     private static final List<Track> TRACKS = new ArrayList<>();
     private static final int[] BUFFER_IDS = new int[BUFFERS], BUFFER_FRAMES = new int[BUFFERS];
     private static final ArrayDeque<Integer> QUEUE = new ArrayDeque<>(), FREE = new ArrayDeque<>();
     private static final Random RANDOM = new Random();
+    private static final java.util.Map<Path, Scanned> SCANNED = new java.util.concurrent.ConcurrentHashMap<>();
+    private record Scanned(long size, long modified, AudioInfo info) { }
     private static int index = -1, channels, rate, source, skipped;
-    private static long baseFrame, context;
+    private static long baseFrame, context, lengthFrames = -1;
+    // Requests for the streamer thread (under LOCK). trackGen changes with every play / close and retires the open
+    // decoder; generation also changes with every seek and retires audio decoded for the old position.
+    private static Track openRequest;
+    private static long seekRequest = -1;
+    private static double openSeek = -1;
+    private static boolean closeRequest;
+    private static int trackGen, generation;
+    // Streamer thread only.
     private static Decoders.Source decoder;
+    private static int decoderGen, dChannels, dRate;
     private static short[] chunk;
     private static ShortBuffer pcm;
-    private static volatile String error = "";
+    private static volatile String error = "", decodeError = "";
     private static volatile boolean failed;
     private static volatile boolean playing, paused, ended, finished;
     private static Thread streamer;
@@ -65,19 +78,21 @@ public final class MusicPlayer {
     /** Why the last track did not play (shown in the player), or "". */
     public static String error() { return error; }
 
-    /** Rescans the music folder (sorted by name); keeps the current track playing when it is still there. */
+    /** Rescans the music folder (sorted by name); keeps the current track playing when it is still there. Tags are
+     *  read once per file version, so later scans only look at file sizes and dates. */
     public static void rescan(Path dir) {
         List<Track> found = new ArrayList<>();
         int bad = 0;
         if (Files.isDirectory(dir)) try (Stream<Path> files = Files.list(dir)) {
             for (Path file : files.filter(AudioInfo::isAudio).sorted().toList()) {
-                AudioInfo info = AudioInfo.read(file, 256 << 10, false);
+                AudioInfo info = info(file);
                 if (!info.playable()) bad++;
                 found.add(new Track(file, AudioInfo.baseName(file), info.title, info.artist, info.seconds, info.problem, info.format.label));
             }
         } catch (IOException error) {
             LavaVisual.LOGGER.warn("LavaVisual: cannot read the music folder", error);
         }
+        SCANNED.keySet().removeIf(file -> !found.isEmpty() && found.stream().noneMatch(t -> t.file().equals(file)));
         synchronized (LOCK) {
             Path now = index >= 0 && index < TRACKS.size() ? TRACKS.get(index).file() : null;
             TRACKS.clear();
@@ -88,7 +103,22 @@ public final class MusicPlayer {
             if (index < 0 && playing) close();
         }
     }
+    private static AudioInfo info(Path file) {
+        long size = -1, modified = -1;
+        try {
+            var attributes = Files.readAttributes(file, java.nio.file.attribute.BasicFileAttributes.class);
+            size = attributes.size();
+            modified = attributes.lastModifiedTime().toMillis();
+            Scanned known = SCANNED.get(file);
+            if (known != null && known.size() == size && known.modified() == modified) return known.info();
+        } catch (IOException | RuntimeException ignored) { }
+        AudioInfo info = AudioInfo.read(file, 256 << 10, false);
+        if (size >= 0) SCANNED.put(file, new Scanned(size, modified, info));
+        return info;
+    }
 
+    /** Starts a track. Only OpenAL objects are made here; the streamer thread opens and decodes the file, so starting,
+     *  seeking and switching tracks never stall the game. */
     public static void play(int i) {
         synchronized (LOCK) {
             close();
@@ -96,16 +126,11 @@ public final class MusicPlayer {
             index = i;
             Track track = TRACKS.get(i);
             error = "";
+            decodeError = "";
             failed = false;
             if (!track.playable()) { fail(track, track.problem()); return; }
             if (!LavaAudio.ready()) { fail(track, "звук игры недоступен (OpenAL)"); return; }
             try {
-                decoder = Decoders.open(track.file(), AudioInfo.read(track.file(), 1 << 20, false), true);
-                channels = decoder.channels();
-                rate = decoder.rate();
-                int frames = rate * CHUNK_MS / 1000;
-                chunk = new short[frames * channels];
-                pcm = MemoryUtil.memAllocShort(frames * channels);
                 AL10.alGetError();
                 source = AL10.alGenSources();
                 for (int b = 0; b < BUFFERS; b++) BUFFER_IDS[b] = AL10.alGenBuffers();
@@ -119,11 +144,11 @@ public final class MusicPlayer {
                 baseFrame = 0;
                 ended = finished = paused = false;
                 playing = true;
-                refill();
-                if (!QUEUE.isEmpty()) AL10.alSourcePlay(source);
+                openRequest = track;
                 musicQuietTicks = 0;
                 startStreamer();
-            } catch (IOException | RuntimeException | LinkageError failure) {
+                LOCK.notifyAll();
+            } catch (RuntimeException | LinkageError failure) {
                 LavaVisual.LOGGER.warn("LavaVisual: cannot play {}", track.file().getFileName(), failure);
                 close();
                 fail(track, failure.getMessage() == null ? failure.getClass().getSimpleName() : failure.getMessage());
@@ -135,56 +160,136 @@ public final class MusicPlayer {
         LavaVisual.LOGGER.warn("LavaVisual: {} does not play: {}", track.file().getFileName(), why);
         tech.gulp.lavavisual.input.Binds.Toast.show("Не играет: " + why);
     }
-    /** Queues decoded audio into every free buffer; stops early when the decoder has not produced more yet. */
-    private static void refill() {
-        while (!ended && !FREE.isEmpty()) {
-            int frames = decoder.read(chunk, chunk.length / channels);
-            if (frames < 0) { ended = true; break; }
-            if (frames == 0) break;
-            int buffer = FREE.pollFirst();
-            pcm.clear();
-            pcm.put(chunk, 0, frames * channels).flip();
-            AL10.alBufferData(buffer, channels == 1 ? AL10.AL_FORMAT_MONO16 : AL10.AL_FORMAT_STEREO16, pcm, rate);
-            for (int b = 0; b < BUFFERS; b++) if (BUFFER_IDS[b] == buffer) BUFFER_FRAMES[b] = frames;
-            AL10.alSourceQueueBuffers(source, buffer);
-            QUEUE.addLast(buffer);
-        }
-    }
     private static int frames(int buffer) {
         for (int b = 0; b < BUFFERS; b++) if (BUFFER_IDS[b] == buffer) return BUFFER_FRAMES[b];
         return 0;
     }
     private static void startStreamer() {
         if (streamer != null && streamer.isAlive()) return;
-        streamer = new Thread(() -> {
-            while (true) {
-                try { Thread.sleep(20); } catch (InterruptedException e) { return; }
-                synchronized (LOCK) {
-                    try { stream(); } catch (RuntimeException | LinkageError error) { LavaVisual.LOGGER.warn("LavaVisual music stream", error); close(); }
-                }
-            }
-        }, "LavaVisual music");
+        streamer = new Thread(MusicPlayer::streamLoop, "LavaVisual music");
         streamer.setDaemon(true);
+        streamer.setPriority(Thread.NORM_PRIORITY + 1);
         streamer.start();
     }
-    private static void stream() {
-        if (!playing || source == 0 || decoder == null || ALC10.alcGetCurrentContext() != context) return;
-        int processed = AL10.alGetSourcei(source, AL10.AL_BUFFERS_PROCESSED);
-        while (processed-- > 0) {
-            int buffer = AL10.alSourceUnqueueBuffers(source);
-            QUEUE.pollFirst();
-            baseFrame += frames(buffer);
-            FREE.addLast(buffer);
-        }
-        refill();
-        if (!paused && AL10.alGetSourcei(source, AL10.AL_SOURCE_STATE) != AL10.AL_PLAYING) {
-            if (!QUEUE.isEmpty()) AL10.alSourcePlay(source); // first data or recovered from an underrun
-            else if (ended) {
-                if (baseFrame == 0 && !decoder.error().isEmpty()) failed = true; // nothing decoded at all
-                else finished = true;
+
+    // ------------------------------------------------------------------------------------------ streamer thread
+
+    private static void streamLoop() {
+        while (true) {
+            Track open;
+            long seekTo;
+            boolean closing;
+            int tg, g;
+            synchronized (LOCK) {
+                boolean pending = openRequest != null || seekRequest >= 0 || closeRequest;
+                if (!pending) try { LOCK.wait(playing ? 20 : 250); } catch (InterruptedException e) { closeDecoder(); return; }
+                open = openRequest; openRequest = null;
+                seekTo = seekRequest; seekRequest = -1;
+                closing = closeRequest; closeRequest = false;
+                tg = trackGen; g = generation;
+            }
+            try {
+                if (closing || open != null) closeDecoder();
+                if (open != null) {
+                    long first = openDecoder(open, tg);
+                    if (first == -2) continue;
+                    if (first >= 0) seekTo = first;
+                }
+                if (decoder == null || decoderGen != tg) continue;
+                if (seekTo >= 0) decoder.seek(seekTo);
+                pump(g);
+            } catch (RuntimeException | LinkageError failure) {
+                LavaVisual.LOGGER.warn("LavaVisual music stream", failure);
+                synchronized (LOCK) { if (trackGen == tg) { decodeError = String.valueOf(failure.getMessage()); failed = true; } }
+                closeDecoder();
             }
         }
     }
+    /** Opens the file for track generation tg; returns -2 when it is gone or failed, else the frame to start from
+     *  (a seek that arrived before the sample rate was known) or -1. */
+    private static long openDecoder(Track track, int tg) {
+        Decoders.Source opened;
+        try {
+            opened = Decoders.open(track.file(), AudioInfo.read(track.file(), 1 << 20, false), true);
+        } catch (IOException | RuntimeException | LinkageError failure) {
+            LavaVisual.LOGGER.warn("LavaVisual: cannot play {}", track.file().getFileName(), failure);
+            synchronized (LOCK) {
+                if (trackGen == tg) { decodeError = failure.getMessage() == null ? failure.getClass().getSimpleName() : failure.getMessage(); failed = true; }
+            }
+            return -2;
+        }
+        long first = -1;
+        synchronized (LOCK) {
+            if (trackGen != tg || !playing) { opened.close(); return -2; }
+            channels = opened.channels();
+            rate = opened.rate();
+            lengthFrames = opened.length();
+            if (openSeek >= 0) {
+                first = (long) (openSeek * rate);
+                if (lengthFrames > 0) first = Math.min(first, Math.max(0, lengthFrames - 1));
+                baseFrame = first;
+                openSeek = -1;
+            }
+        }
+        decoder = opened;
+        decoderGen = tg;
+        dChannels = opened.channels();
+        dRate = opened.rate();
+        int frames = dRate * CHUNK_MS / 1000;
+        chunk = new short[frames * dChannels];
+        pcm = MemoryUtil.memAllocShort(frames * dChannels);
+        return first;
+    }
+    private static void closeDecoder() {
+        if (decoder != null) { decoder.close(); decoder = null; }
+        if (pcm != null) { MemoryUtil.memFree(pcm); pcm = null; }
+        chunk = null;
+    }
+    /** Keeps the source fed: finished buffers come back, new audio is decoded outside the lock and queued unless a seek,
+     *  a track change or a stop happened meanwhile. */
+    private static void pump(int g) {
+        while (true) {
+            synchronized (LOCK) {
+                if (generation != g || !playing || source == 0 || ALC10.alcGetCurrentContext() != context) return;
+                int processed = AL10.alGetSourcei(source, AL10.AL_BUFFERS_PROCESSED);
+                while (processed-- > 0) {
+                    int buffer = AL10.alSourceUnqueueBuffers(source);
+                    QUEUE.pollFirst();
+                    baseFrame += frames(buffer);
+                    FREE.addLast(buffer);
+                }
+                if (FREE.isEmpty() || ended) { startIfNeeded(); return; }
+            }
+            int frames = decoder.read(chunk, chunk.length / dChannels);
+            synchronized (LOCK) {
+                if (generation != g || !playing || source == 0 || ALC10.alcGetCurrentContext() != context) return;
+                if (frames < 0) { ended = true; decodeError = decoder.error(); startIfNeeded(); return; }
+                if (frames == 0) { startIfNeeded(); return; }
+                Integer buffer = FREE.pollFirst();
+                if (buffer == null) return;
+                pcm.clear();
+                pcm.put(chunk, 0, frames * dChannels).flip();
+                AL10.alBufferData(buffer, dChannels == 1 ? AL10.AL_FORMAT_MONO16 : AL10.AL_FORMAT_STEREO16, pcm, dRate);
+                for (int b = 0; b < BUFFERS; b++) if (BUFFER_IDS[b] == buffer) BUFFER_FRAMES[b] = frames;
+                AL10.alSourceQueueBuffers(source, buffer);
+                QUEUE.addLast(buffer);
+                lengthFrames = decoder.length();
+                startIfNeeded();
+            }
+        }
+    }
+    /** Under LOCK: plays as soon as audio is queued (also after an underrun); reports the end of the track. */
+    private static void startIfNeeded() {
+        if (paused || source == 0 || AL10.alGetSourcei(source, AL10.AL_SOURCE_STATE) == AL10.AL_PLAYING) return;
+        if (!QUEUE.isEmpty()) AL10.alSourcePlay(source);
+        else if (ended) {
+            if (baseFrame == 0 && !decodeError.isEmpty()) failed = true; // nothing decoded at all
+            else finished = true;
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------ game thread
+
     /** Client tick: track end -> next, live volume, device restarts, quiet vanilla music. */
     public static void tick(Minecraft mc) {
         boolean restart = false;
@@ -203,8 +308,8 @@ public final class MusicPlayer {
         if (failed) {
             failed = false;
             Track track = current();
-            String why;
-            synchronized (LOCK) { why = decoder == null || decoder.error().isEmpty() ? "файл не декодируется" : decoder.error(); close(); }
+            String why = decodeError.isEmpty() ? "файл не декодируется" : decodeError;
+            synchronized (LOCK) { close(); }
             if (track != null) fail(track, why);
             return;
         }
@@ -220,7 +325,7 @@ public final class MusicPlayer {
     public static void toggle() {
         synchronized (LOCK) {
             if (!playing) { int start = index >= 0 ? index : 0; play(start); return; }
-            if (paused) { AL10.alSourcePlay(source); paused = false; }
+            if (paused) { paused = false; startIfNeeded(); }
             else { AL10.alSourcePause(source); paused = true; }
         }
     }
@@ -251,21 +356,23 @@ public final class MusicPlayer {
     }
     public static void skip(double seconds) { synchronized (LOCK) { if (playing) seek(position() + seconds); } }
 
+    /** Jumps to a time: the queued audio is dropped at once and the streamer continues from there. */
     public static void seek(double seconds) {
         synchronized (LOCK) {
-            if (!playing || decoder == null) return;
-            long length = decoder.length(), frame = (long) Math.max(0, seconds * rate);
-            if (length > 0) frame = Math.min(frame, Math.max(0, length - 1));
+            if (!playing || source == 0) return;
+            if (rate <= 0) { openSeek = Math.max(0, seconds); return; } // still opening: applied when it is open
+            long frame = (long) Math.max(0, seconds * rate);
+            if (lengthFrames > 0) frame = Math.min(frame, Math.max(0, lengthFrames - 1));
             AL10.alSourceStop(source);
             AL10.alSourcei(source, AL10.AL_BUFFER, 0);
             QUEUE.clear();
             FREE.clear();
             for (int b = 0; b < BUFFERS; b++) FREE.addLast(BUFFER_IDS[b]);
-            decoder.seek(frame);
             baseFrame = frame;
             ended = finished = false;
-            refill();
-            if (!paused && !QUEUE.isEmpty()) AL10.alSourcePlay(source);
+            seekRequest = frame;
+            generation++;
+            LOCK.notifyAll();
         }
     }
     public static double position() {
@@ -277,7 +384,7 @@ public final class MusicPlayer {
     }
     public static double duration() {
         synchronized (LOCK) {
-            long length = playing && decoder != null ? decoder.length() : -1;
+            long length = playing ? lengthFrames : -1;
             if (rate > 0 && length > 0) return length / (double) rate;
             Track t = index >= 0 && index < TRACKS.size() ? TRACKS.get(index) : null;
             return t == null ? 0 : t.seconds();
@@ -286,6 +393,7 @@ public final class MusicPlayer {
     /** CI: OpenAL state of the music source. */
     public static int alState() { synchronized (LOCK) { return playing && source != 0 ? AL10.alGetSourcei(source, AL10.AL_SOURCE_STATE) : 0; } }
 
+    /** Under LOCK: frees the OpenAL objects now and tells the streamer to close the file. */
     private static void close() {
         boolean same = context != 0 && ALC10.alcGetCurrentContext() == context;
         if (source != 0 && same) {
@@ -298,10 +406,17 @@ public final class MusicPlayer {
         java.util.Arrays.fill(BUFFER_IDS, 0);
         QUEUE.clear();
         FREE.clear();
-        if (decoder != null) { decoder.close(); decoder = null; }
-        if (pcm != null) { MemoryUtil.memFree(pcm); pcm = null; }
-        chunk = null;
         playing = paused = ended = finished = false;
+        rate = 0;
+        channels = 0;
+        lengthFrames = -1;
+        openRequest = null;
+        seekRequest = -1;
+        openSeek = -1;
+        closeRequest = true;
+        trackGen++;
+        generation++;
+        LOCK.notifyAll();
     }
     public static String time(double seconds) {
         int s = (int) Math.max(0, Math.round(seconds));

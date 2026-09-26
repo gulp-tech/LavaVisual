@@ -48,8 +48,8 @@ public final class Hats {
         float lx = 0.33f, ly = 0.88f, lz = 0.34f, n = (float) Math.sqrt(lx * lx + ly * ly + lz * lz);
         LX = lx / n; LY = ly / n; LZ = lz / n;
     }
-    private static Model[] hats, wings, capes, extras;
-    private static boolean loaded;
+    private static volatile Model[] hats, wings, capes, extras;
+    private static volatile boolean loaded;
     private static final Emitter EMITTER = new Emitter();
     private Hats() { }
 
@@ -62,16 +62,23 @@ public final class Hats {
      * Colours (RGB), style (0 pattern, 1 solid, 2 gradient), opacity, animation clocks in seconds, wing beat amount,
      * world light 0..1, and the extra opening of each wing around its root (radians, mirrored for the other wing).
      */
-    public record Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread, Deform deform) {
+    public record Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread, Deform deform, float lift) {
         public Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env) {
-            this(color, light, style, alpha, time, swingTime, flap, env, 0, null);
+            this(color, light, style, alpha, time, swingTime, flap, env, 0, null, 0);
         }
         public Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread) {
-            this(color, light, style, alpha, time, swingTime, flap, env, spread, null);
+            this(color, light, style, alpha, time, swingTime, flap, env, spread, null, 0);
+        }
+        public Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread, Deform deform) {
+            this(color, light, style, alpha, time, swingTime, flap, env, spread, deform, 0);
         }
     }
     /** Optional bend of model-space vertices before the world transform (the cape cloth). */
-    public interface Deform { void apply(Vector3f v); }
+    public interface Deform {
+        void apply(Vector3f v);
+        /** Gentle bends (the scarf) keep the smooth per-vertex normals; strong ones (the cape) use face normals. */
+        default boolean smoothNormals() { return false; }
+    }
 
     public static String name(int type) { return NAMES[Math.floorMod(type - 1, COUNT)]; }
     public static String wingName(int type) { return WING_NAMES[Math.floorMod(type - 1, WING_COUNT)]; }
@@ -143,6 +150,13 @@ public final class Hats {
             LavaVisual.LOGGER.error("LavaVisual: cannot load hat models", error);
             hats = null; wings = null; capes = null; extras = null;
         }
+    }
+    /** Parses the models on a background thread at start-up, so the first cosmetic on screen does not stall a frame
+     *  (until they are ready, nothing is drawn instead of waiting). */
+    public static void preload() {
+        Thread thread = new Thread(Hats::load, "LavaVisual models");
+        thread.setDaemon(true);
+        thread.start();
     }
     private static Model[] models(JsonArray array) {
         Model[] result = new Model[array.size()];
@@ -331,7 +345,7 @@ public final class Hats {
         final Matrix4f world = new Matrix4f(), full = new Matrix4f();
         final Matrix3f normalMatrix = new Matrix3f();
         int c, l, style, count, rim;
-        float alpha, time, swingTime, flap, env, quality, scale, spread;
+        float alpha, time, swingTime, flap, env, quality, scale, spread, lift;
         boolean glowPass;
         Deform deform;
         final float[] ys = new float[4];
@@ -344,7 +358,7 @@ public final class Hats {
         Emitter setup(PoseStack.Pose pose, VertexConsumer out, Matrix4f world, Look look, boolean glowPass, float scale, Vector3f right, Vector3f up) {
             this.pose = pose; this.out = out; this.world.set(world);
             this.c = look.color() & 0xFFFFFF; this.l = look.light() & 0xFFFFFF; this.style = Math.floorMod(look.style(), 3);
-            this.alpha = Math.clamp(look.alpha(), 0, 1); this.time = look.time(); this.swingTime = look.swingTime(); this.flap = look.flap(); this.spread = look.spread(); this.deform = look.deform();
+            this.alpha = Math.clamp(look.alpha(), 0, 1); this.time = look.time(); this.swingTime = look.swingTime(); this.flap = look.flap(); this.spread = look.spread(); this.lift = look.lift(); this.deform = look.deform();
             this.env = Math.clamp(look.env(), 0.2f, 1f); this.glowPass = glowPass; this.scale = scale; this.right = right; this.up = up;
             this.rim = mix(this.l, 0xFFFFFF, 0.5f);
             // Fixed detail level. Deriving it from the live FPS would re-tessellate the mesh whenever the FPS crosses
@@ -393,6 +407,7 @@ public final class Hats {
                     if (part.spinAxis >= 0) rotate(g, part.spinAxis, part.spinSpeed * time);
                     if (part.swing != null) {
                         if (spread != 0) g.rotateY(spread); // wing roots; the mirrored wing opens the other way
+                        if (lift != 0) g.rotateZ(lift);
                         for (float[] s : part.swing) rotate(g, (int) s[0], s[1] * flap * (float) Math.sin(s[2] * swingTime + s[3]));
                     }
                     build(part.parts, g, part.repeat > 1 ? k : index);
@@ -507,7 +522,7 @@ public final class Hats {
             int a = Math.clamp(Math.round(alpha * part.alpha * 255), 0, 255) << 24;
             for (int i = 0; i < 4; i++) {
                 float mx = nx, my = ny, mz = nz;
-                if (smooth && deform == null) {
+                if (smooth && (deform == null || deform.smoothNormals())) {
                     normalMatrix.transform(n[i * 3], n[i * 3 + 1], n[i * 3 + 2], vn);
                     float vl = vn.length();
                     if (vl > 1e-9f) {

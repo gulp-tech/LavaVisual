@@ -1,0 +1,5 @@
+{
+  "providers": [
+    {"type": "bitmap", "file": "lavavisual:font/badge.png", "height": 9, "ascent": 8, "chars": ["\ue000"]}
+  ]
+}

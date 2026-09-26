@@ -117,6 +117,7 @@ public final class CustomSounds {
         }
         files = total;
         skipped = bad;
+        CustomAudio.prewarm();
     }
     /** The Sounds page calls this every frame: files appear without any button. */
     public static void scanIfStale() { if (System.currentTimeMillis() - lastScan > 2000) scan(); }

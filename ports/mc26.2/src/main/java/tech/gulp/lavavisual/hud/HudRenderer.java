@@ -325,6 +325,8 @@ public final class HudRenderer {
     }
     private static int ping(Minecraft mc) {
         if (mc.player == null || mc.getConnection() == null) return 0;
+        int live = PingMeter.latency();
+        if (live >= 0) return live;
         var info = mc.getConnection().getPlayerInfo(mc.player.getUUID());
         return info == null ? 0 : Math.max(0, info.getLatency());
     }
@@ -338,7 +340,7 @@ public final class HudRenderer {
         List<Segment> list = new ArrayList<>(4);
         list.add(new Segment(Icons.USER, name, 0xFFF2F4F8));
         list.add(new Segment(Icons.MONITOR, mc.getFps() + " fps", 0xFFF2F4F8));
-        if (mc.getConnection() != null && !mc.isLocalServer()) list.add(new Segment(Icons.WIFI, latency + " ms", pingColor));
+        if (mc.getConnection() != null && !mc.isLocalServer()) { list.add(new Segment(Icons.WIFI, latency + " ms", pingColor)); PingMeter.shown(); }
         list.add(new Segment(Icons.CLOCK, String.format(Locale.ROOT, "%02d:%02d", time.getHour(), time.getMinute()), 0xFFF2F4F8));
         return list;
     }

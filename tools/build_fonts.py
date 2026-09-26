@@ -100,7 +100,8 @@ def shift(value, n):
 
 def faces():
     for f in OUT.glob('*.json'):
-        f.unlink()
+        if f.name != 'badge.json':  # name-tag logo, made by tools/make_logo.py
+            f.unlink()
     spec = {  # face: (file, size, baseline shift in GUI px)
         'r': ('inter-medium.ttf', 9, 0.5), 'b': ('inter-semibold.ttf', 9, 0.5), 's': ('inter-medium.ttf', 7, 0.0),
         'h': ('inter-semibold.ttf', 12, 2.0), 'i': ('icons.ttf', 10, 3.0), 'j': ('icons.ttf', 8, 2.0),

@@ -20,7 +20,7 @@ public final class Edition {
     /** "Minecraft* 26.2 - Singleplayer" becomes "LavaVisual Client 26.2 - Singleplayer" in the client edition. */
     public static String title(String vanilla) { return client() ? retitle(vanilla) : vanilla; }
     public static String retitle(String vanilla) { return vanilla == null ? null : vanilla.replaceFirst("^Minecraft\\*?", "LavaVisual Client"); }
-    /** "Beta 1.0.0" for 1.0.0-beta-mc26.2; plain numbers otherwise. */
+    /** "Beta 1.0.1" for 1.0.1-beta-mc26.2; plain numbers otherwise. */
     public static String label() {
         String v = version().replaceFirst("-mc.*$", "");
         int dash = v.indexOf('-');
