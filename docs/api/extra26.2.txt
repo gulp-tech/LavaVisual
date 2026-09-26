@@ -4722,6 +4722,1293 @@ public class net.minecraft.client.renderer.texture.DynamicTexture extends net.mi
   static {};
 }
 
+Compiled from "STBVorbis.java"
+public class org.lwjgl.stb.STBVorbis {
+  public static final int VORBIS__no_error;
+  public static final int VORBIS_need_more_data;
+  public static final int VORBIS_invalid_api_mixing;
+  public static final int VORBIS_outofmem;
+  public static final int VORBIS_feature_not_supported;
+  public static final int VORBIS_too_many_channels;
+  public static final int VORBIS_file_open_failure;
+  public static final int VORBIS_seek_without_length;
+  public static final int VORBIS_unexpected_eof;
+  public static final int VORBIS_seek_invalid;
+  public static final int VORBIS_invalid_setup;
+  public static final int VORBIS_invalid_stream;
+  public static final int VORBIS_missing_capture_pattern;
+  public static final int VORBIS_invalid_stream_structure_version;
+  public static final int VORBIS_continued_packet_flag_invalid;
+  public static final int VORBIS_incorrect_stream_serial_number;
+  public static final int VORBIS_invalid_first_page;
+  public static final int VORBIS_bad_packet_type;
+  public static final int VORBIS_cant_find_last_page;
+  public static final int VORBIS_seek_failed;
+  public static final int VORBIS_ogg_skeleton_not_supported;
+  protected org.lwjgl.stb.STBVorbis();
+  public static native void nstb_vorbis_get_info(long, long);
+  public static org.lwjgl.stb.STBVorbisInfo stb_vorbis_get_info(long, org.lwjgl.stb.STBVorbisInfo);
+  public static native void nstb_vorbis_get_comment(long, long);
+  public static org.lwjgl.stb.STBVorbisComment stb_vorbis_get_comment(long, org.lwjgl.stb.STBVorbisComment);
+  public static native int nstb_vorbis_get_error(long);
+  public static int stb_vorbis_get_error(long);
+  public static native void nstb_vorbis_close(long);
+  public static void stb_vorbis_close(long);
+  public static native int nstb_vorbis_get_sample_offset(long);
+  public static int stb_vorbis_get_sample_offset(long);
+  public static native int nstb_vorbis_get_file_offset(long);
+  public static int stb_vorbis_get_file_offset(long);
+  public static native long nstb_vorbis_open_pushdata(long, int, long, long, long);
+  public static long stb_vorbis_open_pushdata(java.nio.ByteBuffer, java.nio.IntBuffer, java.nio.IntBuffer, org.lwjgl.stb.STBVorbisAlloc);
+  public static native int nstb_vorbis_decode_frame_pushdata(long, long, int, long, long, long);
+  public static int stb_vorbis_decode_frame_pushdata(long, java.nio.ByteBuffer, java.nio.IntBuffer, org.lwjgl.PointerBuffer, java.nio.IntBuffer);
+  public static native void nstb_vorbis_flush_pushdata(long);
+  public static void stb_vorbis_flush_pushdata(long);
+  public static native int nstb_vorbis_decode_filename(long, long, long, long);
+  public static int stb_vorbis_decode_filename(java.nio.ByteBuffer, java.nio.IntBuffer, java.nio.IntBuffer, org.lwjgl.PointerBuffer);
+  public static int stb_vorbis_decode_filename(java.lang.CharSequence, java.nio.IntBuffer, java.nio.IntBuffer, org.lwjgl.PointerBuffer);
+  public static java.nio.ShortBuffer stb_vorbis_decode_filename(java.lang.CharSequence, java.nio.IntBuffer, java.nio.IntBuffer);
+  public static native int nstb_vorbis_decode_memory(long, int, long, long, long);
+  public static int stb_vorbis_decode_memory(java.nio.ByteBuffer, java.nio.IntBuffer, java.nio.IntBuffer, org.lwjgl.PointerBuffer);
+  public static java.nio.ShortBuffer stb_vorbis_decode_memory(java.nio.ByteBuffer, java.nio.IntBuffer, java.nio.IntBuffer);
+  public static native long nstb_vorbis_open_memory(long, int, long, long);
+  public static long stb_vorbis_open_memory(java.nio.ByteBuffer, java.nio.IntBuffer, org.lwjgl.stb.STBVorbisAlloc);
+  public static native long nstb_vorbis_open_filename(long, long, long);
+  public static long stb_vorbis_open_filename(java.nio.ByteBuffer, java.nio.IntBuffer, org.lwjgl.stb.STBVorbisAlloc);
+  public static long stb_vorbis_open_filename(java.lang.CharSequence, java.nio.IntBuffer, org.lwjgl.stb.STBVorbisAlloc);
+  public static native int nstb_vorbis_seek_frame(long, int);
+  public static boolean stb_vorbis_seek_frame(long, int);
+  public static native int nstb_vorbis_seek(long, int);
+  public static boolean stb_vorbis_seek(long, int);
+  public static native int nstb_vorbis_seek_start(long);
+  public static boolean stb_vorbis_seek_start(long);
+  public static native int nstb_vorbis_stream_length_in_samples(long);
+  public static int stb_vorbis_stream_length_in_samples(long);
+  public static native float nstb_vorbis_stream_length_in_seconds(long);
+  public static float stb_vorbis_stream_length_in_seconds(long);
+  public static native int nstb_vorbis_get_frame_float(long, long, long);
+  public static int stb_vorbis_get_frame_float(long, java.nio.IntBuffer, org.lwjgl.PointerBuffer);
+  public static native int nstb_vorbis_get_frame_short(long, int, long, int);
+  public static int stb_vorbis_get_frame_short(long, org.lwjgl.PointerBuffer, int);
+  public static native int nstb_vorbis_get_frame_short_interleaved(long, int, long, int);
+  public static int stb_vorbis_get_frame_short_interleaved(long, int, java.nio.ShortBuffer);
+  public static native int nstb_vorbis_get_samples_float(long, int, long, int);
+  public static int stb_vorbis_get_samples_float(long, org.lwjgl.PointerBuffer, int);
+  public static native int nstb_vorbis_get_samples_float_interleaved(long, int, long, int);
+  public static int stb_vorbis_get_samples_float_interleaved(long, int, java.nio.FloatBuffer);
+  public static native int nstb_vorbis_get_samples_short(long, int, long, int);
+  public static int stb_vorbis_get_samples_short(long, org.lwjgl.PointerBuffer, int);
+  public static native int nstb_vorbis_get_samples_short_interleaved(long, int, long, int);
+  public static int stb_vorbis_get_samples_short_interleaved(long, int, java.nio.ShortBuffer);
+  public static native long nstb_vorbis_open_pushdata(long, int, int[], int[], long);
+  public static long stb_vorbis_open_pushdata(java.nio.ByteBuffer, int[], int[], org.lwjgl.stb.STBVorbisAlloc);
+  public static native int nstb_vorbis_decode_frame_pushdata(long, long, int, int[], long, int[]);
+  public static int stb_vorbis_decode_frame_pushdata(long, java.nio.ByteBuffer, int[], org.lwjgl.PointerBuffer, int[]);
+  public static native int nstb_vorbis_decode_filename(long, int[], int[], long);
+  public static int stb_vorbis_decode_filename(java.nio.ByteBuffer, int[], int[], org.lwjgl.PointerBuffer);
+  public static int stb_vorbis_decode_filename(java.lang.CharSequence, int[], int[], org.lwjgl.PointerBuffer);
+  public static native int nstb_vorbis_decode_memory(long, int, int[], int[], long);
+  public static int stb_vorbis_decode_memory(java.nio.ByteBuffer, int[], int[], org.lwjgl.PointerBuffer);
+  public static native long nstb_vorbis_open_memory(long, int, int[], long);
+  public static long stb_vorbis_open_memory(java.nio.ByteBuffer, int[], org.lwjgl.stb.STBVorbisAlloc);
+  public static native long nstb_vorbis_open_filename(long, int[], long);
+  public static long stb_vorbis_open_filename(java.nio.ByteBuffer, int[], org.lwjgl.stb.STBVorbisAlloc);
+  public static long stb_vorbis_open_filename(java.lang.CharSequence, int[], org.lwjgl.stb.STBVorbisAlloc);
+  public static native int nstb_vorbis_get_frame_float(long, int[], long);
+  public static int stb_vorbis_get_frame_float(long, int[], org.lwjgl.PointerBuffer);
+  public static native int nstb_vorbis_get_frame_short_interleaved(long, int, short[], int);
+  public static int stb_vorbis_get_frame_short_interleaved(long, int, short[]);
+  public static native int nstb_vorbis_get_samples_float_interleaved(long, int, float[], int);
+  public static int stb_vorbis_get_samples_float_interleaved(long, int, float[]);
+  public static native int nstb_vorbis_get_samples_short_interleaved(long, int, short[], int);
+  public static int stb_vorbis_get_samples_short_interleaved(long, int, short[]);
+  static {};
+}
+
+Compiled from "STBVorbisInfo.java"
+public class org.lwjgl.stb.STBVorbisInfo extends org.lwjgl.system.Struct<org.lwjgl.stb.STBVorbisInfo> implements org.lwjgl.system.NativeResource {
+  public static final int SIZEOF;
+  public static final int ALIGNOF;
+  public static final int SAMPLE_RATE;
+  public static final int CHANNELS;
+  public static final int SETUP_MEMORY_REQUIRED;
+  public static final int SETUP_TEMP_MEMORY_REQUIRED;
+  public static final int TEMP_MEMORY_REQUIRED;
+  public static final int MAX_FRAME_SIZE;
+  protected org.lwjgl.stb.STBVorbisInfo(long, java.nio.ByteBuffer);
+  protected org.lwjgl.stb.STBVorbisInfo create(long, java.nio.ByteBuffer);
+  public org.lwjgl.stb.STBVorbisInfo(java.nio.ByteBuffer);
+  public int sizeof();
+  public int sample_rate();
+  public int channels();
+  public int setup_memory_required();
+  public int setup_temp_memory_required();
+  public int temp_memory_required();
+  public int max_frame_size();
+  public static org.lwjgl.stb.STBVorbisInfo malloc();
+  public static org.lwjgl.stb.STBVorbisInfo calloc();
+  public static org.lwjgl.stb.STBVorbisInfo create();
+  public static org.lwjgl.stb.STBVorbisInfo create(long);
+  public static org.lwjgl.stb.STBVorbisInfo createSafe(long);
+  public static org.lwjgl.stb.STBVorbisInfo$Buffer malloc(int);
+  public static org.lwjgl.stb.STBVorbisInfo$Buffer calloc(int);
+  public static org.lwjgl.stb.STBVorbisInfo$Buffer create(int);
+  public static org.lwjgl.stb.STBVorbisInfo$Buffer create(long, int);
+  public static org.lwjgl.stb.STBVorbisInfo$Buffer createSafe(long, int);
+  public static org.lwjgl.stb.STBVorbisInfo malloc(org.lwjgl.system.MemoryStack);
+  public static org.lwjgl.stb.STBVorbisInfo calloc(org.lwjgl.system.MemoryStack);
+  public static org.lwjgl.stb.STBVorbisInfo$Buffer malloc(int, org.lwjgl.system.MemoryStack);
+  public static org.lwjgl.stb.STBVorbisInfo$Buffer calloc(int, org.lwjgl.system.MemoryStack);
+  public static int nsample_rate(long);
+  public static int nchannels(long);
+  public static int nsetup_memory_required(long);
+  public static int nsetup_temp_memory_required(long);
+  public static int ntemp_memory_required(long);
+  public static int nmax_frame_size(long);
+  protected org.lwjgl.system.Struct create(long, java.nio.ByteBuffer);
+  static {};
+}
+
+Compiled from "AL10.java"
+public class org.lwjgl.openal.AL10 {
+  public static final int AL_INVALID;
+  public static final int AL_NONE;
+  public static final int AL_FALSE;
+  public static final int AL_TRUE;
+  public static final int AL_NO_ERROR;
+  public static final int AL_INVALID_NAME;
+  public static final int AL_INVALID_ENUM;
+  public static final int AL_INVALID_VALUE;
+  public static final int AL_INVALID_OPERATION;
+  public static final int AL_OUT_OF_MEMORY;
+  public static final int AL_DOPPLER_FACTOR;
+  public static final int AL_DISTANCE_MODEL;
+  public static final int AL_VENDOR;
+  public static final int AL_VERSION;
+  public static final int AL_RENDERER;
+  public static final int AL_EXTENSIONS;
+  public static final int AL_INVERSE_DISTANCE;
+  public static final int AL_INVERSE_DISTANCE_CLAMPED;
+  public static final int AL_SOURCE_ABSOLUTE;
+  public static final int AL_SOURCE_RELATIVE;
+  public static final int AL_POSITION;
+  public static final int AL_VELOCITY;
+  public static final int AL_GAIN;
+  public static final int AL_CONE_INNER_ANGLE;
+  public static final int AL_CONE_OUTER_ANGLE;
+  public static final int AL_PITCH;
+  public static final int AL_DIRECTION;
+  public static final int AL_LOOPING;
+  public static final int AL_BUFFER;
+  public static final int AL_SOURCE_STATE;
+  public static final int AL_CONE_OUTER_GAIN;
+  public static final int AL_SOURCE_TYPE;
+  public static final int AL_INITIAL;
+  public static final int AL_PLAYING;
+  public static final int AL_PAUSED;
+  public static final int AL_STOPPED;
+  public static final int AL_ORIENTATION;
+  public static final int AL_BUFFERS_QUEUED;
+  public static final int AL_BUFFERS_PROCESSED;
+  public static final int AL_MIN_GAIN;
+  public static final int AL_MAX_GAIN;
+  public static final int AL_REFERENCE_DISTANCE;
+  public static final int AL_ROLLOFF_FACTOR;
+  public static final int AL_MAX_DISTANCE;
+  public static final int AL_FREQUENCY;
+  public static final int AL_BITS;
+  public static final int AL_CHANNELS;
+  public static final int AL_SIZE;
+  public static final int AL_FORMAT_MONO8;
+  public static final int AL_FORMAT_MONO16;
+  public static final int AL_FORMAT_STEREO8;
+  public static final int AL_FORMAT_STEREO16;
+  public static final int AL_UNUSED;
+  public static final int AL_PENDING;
+  public static final int AL_PROCESSED;
+  protected org.lwjgl.openal.AL10();
+  public static int alGetError();
+  public static int alGetErrorDirect(long);
+  public static void alEnable(int);
+  public static void alEnableDirect(long, int);
+  public static void alDisable(int);
+  public static void alDisableDirect(long, int);
+  public static boolean alIsEnabled(int);
+  public static boolean alIsEnabledDirect(long, int);
+  public static boolean alGetBoolean(int);
+  public static boolean alGetBooleanDirect(long, int);
+  public static int alGetInteger(int);
+  public static int alGetIntegerDirect(long, int);
+  public static float alGetFloat(int);
+  public static float alGetFloatDirect(long, int);
+  public static double alGetDouble(int);
+  public static double alGetDoubleDirect(long, int);
+  public static void nalGetBooleanv(int, long);
+  public static void alGetBooleanv(int, java.nio.ByteBuffer);
+  public static void nalGetBooleanvDirect(long, int, long);
+  public static void alGetBooleanvDirect(long, int, java.nio.ByteBuffer);
+  public static void nalGetIntegerv(int, long);
+  public static void alGetIntegerv(int, java.nio.IntBuffer);
+  public static void nalGetIntegervDirect(long, int, long);
+  public static void alGetIntegervDirect(long, int, java.nio.IntBuffer);
+  public static void nalGetFloatv(int, long);
+  public static void alGetFloatv(int, java.nio.FloatBuffer);
+  public static void nalGetFloatvDirect(long, int, long);
+  public static void alGetFloatvDirect(long, int, java.nio.FloatBuffer);
+  public static void nalGetDoublev(int, long);
+  public static void alGetDoublev(int, java.nio.DoubleBuffer);
+  public static void nalGetDoublevDirect(long, int, long);
+  public static void alGetDoublevDirect(long, int, java.nio.DoubleBuffer);
+  public static long nalGetString(int);
+  public static java.lang.String alGetString(int);
+  public static long nalGetStringDirect(long, int);
+  public static java.lang.String alGetStringDirect(long, int);
+  public static void alDistanceModel(int);
+  public static void alDistanceModelDirect(long, int);
+  public static void alDopplerFactor(float);
+  public static void alDopplerFactorDirect(long, float);
+  public static void alDopplerVelocity(float);
+  public static void alListenerf(int, float);
+  public static void alListenerfDirect(long, int, float);
+  public static void alListeneri(int, int);
+  public static void alListeneriDirect(long, int, int);
+  public static void alListener3f(int, float, float, float);
+  public static void alListener3fDirect(long, int, float, float, float);
+  public static void nalListenerfv(int, long);
+  public static void alListenerfv(int, java.nio.FloatBuffer);
+  public static void nalListenerfvDirect(long, int, long);
+  public static void alListenerfvDirect(long, int, java.nio.FloatBuffer);
+  public static void nalGetListenerf(int, long);
+  public static void alGetListenerf(int, java.nio.FloatBuffer);
+  public static float alGetListenerf(int);
+  public static void nalGetListenerfDirect(long, int, long);
+  public static void alGetListenerfDirect(long, int, java.nio.FloatBuffer);
+  public static float alGetListenerfDirect(long, int);
+  public static void nalGetListeneri(int, long);
+  public static void alGetListeneri(int, java.nio.IntBuffer);
+  public static int alGetListeneri(int);
+  public static void nalGetListeneriDirect(long, int, long);
+  public static void alGetListeneriDirect(long, int, java.nio.IntBuffer);
+  public static int alGetListeneriDirect(long, int);
+  public static void nalGetListener3f(int, long, long, long);
+  public static void alGetListener3f(int, java.nio.FloatBuffer, java.nio.FloatBuffer, java.nio.FloatBuffer);
+  public static void nalGetListener3fDirect(long, int, long, long, long);
+  public static void alGetListener3fDirect(long, int, java.nio.FloatBuffer, java.nio.FloatBuffer, java.nio.FloatBuffer);
+  public static void nalGetListenerfv(int, long);
+  public static void alGetListenerfv(int, java.nio.FloatBuffer);
+  public static void nalGetListenerfvDirect(long, int, long);
+  public static void alGetListenerfvDirect(long, int, java.nio.FloatBuffer);
+  public static void nalGenSources(int, long);
+  public static void alGenSources(java.nio.IntBuffer);
+  public static int alGenSources();
+  public static void nalGenSourcesDirect(long, int, long);
+  public static void alGenSourcesDirect(long, java.nio.IntBuffer);
+  public static int alGenSourcesDirect(long);
+  public static void nalDeleteSources(int, long);
+  public static void alDeleteSources(java.nio.IntBuffer);
+  public static void alDeleteSources(int);
+  public static void nalDeleteSourcesDirect(long, int, long);
+  public static void alDeleteSourcesDirect(long, java.nio.IntBuffer);
+  public static void alDeleteSourcesDirect(long, int);
+  public static boolean alIsSource(int);
+  public static boolean alIsSourceDirect(long, int);
+  public static void alSourcef(int, int, float);
+  public static void alSourcefDirect(long, int, int, float);
+  public static void alSource3f(int, int, float, float, float);
+  public static void alSource3fDirect(long, int, int, float, float, float);
+  public static void nalSourcefv(int, int, long);
+  public static void alSourcefv(int, int, java.nio.FloatBuffer);
+  public static void nalSourcefvDirect(long, int, int, long);
+  public static void alSourcefvDirect(long, int, int, java.nio.FloatBuffer);
+  public static void alSourcei(int, int, int);
+  public static void alSourceiDirect(long, int, int, int);
+  public static void nalGetSourcef(int, int, long);
+  public static void alGetSourcef(int, int, java.nio.FloatBuffer);
+  public static float alGetSourcef(int, int);
+  public static void nalGetSourcefDirect(long, int, int, long);
+  public static void alGetSourcefDirect(long, int, int, java.nio.FloatBuffer);
+  public static float alGetSourcefDirect(long, int, int);
+  public static void nalGetSource3f(int, int, long, long, long);
+  public static void alGetSource3f(int, int, java.nio.FloatBuffer, java.nio.FloatBuffer, java.nio.FloatBuffer);
+  public static void nalGetSource3fDirect(long, int, int, long, long, long);
+  public static void alGetSource3fDirect(long, int, int, java.nio.FloatBuffer, java.nio.FloatBuffer, java.nio.FloatBuffer);
+  public static void nalGetSourcefv(int, int, long);
+  public static void alGetSourcefv(int, int, java.nio.FloatBuffer);
+  public static void nalGetSourcefvDirect(long, int, int, long);
+  public static void alGetSourcefvDirect(long, int, int, java.nio.FloatBuffer);
+  public static void nalGetSourcei(int, int, long);
+  public static void alGetSourcei(int, int, java.nio.IntBuffer);
+  public static int alGetSourcei(int, int);
+  public static void nalGetSourceiDirect(long, int, int, long);
+  public static void alGetSourceiDirect(long, int, int, java.nio.IntBuffer);
+  public static int alGetSourceiDirect(long, int, int);
+  public static void nalGetSourceiv(int, int, long);
+  public static void alGetSourceiv(int, int, java.nio.IntBuffer);
+  public static void nalGetSourceivDirect(long, int, int, long);
+  public static void alGetSourceivDirect(long, int, int, java.nio.IntBuffer);
+  public static void nalSourceQueueBuffers(int, int, long);
+  public static void alSourceQueueBuffers(int, java.nio.IntBuffer);
+  public static void alSourceQueueBuffers(int, int);
+  public static void nalSourceQueueBuffersDirect(long, int, int, long);
+  public static void alSourceQueueBuffersDirect(long, int, java.nio.IntBuffer);
+  public static void alSourceQueueBuffersDirect(long, int, int);
+  public static void nalSourceUnqueueBuffers(int, int, long);
+  public static void alSourceUnqueueBuffers(int, java.nio.IntBuffer);
+  public static int alSourceUnqueueBuffers(int);
+  public static void nalSourceUnqueueBuffersDirect(long, int, int, long);
+  public static void alSourceUnqueueBuffersDirect(long, int, java.nio.IntBuffer);
+  public static int alSourceUnqueueBuffersDirect(long, int);
+  public static void alSourcePlay(int);
+  public static void alSourcePlayDirect(long, int);
+  public static void alSourcePause(int);
+  public static void alSourcePauseDirect(long, int);
+  public static void alSourceStop(int);
+  public static void alSourceStopDirect(long, int);
+  public static void alSourceRewind(int);
+  public static void alSourceRewindDirect(long, int);
+  public static void nalSourcePlayv(int, long);
+  public static void alSourcePlayv(java.nio.IntBuffer);
+  public static void nalSourcePlayvDirect(long, int, long);
+  public static void alSourcePlayvDirect(long, java.nio.IntBuffer);
+  public static void nalSourcePausev(int, long);
+  public static void alSourcePausev(java.nio.IntBuffer);
+  public static void nalSourcePausevDirect(long, int, long);
+  public static void alSourcePausevDirect(long, java.nio.IntBuffer);
+  public static void nalSourceStopv(int, long);
+  public static void alSourceStopv(java.nio.IntBuffer);
+  public static void nalSourceStopvDirect(long, int, long);
+  public static void alSourceStopvDirect(long, java.nio.IntBuffer);
+  public static void nalSourceRewindv(int, long);
+  public static void alSourceRewindv(java.nio.IntBuffer);
+  public static void nalSourceRewindvDirect(long, int, long);
+  public static void alSourceRewindvDirect(long, java.nio.IntBuffer);
+  public static void nalGenBuffers(int, long);
+  public static void alGenBuffers(java.nio.IntBuffer);
+  public static int alGenBuffers();
+  public static void nalGenBuffersDirect(long, int, long);
+  public static void alGenBuffersDirect(long, java.nio.IntBuffer);
+  public static int alGenBuffersDirect(long);
+  public static void nalDeleteBuffers(int, long);
+  public static void alDeleteBuffers(java.nio.IntBuffer);
+  public static void alDeleteBuffers(int);
+  public static void nalDeleteBuffersDirect(long, int, long);
+  public static void alDeleteBuffersDirect(long, java.nio.IntBuffer);
+  public static void alDeleteBuffersDirect(long, int);
+  public static boolean alIsBuffer(int);
+  public static boolean alIsBufferDirect(long, int);
+  public static void nalGetBufferf(int, int, long);
+  public static void alGetBufferf(int, int, java.nio.FloatBuffer);
+  public static float alGetBufferf(int, int);
+  public static void nalGetBufferfDirect(long, int, int, long);
+  public static void alGetBufferfDirect(long, int, int, java.nio.FloatBuffer);
+  public static float alGetBufferfDirect(long, int, int);
+  public static void nalGetBufferi(int, int, long);
+  public static void alGetBufferi(int, int, java.nio.IntBuffer);
+  public static int alGetBufferi(int, int);
+  public static void nalGetBufferiDirect(long, int, int, long);
+  public static void alGetBufferiDirect(long, int, int, java.nio.IntBuffer);
+  public static int alGetBufferiDirect(long, int, int);
+  public static void nalBufferData(int, int, long, int, int);
+  public static void alBufferData(int, int, java.nio.ByteBuffer, int);
+  public static void alBufferData(int, int, java.nio.ShortBuffer, int);
+  public static void alBufferData(int, int, java.nio.IntBuffer, int);
+  public static void alBufferData(int, int, java.nio.FloatBuffer, int);
+  public static void nalBufferDataDirect(long, int, int, long, int, int);
+  public static void alBufferDataDirect(long, int, int, java.nio.ByteBuffer, int);
+  public static void alBufferDataDirect(long, int, int, java.nio.ShortBuffer, int);
+  public static void alBufferDataDirect(long, int, int, java.nio.IntBuffer, int);
+  public static void alBufferDataDirect(long, int, int, java.nio.FloatBuffer, int);
+  public static int nalGetEnumValue(long);
+  public static int alGetEnumValue(java.nio.ByteBuffer);
+  public static int alGetEnumValue(java.lang.CharSequence);
+  public static int nalGetEnumValueDirect(long, long);
+  public static int alGetEnumValueDirect(long, java.nio.ByteBuffer);
+  public static int alGetEnumValueDirect(long, java.lang.CharSequence);
+  public static long nalGetProcAddress(long);
+  public static long alGetProcAddress(java.nio.ByteBuffer);
+  public static long alGetProcAddress(java.lang.CharSequence);
+  public static long nalGetProcAddressDirect(long, long);
+  public static long alGetProcAddressDirect(long, java.nio.ByteBuffer);
+  public static long alGetProcAddressDirect(long, java.lang.CharSequence);
+  public static boolean nalIsExtensionPresent(long);
+  public static boolean alIsExtensionPresent(java.nio.ByteBuffer);
+  public static boolean alIsExtensionPresent(java.lang.CharSequence);
+  public static boolean nalIsExtensionPresentDirect(long, long);
+  public static boolean alIsExtensionPresentDirect(long, java.nio.ByteBuffer);
+  public static boolean alIsExtensionPresentDirect(long, java.lang.CharSequence);
+  public static void alGetIntegerv(int, int[]);
+  public static void alGetIntegervDirect(long, int, int[]);
+  public static void alGetFloatv(int, float[]);
+  public static void alGetFloatvDirect(long, int, float[]);
+  public static void alGetDoublev(int, double[]);
+  public static void alGetDoublevDirect(long, int, double[]);
+  public static void alListenerfv(int, float[]);
+  public static void alListenerfvDirect(long, int, float[]);
+  public static void alGetListenerf(int, float[]);
+  public static void alGetListenerfDirect(long, int, float[]);
+  public static void alGetListeneri(int, int[]);
+  public static void alGetListeneriDirect(long, int, int[]);
+  public static void alGetListener3f(int, float[], float[], float[]);
+  public static void alGetListener3fDirect(long, int, float[], float[], float[]);
+  public static void alGetListenerfv(int, float[]);
+  public static void alGetListenerfvDirect(long, int, float[]);
+  public static void alGenSources(int[]);
+  public static void alGenSourcesDirect(long, int[]);
+  public static void alDeleteSources(int[]);
+  public static void alDeleteSourcesDirect(long, int[]);
+  public static void alSourcefv(int, int, float[]);
+  public static void alSourcefvDirect(long, int, int, float[]);
+  public static void alGetSourcef(int, int, float[]);
+  public static void alGetSourcefDirect(long, int, int, float[]);
+  public static void alGetSource3f(int, int, float[], float[], float[]);
+  public static void alGetSource3fDirect(long, int, int, float[], float[], float[]);
+  public static void alGetSourcefv(int, int, float[]);
+  public static void alGetSourcefvDirect(long, int, int, float[]);
+  public static void alGetSourcei(int, int, int[]);
+  public static void alGetSourceiDirect(long, int, int, int[]);
+  public static void alGetSourceiv(int, int, int[]);
+  public static void alGetSourceivDirect(long, int, int, int[]);
+  public static void alSourceQueueBuffers(int, int[]);
+  public static void alSourceQueueBuffersDirect(long, int, int[]);
+  public static void alSourceUnqueueBuffers(int, int[]);
+  public static void alSourceUnqueueBuffersDirect(long, int, int[]);
+  public static void alSourcePlayv(int[]);
+  public static void alSourcePlayvDirect(long, int[]);
+  public static void alSourcePausev(int[]);
+  public static void alSourcePausevDirect(long, int[]);
+  public static void alSourceStopv(int[]);
+  public static void alSourceStopvDirect(long, int[]);
+  public static void alSourceRewindv(int[]);
+  public static void alSourceRewindvDirect(long, int[]);
+  public static void alGenBuffers(int[]);
+  public static void alGenBuffersDirect(long, int[]);
+  public static void alDeleteBuffers(int[]);
+  public static void alDeleteBuffersDirect(long, int[]);
+  public static void alGetBufferf(int, int, float[]);
+  public static void alGetBufferfDirect(long, int, int, float[]);
+  public static void alGetBufferi(int, int, int[]);
+  public static void alGetBufferiDirect(long, int, int, int[]);
+  public static void alBufferData(int, int, short[], int);
+  public static void alBufferData(int, int, int[], int);
+  public static void alBufferData(int, int, float[], int);
+  public static void alBufferDataDirect(long, int, int, short[], int);
+  public static void alBufferDataDirect(long, int, int, int[], int);
+  public static void alBufferDataDirect(long, int, int, float[], int);
+}
+
+Compiled from "ALC10.java"
+public class org.lwjgl.openal.ALC10 {
+  public static final int ALC_INVALID;
+  public static final int ALC_FALSE;
+  public static final int ALC_TRUE;
+  public static final int ALC_FREQUENCY;
+  public static final int ALC_REFRESH;
+  public static final int ALC_SYNC;
+  public static final int ALC_NO_ERROR;
+  public static final int ALC_INVALID_DEVICE;
+  public static final int ALC_INVALID_CONTEXT;
+  public static final int ALC_INVALID_ENUM;
+  public static final int ALC_INVALID_VALUE;
+  public static final int ALC_OUT_OF_MEMORY;
+  public static final int ALC_DEFAULT_DEVICE_SPECIFIER;
+  public static final int ALC_DEVICE_SPECIFIER;
+  public static final int ALC_EXTENSIONS;
+  public static final int ALC_MAJOR_VERSION;
+  public static final int ALC_MINOR_VERSION;
+  public static final int ALC_ATTRIBUTES_SIZE;
+  public static final int ALC_ALL_ATTRIBUTES;
+  protected org.lwjgl.openal.ALC10();
+  public static long nalcOpenDevice(long);
+  public static long alcOpenDevice(java.nio.ByteBuffer);
+  public static long alcOpenDevice(java.lang.CharSequence);
+  public static boolean alcCloseDevice(long);
+  public static long nalcCreateContext(long, long);
+  public static long alcCreateContext(long, java.nio.IntBuffer);
+  public static boolean alcMakeContextCurrent(long);
+  public static void alcProcessContext(long);
+  public static void alcSuspendContext(long);
+  public static void alcDestroyContext(long);
+  public static long alcGetCurrentContext();
+  public static long alcGetContextsDevice(long);
+  public static boolean nalcIsExtensionPresent(long, long);
+  public static boolean alcIsExtensionPresent(long, java.nio.ByteBuffer);
+  public static boolean alcIsExtensionPresent(long, java.lang.CharSequence);
+  public static long nalcGetProcAddress(long, long);
+  public static long alcGetProcAddress(long, java.nio.ByteBuffer);
+  public static long alcGetProcAddress(long, java.lang.CharSequence);
+  public static int nalcGetEnumValue(long, long);
+  public static int alcGetEnumValue(long, java.nio.ByteBuffer);
+  public static int alcGetEnumValue(long, java.lang.CharSequence);
+  public static int alcGetError(long);
+  public static long nalcGetString(long, int);
+  public static java.lang.String alcGetString(long, int);
+  public static void nalcGetIntegerv(long, int, int, long);
+  public static void alcGetIntegerv(long, int, java.nio.IntBuffer);
+  public static int alcGetInteger(long, int);
+  public static long alcCreateContext(long, int[]);
+  public static void alcGetIntegerv(long, int, int[]);
+}
+
+Compiled from "MemoryUtil.java"
+public final class org.lwjgl.system.MemoryUtil {
+  public static final long NULL;
+  public static final int PAGE_SIZE;
+  public static final int CACHE_LINE_SIZE;
+  static final int ARRAY_TLC_SIZE;
+  static final java.lang.ThreadLocal<byte[]> ARRAY_TLC_BYTE;
+  static final java.lang.ThreadLocal<char[]> ARRAY_TLC_CHAR;
+  static final sun.misc.Unsafe UNSAFE;
+  static final java.nio.ByteOrder NATIVE_ORDER;
+  private static final java.nio.charset.Charset UTF16;
+  static final java.lang.Class<? extends java.nio.ByteBuffer> BUFFER_BYTE;
+  static final java.lang.Class<? extends java.nio.ShortBuffer> BUFFER_SHORT;
+  static final java.lang.Class<? extends java.nio.CharBuffer> BUFFER_CHAR;
+  static final java.lang.Class<? extends java.nio.IntBuffer> BUFFER_INT;
+  static final java.lang.Class<? extends java.nio.LongBuffer> BUFFER_LONG;
+  static final java.lang.Class<? extends java.nio.FloatBuffer> BUFFER_FLOAT;
+  static final java.lang.Class<? extends java.nio.DoubleBuffer> BUFFER_DOUBLE;
+  private static final long MARK;
+  private static final long POSITION;
+  private static final long LIMIT;
+  private static final long CAPACITY;
+  private static final long ADDRESS;
+  private static final long PARENT_BYTE;
+  private static final long PARENT_SHORT;
+  private static final long PARENT_CHAR;
+  private static final long PARENT_INT;
+  private static final long PARENT_LONG;
+  private static final long PARENT_FLOAT;
+  private static final long PARENT_DOUBLE;
+  private static final int MAGIC_CAPACITY;
+  private static final int MAGIC_POSITION;
+  private org.lwjgl.system.MemoryUtil();
+  public static org.lwjgl.system.MemoryUtil$MemoryAllocator getAllocator();
+  public static org.lwjgl.system.MemoryUtil$MemoryAllocator getAllocator(boolean);
+  public static long nmemAlloc(long);
+  public static long nmemAllocChecked(long);
+  private static long getAllocationSize(int, int);
+  public static java.nio.ByteBuffer memAlloc(int);
+  public static java.nio.ShortBuffer memAllocShort(int);
+  public static java.nio.IntBuffer memAllocInt(int);
+  public static java.nio.FloatBuffer memAllocFloat(int);
+  public static java.nio.LongBuffer memAllocLong(int);
+  public static org.lwjgl.CLongBuffer memAllocCLong(int);
+  public static java.nio.DoubleBuffer memAllocDouble(int);
+  public static org.lwjgl.PointerBuffer memAllocPointer(int);
+  public static void nmemFree(long);
+  public static void memFree(java.nio.Buffer);
+  public static void memFree(java.nio.ByteBuffer);
+  public static void memFree(java.nio.ShortBuffer);
+  public static void memFree(java.nio.CharBuffer);
+  public static void memFree(java.nio.IntBuffer);
+  public static void memFree(java.nio.LongBuffer);
+  public static void memFree(java.nio.FloatBuffer);
+  public static void memFree(java.nio.DoubleBuffer);
+  public static void memFree(org.lwjgl.system.CustomBuffer<?>);
+  public static long nmemCalloc(long, long);
+  public static long nmemCallocChecked(long, long);
+  public static java.nio.ByteBuffer memCalloc(int, int);
+  public static java.nio.ByteBuffer memCalloc(int);
+  public static java.nio.ShortBuffer memCallocShort(int);
+  public static java.nio.IntBuffer memCallocInt(int);
+  public static java.nio.FloatBuffer memCallocFloat(int);
+  public static java.nio.LongBuffer memCallocLong(int);
+  public static org.lwjgl.CLongBuffer memCallocCLong(int);
+  public static java.nio.DoubleBuffer memCallocDouble(int);
+  public static org.lwjgl.PointerBuffer memCallocPointer(int);
+  public static long nmemRealloc(long, long);
+  public static long nmemReallocChecked(long, long);
+  private static <T extends java.nio.Buffer> T realloc(T, T, int);
+  public static java.nio.ByteBuffer memRealloc(java.nio.ByteBuffer, int);
+  public static java.nio.ShortBuffer memRealloc(java.nio.ShortBuffer, int);
+  public static java.nio.IntBuffer memRealloc(java.nio.IntBuffer, int);
+  public static java.nio.LongBuffer memRealloc(java.nio.LongBuffer, int);
+  public static org.lwjgl.CLongBuffer memRealloc(org.lwjgl.CLongBuffer, int);
+  public static java.nio.FloatBuffer memRealloc(java.nio.FloatBuffer, int);
+  public static java.nio.DoubleBuffer memRealloc(java.nio.DoubleBuffer, int);
+  public static org.lwjgl.PointerBuffer memRealloc(org.lwjgl.PointerBuffer, int);
+  public static long nmemAlignedAlloc(long, long);
+  public static long nmemAlignedAllocChecked(long, long);
+  public static java.nio.ByteBuffer memAlignedAlloc(int, int);
+  public static void nmemAlignedFree(long);
+  public static void memAlignedFree(java.nio.ByteBuffer);
+  public static void memReport(org.lwjgl.system.MemoryUtil$MemoryAllocationReport);
+  public static void memReport(org.lwjgl.system.MemoryUtil$MemoryAllocationReport, org.lwjgl.system.MemoryUtil$MemoryAllocationReport$Aggregate, boolean);
+  public static long memAddress0(java.nio.Buffer);
+  public static long memAddress0(java.nio.ByteBuffer);
+  public static long memAddress0(java.nio.ShortBuffer);
+  public static long memAddress0(java.nio.CharBuffer);
+  public static long memAddress0(java.nio.IntBuffer);
+  public static long memAddress0(java.nio.LongBuffer);
+  public static long memAddress0(java.nio.FloatBuffer);
+  public static long memAddress0(java.nio.DoubleBuffer);
+  public static long memAddress(java.nio.ByteBuffer);
+  public static long memAddress(java.nio.ByteBuffer, int);
+  private static long address(int, int, long);
+  public static long memAddress(java.nio.ShortBuffer);
+  public static long memAddress(java.nio.ShortBuffer, int);
+  public static long memAddress(java.nio.CharBuffer);
+  public static long memAddress(java.nio.CharBuffer, int);
+  public static long memAddress(java.nio.IntBuffer);
+  public static long memAddress(java.nio.IntBuffer, int);
+  public static long memAddress(java.nio.FloatBuffer);
+  public static long memAddress(java.nio.FloatBuffer, int);
+  public static long memAddress(java.nio.LongBuffer);
+  public static long memAddress(java.nio.LongBuffer, int);
+  public static long memAddress(java.nio.DoubleBuffer);
+  public static long memAddress(java.nio.DoubleBuffer, int);
+  public static long memAddress(java.nio.Buffer);
+  public static long memAddress(org.lwjgl.system.CustomBuffer<?>);
+  public static long memAddress(org.lwjgl.system.CustomBuffer<?>, int);
+  public static long memAddressSafe(java.nio.ByteBuffer);
+  public static long memAddressSafe(java.nio.ShortBuffer);
+  public static long memAddressSafe(java.nio.CharBuffer);
+  public static long memAddressSafe(java.nio.IntBuffer);
+  public static long memAddressSafe(java.nio.FloatBuffer);
+  public static long memAddressSafe(java.nio.LongBuffer);
+  public static long memAddressSafe(java.nio.DoubleBuffer);
+  public static long memAddressSafe(org.lwjgl.system.Pointer);
+  public static java.nio.ByteBuffer memByteBuffer(long, int);
+  public static java.nio.ByteBuffer memByteBufferSafe(long, int);
+  public static java.nio.ByteBuffer memByteBuffer(java.nio.ShortBuffer);
+  public static java.nio.ByteBuffer memByteBuffer(java.nio.CharBuffer);
+  public static java.nio.ByteBuffer memByteBuffer(java.nio.IntBuffer);
+  public static java.nio.ByteBuffer memByteBuffer(java.nio.LongBuffer);
+  public static java.nio.ByteBuffer memByteBuffer(java.nio.FloatBuffer);
+  public static java.nio.ByteBuffer memByteBuffer(java.nio.DoubleBuffer);
+  public static java.nio.ByteBuffer memByteBuffer(org.lwjgl.system.CustomBuffer<?>);
+  public static <T extends org.lwjgl.system.Struct<T>> java.nio.ByteBuffer memByteBuffer(T);
+  public static java.nio.ShortBuffer memShortBuffer(long, int);
+  public static java.nio.ShortBuffer memShortBufferSafe(long, int);
+  public static java.nio.CharBuffer memCharBuffer(long, int);
+  public static java.nio.CharBuffer memCharBufferSafe(long, int);
+  public static java.nio.IntBuffer memIntBuffer(long, int);
+  public static java.nio.IntBuffer memIntBufferSafe(long, int);
+  public static java.nio.LongBuffer memLongBuffer(long, int);
+  public static java.nio.LongBuffer memLongBufferSafe(long, int);
+  public static org.lwjgl.CLongBuffer memCLongBuffer(long, int);
+  public static org.lwjgl.CLongBuffer memCLongBufferSafe(long, int);
+  public static java.nio.FloatBuffer memFloatBuffer(long, int);
+  public static java.nio.FloatBuffer memFloatBufferSafe(long, int);
+  public static java.nio.DoubleBuffer memDoubleBuffer(long, int);
+  public static java.nio.DoubleBuffer memDoubleBufferSafe(long, int);
+  public static org.lwjgl.PointerBuffer memPointerBuffer(long, int);
+  public static org.lwjgl.PointerBuffer memPointerBufferSafe(long, int);
+  public static java.nio.ByteBuffer memDuplicate(java.nio.ByteBuffer);
+  public static java.nio.ShortBuffer memDuplicate(java.nio.ShortBuffer);
+  public static java.nio.CharBuffer memDuplicate(java.nio.CharBuffer);
+  public static java.nio.IntBuffer memDuplicate(java.nio.IntBuffer);
+  public static java.nio.LongBuffer memDuplicate(java.nio.LongBuffer);
+  public static java.nio.FloatBuffer memDuplicate(java.nio.FloatBuffer);
+  public static java.nio.DoubleBuffer memDuplicate(java.nio.DoubleBuffer);
+  public static java.nio.ByteBuffer memSlice(java.nio.ByteBuffer);
+  public static java.nio.ShortBuffer memSlice(java.nio.ShortBuffer);
+  public static java.nio.CharBuffer memSlice(java.nio.CharBuffer);
+  public static java.nio.IntBuffer memSlice(java.nio.IntBuffer);
+  public static java.nio.LongBuffer memSlice(java.nio.LongBuffer);
+  public static java.nio.FloatBuffer memSlice(java.nio.FloatBuffer);
+  public static java.nio.DoubleBuffer memSlice(java.nio.DoubleBuffer);
+  public static java.nio.ByteBuffer memSlice(java.nio.ByteBuffer, int, int);
+  public static java.nio.ShortBuffer memSlice(java.nio.ShortBuffer, int, int);
+  public static java.nio.CharBuffer memSlice(java.nio.CharBuffer, int, int);
+  public static java.nio.IntBuffer memSlice(java.nio.IntBuffer, int, int);
+  public static java.nio.LongBuffer memSlice(java.nio.LongBuffer, int, int);
+  public static java.nio.FloatBuffer memSlice(java.nio.FloatBuffer, int, int);
+  public static java.nio.DoubleBuffer memSlice(java.nio.DoubleBuffer, int, int);
+  public static <T extends org.lwjgl.system.CustomBuffer<T>> T memSlice(T, int, int);
+  public static void memSet(java.nio.ByteBuffer, int);
+  public static void memSet(java.nio.ShortBuffer, int);
+  public static void memSet(java.nio.CharBuffer, int);
+  public static void memSet(java.nio.IntBuffer, int);
+  public static void memSet(java.nio.LongBuffer, int);
+  public static void memSet(java.nio.FloatBuffer, int);
+  public static void memSet(java.nio.DoubleBuffer, int);
+  public static <T extends org.lwjgl.system.CustomBuffer<T>> void memSet(T, int);
+  public static <T extends org.lwjgl.system.Struct<T>> void memSet(T, int);
+  public static void memCopy(java.nio.ByteBuffer, java.nio.ByteBuffer);
+  public static void memCopy(java.nio.ShortBuffer, java.nio.ShortBuffer);
+  public static void memCopy(java.nio.CharBuffer, java.nio.CharBuffer);
+  public static void memCopy(java.nio.IntBuffer, java.nio.IntBuffer);
+  public static void memCopy(java.nio.LongBuffer, java.nio.LongBuffer);
+  public static void memCopy(java.nio.FloatBuffer, java.nio.FloatBuffer);
+  public static void memCopy(java.nio.DoubleBuffer, java.nio.DoubleBuffer);
+  public static <T extends org.lwjgl.system.CustomBuffer<T>> void memCopy(T, T);
+  public static <T extends org.lwjgl.system.Struct<T>> void memCopy(T, T);
+  public static void memCopy(byte[], java.nio.ByteBuffer);
+  public static void memCopy(short[], java.nio.ByteBuffer);
+  public static void memCopy(short[], java.nio.ShortBuffer);
+  public static void memCopy(int[], java.nio.ByteBuffer);
+  public static void memCopy(int[], java.nio.IntBuffer);
+  public static void memCopy(long[], java.nio.ByteBuffer);
+  public static void memCopy(long[], java.nio.LongBuffer);
+  public static void memCopy(float[], java.nio.ByteBuffer);
+  public static void memCopy(float[], java.nio.FloatBuffer);
+  public static void memCopy(double[], java.nio.ByteBuffer);
+  public static void memCopy(double[], java.nio.DoubleBuffer);
+  public static void memCopy(byte[], java.nio.ByteBuffer, int, int);
+  public static void memCopy(short[], java.nio.ByteBuffer, int, int);
+  public static void memCopy(short[], java.nio.ShortBuffer, int, int);
+  public static void memCopy(int[], java.nio.ByteBuffer, int, int);
+  public static void memCopy(int[], java.nio.IntBuffer, int, int);
+  public static void memCopy(long[], java.nio.ByteBuffer, int, int);
+  public static void memCopy(long[], java.nio.LongBuffer, int, int);
+  public static void memCopy(float[], java.nio.ByteBuffer, int, int);
+  public static void memCopy(float[], java.nio.FloatBuffer, int, int);
+  public static void memCopy(double[], java.nio.ByteBuffer, int, int);
+  public static void memCopy(double[], java.nio.DoubleBuffer, int, int);
+  public static void memCopy(java.nio.ByteBuffer, byte[]);
+  public static void memCopy(java.nio.ByteBuffer, short[]);
+  public static void memCopy(java.nio.ShortBuffer, short[]);
+  public static void memCopy(java.nio.ByteBuffer, int[]);
+  public static void memCopy(java.nio.IntBuffer, int[]);
+  public static void memCopy(java.nio.ByteBuffer, long[]);
+  public static void memCopy(java.nio.LongBuffer, long[]);
+  public static void memCopy(java.nio.ByteBuffer, float[]);
+  public static void memCopy(java.nio.FloatBuffer, float[]);
+  public static void memCopy(java.nio.ByteBuffer, double[]);
+  public static void memCopy(java.nio.DoubleBuffer, double[]);
+  public static void memCopy(java.nio.ByteBuffer, byte[], int, int);
+  public static void memCopy(java.nio.ByteBuffer, short[], int, int);
+  public static void memCopy(java.nio.ShortBuffer, short[], int, int);
+  public static void memCopy(java.nio.ByteBuffer, int[], int, int);
+  public static void memCopy(java.nio.IntBuffer, int[], int, int);
+  public static void memCopy(java.nio.ByteBuffer, long[], int, int);
+  public static void memCopy(java.nio.LongBuffer, long[], int, int);
+  public static void memCopy(java.nio.ByteBuffer, float[], int, int);
+  public static void memCopy(java.nio.FloatBuffer, float[], int, int);
+  public static void memCopy(java.nio.ByteBuffer, double[], int, int);
+  public static void memCopy(java.nio.DoubleBuffer, double[], int, int);
+  public static void memSet(long, int, long);
+  public static void memCopy(long, long, long);
+  public static void memCopy(byte[], long);
+  public static void memCopy(short[], long);
+  public static void memCopy(int[], long);
+  public static void memCopy(long[], long);
+  public static void memCopy(float[], long);
+  public static void memCopy(double[], long);
+  public static void memCopy(byte[], long, int, int);
+  public static void memCopy(short[], long, int, int);
+  public static void memCopy(int[], long, int, int);
+  public static void memCopy(long[], long, int, int);
+  public static void memCopy(float[], long, int, int);
+  public static void memCopy(double[], long, int, int);
+  public static void memCopy(long, byte[]);
+  public static void memCopy(long, short[]);
+  public static void memCopy(long, int[]);
+  public static void memCopy(long, long[]);
+  public static void memCopy(long, float[]);
+  public static void memCopy(long, double[]);
+  public static void memCopy(long, byte[], int, int);
+  public static void memCopy(long, short[], int, int);
+  public static void memCopy(long, int[], int, int);
+  public static void memCopy(long, long[], int, int);
+  public static void memCopy(long, float[], int, int);
+  public static void memCopy(long, double[], int, int);
+  public static boolean memGetBoolean(long);
+  public static byte memGetByte(long);
+  public static short memGetShort(long);
+  public static int memGetInt(long);
+  public static long memGetLong(long);
+  public static float memGetFloat(long);
+  public static double memGetDouble(long);
+  public static long memGetCLong(long);
+  public static long memGetAddress(long);
+  public static void memPutByte(long, byte);
+  public static void memPutShort(long, short);
+  public static void memPutInt(long, int);
+  public static void memPutLong(long, long);
+  public static void memPutFloat(long, float);
+  public static void memPutDouble(long, double);
+  public static void memPutCLong(long, long);
+  public static void memPutAddress(long, long);
+  public static native <T> T memGlobalRefToObject(long);
+  private static int write8(long, int, int);
+  private static int write8Safe(long, int, int, int);
+  private static int write16(long, int, char);
+  public static java.nio.ByteBuffer memASCII(java.lang.CharSequence);
+  public static java.nio.ByteBuffer memASCIISafe(java.lang.CharSequence);
+  public static java.nio.ByteBuffer memASCII(java.lang.CharSequence, boolean);
+  public static java.nio.ByteBuffer memASCIISafe(java.lang.CharSequence, boolean);
+  public static int memASCII(java.lang.CharSequence, boolean, java.nio.ByteBuffer);
+  public static int memASCII(java.lang.CharSequence, boolean, java.nio.ByteBuffer, int);
+  static int encodeASCIIUnsafe(java.lang.CharSequence, boolean, long);
+  public static int memLengthASCII(java.lang.CharSequence, boolean);
+  public static java.nio.ByteBuffer memUTF8(java.lang.CharSequence);
+  public static java.nio.ByteBuffer memUTF8Safe(java.lang.CharSequence);
+  public static java.nio.ByteBuffer memUTF8(java.lang.CharSequence, boolean);
+  public static java.nio.ByteBuffer memUTF8Safe(java.lang.CharSequence, boolean);
+  public static int memUTF8(java.lang.CharSequence, boolean, java.nio.ByteBuffer);
+  public static int memUTF8(java.lang.CharSequence, boolean, java.nio.ByteBuffer, int);
+  static int encodeUTF8Unsafe(java.lang.CharSequence, boolean, long);
+  static int encodeUTF8Safe(java.lang.CharSequence, boolean, long, int);
+  public static int memLengthUTF8(java.lang.CharSequence, boolean);
+  public static java.nio.ByteBuffer memUTF16(java.lang.CharSequence);
+  public static java.nio.ByteBuffer memUTF16Safe(java.lang.CharSequence);
+  public static java.nio.ByteBuffer memUTF16(java.lang.CharSequence, boolean);
+  public static java.nio.ByteBuffer memUTF16Safe(java.lang.CharSequence, boolean);
+  public static int memUTF16(java.lang.CharSequence, boolean, java.nio.ByteBuffer);
+  public static int memUTF16(java.lang.CharSequence, boolean, java.nio.ByteBuffer, int);
+  static int encodeUTF16Unsafe(java.lang.CharSequence, boolean, long);
+  public static int memLengthUTF16(java.lang.CharSequence, boolean);
+  private static int memLengthNT1(long, int);
+  private static int strlen64NT1(long, int);
+  private static int strlen32NT1(long, int);
+  public static int memLengthNT1(java.nio.ByteBuffer);
+  private static int memLengthNT2(long, int);
+  private static int strlen64NT2(long, int);
+  private static int strlen32NT2(long, int);
+  public static int memLengthNT2(java.nio.ByteBuffer);
+  public static java.nio.ByteBuffer memByteBufferNT1(long);
+  public static java.nio.ByteBuffer memByteBufferNT1(long, int);
+  public static java.nio.ByteBuffer memByteBufferNT1Safe(long);
+  public static java.nio.ByteBuffer memByteBufferNT1Safe(long, int);
+  public static java.nio.ByteBuffer memByteBufferNT2(long);
+  public static java.nio.ByteBuffer memByteBufferNT2(long, int);
+  public static java.nio.ByteBuffer memByteBufferNT2Safe(long);
+  public static java.nio.ByteBuffer memByteBufferNT2Safe(long, int);
+  public static java.lang.String memASCII(long);
+  public static java.lang.String memASCII(long, int);
+  public static java.lang.String memASCII(java.nio.ByteBuffer);
+  public static java.lang.String memASCIISafe(long);
+  public static java.lang.String memASCIISafe(long, int);
+  public static java.lang.String memASCIISafe(java.nio.ByteBuffer);
+  public static java.lang.String memASCII(java.nio.ByteBuffer, int);
+  public static java.lang.String memASCII(java.nio.ByteBuffer, int, int);
+  public static java.lang.String memUTF8(long);
+  public static java.lang.String memUTF8(long, int);
+  public static java.lang.String memUTF8(java.nio.ByteBuffer);
+  public static java.lang.String memUTF8Safe(long);
+  public static java.lang.String memUTF8Safe(long, int);
+  public static java.lang.String memUTF8Safe(java.nio.ByteBuffer);
+  public static java.lang.String memUTF8(java.nio.ByteBuffer, int);
+  public static java.lang.String memUTF8(java.nio.ByteBuffer, int, int);
+  public static java.lang.String memUTF16(long);
+  public static java.lang.String memUTF16(long, int);
+  public static java.lang.String memUTF16(java.nio.ByteBuffer);
+  public static java.lang.String memUTF16Safe(long);
+  public static java.lang.String memUTF16Safe(long, int);
+  public static java.lang.String memUTF16Safe(java.nio.ByteBuffer);
+  public static java.lang.String memUTF16(java.nio.ByteBuffer, int);
+  public static java.lang.String memUTF16(java.nio.ByteBuffer, int, int);
+  private static sun.misc.Unsafe getUnsafeInstance();
+  private static long getFieldOffset(java.lang.Class<?>, java.lang.Class<?>, java.util.function.LongPredicate);
+  private static long getFieldOffsetInt(java.lang.Object, int);
+  private static long getFieldOffsetObject(java.lang.Object, java.lang.Object);
+  private static long getAddressOffset();
+  private static long getMarkOffset();
+  private static long getPositionOffset();
+  private static long getLimitOffset();
+  private static long getCapacityOffset();
+  static java.nio.ByteBuffer wrapBufferByte(long, int);
+  static java.nio.ShortBuffer wrapBufferShort(long, int);
+  static java.nio.CharBuffer wrapBufferChar(long, int);
+  static java.nio.IntBuffer wrapBufferInt(long, int);
+  static java.nio.LongBuffer wrapBufferLong(long, int);
+  static java.nio.FloatBuffer wrapBufferFloat(long, int);
+  static java.nio.DoubleBuffer wrapBufferDouble(long, int);
+  static java.nio.ByteBuffer slice(java.nio.ByteBuffer, long, int);
+  static <T extends java.nio.Buffer> T slice(java.lang.Class<? extends T>, T, long, int, long);
+  static <T extends java.nio.Buffer> T duplicate(java.lang.Class<? extends T>, T, long);
+  private static boolean lambda$getAddressOffset$4(java.nio.ByteBuffer, long, long);
+  private static boolean lambda$getFieldOffsetObject$3(java.lang.Object, java.lang.Object, long);
+  private static boolean lambda$getFieldOffsetInt$2(java.lang.Object, int, long);
+  private static char[] lambda$static$1();
+  private static byte[] lambda$static$0();
+  static {};
+}
+
+Compiled from "LibCStdlib.java"
+public class org.lwjgl.system.libc.LibCStdlib {
+  protected org.lwjgl.system.libc.LibCStdlib();
+  public static native long nmalloc(long);
+  public static java.nio.ByteBuffer malloc(long);
+  public static native long ncalloc(long, long);
+  public static java.nio.ByteBuffer calloc(long, long);
+  public static native long nrealloc(long, long);
+  public static java.nio.ByteBuffer realloc(java.nio.ByteBuffer, long);
+  public static native void nfree(long);
+  public static void free(java.nio.ByteBuffer);
+  public static void free(java.nio.ShortBuffer);
+  public static void free(java.nio.IntBuffer);
+  public static void free(java.nio.LongBuffer);
+  public static void free(java.nio.FloatBuffer);
+  public static void free(java.nio.DoubleBuffer);
+  public static void free(org.lwjgl.PointerBuffer);
+  public static native long naligned_alloc(long, long);
+  public static java.nio.ByteBuffer aligned_alloc(long, long);
+  public static native void naligned_free(long);
+  public static void aligned_free(java.nio.ByteBuffer);
+  public static void aligned_free(java.nio.ShortBuffer);
+  public static void aligned_free(java.nio.IntBuffer);
+  public static void aligned_free(java.nio.LongBuffer);
+  public static void aligned_free(java.nio.FloatBuffer);
+  public static void aligned_free(java.nio.DoubleBuffer);
+  public static void aligned_free(org.lwjgl.PointerBuffer);
+  static {};
+}
+
+Compiled from "MemoryStack.java"
+public class org.lwjgl.system.MemoryStack extends org.lwjgl.system.Pointer$Default implements java.lang.AutoCloseable {
+  private static final int DEFAULT_STACK_SIZE;
+  private static final int DEFAULT_STACK_FRAMES;
+  private static final java.lang.ThreadLocal<org.lwjgl.system.MemoryStack> TLS;
+  private final java.nio.ByteBuffer container;
+  private final int size;
+  private int pointer;
+  private int[] frames;
+  protected int frameIndex;
+  protected org.lwjgl.system.MemoryStack(java.nio.ByteBuffer, long, int);
+  public static org.lwjgl.system.MemoryStack create();
+  public static org.lwjgl.system.MemoryStack create(int);
+  public static org.lwjgl.system.MemoryStack create(java.nio.ByteBuffer);
+  public static org.lwjgl.system.MemoryStack ncreate(long, int);
+  public org.lwjgl.system.MemoryStack push();
+  private void frameOverflow();
+  public org.lwjgl.system.MemoryStack pop();
+  public void close();
+  public long getAddress();
+  public int getSize();
+  public int getFrameIndex();
+  public long getPointerAddress();
+  public int getPointer();
+  public void setPointer(int);
+  private void checkPointer(int);
+  private static void checkAlignment(int);
+  public long nmalloc(int);
+  public long nmalloc(int, int);
+  public long ncalloc(int, int, int);
+  public java.nio.ByteBuffer malloc(int, int);
+  public java.nio.ByteBuffer calloc(int, int);
+  public java.nio.ByteBuffer malloc(int);
+  public java.nio.ByteBuffer calloc(int);
+  public long nbyte(byte);
+  public java.nio.ByteBuffer bytes(byte);
+  public java.nio.ByteBuffer bytes(byte, byte);
+  public java.nio.ByteBuffer bytes(byte, byte, byte);
+  public java.nio.ByteBuffer bytes(byte, byte, byte, byte);
+  public java.nio.ByteBuffer bytes(byte...);
+  public java.nio.ShortBuffer mallocShort(int);
+  public java.nio.ShortBuffer callocShort(int);
+  public long nshort(short);
+  public java.nio.ShortBuffer shorts(short);
+  public java.nio.ShortBuffer shorts(short, short);
+  public java.nio.ShortBuffer shorts(short, short, short);
+  public java.nio.ShortBuffer shorts(short, short, short, short);
+  public java.nio.ShortBuffer shorts(short...);
+  public java.nio.IntBuffer mallocInt(int);
+  public java.nio.IntBuffer callocInt(int);
+  public long nint(int);
+  public java.nio.IntBuffer ints(int);
+  public java.nio.IntBuffer ints(int, int);
+  public java.nio.IntBuffer ints(int, int, int);
+  public java.nio.IntBuffer ints(int, int, int, int);
+  public java.nio.IntBuffer ints(int...);
+  public java.nio.LongBuffer mallocLong(int);
+  public java.nio.LongBuffer callocLong(int);
+  public long nlong(long);
+  public java.nio.LongBuffer longs(long);
+  public java.nio.LongBuffer longs(long, long);
+  public java.nio.LongBuffer longs(long, long, long);
+  public java.nio.LongBuffer longs(long, long, long, long);
+  public java.nio.LongBuffer longs(long...);
+  public org.lwjgl.CLongBuffer mallocCLong(int);
+  public org.lwjgl.CLongBuffer callocCLong(int);
+  public long nclong(long);
+  public org.lwjgl.CLongBuffer clongs(long);
+  public org.lwjgl.CLongBuffer clongs(long, long);
+  public org.lwjgl.CLongBuffer clongs(long, long, long);
+  public org.lwjgl.CLongBuffer clongs(long, long, long, long);
+  public org.lwjgl.CLongBuffer clongs(long...);
+  public java.nio.FloatBuffer mallocFloat(int);
+  public java.nio.FloatBuffer callocFloat(int);
+  public long nfloat(float);
+  public java.nio.FloatBuffer floats(float);
+  public java.nio.FloatBuffer floats(float, float);
+  public java.nio.FloatBuffer floats(float, float, float);
+  public java.nio.FloatBuffer floats(float, float, float, float);
+  public java.nio.FloatBuffer floats(float...);
+  public java.nio.DoubleBuffer mallocDouble(int);
+  public java.nio.DoubleBuffer callocDouble(int);
+  public long ndouble(double);
+  public java.nio.DoubleBuffer doubles(double);
+  public java.nio.DoubleBuffer doubles(double, double);
+  public java.nio.DoubleBuffer doubles(double, double, double);
+  public java.nio.DoubleBuffer doubles(double, double, double, double);
+  public java.nio.DoubleBuffer doubles(double...);
+  public org.lwjgl.PointerBuffer mallocPointer(int);
+  public org.lwjgl.PointerBuffer callocPointer(int);
+  public long npointer(long);
+  public org.lwjgl.PointerBuffer pointers(long);
+  public org.lwjgl.PointerBuffer pointers(long, long);
+  public org.lwjgl.PointerBuffer pointers(long, long, long);
+  public org.lwjgl.PointerBuffer pointers(long, long, long, long);
+  public org.lwjgl.PointerBuffer pointers(long...);
+  public long npointer(org.lwjgl.system.Pointer);
+  public org.lwjgl.PointerBuffer pointers(org.lwjgl.system.Pointer);
+  public org.lwjgl.PointerBuffer pointers(org.lwjgl.system.Pointer, org.lwjgl.system.Pointer);
+  public org.lwjgl.PointerBuffer pointers(org.lwjgl.system.Pointer, org.lwjgl.system.Pointer, org.lwjgl.system.Pointer);
+  public org.lwjgl.PointerBuffer pointers(org.lwjgl.system.Pointer, org.lwjgl.system.Pointer, org.lwjgl.system.Pointer, org.lwjgl.system.Pointer);
+  public org.lwjgl.PointerBuffer pointers(org.lwjgl.system.Pointer...);
+  public long npointer(java.nio.Buffer);
+  public org.lwjgl.PointerBuffer pointers(java.nio.Buffer);
+  public org.lwjgl.PointerBuffer pointers(java.nio.Buffer, java.nio.Buffer);
+  public org.lwjgl.PointerBuffer pointers(java.nio.Buffer, java.nio.Buffer, java.nio.Buffer);
+  public org.lwjgl.PointerBuffer pointers(java.nio.Buffer, java.nio.Buffer, java.nio.Buffer, java.nio.Buffer);
+  public org.lwjgl.PointerBuffer pointers(java.nio.Buffer...);
+  public org.lwjgl.PointerBuffer pointersOfElements(org.lwjgl.system.CustomBuffer<?>);
+  public java.nio.ByteBuffer ASCII(java.lang.CharSequence);
+  public java.nio.ByteBuffer ASCII(java.lang.CharSequence, boolean);
+  public int nASCII(java.lang.CharSequence, boolean);
+  public java.nio.ByteBuffer ASCIISafe(java.lang.CharSequence);
+  public java.nio.ByteBuffer ASCIISafe(java.lang.CharSequence, boolean);
+  public int nASCIISafe(java.lang.CharSequence, boolean);
+  public java.nio.ByteBuffer UTF8(java.lang.CharSequence);
+  public java.nio.ByteBuffer UTF8(java.lang.CharSequence, boolean);
+  public int nUTF8(java.lang.CharSequence, boolean);
+  public java.nio.ByteBuffer UTF8Safe(java.lang.CharSequence);
+  public java.nio.ByteBuffer UTF8Safe(java.lang.CharSequence, boolean);
+  public int nUTF8Safe(java.lang.CharSequence, boolean);
+  public java.nio.ByteBuffer UTF16(java.lang.CharSequence);
+  public java.nio.ByteBuffer UTF16(java.lang.CharSequence, boolean);
+  public int nUTF16(java.lang.CharSequence, boolean);
+  public java.nio.ByteBuffer UTF16Safe(java.lang.CharSequence);
+  public java.nio.ByteBuffer UTF16Safe(java.lang.CharSequence, boolean);
+  public int nUTF16Safe(java.lang.CharSequence, boolean);
+  public static org.lwjgl.system.MemoryStack stackGet();
+  public static org.lwjgl.system.MemoryStack stackPush();
+  public static org.lwjgl.system.MemoryStack stackPop();
+  public static long nstackMalloc(int);
+  public static long nstackMalloc(int, int);
+  public static long nstackCalloc(int, int, int);
+  public static java.nio.ByteBuffer stackMalloc(int);
+  public static java.nio.ByteBuffer stackCalloc(int);
+  public static java.nio.ByteBuffer stackBytes(byte);
+  public static java.nio.ByteBuffer stackBytes(byte, byte);
+  public static java.nio.ByteBuffer stackBytes(byte, byte, byte);
+  public static java.nio.ByteBuffer stackBytes(byte, byte, byte, byte);
+  public static java.nio.ByteBuffer stackBytes(byte...);
+  public static java.nio.ShortBuffer stackMallocShort(int);
+  public static java.nio.ShortBuffer stackCallocShort(int);
+  public static java.nio.ShortBuffer stackShorts(short);
+  public static java.nio.ShortBuffer stackShorts(short, short);
+  public static java.nio.ShortBuffer stackShorts(short, short, short);
+  public static java.nio.ShortBuffer stackShorts(short, short, short, short);
+  public static java.nio.ShortBuffer stackShorts(short...);
+  public static java.nio.IntBuffer stackMallocInt(int);
+  public static java.nio.IntBuffer stackCallocInt(int);
+  public static java.nio.IntBuffer stackInts(int);
+  public static java.nio.IntBuffer stackInts(int, int);
+  public static java.nio.IntBuffer stackInts(int, int, int);
+  public static java.nio.IntBuffer stackInts(int, int, int, int);
+  public static java.nio.IntBuffer stackInts(int...);
+  public static java.nio.LongBuffer stackMallocLong(int);
+  public static java.nio.LongBuffer stackCallocLong(int);
+  public static java.nio.LongBuffer stackLongs(long);
+  public static java.nio.LongBuffer stackLongs(long, long);
+  public static java.nio.LongBuffer stackLongs(long, long, long);
+  public static java.nio.LongBuffer stackLongs(long, long, long, long);
+  public static java.nio.LongBuffer stackLongs(long...);
+  public static org.lwjgl.CLongBuffer stackMallocCLong(int);
+  public static org.lwjgl.CLongBuffer stackCallocCLong(int);
+  public static org.lwjgl.CLongBuffer stackCLongs(long);
+  public static org.lwjgl.CLongBuffer stackCLongs(long, long);
+  public static org.lwjgl.CLongBuffer stackCLongs(long, long, long);
+  public static org.lwjgl.CLongBuffer stackCLongs(long, long, long, long);
+  public static org.lwjgl.CLongBuffer stackCLongs(long...);
+  public static java.nio.FloatBuffer stackMallocFloat(int);
+  public static java.nio.FloatBuffer stackCallocFloat(int);
+  public static java.nio.FloatBuffer stackFloats(float);
+  public static java.nio.FloatBuffer stackFloats(float, float);
+  public static java.nio.FloatBuffer stackFloats(float, float, float);
+  public static java.nio.FloatBuffer stackFloats(float, float, float, float);
+  public static java.nio.FloatBuffer stackFloats(float...);
+  public static java.nio.DoubleBuffer stackMallocDouble(int);
+  public static java.nio.DoubleBuffer stackCallocDouble(int);
+  public static java.nio.DoubleBuffer stackDoubles(double);
+  public static java.nio.DoubleBuffer stackDoubles(double, double);
+  public static java.nio.DoubleBuffer stackDoubles(double, double, double);
+  public static java.nio.DoubleBuffer stackDoubles(double, double, double, double);
+  public static java.nio.DoubleBuffer stackDoubles(double...);
+  public static org.lwjgl.PointerBuffer stackMallocPointer(int);
+  public static org.lwjgl.PointerBuffer stackCallocPointer(int);
+  public static org.lwjgl.PointerBuffer stackPointers(long);
+  public static org.lwjgl.PointerBuffer stackPointers(long, long);
+  public static org.lwjgl.PointerBuffer stackPointers(long, long, long);
+  public static org.lwjgl.PointerBuffer stackPointers(long, long, long, long);
+  public static org.lwjgl.PointerBuffer stackPointers(long...);
+  public static org.lwjgl.PointerBuffer stackPointers(org.lwjgl.system.Pointer);
+  public static org.lwjgl.PointerBuffer stackPointers(org.lwjgl.system.Pointer, org.lwjgl.system.Pointer);
+  public static org.lwjgl.PointerBuffer stackPointers(org.lwjgl.system.Pointer, org.lwjgl.system.Pointer, org.lwjgl.system.Pointer);
+  public static org.lwjgl.PointerBuffer stackPointers(org.lwjgl.system.Pointer, org.lwjgl.system.Pointer, org.lwjgl.system.Pointer, org.lwjgl.system.Pointer);
+  public static org.lwjgl.PointerBuffer stackPointers(org.lwjgl.system.Pointer...);
+  public static java.nio.ByteBuffer stackASCII(java.lang.CharSequence);
+  public static java.nio.ByteBuffer stackASCII(java.lang.CharSequence, boolean);
+  public static java.nio.ByteBuffer stackUTF8(java.lang.CharSequence);
+  public static java.nio.ByteBuffer stackUTF8(java.lang.CharSequence, boolean);
+  public static java.nio.ByteBuffer stackUTF16(java.lang.CharSequence);
+  public static java.nio.ByteBuffer stackUTF16(java.lang.CharSequence, boolean);
+  public static java.nio.ByteBuffer stackASCIISafe(java.lang.CharSequence);
+  public static java.nio.ByteBuffer stackASCIISafe(java.lang.CharSequence, boolean);
+  public static java.nio.ByteBuffer stackUTF8Safe(java.lang.CharSequence);
+  public static java.nio.ByteBuffer stackUTF8Safe(java.lang.CharSequence, boolean);
+  public static java.nio.ByteBuffer stackUTF16Safe(java.lang.CharSequence);
+  public static java.nio.ByteBuffer stackUTF16Safe(java.lang.CharSequence, boolean);
+  static {};
+}
+
+Compiled from "Screen.java"
+public abstract class net.minecraft.client.gui.screens.Screen extends net.minecraft.client.gui.components.events.AbstractContainerEventHandler implements net.minecraft.client.gui.components.Renderable {
+  private static final org.slf4j.Logger LOGGER;
+  private static final net.minecraft.network.chat.Component SCREEN_USAGE_NARRATION;
+  public static final net.minecraft.resources.Identifier MENU_BACKGROUND;
+  public static final net.minecraft.resources.Identifier HEADER_SEPARATOR;
+  public static final net.minecraft.resources.Identifier FOOTER_SEPARATOR;
+  private static final net.minecraft.resources.Identifier INWORLD_MENU_BACKGROUND;
+  public static final net.minecraft.resources.Identifier INWORLD_HEADER_SEPARATOR;
+  public static final net.minecraft.resources.Identifier INWORLD_FOOTER_SEPARATOR;
+  protected static final float FADE_IN_TIME;
+  protected final net.minecraft.network.chat.Component title;
+  private final java.util.List<net.minecraft.client.gui.components.events.GuiEventListener> children;
+  private final java.util.List<net.minecraft.client.gui.narration.NarratableEntry> narratables;
+  protected final net.minecraft.client.Minecraft minecraft;
+  private boolean initialized;
+  public int width;
+  public int height;
+  private final java.util.List<net.minecraft.client.gui.components.Renderable> renderables;
+  protected final net.minecraft.client.gui.Font font;
+  private static final long NARRATE_SUPPRESS_AFTER_INIT_TIME;
+  private static final long NARRATE_DELAY_NARRATOR_ENABLED;
+  private static final long NARRATE_DELAY_MOUSE_MOVE;
+  private static final long NARRATE_DELAY_MOUSE_ACTION;
+  private static final long NARRATE_DELAY_KEYBOARD_ACTION;
+  private final net.minecraft.client.gui.narration.ScreenNarrationCollector narrationState;
+  private long narrationSuppressTime;
+  private long nextNarrationTime;
+  protected net.minecraft.client.gui.components.CycleButton<net.minecraft.client.NarratorStatus> narratorButton;
+  private net.minecraft.client.gui.narration.NarratableEntry lastNarratable;
+  protected final java.util.concurrent.Executor screenExecutor;
+  protected net.minecraft.client.gui.screens.Screen(net.minecraft.network.chat.Component);
+  protected net.minecraft.client.gui.screens.Screen(net.minecraft.client.Minecraft, net.minecraft.client.gui.Font, net.minecraft.network.chat.Component);
+  public net.minecraft.network.chat.Component getTitle();
+  public net.minecraft.network.chat.Component getNarrationMessage();
+  public final void extractRenderStateWithTooltipAndSubtitles(net.minecraft.client.gui.GuiGraphicsExtractor, int, int, float);
+  public void extractRenderState(net.minecraft.client.gui.GuiGraphicsExtractor, int, int, float);
+  public boolean keyPressed(net.minecraft.client.input.KeyEvent);
+  private net.minecraft.client.gui.navigation.FocusNavigationEvent$TabNavigation createTabEvent(boolean);
+  private net.minecraft.client.gui.navigation.FocusNavigationEvent$ArrowNavigation createArrowEvent(net.minecraft.client.gui.navigation.ScreenDirection);
+  protected void setInitialFocus();
+  protected void setInitialFocus(net.minecraft.client.gui.components.events.GuiEventListener);
+  public void clearFocus();
+  protected void changeFocus(net.minecraft.client.gui.ComponentPath);
+  public boolean shouldCloseOnEsc();
+  public void onClose();
+  protected <T extends net.minecraft.client.gui.components.events.GuiEventListener & net.minecraft.client.gui.components.Renderable & net.minecraft.client.gui.narration.NarratableEntry> T addRenderableWidget(T);
+  protected <T extends net.minecraft.client.gui.components.Renderable> T addRenderableOnly(T);
+  protected <T extends net.minecraft.client.gui.components.events.GuiEventListener & net.minecraft.client.gui.narration.NarratableEntry> T addWidget(T);
+  protected void removeWidget(net.minecraft.client.gui.components.events.GuiEventListener);
+  protected void clearWidgets();
+  public static java.util.List<net.minecraft.network.chat.Component> getTooltipFromItem(net.minecraft.client.Minecraft, net.minecraft.world.item.ItemStack);
+  protected void insertText(java.lang.String, boolean);
+  protected static void defaultHandleGameClickEvent(net.minecraft.network.chat.ClickEvent, net.minecraft.client.Minecraft, net.minecraft.client.gui.screens.Screen);
+  protected static void defaultHandleClickEvent(net.minecraft.network.chat.ClickEvent, net.minecraft.client.Minecraft, net.minecraft.client.gui.screens.Screen);
+  protected static boolean clickUrlAction(net.minecraft.client.Minecraft, net.minecraft.client.gui.screens.Screen, java.net.URI);
+  protected static void clickCommandAction(net.minecraft.client.player.LocalPlayer, java.lang.String, net.minecraft.client.gui.screens.Screen);
+  public final void init(int, int);
+  protected void rebuildWidgets();
+  protected void fadeWidgets(float);
+  public java.util.List<? extends net.minecraft.client.gui.components.events.GuiEventListener> children();
+  protected void init();
+  public void tick();
+  public void removed();
+  public void added();
+  public void extractBackground(net.minecraft.client.gui.GuiGraphicsExtractor, int, int, float);
+  protected void extractBlurredBackground(net.minecraft.client.gui.GuiGraphicsExtractor);
+  protected void extractPanorama(net.minecraft.client.gui.GuiGraphicsExtractor, float);
+  protected void extractMenuBackground(net.minecraft.client.gui.GuiGraphicsExtractor);
+  protected void extractMenuBackground(net.minecraft.client.gui.GuiGraphicsExtractor, int, int, int, int);
+  public static void extractMenuBackgroundTexture(net.minecraft.client.gui.GuiGraphicsExtractor, net.minecraft.resources.Identifier, int, int, float, float, int, int);
+  public void extractTransparentBackground(net.minecraft.client.gui.GuiGraphicsExtractor);
+  public boolean isPauseScreen();
+  public boolean isInGameUi();
+  public boolean isAllowedInPortal();
+  protected void repositionElements();
+  public void resize(int, int);
+  public void fillCrashDetails(net.minecraft.CrashReport);
+  protected boolean isValidCharacterForName(java.lang.String, int, int);
+  public boolean isMouseOver(double, double);
+  public void onFilesDrop(java.util.List<java.nio.file.Path>);
+  private void scheduleNarration(long, boolean);
+  private void suppressNarration(long);
+  private void setNarrationSuppressTime(long);
+  public void afterMouseMove();
+  public void afterMouseAction();
+  public void afterKeyboardAction();
+  private boolean shouldRunNarration();
+  public void handleDelayedNarration();
+  public void triggerImmediateNarration(boolean);
+  private void runNarration(boolean);
+  protected boolean shouldNarrateNavigation();
+  protected void updateNarrationState(net.minecraft.client.gui.narration.NarrationElementOutput);
+  protected void updateNarratedWidget(net.minecraft.client.gui.narration.NarrationElementOutput);
+  protected net.minecraft.network.chat.Component getUsageNarration();
+  public static net.minecraft.client.gui.screens.Screen$NarratableSearchResult findNarratableWidget(java.util.List<? extends net.minecraft.client.gui.narration.NarratableEntry>, net.minecraft.client.gui.narration.NarratableEntry);
+  public void updateNarratorStatus(boolean);
+  public net.minecraft.client.gui.Font getFont();
+  public boolean showsActiveEffects();
+  public boolean canInterruptWithAnotherScreen();
+  public net.minecraft.client.gui.navigation.ScreenRectangle getRectangle();
+  public net.minecraft.sounds.Music getBackgroundMusic();
+  private static java.util.stream.Stream lambda$updateNarratedWidget$0(net.minecraft.client.gui.narration.NarratableEntry);
+  private java.lang.String lambda$fillCrashDetails$0() throws java.lang.Exception;
+  private static void lambda$clickUrlAction$0(java.net.URI, net.minecraft.client.Minecraft, net.minecraft.client.gui.screens.Screen, boolean);
+  private void lambda$new$0(net.minecraft.client.Minecraft, java.lang.Runnable);
+  private void lambda$new$1(net.minecraft.client.Minecraft, java.lang.Runnable);
+  static {};
+}
+
+Compiled from "AbstractTexture.java"
+public abstract class net.minecraft.client.renderer.texture.AbstractTexture implements java.lang.AutoCloseable {
+  protected com.mojang.blaze3d.textures.GpuTexture texture;
+  protected com.mojang.blaze3d.textures.GpuTextureView textureView;
+  protected com.mojang.blaze3d.textures.GpuSampler sampler;
+  public net.minecraft.client.renderer.texture.AbstractTexture();
+  public void close();
+  protected void releaseTextures();
+  public com.mojang.blaze3d.textures.GpuTexture getTexture();
+  public com.mojang.blaze3d.textures.GpuTextureView getTextureView();
+  public com.mojang.blaze3d.textures.GpuSampler getSampler();
+}
+
+Compiled from "TextureManager.java"
+public class net.minecraft.client.renderer.texture.TextureManager implements net.minecraft.server.packs.resources.PreparableReloadListener,java.lang.AutoCloseable {
+  private static final org.slf4j.Logger LOGGER;
+  public static final net.minecraft.resources.Identifier INTENTIONAL_MISSING_TEXTURE;
+  private final java.util.Map<net.minecraft.resources.Identifier, net.minecraft.client.renderer.texture.AbstractTexture> byPath;
+  private final java.util.Set<net.minecraft.client.renderer.texture.TickableTexture> tickableTextures;
+  private final net.minecraft.server.packs.resources.ResourceManager resourceManager;
+  public net.minecraft.client.renderer.texture.TextureManager(net.minecraft.server.packs.resources.ResourceManager);
+  public void registerAndLoad(net.minecraft.resources.Identifier, net.minecraft.client.renderer.texture.ReloadableTexture);
+  private net.minecraft.client.renderer.texture.TextureContents loadContentsSafe(net.minecraft.resources.Identifier, net.minecraft.client.renderer.texture.ReloadableTexture);
+  public void registerForNextReload(net.minecraft.resources.Identifier);
+  public void register(net.minecraft.resources.Identifier, net.minecraft.client.renderer.texture.AbstractTexture);
+  private void safeClose(net.minecraft.resources.Identifier, net.minecraft.client.renderer.texture.AbstractTexture);
+  public net.minecraft.client.renderer.texture.AbstractTexture getTexture(net.minecraft.resources.Identifier);
+  public void tick();
+  public void release(net.minecraft.resources.Identifier);
+  public void close();
+  public java.util.concurrent.CompletableFuture<java.lang.Void> reload(net.minecraft.server.packs.resources.PreparableReloadListener$SharedState, java.util.concurrent.Executor, net.minecraft.server.packs.resources.PreparableReloadListener$PreparationBarrier, java.util.concurrent.Executor);
+  public void dumpAllSheets(java.nio.file.Path);
+  private static net.minecraft.client.renderer.texture.TextureContents loadContents(net.minecraft.server.packs.resources.ResourceManager, net.minecraft.resources.Identifier, net.minecraft.client.renderer.texture.ReloadableTexture) throws java.io.IOException;
+  private static net.minecraft.client.renderer.texture.TextureManager$PendingReload scheduleLoad(net.minecraft.server.packs.resources.ResourceManager, net.minecraft.resources.Identifier, net.minecraft.client.renderer.texture.ReloadableTexture, java.util.concurrent.Executor);
+  private static net.minecraft.client.renderer.texture.TextureContents lambda$scheduleLoad$0(net.minecraft.server.packs.resources.ResourceManager, net.minecraft.resources.Identifier, net.minecraft.client.renderer.texture.ReloadableTexture);
+  private static void lambda$dumpAllSheets$0(java.nio.file.Path, net.minecraft.resources.Identifier, net.minecraft.client.renderer.texture.AbstractTexture);
+  private void lambda$reload$2(java.util.List, java.lang.Void);
+  private static java.util.concurrent.CompletableFuture[] lambda$reload$1(int);
+  private static void lambda$reload$0(java.util.List, net.minecraft.server.packs.resources.ResourceManager, java.util.concurrent.Executor, net.minecraft.resources.Identifier, net.minecraft.client.renderer.texture.AbstractTexture);
+  private static java.lang.String lambda$new$0();
+  static {};
+}
+
 == class index ==
 net/minecraft/client/model/HumanoidModel
 net/minecraft/client/model/player/PlayerModel
@@ -4733,15 +6020,15 @@ net/minecraft/client/renderer/blockentity/state/BellRenderState
 net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState
 net/minecraft/client/renderer/blockentity/state/BlockEntityWithBoundingBoxRenderState
 net/minecraft/client/renderer/blockentity/state/BrushableBlockRenderState
-net/minecraft/client/renderer/blockentity/state/CampfireRenderState
 net/minecraft/client/renderer/blockentity/state/ChestRenderState
 net/minecraft/client/renderer/blockentity/state/ConduitRenderState
-net/minecraft/client/renderer/blockentity/state/DecoratedPotRenderState
 net/minecraft/client/renderer/blockentity/state/CopperGolemStatueRenderState
+net/minecraft/client/renderer/blockentity/state/DecoratedPotRenderState
+net/minecraft/client/renderer/blockentity/state/EnchantTableRenderState
 net/minecraft/client/renderer/blockentity/state/EndGatewayRenderState
+net/minecraft/client/renderer/blockentity/state/EndPortalRenderState
 net/minecraft/client/renderer/blockentity/state/HangingSignRenderState
 net/minecraft/client/renderer/blockentity/state/LecternRenderState
-net/minecraft/client/renderer/blockentity/state/PistonHeadRenderState
 net/minecraft/client/renderer/blockentity/state/ShelfRenderState
 net/minecraft/client/renderer/blockentity/state/ShulkerBoxRenderState
 net/minecraft/client/renderer/blockentity/state/SignRenderState
@@ -4750,59 +6037,59 @@ net/minecraft/client/renderer/blockentity/state/SpawnerRenderState
 net/minecraft/client/renderer/blockentity/state/StandingSignRenderState
 net/minecraft/client/renderer/blockentity/state/TestInstanceRenderState
 net/minecraft/client/renderer/blockentity/state/VaultRenderState
-net/minecraft/client/renderer/blockentity/state/EndPortalRenderState
 net/minecraft/client/renderer/blockentity/state/package-info
-net/minecraft/client/renderer/blockentity/state/EnchantTableRenderState
+net/minecraft/client/renderer/blockentity/state/PistonHeadRenderState
+net/minecraft/client/renderer/blockentity/state/CampfireRenderState
 net/minecraft/client/renderer/entity/layers/
 net/minecraft/client/renderer/entity/layers/ArrowLayer
 net/minecraft/client/renderer/entity/layers/BeeStingerLayer
-net/minecraft/client/renderer/entity/layers/BreezeEyesLayer
 net/minecraft/client/renderer/entity/layers/BlockDecorationLayer
 net/minecraft/client/renderer/entity/layers/BreezeWindLayer
-net/minecraft/client/renderer/entity/layers/CapeLayer
 net/minecraft/client/renderer/entity/layers/CarriedBlockLayer
 net/minecraft/client/renderer/entity/layers/CatCollarLayer
 net/minecraft/client/renderer/entity/layers/CreeperPowerLayer
 net/minecraft/client/renderer/entity/layers/CrossedArmsItemLayer
+net/minecraft/client/renderer/entity/layers/CustomHeadLayer
 net/minecraft/client/renderer/entity/layers/Deadmau5EarsLayer
 net/minecraft/client/renderer/entity/layers/DolphinCarryingItemLayer
-net/minecraft/client/renderer/entity/layers/CustomHeadLayer
 net/minecraft/client/renderer/entity/layers/DrownedOuterLayer
+net/minecraft/client/renderer/entity/layers/EnderEyesLayer
+net/minecraft/client/renderer/entity/layers/CapeLayer
 net/minecraft/client/renderer/entity/layers/EnergySwirlLayer
 net/minecraft/client/renderer/entity/layers/EyesLayer
 net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer
-net/minecraft/client/renderer/entity/layers/EnderEyesLayer
+net/minecraft/client/renderer/entity/layers/FoxHeldItemLayer
 net/minecraft/client/renderer/entity/layers/HorseMarkingLayer
-net/minecraft/client/renderer/entity/layers/IronGolemCrackinessLayer
+net/minecraft/client/renderer/entity/layers/BreezeEyesLayer
 net/minecraft/client/renderer/entity/layers/HumanoidArmorLayer
+net/minecraft/client/renderer/entity/layers/IronGolemCrackinessLayer
 net/minecraft/client/renderer/entity/layers/IronGolemFlowerLayer
 net/minecraft/client/renderer/entity/layers/ItemInHandLayer
 net/minecraft/client/renderer/entity/layers/LivingEntityEmissiveLayer
-net/minecraft/client/renderer/entity/layers/LlamaDecorLayer
 net/minecraft/client/renderer/entity/layers/MushroomCowMushroomLayer
+net/minecraft/client/renderer/entity/layers/LlamaDecorLayer
 net/minecraft/client/renderer/entity/layers/PandaHoldsItemLayer
-net/minecraft/client/renderer/entity/layers/PhantomEyesLayer
 net/minecraft/client/renderer/entity/layers/ParrotOnShoulderLayer
-net/minecraft/client/renderer/entity/layers/PlayerItemInHandLayer
+net/minecraft/client/renderer/entity/layers/PhantomEyesLayer
 net/minecraft/client/renderer/entity/layers/RenderLayer
+net/minecraft/client/renderer/entity/layers/PlayerItemInHandLayer
 net/minecraft/client/renderer/entity/layers/RopesLayer
 net/minecraft/client/renderer/entity/layers/SheepWoolLayer
-net/minecraft/client/renderer/entity/layers/FoxHeldItemLayer
+net/minecraft/client/renderer/entity/layers/SheepWoolUndercoatLayer
 net/minecraft/client/renderer/entity/layers/SkeletonClothingLayer
+net/minecraft/client/renderer/entity/layers/SimpleEquipmentLayer
 net/minecraft/client/renderer/entity/layers/SlimeOuterLayer
-net/minecraft/client/renderer/entity/layers/SpiderEyesLayer
 net/minecraft/client/renderer/entity/layers/SnowGolemHeadLayer
-net/minecraft/client/renderer/entity/layers/SpinAttackEffectLayer
-net/minecraft/client/renderer/entity/layers/SulfurCubeInnerLayer
+net/minecraft/client/renderer/entity/layers/SpiderEyesLayer
 net/minecraft/client/renderer/entity/layers/StuckInBodyLayer
+net/minecraft/client/renderer/entity/layers/SulfurCubeInnerLayer
 net/minecraft/client/renderer/entity/layers/TropicalFishPatternLayer
-net/minecraft/client/renderer/entity/layers/WingsLayer
-net/minecraft/client/renderer/entity/layers/VillagerProfessionLayer
 net/minecraft/client/renderer/entity/layers/WitchItemLayer
 net/minecraft/client/renderer/entity/layers/WitherArmorLayer
-net/minecraft/client/renderer/entity/layers/SheepWoolUndercoatLayer
-net/minecraft/client/renderer/entity/layers/package-info
+net/minecraft/client/renderer/entity/layers/VillagerProfessionLayer
 net/minecraft/client/renderer/entity/layers/WolfCollarLayer
+net/minecraft/client/renderer/entity/layers/package-info
+net/minecraft/client/renderer/entity/layers/WolfArmorLayer
 net/minecraft/client/renderer/entity/player/
 net/minecraft/client/renderer/entity/player/package-info
 net/minecraft/client/renderer/entity/state/
@@ -4813,29 +6100,30 @@ net/minecraft/client/renderer/entity/state/ArmorStandRenderState
 net/minecraft/client/renderer/entity/state/ArrowRenderState
 net/minecraft/client/renderer/entity/state/AvatarRenderState
 net/minecraft/client/renderer/entity/state/AxolotlRenderState
-net/minecraft/client/renderer/entity/layers/SimpleEquipmentLayer
+net/minecraft/client/renderer/entity/state/BatRenderState
 net/minecraft/client/renderer/entity/state/BeeRenderState
+net/minecraft/client/renderer/entity/player/AvatarRenderer
 net/minecraft/client/renderer/entity/state/BlockDisplayEntityRenderState
-net/minecraft/client/renderer/entity/state/BoatRenderState
-net/minecraft/client/renderer/entity/layers/WolfArmorLayer
-net/minecraft/client/renderer/entity/state/BoggedRenderState
+net/minecraft/client/renderer/entity/layers/WingsLayer
 net/minecraft/client/renderer/entity/state/BreezeRenderState
 net/minecraft/client/renderer/entity/state/CamelRenderState
-net/minecraft/client/renderer/entity/state/ChickenRenderState
 net/minecraft/client/renderer/entity/state/CatRenderState
-net/minecraft/client/renderer/entity/state/CowRenderState
+net/minecraft/client/renderer/entity/state/ChickenRenderState
 net/minecraft/client/renderer/entity/state/CopperGolemRenderState
+net/minecraft/client/renderer/entity/state/CowRenderState
 net/minecraft/client/renderer/entity/state/CreakingRenderState
 net/minecraft/client/renderer/entity/state/CreeperRenderState
-net/minecraft/client/renderer/entity/state/DolphinRenderState
 net/minecraft/client/renderer/entity/state/DisplayEntityRenderState
+net/minecraft/client/renderer/entity/state/DolphinRenderState
 net/minecraft/client/renderer/entity/state/DonkeyRenderState
 net/minecraft/client/renderer/entity/state/EndCrystalRenderState
-net/minecraft/client/renderer/entity/state/EndermanRenderState
 net/minecraft/client/renderer/entity/state/EnderDragonRenderState
+net/minecraft/client/renderer/entity/state/EndermanRenderState
+net/minecraft/client/renderer/entity/layers/SpinAttackEffectLayer
 net/minecraft/client/renderer/entity/state/EquineRenderState
+net/minecraft/client/renderer/entity/state/BoggedRenderState
 net/minecraft/client/renderer/entity/state/EvokerFangsRenderState
-net/minecraft/client/renderer/entity/state/EvokerRenderState
+net/minecraft/client/renderer/entity/state/EntityRenderState
 net/minecraft/client/renderer/entity/state/ExperienceOrbRenderState
 net/minecraft/client/renderer/entity/state/FallingBlockRenderState
 net/minecraft/client/renderer/entity/state/FelineRenderState
@@ -4855,29 +6143,28 @@ net/minecraft/client/renderer/entity/state/HumanoidRenderState
 net/minecraft/client/renderer/entity/state/IllagerRenderState
 net/minecraft/client/renderer/entity/state/IllusionerRenderState
 net/minecraft/client/renderer/entity/state/IronGolemRenderState
-net/minecraft/client/renderer/entity/state/BatRenderState
+net/minecraft/client/renderer/entity/state/ItemClusterRenderState
 net/minecraft/client/renderer/entity/state/ItemDisplayEntityRenderState
 net/minecraft/client/renderer/entity/state/ItemEntityRenderState
 net/minecraft/client/renderer/entity/state/ItemFrameRenderState
 net/minecraft/client/renderer/entity/state/LightningBoltRenderState
 net/minecraft/client/renderer/entity/state/LivingEntityRenderState
-net/minecraft/client/renderer/entity/player/AvatarRenderer
 net/minecraft/client/renderer/entity/state/LlamaRenderState
 net/minecraft/client/renderer/entity/state/LlamaSpitRenderState
+net/minecraft/client/renderer/entity/state/MinecartRenderState
 net/minecraft/client/renderer/entity/state/MinecartTntRenderState
 net/minecraft/client/renderer/entity/state/MushroomCowRenderState
-net/minecraft/client/renderer/entity/state/EntityRenderState
 net/minecraft/client/renderer/entity/state/NautilusRenderState
+net/minecraft/client/renderer/entity/state/PaintingRenderState
 net/minecraft/client/renderer/entity/state/PandaRenderState
 net/minecraft/client/renderer/entity/state/ParrotRenderState
 net/minecraft/client/renderer/entity/state/PhantomRenderState
 net/minecraft/client/renderer/entity/state/PigRenderState
 net/minecraft/client/renderer/entity/state/PiglinRenderState
-net/minecraft/client/renderer/entity/state/PolarBearRenderState
+net/minecraft/client/renderer/entity/state/BoatRenderState
 net/minecraft/client/renderer/entity/state/PufferfishRenderState
-net/minecraft/client/renderer/entity/state/RabbitRenderState
+net/minecraft/client/renderer/entity/state/PolarBearRenderState
 net/minecraft/client/renderer/entity/state/RavagerRenderState
-net/minecraft/client/renderer/entity/state/SalmonRenderState
 net/minecraft/client/renderer/entity/state/SheepRenderState
 net/minecraft/client/renderer/entity/state/ShulkerBulletRenderState
 net/minecraft/client/renderer/entity/state/ShulkerRenderState
@@ -4891,26 +6178,26 @@ net/minecraft/client/renderer/entity/state/SulfurCubeRenderState
 net/minecraft/client/renderer/entity/state/TextDisplayEntityRenderState
 net/minecraft/client/renderer/entity/state/ThrownItemRenderState
 net/minecraft/client/renderer/entity/state/ThrownTridentRenderState
-net/minecraft/client/renderer/entity/state/PaintingRenderState
 net/minecraft/client/renderer/entity/state/TippableArrowRenderState
-net/minecraft/client/renderer/entity/state/MinecartRenderState
-net/minecraft/client/renderer/entity/state/ItemClusterRenderState
+net/minecraft/client/renderer/entity/state/TntRenderState
+net/minecraft/client/renderer/entity/state/TropicalFishRenderState
 net/minecraft/client/renderer/entity/state/TurtleRenderState
-net/minecraft/client/renderer/entity/state/VexRenderState
 net/minecraft/client/renderer/entity/state/UndeadRenderState
+net/minecraft/client/renderer/entity/state/VexRenderState
 net/minecraft/client/renderer/entity/state/VillagerDataHolderRenderState
 net/minecraft/client/renderer/entity/state/VillagerRenderState
-net/minecraft/client/renderer/entity/state/WitchRenderState
 net/minecraft/client/renderer/entity/state/WardenRenderState
-net/minecraft/client/renderer/entity/state/TntRenderState
+net/minecraft/client/renderer/entity/state/WitchRenderState
+net/minecraft/client/renderer/entity/state/WitherRenderState
 net/minecraft/client/renderer/entity/state/WitherSkullRenderState
-net/minecraft/client/renderer/entity/state/TropicalFishRenderState
+net/minecraft/client/renderer/entity/state/WolfRenderState
 net/minecraft/client/renderer/entity/state/ZombieRenderState
 net/minecraft/client/renderer/entity/state/ZombieVillagerRenderState
 net/minecraft/client/renderer/entity/state/ZombifiedPiglinRenderState
 net/minecraft/client/renderer/entity/state/package-info
-net/minecraft/client/renderer/entity/state/WitherRenderState
-net/minecraft/client/renderer/entity/state/WolfRenderState
+net/minecraft/client/renderer/entity/state/SalmonRenderState
+net/minecraft/client/renderer/entity/state/EvokerRenderState
+net/minecraft/client/renderer/entity/state/RabbitRenderState
 net/fabricmc/fabric/api/client/rendering/v1/FeatureRendererRegistry
 net/fabricmc/fabric/api/client/rendering/v1/LivingEntityFeatureRenderEvents
 net/fabricmc/fabric/api/client/rendering/v1/LivingEntityRenderLayerRegistrationCallback
