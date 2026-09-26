@@ -34,7 +34,8 @@ ICONS = ['layout-dashboard', 'sparkles', 'hand', 'volume-2', 'palette', 'earth',
          'medal', 'pencil', 'stamp', 'droplet', 'map', 'map-pinned', 'navigation', 'navigation-2', 'compass', 'flag',
          'trash-2', 'eye-off', 'pipette', 'locate-fixed', 'mountain', 'command', 'rainbow', 'paint-bucket', 'swatch-book',
          'keyboard-off', 'signpost', 'cone', 'rotate-cw', 'move-vertical', 'scaling', 'square-pen', 'search',
-         'corner-down-left']
+         'corner-down-left', 'pause', 'skip-forward', 'skip-back', 'shuffle', 'repeat', 'repeat-1', 'disc-3',
+         'fast-forward', 'rewind', 'list-music', 'upload']
 
 # HUD font families (UiFont.FAMILIES order): face prefix -> (variable source, regular weight, bold weight, output stem).
 # Inter keeps the unprefixed faces (menu); Montserrat (HUD default) and Rubik are SIL OFL 1.1 (tools/fonts/*-OFL.txt).

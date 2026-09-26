@@ -15,10 +15,10 @@ public final class HudConfig {
     public int soundVersion = 1;
     /** 1 since 2.13: sharing hats and wings is on by default (see ConfigStore.migrateShare). */
     public int shareVersion = 1;
-    public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark", "minimap");
+    public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark", "minimap", "music");
     /** Every element with its own colour. Missing from {@link #colors} means "follow the theme colour". */
     public static final List<String> COLOR_KEYS = List.of("menu", "menu_bg", "hud_bg", "watermark", "target", "keys", "armor", "coordinates",
-            "performance", "totems", "minimap", "badge", "crosshair", "jump", "particles", "ambient", "marker", "esp", "kill", "hat", "trail", "waypoint", "crit");
+            "performance", "totems", "minimap", "badge", "crosshair", "jump", "particles", "ambient", "marker", "esp", "kill", "hat", "trail", "waypoint", "crit", "music");
     public int schemaVersion = SCHEMA;
     /** Theme: accent and second gradient colour. Default = the logo's lava orange to amethyst. */
     public int rgb = 0xFF6A2B, rgb2 = 0xA77BFF;
@@ -58,6 +58,12 @@ public final class HudConfig {
     public int mapShape;
     /** With a LavaVisual hit sound on, the target's vanilla hurt / no-damage sounds of your hits are muted. */
     public boolean muteVanillaHits = true;
+    /** Chosen user files per event ("hits/name.ogg", "*/name.ogg" for the shared folder); used when the index is CUSTOM. */
+    public String hitCustom = "", critCustom = "", totemCustom = "", killCustom = "";
+    /** Music player: volume 0..1, shuffle, repeat 0 off / 1 all / 2 one; the HUD hides while nothing plays. */
+    public double musicVolume = 0.7;
+    public boolean musicShuffle, musicHudAuto = true;
+    public int musicRepeat = 1;
     /** Extra vanilla options stored by FPS Boost (-1 = not stored). */
     public int savedBiomeBlend = -1, savedSimulation = -1, savedInactivity = -1;
     /** badgeEnabled: show other LavaVisual players' marks. badgeShare: mark your own skin and share the hat (opt-in, see HatSync). */
@@ -147,6 +153,9 @@ public final class HudConfig {
         result.put("totems", new Widget(0.98, 0.66));
         result.put("watermark", new Widget(0.01, 0.015));
         result.put("minimap", new Widget(0.99, 0.02));
+        Widget music = new Widget(0.01, 0.62);
+        music.visible = true; // shows only while a track is loaded (musicHudAuto)
+        result.put("music", music);
         return result;
     }
     public void disableAll() {
@@ -224,6 +233,7 @@ public final class HudConfig {
         hudFont = Math.floorMod(hudFont, 3);
         mapZoom = Math.floorMod(mapZoom, 3);
         mapShape = Math.floorMod(mapShape, 2); trailStyle = Math.floorMod(trailStyle, 5);
+        musicVolume = bounded(musicVolume, 0, 1, 0.7); musicRepeat = Math.floorMod(musicRepeat, 3);
         zoomLevel = bounded(zoomLevel, 1.5, 15, 4); critMultiplier = Math.max(1, Math.min(6, critMultiplier));
         trailLength = bounded(trailLength, 0.4, 3, 1.1); trailWidth = bounded(trailWidth, 0.4, 2, 1); trailBrightness = bounded(trailBrightness, 0.3, 1, 0.9);
         schemaVersion = SCHEMA;

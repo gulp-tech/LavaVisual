@@ -41,7 +41,9 @@ with log.open('w') as output:
     process = subprocess.Popen(['xvfb-run', '-a', './gradlew', 'runClient', '--no-daemon'],
                                cwd=project, stdout=output, stderr=subprocess.STDOUT,
                                start_new_session=True,
-                               env={**os.environ, 'JAVA_TOOL_OPTIONS': os.environ.get('JAVA_TOOL_OPTIONS', '') + ' -Dlavavisual.uiSmoke=true'})
+                               env={**os.environ, 'ALSOFT_DRIVERS': 'null',  # OpenAL without a sound card: real playback, no output
+                                    'JAVA_TOOL_OPTIONS': os.environ.get('JAVA_TOOL_OPTIONS', '') + ' -Dlavavisual.uiSmoke=true'
+                                    + ' -Dlavavisual.testAudio=' + str(Path(__file__).resolve().parent / 'test-audio')})
     ready_since = None
     try:
         deadline = time.monotonic() + 540
@@ -58,7 +60,7 @@ with log.open('w') as output:
                     shots.add(name)
                     capture(project / 'build' / f'shot-{name}.png')
             # Atlas creation follows model/shader loading. Stay alive for a few seconds afterwards.
-            if re.search(r'LavaVisual 2\.[0-9]+\.[0-9]+', text) and re.search(r'Created:.*(atlas|textures)', text) and 'LavaVisual UI smoke complete' in text and 'LavaVisual audio regression passed' in text and 'LavaVisual badge marker on' in text and 'LavaVisual hat sync self-test passed' in text and 'LavaVisual hats ready' in text and 'LavaVisual menu restore page 8' in text and 'LavaVisual smoke dummy ok' in text and 'LavaVisual smoke hand editor ok' in text and 'LavaVisual smoke zoom ok' in text and 'LavaVisual smoke freelook ok' in text:
+            if re.search(r'LavaVisual 2\.[0-9]+\.[0-9]+', text) and re.search(r'Created:.*(atlas|textures)', text) and 'LavaVisual UI smoke complete' in text and 'LavaVisual audio regression passed' in text and 'LavaVisual badge marker on' in text and 'LavaVisual hat sync self-test passed' in text and 'LavaVisual hats ready' in text and 'LavaVisual menu restore page 9' in text and 'LavaVisual smoke dummy ok' in text and 'LavaVisual smoke hand editor ok' in text and 'LavaVisual smoke zoom ok' in text and 'LavaVisual smoke freelook ok' in text and 'LavaVisual smoke minimap fast' in text and 'LavaVisual smoke custom sounds ok' in text and 'LavaVisual smoke music ok' in text:
                 ready_since = ready_since or time.monotonic()
                 if time.monotonic() - ready_since >= 12:
                     capture(project / 'build' / 'ui-smoke.png')

@@ -43,6 +43,7 @@ public final class HudRenderer {
             case "armor" -> 97;
             case "watermark" -> watermarkWidth(2 * UiFont.guiScale());
             case "minimap" -> tech.gulp.lavavisual.map.Minimap.baseWidth();
+            case "music" -> 184;
             default -> 156;
         };
     }
@@ -53,6 +54,7 @@ public final class HudRenderer {
             case "armor" -> 36;
             case "watermark" -> 20;
             case "minimap" -> tech.gulp.lavavisual.map.Minimap.baseHeight();
+            case "music" -> 70;
             default -> 30;
         };
     }
@@ -74,6 +76,7 @@ public final class HudRenderer {
             case "totems" -> "Тотемы";
             case "watermark" -> "Водянка";
             case "minimap" -> "Миникарта";
+            case "music" -> "Музыка";
             default -> "HUD";
         };
     }
@@ -106,6 +109,7 @@ public final class HudRenderer {
         for (String id : HudConfig.IDS) {
             HudConfig.Widget w = c.widgets.get(id);
             if (!w.visible && !edit) continue;
+            if (id.equals("music") && !edit && c.musicHudAuto && !tech.gulp.lavavisual.audio.MusicPlayer.active()) continue;
             TargetSnapshot target = TargetSnapshot.current;
             double fade = 1, scaleAnim = 1;
             if (id.equals("target") && !edit) {
@@ -134,7 +138,12 @@ public final class HudRenderer {
                     case "keys" -> keys(g, mc, c, w, accent, accent2, dt);
                     case "armor" -> armor(g, mc, c, w, accent, accent2);
                     case "watermark" -> watermark(g, mc, c, w, accent, accent2);
-                    case "minimap" -> tech.gulp.lavavisual.map.Minimap.draw(g, mc, c, w, accent, partial, edit);
+                    case "minimap" -> {
+                        long started = System.nanoTime();
+                        tech.gulp.lavavisual.map.Minimap.draw(g, mc, c, w, accent, partial, edit);
+                        tech.gulp.lavavisual.map.Minimap.cost(System.nanoTime() - started);
+                    }
+                    case "music" -> music(g, mc, c, w, accent, accent2);
                     default -> info(g, mc, c, w, id, accent, accent2);
                 }
                 if (off) {
@@ -143,6 +152,69 @@ public final class HudRenderer {
                 }
             } finally { g.pose().popMatrix(); }
         }
+    }
+
+    private static float discAngle;
+    private static long discLast;
+    /** Music HUD: cover (or a spinning disc), title, artist, progress with times, and the previous / next track. */
+    private static void music(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2) {
+        int bw = baseWidth("music"), bh = baseHeight("music");
+        panel(g, c, 0, 0, bw, bh, 8, w.opacity, accent, accent2);
+        var track = tech.gulp.lavavisual.audio.MusicPlayer.current();
+        long now = System.nanoTime();
+        double dt = discLast == 0 ? 0 : Math.min(0.1, (now - discLast) / 1e9);
+        discLast = now;
+        if (tech.gulp.lavavisual.audio.MusicPlayer.playing()) discAngle = (float) ((discAngle + dt * 90) % 360);
+        int cs = 44, cx = 8, cy = 8;
+        var cover = tech.gulp.lavavisual.audio.Covers.get(mc, track);
+        if (cover != null) {
+            UiDraw.round(g, cx - 1, cy - 1, cs + 2, cs + 2, 6, 0x70000000);
+            int n = tech.gulp.lavavisual.audio.Covers.SIZE;
+            g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, cover, cx, cy, 0f, 0f, cs, cs, n, n, n, n, 0xFFFFFFFF);
+        } else disc(g, cx + cs / 2.0, cy + cs / 2.0, cs / 2.0, discAngle, accent, accent2);
+        int tx = cx + cs + 8, tw = bw - tx - 8;
+        net.minecraft.client.gui.Font font = mc.font;
+        String title = track == null ? "Музыка" : track.shown();
+        UiFont.text(g, font, title, tx, 8, 0xFFF2F4F8, tw, Face.BOLD);
+        String state = tech.gulp.lavavisual.audio.MusicPlayer.paused() ? "пауза" : tech.gulp.lavavisual.audio.MusicPlayer.playing() ? "играет" : "стоп";
+        String sub = track == null ? "Плеер: " + tech.gulp.lavavisual.input.Binds.keyName(tech.gulp.lavavisual.input.Binds.Action.MUSIC)
+                : (track.artist().isBlank() ? "" : track.artist() + " · ") + state;
+        UiFont.text(g, font, sub, tx, 20, 0xFF9AA3B2, tw, Face.SMALL);
+        double pos = tech.gulp.lavavisual.audio.MusicPlayer.position(), len = tech.gulp.lavavisual.audio.MusicPlayer.duration();
+        double progress = len > 0 ? Math.clamp(pos / len, 0, 1) : 0;
+        UiDraw.round(g, tx, 32, tw, 3, 1, 0xFF2A2E37);
+        int filled = (int) Math.round(tw * progress);
+        if (filled > 1) UiDraw.roundH(g, tx, 32, filled, 3, 1, accent, accent2);
+        String a = tech.gulp.lavavisual.audio.MusicPlayer.time(pos), b = tech.gulp.lavavisual.audio.MusicPlayer.time(len);
+        UiFont.text(g, font, a, tx, 38, 0xFFB8C0CD, 40, Face.SMALL);
+        UiFont.text(g, font, b, tx + tw - UiFont.width(g, font, b, Face.SMALL), 38, 0xFFB8C0CD, 40, Face.SMALL);
+        var prev = tech.gulp.lavavisual.audio.MusicPlayer.neighbour(-1);
+        var next = tech.gulp.lavavisual.audio.MusicPlayer.neighbour(1);
+        int half = (bw - 16) / 2, ly = bh - 13;
+        g.fill(8, ly - 3, bw - 8, ly - 2, 0x18FFFFFF);
+        UiFont.iconSmall(g, font, Icons.SKIP_BACK, 8, ly, 0xFF7C8594);
+        UiFont.text(g, font, prev == null ? "—" : prev.shown(), 20, ly, 0xFF8C95A4, half - 16, Face.SMALL);
+        String nextName = next == null ? "—" : next.shown();
+        int nw = Math.min(half - 16, UiFont.width(g, font, nextName, Face.SMALL));
+        UiFont.text(g, font, nextName, bw - 20 - nw, ly, 0xFF8C95A4, half - 16, Face.SMALL);
+        UiFont.iconSmall(g, font, Icons.SKIP_FORWARD, bw - 16, ly, 0xFF7C8594);
+    }
+    /** Vinyl disc drawn from cached circles; the streaks and the label mark show the rotation. */
+    public static void disc(GuiGraphicsExtractor g, double cx, double cy, double r, float angle, int accent, int accent2) {
+        UiDraw.circle(g, cx, cy, r, 0xFF0E1015);
+        UiDraw.circle(g, cx, cy, r - 2.5, 0xFF17191F);
+        UiDraw.circle(g, cx, cy, r - 5.5, 0xFF101217);
+        UiDraw.circle(g, cx, cy, r - 8.5, 0xFF181A20);
+        UiDraw.circle(g, cx, cy, r * 0.4, 0xFF000000 | accent);
+        UiDraw.circle(g, cx, cy, r * 0.4 - 2, 0xFF000000 | UiDraw.mix(accent, accent2, 0.6));
+        UiDraw.circle(g, cx, cy, Math.max(1.5, r * 0.07), 0xFF0B0C10);
+        g.pose().pushMatrix();
+        g.pose().translate((float) cx, (float) cy);
+        g.pose().rotate((float) Math.toRadians(angle));
+        g.fill((int) Math.round(r * 0.45), -1, (int) Math.round(r - 3), 0, 0x55FFFFFF);
+        g.fill(-(int) Math.round(r - 3), 0, -(int) Math.round(r * 0.45), 1, 0x30FFFFFF);
+        g.fill(-1, -(int) Math.round(r * 0.36), 0, -(int) Math.round(r * 0.14), 0xCCFFFFFF);
+        g.pose().popMatrix();
     }
 
     /** HUD panel: soft two-layer shadow, faint top-lit gradient and a hairline in the element's two colours. */

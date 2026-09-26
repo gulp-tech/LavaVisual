@@ -14,5 +14,14 @@
   "key.lavavisual.trail": "Trails вкл/выкл",
   "key.lavavisual.particles": "Hit Particles вкл/выкл",
   "key.lavavisual.sounds": "Звуки ударов вкл/выкл",
-  "key.lavavisual.fps_boost": "FPS Boost вкл/выкл"
+  "key.lavavisual.fps_boost": "FPS Boost вкл/выкл",
+  "key.lavavisual.music": "Музыка: плеер",
+  "key.lavavisual.music_play": "Музыка: пауза / играть",
+  "key.lavavisual.music_next": "Музыка: следующий трек",
+  "key.lavavisual.music_prev": "Музыка: предыдущий трек",
+  "key.lavavisual.music_forward": "Музыка: вперёд 10 сек",
+  "key.lavavisual.music_back": "Музыка: назад 10 сек",
+  "key.lavavisual.zoom": "Зум (удерживать)",
+  "key.lavavisual.freelook": "FreeLook (удерживать)",
+  "key.lavavisual.dummy": "Манекен"
 }

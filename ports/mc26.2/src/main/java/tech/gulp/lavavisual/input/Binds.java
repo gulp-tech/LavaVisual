@@ -35,7 +35,13 @@ public final class Binds {
         BOOST("fps_boost", "FPS Boost", Icons.ROCKET, -1),
         DUMMY("dummy", "Манекен", Icons.USER, -1),
         ZOOM("zoom", "Зум · удерживать", Icons.SEARCH, GLFW.GLFW_KEY_C),
-        FREELOOK("freelook", "FreeLook · удерживать", Icons.EYE, GLFW.GLFW_KEY_LEFT_ALT);
+        FREELOOK("freelook", "FreeLook · удерживать", Icons.EYE, GLFW.GLFW_KEY_LEFT_ALT),
+        MUSIC("music", "Музыка: плеер", Icons.MUSIC, GLFW.GLFW_KEY_M),
+        MUSIC_PLAY("music_play", "Музыка: пауза / играть", Icons.PLAY, -1),
+        MUSIC_NEXT("music_next", "Музыка: следующий трек", Icons.SKIP_FORWARD, -1),
+        MUSIC_PREV("music_prev", "Музыка: предыдущий трек", Icons.SKIP_BACK, -1),
+        MUSIC_FORWARD("music_forward", "Музыка: вперёд 10 сек", Icons.FAST_FORWARD, -1),
+        MUSIC_BACK("music_back", "Музыка: назад 10 сек", Icons.REWIND, -1);
         public final String id, title, icon;
         public final int defaultKey;
         Action(String id, String title, String icon, int defaultKey) { this.id = id; this.title = title; this.icon = icon; this.defaultKey = defaultKey; }
@@ -114,6 +120,12 @@ public final class Binds {
             case BOOST -> { c.fpsBoost = !c.fpsBoost; tech.gulp.lavavisual.effects.PerformanceMode.update(mc); }
             case DUMMY -> tech.gulp.lavavisual.effects.Dummy.toggle(mc);
             case ZOOM, FREELOOK -> { return; } // held keys, polled by CameraControl
+            case MUSIC -> { mc.gui.setScreen(new tech.gulp.lavavisual.ui.MusicScreen(null)); return; }
+            case MUSIC_PLAY -> tech.gulp.lavavisual.audio.MusicPlayer.toggle();
+            case MUSIC_NEXT -> tech.gulp.lavavisual.audio.MusicPlayer.next(false);
+            case MUSIC_PREV -> tech.gulp.lavavisual.audio.MusicPlayer.previous();
+            case MUSIC_FORWARD -> tech.gulp.lavavisual.audio.MusicPlayer.skip(10);
+            case MUSIC_BACK -> tech.gulp.lavavisual.audio.MusicPlayer.skip(-10);
         }
         LavaVisualClient.save();
         if (action != Action.MENU && action != Action.WAYPOINT_ADD && action != Action.WAYPOINTS) Toast.show(action.title + status(action, c));
@@ -121,6 +133,14 @@ public final class Binds {
     private static String status(Action action, tech.gulp.lavavisual.config.HudConfig c) {
         return switch (action) {
             case DISABLE_ALL -> ": всё выключено";
+            case MUSIC_PLAY, MUSIC_NEXT, MUSIC_PREV, MUSIC_FORWARD, MUSIC_BACK -> {
+                var track = tech.gulp.lavavisual.audio.MusicPlayer.current();
+                if (track == null) yield ": нет треков в папке music";
+                String state = tech.gulp.lavavisual.audio.MusicPlayer.paused() ? " · пауза" : "";
+                yield action == Action.MUSIC_FORWARD || action == Action.MUSIC_BACK
+                        ? ": " + tech.gulp.lavavisual.audio.MusicPlayer.time(tech.gulp.lavavisual.audio.MusicPlayer.position()) + state
+                        : ": " + track.line() + state;
+            }
             case MINIMAP -> onOff(c.widgets.get("minimap").visible);
             case MINIMAP_ZOOM -> ": " + new String[]{"ближе", "обычный", "дальше"}[c.mapZoom];
             case HUD -> LavaVisualClient.STATE.hudHidden ? ": скрыт" : ": показан";

@@ -29,28 +29,71 @@ public final class CustomAudio {
         if (IDS.length != HudConfig.SOUND_LIBRARY || NAMES.length != IDS.length) throw new IllegalStateException("Sound library size mismatch");
     }
     private CustomAudio() { }
-    /** Choices for the menu: the library plus «Свой» when custom files exist. */
-    public static int count() { return CustomSounds.names().isEmpty() ? IDS.length : IDS.length + 1; }
-    public static String name(int index) {
-        if (index < IDS.length) return NAMES[index];
-        return CustomSounds.names().isEmpty() ? "Свой (папка пуста)" : "Свой файл";
+    /** Choices for one event: the library, then the user's files for it (its folder + the shared sounds folder). */
+    public static int count(int group) { return IDS.length + CustomSounds.list(group).size(); }
+    public static String name(int group, int index) {
+        if (index < IDS.length) return NAMES[Math.max(0, index)];
+        var list = CustomSounds.list(group);
+        int i = index - IDS.length;
+        return i < list.size() ? "★ " + list.get(i).name() + (list.get(i).playable() ? "" : " · не Vorbis") : "★ файл удалён";
+    }
+    private static String key(int group) {
+        var c = LavaVisualClient.config();
+        String key = switch (group) { case 0 -> c.hitCustom; case 1 -> c.critCustom; case 2 -> c.totemCustom; default -> c.killCustom; };
+        return key == null ? "" : key;
+    }
+    /** The chosen user file for the event, or null (library sound). */
+    public static CustomSounds.Entry custom(int group) {
+        var c = LavaVisualClient.config();
+        int raw = switch (group) { case 0 -> c.hitSound; case 1 -> c.critSound; case 2 -> c.totemSound; default -> c.killSound; };
+        if (raw < IDS.length) return null;
+        var list = CustomSounds.list(group);
+        String key = key(group);
+        for (var entry : list) if (entry.key().equals(key)) return entry;
+        return key.isEmpty() && !list.isEmpty() ? list.getFirst() : null; // pre-2.18 «Свой файл»
     }
     public static int selected(int group) {
         var c = LavaVisualClient.config();
-        return switch (group) { case 0 -> c.hitSound; case 1 -> c.critSound; case 2 -> c.totemSound; default -> c.killSound; };
+        int raw = switch (group) { case 0 -> c.hitSound; case 1 -> c.critSound; case 2 -> c.totemSound; default -> c.killSound; };
+        if (raw < IDS.length) return Math.max(0, raw);
+        var entry = custom(group);
+        return entry == null ? FALLBACK[Math.clamp(group, 0, 3)] : IDS.length + CustomSounds.list(group).indexOf(entry);
     }
     public static void select(int group, int index) {
         var c = LavaVisualClient.config();
-        switch (group) { case 0 -> c.hitSound = index; case 1 -> c.critSound = index; case 2 -> c.totemSound = index; default -> c.killSound = index; }
+        String key = "";
+        if (index >= IDS.length) {
+            var list = CustomSounds.list(group);
+            int i = index - IDS.length;
+            if (i >= list.size()) return;
+            key = list.get(i).key();
+            index = CUSTOM;
+        }
+        switch (group) {
+            case 0 -> { c.hitSound = index; c.hitCustom = key; }
+            case 1 -> { c.critSound = index; c.critCustom = key; }
+            case 2 -> { c.totemSound = index; c.totemCustom = key; }
+            default -> { c.killSound = index; c.killCustom = key; }
+        }
     }
+    /** Library sound id for the vanilla pipeline (a user file falls back to the event's default when it is missing). */
     public static Identifier sound(int group) {
         int index = selected(group);
-        if (index >= IDS.length) {
-            var custom = CustomSounds.names();
-            if (!custom.isEmpty()) return Identifier.fromNamespaceAndPath("lavavisual", "custom/" + custom.get(group % custom.size()));
-            index = FALLBACK[Math.clamp(group, 0, 3)];
-        }
+        if (index >= IDS.length) index = FALLBACK[Math.clamp(group, 0, 3)];
         return Identifier.fromNamespaceAndPath("lavavisual", IDS[Math.clamp(index, 0, IDS.length - 1)]);
+    }
+    /** Plays the event's user file through OpenAL; false when there is none (or it cannot play). */
+    private static boolean playCustom(int group, double gain) {
+        var entry = custom(group);
+        return entry != null && entry.playable() && tech.gulp.lavavisual.audio.LavaAudio.play(entry.file(), (float) gain);
+    }
+    private static float category(net.minecraft.sounds.SoundSource source) {
+        var options = Minecraft.getInstance().options;
+        return options == null ? 1 : options.getSoundSourceVolume(net.minecraft.sounds.SoundSource.MASTER) * options.getSoundSourceVolume(source);
+    }
+    private static SoundInstance silent(SoundInstance original) {
+        return new SimpleSoundInstance(original.getIdentifier(), original.getSource(), 0f, 1f, SoundInstance.createUnseededRandom(),
+                false, 0, SoundInstance.Attenuation.NONE, original.getX(), original.getY(), original.getZ(), original.isRelative());
     }
     private static double volume(int group) {
         var c = LavaVisualClient.config();
@@ -72,9 +115,16 @@ public final class CustomAudio {
             String path = original.getIdentifier().getPath();
             if (c.hitSoundEnabled && c.muteVanillaHits && path.startsWith("entity.") && path.endsWith(".hurt")
                     && WorldCosmetics.recentHitNear(original.getX(), original.getY(), original.getZ()))
-                return new SimpleSoundInstance(original.getIdentifier(), original.getSource(), 0f, 1f, SoundInstance.createUnseededRandom(),
-                        false, 0, SoundInstance.Attenuation.NONE, original.getX(), original.getY(), original.getZ(), original.isRelative());
+                return silent(original);
             return original;
+        }
+        // A user file: played directly (OpenAL), the vanilla sound is muted. Distant hits of other players get quieter.
+        if (custom(group) != null) {
+            double distance = 0;
+            var player = Minecraft.getInstance().player;
+            if (!original.isRelative() && player != null) distance = Math.sqrt(player.distanceToSqr(original.getX(), original.getY(), original.getZ()));
+            double gain = volume(group) * category(original.getSource()) * Math.max(0, 1 - distance / 24);
+            if (gain <= 0.001 || playCustom(group, gain)) return silent(original);
         }
         // SoundManager.play receives unresolved instances (including incoming sound packets).
         // AbstractSoundInstance volume/pitch depend on its selected Sound and cannot be read yet.
@@ -86,6 +136,7 @@ public final class CustomAudio {
                 original.getAttenuation(), original.getX(), original.getY(), original.getZ(), original.isRelative());
     }
     public static void preview(int group) {
+        if (playCustom(group, volume(group) * category(net.minecraft.sounds.SoundSource.PLAYERS))) return;
         Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvent.createVariableRangeEvent(sound(group)), 1, (float) volume(group)));
     }
     /** Kill confirmation for your own target; played like a hit marker, only for you. */

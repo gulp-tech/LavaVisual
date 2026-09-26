@@ -31,9 +31,9 @@ public final class ClickGuiScreen extends Screen {
     private record Slider(int x, int y, int width, double min, double max, DoubleConsumer setter) {
         void set(double mouse) { setter.accept(min + Math.clamp((mouse - x) / width, 0, 1) * (max - min)); }
     }
-    public static final int PAGE_HUD = 0, PAGE_EFFECTS = 1, PAGE_HANDS = 2, PAGE_SOUNDS = 3, PAGE_MAP = 4, PAGE_BINDS = 5, PAGE_COLORS = 6, PAGE_WORLD = 7, PAGE_INTERFACE = 8;
-    private static final String[] TABS = {"HUD", "Эффекты", "Руки", "Звуки", "Карта", "Бинды", "Цвета", "Мир / FPS", "Интерфейс"};
-    private static final String[] TAB_ICONS = {Icons.LAYOUT_DASHBOARD, Icons.SPARKLES, Icons.HAND, Icons.VOLUME_2, Icons.MAP, Icons.KEYBOARD, Icons.PALETTE, Icons.EARTH, Icons.SETTINGS};
+    public static final int PAGE_HUD = 0, PAGE_EFFECTS = 1, PAGE_HANDS = 2, PAGE_SOUNDS = 3, PAGE_MUSIC = 4, PAGE_MAP = 5, PAGE_BINDS = 6, PAGE_COLORS = 7, PAGE_WORLD = 8, PAGE_INTERFACE = 9;
+    private static final String[] TABS = {"HUD", "Эффекты", "Руки", "Звуки", "Музыка", "Карта", "Бинды", "Цвета", "Мир / FPS", "Интерфейс"};
+    private static final String[] TAB_ICONS = {Icons.LAYOUT_DASHBOARD, Icons.SPARKLES, Icons.HAND, Icons.VOLUME_2, Icons.MUSIC, Icons.MAP, Icons.KEYBOARD, Icons.PALETTE, Icons.EARTH, Icons.SETTINGS};
     private static final int[] PRESETS = {0xFF5A36, 0xFF8A3C, 0xFFC233, 0xE8FF5A, 0x85F56A, 0x2CE08A, 0x36C8FF, 0x4C6BFF, 0xB45CFF, 0xFF5C9A, 0xFFFFFF, 0x9AA3B2};
     private static final Map<String, String> CARD_ICONS = Map.ofEntries(
             Map.entry("target", Icons.TARGET), Map.entry("coordinates", Icons.MAP_PIN), Map.entry("performance", Icons.GAUGE),
@@ -41,7 +41,7 @@ public final class ClickGuiScreen extends Screen {
             Map.entry("watermark", Icons.STAMP), Map.entry("badge", Icons.BADGE_CHECK), Map.entry("badge_share", Icons.USER), Map.entry("crosshair", Icons.CROSSHAIR),
             Map.entry("jump", Icons.CIRCLE_DOT), Map.entry("particles", Icons.SPARKLE), Map.entry("ambient", Icons.SPARKLES),
             Map.entry("marker", Icons.TARGET), Map.entry("esp", Icons.SCAN_EYE), Map.entry("kill", Icons.SKULL),
-            Map.entry("hat", Icons.CROWN), Map.entry("wings", Icons.WIND), Map.entry("hat_others", Icons.EYE), Map.entry("trail", Icons.WIND), Map.entry("hands", Icons.HAND), Map.entry("crit", Icons.ZAP), Map.entry("zoom", Icons.SEARCH),
+            Map.entry("hat", Icons.CROWN), Map.entry("wings", Icons.WIND), Map.entry("hat_others", Icons.EYE), Map.entry("trail", Icons.WIND), Map.entry("hands", Icons.HAND), Map.entry("crit", Icons.ZAP), Map.entry("music", Icons.MUSIC), Map.entry("music_auto", Icons.EYE_OFF), Map.entry("zoom", Icons.SEARCH),
             Map.entry("freelook", Icons.EYE), Map.entry("mute_vanilla", Icons.VOLUME_X), Map.entry("trail_glow", Icons.SPARKLES), Map.entry("dummy_spin", Icons.ROTATE_CW),
             Map.entry("zoom_smooth", Icons.WAND_SPARKLES), Map.entry("zoom_mouse", Icons.MOUSE), Map.entry("crit_color", Icons.PALETTE), Map.entry("crit_magic", Icons.SPARKLES), Map.entry("crit_always", Icons.SWORDS),
             Map.entry("sound0", Icons.SWORDS), Map.entry("sound1", Icons.ZAP), Map.entry("sound2", Icons.HEART_PULSE),
@@ -316,7 +316,7 @@ public final class ClickGuiScreen extends Screen {
             text(g, TABS[i], left + 33, y + tabPad + 1, tabColor, side - 40);
             hit(left + 8, y, side - 16, tabH, () -> navigate(next));
         }
-        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.17", left + 13, top + panelH - 21, 0xFF586272, side - 18);
+        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.18", left + 13, top + panelH - 21, 0xFF586272, side - 18);
         boolean searching = !query.isBlank();
         String heading = searching ? "Поиск" : selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : selected.equals("hat") ? "Шляпы" : selected.equals("wings") ? "Крылья" : HudRenderer.title(selected);
         searchW = Math.max(70, Math.min(150, bodyW / 2 - 20)); searchX = left + panelW - 58 - searchW; searchY = top + 11;
@@ -337,7 +337,7 @@ public final class ClickGuiScreen extends Screen {
         if (searching) searchResults(g);
         else if (selected != null) settings(g);
         else switch (page) {
-            case PAGE_HUD -> hud(g); case PAGE_EFFECTS -> effects(g); case PAGE_HANDS -> hands(g); case PAGE_SOUNDS -> audio(g);
+            case PAGE_HUD -> hud(g); case PAGE_EFFECTS -> effects(g); case PAGE_HANDS -> hands(g); case PAGE_SOUNDS -> audio(g); case PAGE_MUSIC -> music(g);
             case PAGE_MAP -> map(g); case PAGE_BINDS -> binds(g); case PAGE_COLORS -> colors(g); case PAGE_WORLD -> world(g);
             default -> appearance(g);
         }
@@ -418,7 +418,7 @@ public final class ClickGuiScreen extends Screen {
         try {
             if (sub != null) settings(g);
             else switch (target) {
-                case PAGE_HUD -> hud(g); case PAGE_EFFECTS -> effects(g); case PAGE_HANDS -> hands(g); case PAGE_SOUNDS -> audio(g);
+                case PAGE_HUD -> hud(g); case PAGE_EFFECTS -> effects(g); case PAGE_HANDS -> hands(g); case PAGE_SOUNDS -> audio(g); case PAGE_MUSIC -> music(g);
                 case PAGE_MAP -> map(g); case PAGE_BINDS -> binds(g); case PAGE_COLORS -> colors(g); case PAGE_WORLD -> world(g);
                 default -> appearance(g);
             }
@@ -637,6 +637,7 @@ public final class ClickGuiScreen extends Screen {
     }
     private void audio(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
+        tech.gulp.lavavisual.effects.CustomSounds.scanIfStale();
         String[] titles = {"Удары", "Криты", "Тотем", "Убийство"};
         String[] descriptions = {"Вместо ванильного звука удара", "Вместо звука критического удара", "Когда срабатывает тотем", "Когда ваша цель погибает"};
         for (int i = 0; i < 4; i++) {
@@ -659,9 +660,9 @@ public final class ClickGuiScreen extends Screen {
             int nx = bodyX + 28, index = CustomAudio.selected(group);
             UiDraw.round(g, nx, y, nameW, 24, 6, 0xFF1C1F26);
             UiDraw.round(g, nx + 1, y + 7, 2, 10, 1, accent());
-            String counter = Math.min(index + 1, CustomAudio.count()) + " / " + CustomAudio.count();
+            String counter = Math.min(index + 1, CustomAudio.count(group)) + " / " + CustomAudio.count(group);
             int counterW = UiFont.width(g, font, counter, UiFont.Face.SMALL);
-            text(g, CustomAudio.name(index), nx + 10, y + 8, 0xFFE8EAF0, nameW - counterW - 22);
+            text(g, CustomAudio.name(group, index), nx + 10, y + 8, index >= CustomAudio.IDS.length ? accent() : 0xFFE8EAF0, nameW - counterW - 22);
             text(g, counter, nx + nameW - counterW - 8, y + 9, 0xFF6B7280, counterW + 2, UiFont.Face.SMALL);
             hit(nx, y, nameW, 24, () -> step(group, 1));
             iconButton(g, Icons.CHEVRON_RIGHT, nx + nameW + 4, y, () -> step(group, 1));
@@ -684,9 +685,61 @@ public final class ClickGuiScreen extends Screen {
         }
         if (collecting) { indexContext = "Библиотека звуков"; for (String name : CustomAudio.NAMES) index(name, "звук", clipTop + 3 + 56); }
         note(g, CustomAudio.IDS.length + " звуков: " + (CustomAudio.IDS.length - 6) + " своих LavaVisual и 6 Kenney CC0.");
-        button(g, Icons.REFRESH_CW, "Свои звуки: " + tech.gulp.lavavisual.effects.CustomSounds.names().size() + " · обновить", () -> tech.gulp.lavavisual.effects.CustomSounds.refresh(minecraft));
-        note(g, "Папка: config/lavavisual-hud/sounds, файлы .ogg");
-        note(g, "После обновления в списке появится «Свой файл».");
+        section(g, "Свои звуки");
+        int halfFolder = (bodyW - 8) / 2;
+        action(g, Icons.FOLDER_OPEN, "Открыть папку звуков", bodyX, cursor, halfFolder, () -> tech.gulp.lavavisual.effects.CustomSounds.open(tech.gulp.lavavisual.effects.CustomSounds.dir()));
+        action(g, Icons.REFRESH_CW, "Обновить список", bodyX + halfFolder + 8, cursor, halfFolder, () -> {
+            tech.gulp.lavavisual.effects.CustomSounds.scan();
+            tech.gulp.lavavisual.input.Binds.Toast.show("Своих звуков: " + tech.gulp.lavavisual.effects.CustomSounds.files());
+        });
+        cursor += 32;
+        int skippedSounds = tech.gulp.lavavisual.effects.CustomSounds.skipped();
+        note(g, "Своих файлов: " + tech.gulp.lavavisual.effects.CustomSounds.files() + (skippedSounds > 0 ? " · не Vorbis, не играют: " + skippedSounds : "") + " · в списках отмечены ★");
+        note(g, "Папки: hits — удары, crits — криты, totems — тотем, kills — убийство");
+        note(g, "Файлы прямо в папке sounds появятся во всех списках.");
+        note(g, "Формат .ogg (Vorbis), имя любое. Можно перетащить файлы в окно.");
+    }
+    private void music(GuiGraphicsExtractor g) {
+        var c = LavaVisualClient.config();
+        var track = tech.gulp.lavavisual.audio.MusicPlayer.current();
+        button(g, Icons.MUSIC, "Открыть плеер · " + tech.gulp.lavavisual.input.Binds.keyName(tech.gulp.lavavisual.input.Binds.Action.MUSIC),
+                () -> minecraft.gui.setScreen(new MusicScreen(this)));
+        var tracks = tech.gulp.lavavisual.audio.MusicPlayer.tracks();
+        note(g, track == null || !tech.gulp.lavavisual.audio.MusicPlayer.active()
+                ? (tracks.isEmpty() ? "Треков нет — положите .ogg в папку music" : "Ничего не играет · треков: " + tracks.size())
+                : (tech.gulp.lavavisual.audio.MusicPlayer.paused() ? "Пауза · " : "Играет · ") + track.line() + " · "
+                + tech.gulp.lavavisual.audio.MusicPlayer.time(tech.gulp.lavavisual.audio.MusicPlayer.position()) + " / "
+                + tech.gulp.lavavisual.audio.MusicPlayer.time(tech.gulp.lavavisual.audio.MusicPlayer.duration()));
+        int third = (bodyW - 16) / 3;
+        boolean on = tech.gulp.lavavisual.audio.MusicPlayer.playing();
+        action(g, Icons.SKIP_BACK, "Назад", bodyX, cursor, third, tech.gulp.lavavisual.audio.MusicPlayer::previous);
+        action(g, on ? Icons.PAUSE : Icons.PLAY, on ? "Пауза" : "Играть", bodyX + third + 8, cursor, third, tech.gulp.lavavisual.audio.MusicPlayer::toggle);
+        action(g, Icons.SKIP_FORWARD, "Дальше", bodyX + 2 * (third + 8), cursor, third, () -> tech.gulp.lavavisual.audio.MusicPlayer.next(false));
+        cursor += 32;
+        slider(g, "Громкость музыки · %", c.musicVolume * 100, 0, 100, v -> c.musicVolume = v / 100, true);
+        int half = (bodyW - 8) / 2;
+        action(g, Icons.SHUFFLE, "Перемешать: " + (c.musicShuffle ? "вкл" : "выкл"), bodyX, cursor, half, () -> { c.musicShuffle = !c.musicShuffle; changed(); });
+        action(g, c.musicRepeat == 2 ? Icons.REPEAT_1 : Icons.REPEAT, "Повтор: " + new String[]{"выкл", "все", "один"}[c.musicRepeat], bodyX + half + 8, cursor, half,
+                () -> { c.musicRepeat = (c.musicRepeat + 1) % 3; changed(); });
+        cursor += 32;
+        section(g, "HUD");
+        var w = c.widgets.get("music");
+        toggle(g, "music", "HUD музыки", "Обложка или диск, трек, время, предыдущий и следующий", w.visible, () -> { w.visible = !w.visible; changed(); }, () -> select("music"));
+        toggle(g, "music_auto", "Скрывать без музыки", "HUD виден, только пока трек играет или на паузе", c.musicHudAuto, () -> { c.musicHudAuto = !c.musicHudAuto; changed(); }, null);
+        section(g, "Папка music");
+        action(g, Icons.FOLDER_OPEN, "Открыть папку", bodyX, cursor, half, () -> tech.gulp.lavavisual.effects.CustomSounds.open(tech.gulp.lavavisual.effects.CustomSounds.musicDir()));
+        action(g, Icons.REFRESH_CW, "Обновить список", bodyX + half + 8, cursor, half, () -> tech.gulp.lavavisual.audio.MusicPlayer.rescan(tech.gulp.lavavisual.effects.CustomSounds.musicDir()));
+        cursor += 32;
+        int bad = tech.gulp.lavavisual.audio.MusicPlayer.skipped();
+        note(g, "Треков: " + tracks.size() + (bad > 0 ? " · не Vorbis, не играют: " + bad : "") + " · формат .ogg (Vorbis)");
+        note(g, "Можно перетащить .ogg в окно игры. Клавиши плеера — во вкладке «Бинды».");
+    }
+    /** .ogg files dropped onto the menu go to the music folder on the Music page, otherwise to the shared sounds folder. */
+    @Override public void onFilesDrop(List<java.nio.file.Path> files) {
+        boolean music = page == PAGE_MUSIC;
+        int copied = tech.gulp.lavavisual.effects.CustomSounds.importFiles(files,
+                music ? tech.gulp.lavavisual.effects.CustomSounds.musicDir() : tech.gulp.lavavisual.effects.CustomSounds.dir());
+        tech.gulp.lavavisual.input.Binds.Toast.show(copied > 0 ? "Добавлено: " + copied + (music ? " · музыка" : " · звуки") : "Нужны файлы .ogg");
     }
     private void iconButton(GuiGraphicsExtractor g, String icon, int x, int y, Runnable callback) {
         boolean over = hover(x, y, 24, 24);
@@ -695,7 +748,7 @@ public final class ClickGuiScreen extends Screen {
         hit(x, y, 24, 24, callback);
     }
     private void step(int group, int delta) {
-        CustomAudio.select(group, Math.floorMod(CustomAudio.selected(group) + delta, CustomAudio.count()));
+        CustomAudio.select(group, Math.floorMod(CustomAudio.selected(group) + delta, CustomAudio.count(group)));
         changed();
         CustomAudio.preview(group);
     }

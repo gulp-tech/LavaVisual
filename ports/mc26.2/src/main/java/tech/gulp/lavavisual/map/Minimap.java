@@ -154,18 +154,16 @@ public final class Minimap {
         int bg = c.color("hud_bg") & 0xFFFFFF;
         int accent2 = c.color2("minimap");
         boolean round = c.mapShape == 0;
-        // The round window is cut from the square map with the panel colour, so that panel stays (almost) opaque.
+        // The round window is cut from the square map with the panel colour, so that panel is opaque.
         double op = round ? 1 : w.opacity;
         int panelTop = UiDraw.alpha(UiDraw.mix(bg, 0xFFFFFF, 0.05), op), panelBottom = UiDraw.alpha(bg, op);
-        int maskTop = UiDraw.alpha(UiDraw.mix(bg, 0xFFFFFF, 0.05), 1), maskBottom = UiDraw.alpha(bg, 1);
         if (c.shadows) {
             UiDraw.round(g, -1, 1, bw + 2, bh + 2, 8, UiDraw.alpha(0, w.opacity * 0.12));
             UiDraw.round(g, 0, 2, bw, bh, 7, UiDraw.alpha(0, w.opacity * 0.22));
         }
         UiDraw.roundV(g, 0, 0, bw, bh, 7, panelTop, panelBottom);
-        double cx = m + size / 2.0, cy = m + size / 2.0, r = size / 2.0;
-        if (round) UiDraw.circle(g, cx, cy, r, 0xFF0B0D11);
-        else UiDraw.round(g, m, m, size, size, 6, 0xFF0B0D11);
+        double cx = m + size / 2.0, cy = m + size / 2.0;
+        g.fill(m, m, m + size, m + size, 0xFF0B0D11);
         var player = mc.player;
         boolean live = player != null && mc.level != null && uploaded && valid && texture != null;
         double px = 0, pz = 0, view = VIEW[Math.floorMod(c.mapZoom, 3)];
@@ -179,16 +177,10 @@ public final class Minimap {
             g.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, m, m, u, v, size, size, (int) view, (int) view, SIZE, SIZE, 0xFFFFFFFF);
             g.disableScissor();
         } else if (!edit) UiFont.centered(g, font, "загрузка", m + size / 2, m + size / 2 - 4, 0xFF8C93A1, UiFont.Face.SMALL);
-        // Cut the square texture to the window shape with the panel colour, then the soft vignette, glow and ring.
-        if (round) {
-            ring(g, cx, cy, r, r * 1.5, m, m, m + size, m + size, maskTop, maskBottom, 0, bh);
-            ring(g, cx, cy, r - 7, r, m, m, m + size, m + size, 0x00000000, 0x00000000, 0, 0, 0x38000000);
-            ring(g, cx, cy, r + 0.6, r + 2.6, -2, -2, bw + 2, bh + 2, UiDraw.alpha(accent, 0.16), UiDraw.alpha(accent2, 0.16), m, m + size);
-            ring(g, cx, cy, r - 0.5, r + 0.9, -2, -2, bw + 2, bh + 2, UiDraw.alpha(accent, 0.95), UiDraw.alpha(accent2, 0.95), m, m + size);
-        } else {
-            corners(g, m, m, size, 6, maskTop, maskBottom, bh);
-            UiDraw.roundV(g, m - 1, m - 1, size + 2, 1, 0, UiDraw.alpha(accent, 0.9), UiDraw.alpha(accent, 0.9));
-        }
+        // Window shape, inner shadow, glow and ring: one cached texture (drawing them per pixel row every frame cost
+        // thousands of quads and dropped weak PCs and phones to a few FPS).
+        frame(mc, g, bw, bh, m, size, round, UiDraw.alpha(UiDraw.mix(bg, 0xFFFFFF, 0.05), 1), UiDraw.alpha(bg, 1), accent, accent2,
+                c.chroma != null && c.chroma.contains("minimap"));
         double scale = size / view;
         if (c.mapWaypoints && player != null && mc.level != null) {
             for (Waypoints.Point p : Waypoints.here(mc)) {
@@ -207,48 +199,96 @@ public final class Minimap {
         g.pose().pushMatrix();
         g.pose().translate((float) cx, (float) cy);
         g.pose().rotate((float) Math.toRadians(yaw - 180));
-        arrow(g, 1.45, 0x90000000);
-        arrow(g, 1.0, 0xFFFFFFFF);
+        arrow(mc, g);
         g.pose().popMatrix();
         if (c.mapCoords) {
             String text = player == null ? "X 0  Y 64  Z 0" : "X " + Mth.floor(px) + "  Y " + Mth.floor(player.getY()) + "  Z " + Mth.floor(pz);
             UiFont.centered(g, font, text, bw / 2, m + size + 4, 0xFFC9CED8, UiFont.Face.SMALL);
         }
     }
+    private static final Identifier FRAME = Identifier.fromNamespaceAndPath("lavavisual", "minimap_frame");
+    private static DynamicTexture frameTexture;
+    private static int frameW, frameH;
+    private static long frameKey = Long.MIN_VALUE, frameBuilt;
+    private static long costNanos, costFrames;
+    /** Draw time of the minimap (CI budget check). */
+    public static void cost(long nanos) { costNanos += nanos; costFrames++; }
+    public static void resetCost() { costNanos = 0; costFrames = 0; }
+    public static double averageMicros() { return costFrames == 0 ? 0 : costNanos / 1000.0 / costFrames; }
+    public static long frames() { return costFrames; }
     private static double pixels(GuiGraphicsExtractor g) {
         var p = g.pose();
         return UiFont.guiScale() * Math.sqrt(Math.abs(p.m00() * p.m11() - p.m01() * p.m10()));
     }
-    /**
-     * Paints, one physical pixel row at a time, the part of the box (x0..x1, y0..y1) between radius r0 and r1 around
-     * (cx, cy), with anti-aliased ends. Colour runs top -> bottom between gy0 and gy1. With a vignette colour the band is
-     * split into rings that darken towards r1 (inner shadow at the window edge).
-     */
-    private static void ring(GuiGraphicsExtractor g, double cx, double cy, double r0, double r1, double x0, double y0, double x1, double y1,
-                             int top, int bottom, double gy0, double gy1) { ring(g, cx, cy, r0, r1, x0, y0, x1, y1, top, bottom, gy0, gy1, 0); }
-    private static void ring(GuiGraphicsExtractor g, double cx, double cy, double r0, double r1, double x0, double y0, double x1, double y1,
-                             int top, int bottom, double gy0, double gy1, int vignette) {
+    /** Rebuilt only when the size, shape or colours change (a rainbow colour at most 5 times per second). */
+    private static void frame(Minecraft mc, GuiGraphicsExtractor g, int bw, int bh, int m, int size, boolean round,
+                              int top, int bottom, int accent, int accent2, boolean animated) {
         double s = pixels(g);
-        if (s <= 0.01) return;
-        g.pose().pushMatrix();
-        try {
-            g.pose().scale((float) (1 / s));
-            int rowFrom = (int) Math.floor(Math.max(y0, cy - r1) * s), rowTo = (int) Math.ceil(Math.min(y1, cy + r1) * s);
-            int steps = vignette != 0 ? 6 : 1;
-            for (int row = rowFrom; row < rowTo; row++) {
-                double y = (row + 0.5) / s, dy = y - cy;
-                if (Math.abs(dy) >= r1) continue;
-                for (int k = 0; k < steps; k++) {
-                    // Vignette: concentric bands, darker towards the outer edge.
-                    double a0 = vignette != 0 ? r0 + (r1 - r0) * k / steps : r0, a1 = vignette != 0 ? r0 + (r1 - r0) * (k + 1) / steps : r1;
-                    int color = vignette != 0 ? UiDraw.fade(vignette, (k + 1.0) / steps) : gy1 > gy0 ? UiDraw.lerpArgb(top, bottom, Math.clamp((y - gy0) / (gy1 - gy0), 0, 1)) : top;
-                    if ((color >>> 24) == 0) continue;
-                    double outer = Math.sqrt(Math.max(0, a1 * a1 - dy * dy)), inner = Math.abs(dy) < a0 ? Math.sqrt(a0 * a0 - dy * dy) : 0;
-                    if (inner <= 0) span(g, s, cx - outer, cx + outer, x0, x1, row, color);
-                    else { span(g, s, cx - outer, cx - inner, x0, x1, row, color); span(g, s, cx + inner, cx + outer, x0, x1, row, color); }
-                }
+        int pw = (int) Math.round(bw * s), ph = (int) Math.round(bh * s);
+        if (pw < 8 || ph < 8 || pw > 2048 || ph > 2048) return;
+        long key = ((((long) pw * 4099 + ph) * 31 + (round ? 1 : 0)) * 1_000_003L + top) * 1_000_033L + bottom;
+        key = key * 1_000_037L + accent;
+        key = key * 1_000_039L + accent2;
+        long now = System.nanoTime();
+        boolean resized = frameTexture == null || frameW != pw || frameH != ph;
+        if (key != frameKey && (resized || !animated || now - frameBuilt > 200_000_000L)) {
+            if (resized) {
+                frameTexture = new DynamicTexture(() -> "lavavisual minimap frame", pw, ph, true);
+                mc.getTextureManager().register(FRAME, frameTexture); // replaces (and closes) the previous one
+                frameW = pw; frameH = ph;
             }
-        } finally { g.pose().popMatrix(); }
+            NativeImage image = frameTexture.getPixels();
+            if (image == null) return;
+            paintFrame(image, pw, ph, s, m, size, round, top, bottom, accent, accent2, bh);
+            frameTexture.upload();
+            frameKey = key;
+            frameBuilt = now;
+        }
+        g.blit(RenderPipelines.GUI_TEXTURED, FRAME, 0, 0, 0f, 0f, bw, bh, pw, ph, pw, ph, 0xFFFFFFFF);
+    }
+    private static void paintFrame(NativeImage image, int pw, int ph, double s, int m, int size, boolean round,
+                                   int top, int bottom, int accent, int accent2, int bh) {
+        double cx = m + size / 2.0, cy = m + size / 2.0, r = size / 2.0, corner = 6;
+        for (int py = 0; py < ph; py++) {
+            double y = (py + 0.5) / s;
+            int mask = UiDraw.lerpArgb(top, bottom, Math.clamp(y / bh, 0, 1));
+            int ring = UiDraw.lerpArgb(accent | 0xFF000000, accent2 | 0xFF000000, Math.clamp((y - m) / size, 0, 1)) & 0xFFFFFF;
+            for (int px = 0; px < pw; px++) {
+                double x = (px + 0.5) / s;
+                boolean inside = x >= m && x < m + size && y >= m && y < m + size;
+                int out = 0;
+                if (round) {
+                    double d = Math.hypot(x - cx, y - cy);
+                    if (inside) {
+                        double cover = Math.clamp((d - r) * s + 0.5, 0, 1);
+                        if (d < r) { double v = Math.clamp((d - (r - 7)) / 7, 0, 1); out = over(out, (int) Math.round(0.24 * v * v * 255) << 24); }
+                        if (cover > 0) out = over(out, UiDraw.fade(mask, cover));
+                    }
+                    if (d > r - 1 && d < r + 3.4) { double t = Math.clamp((d - r) / 3.4, 0, 1); out = over(out, UiDraw.alpha(ring, 0.2 * (1 - t) * (1 - t))); }
+                    double edge = Math.abs(d - (r + 0.2)) - 0.7, line = Math.clamp(0.5 - edge * s, 0, 1);
+                    if (line > 0) out = over(out, UiDraw.alpha(ring, 0.95 * line));
+                } else {
+                    double dx = Math.max(Math.abs(x - cx) - (size / 2.0 - corner), 0), dy = Math.max(Math.abs(y - cy) - (size / 2.0 - corner), 0);
+                    double d = Math.hypot(dx, dy) - corner;
+                    if (inside) { double cover = Math.clamp(d * s + 0.5, 0, 1); if (cover > 0) out = over(out, UiDraw.fade(mask, cover)); }
+                    double edge = Math.abs(d + 0.1) - 0.55, line = Math.clamp(0.5 - edge * s, 0, 1);
+                    if (line > 0) out = over(out, UiDraw.alpha(ring, 0.85 * line));
+                }
+                image.setPixel(px, py, out);
+            }
+        }
+    }
+    /** Source-over for straight-alpha ARGB. */
+    private static int over(int dst, int src) {
+        int sa = src >>> 24;
+        if (sa == 0) return dst;
+        int da = dst >>> 24;
+        if (sa == 255 || da == 0) return src;
+        double as = sa / 255.0, ad = da / 255.0 * (1 - as), a = as + ad;
+        int r = (int) Math.round(((src >> 16 & 255) * as + (dst >> 16 & 255) * ad) / a);
+        int gg = (int) Math.round(((src >> 8 & 255) * as + (dst >> 8 & 255) * ad) / a);
+        int b = (int) Math.round(((src & 255) * as + (dst & 255) * ad) / a);
+        return (int) Math.round(a * 255) << 24 | r << 16 | gg << 8 | b;
     }
     /** One row segment [a, b] (GUI units) clipped to [x0, x1], in physical pixels with fractional end coverage. */
     private static void span(GuiGraphicsExtractor g, double s, double a, double b, double x0, double x1, int row, int color) {
@@ -259,32 +299,42 @@ public final class Minimap {
         if (ia > a && ia - 1 >= Math.floor(a)) g.fill(ia - 1, row, ia, row + 1, UiDraw.fade(color, Math.min(1, ia - a)));
         if (b > ib && ib >= ia) g.fill(ib, row, ib + 1, row + 1, UiDraw.fade(color, Math.min(1, b - ib)));
     }
-    /** Rounds the square window's corners with the panel colour. */
-    private static void corners(GuiGraphicsExtractor g, int x, int y, int size, int radius, int top, int bottom, int panelHeight) {
-        double[][] centres = {{x + radius, y + radius, x, y}, {x + size - radius, y + radius, x + size - radius, y},
-                {x + radius, y + size - radius, x, y + size - radius}, {x + size - radius, y + size - radius, x + size - radius, y + size - radius}};
-        for (double[] c : centres) ring(g, c[0], c[1], radius, radius * 1.5, c[2], c[3], c[2] + radius, c[3] + radius, top, bottom, 0, panelHeight);
-    }
-    /** Smooth navigation arrow (pointing up), scan-converted in physical pixels in the current rotated frame. */
-    private static void arrow(GuiGraphicsExtractor g, double grow, int color) {
-        double[][] shape = {{0, -6.6}, {4.9, 5.2}, {0, 2.5}, {-4.9, 5.2}};
+    private static final Identifier ARROW = Identifier.fromNamespaceAndPath("lavavisual", "minimap_arrow");
+    private static final double[][] ARROW_SHAPE = {{0, -6.6}, {4.9, 5.2}, {0, 2.5}, {-4.9, 5.2}};
+    private static DynamicTexture arrowTexture;
+    private static int arrowSize;
+    /** Player arrow: one cached, anti-aliased 16x18 texture (white with a soft dark rim), drawn rotated in one quad. */
+    private static void arrow(Minecraft mc, GuiGraphicsExtractor g) {
         double s = pixels(g);
-        if (s <= 0.01) return;
-        g.pose().pushMatrix();
-        try {
-            g.pose().scale((float) (1 / s));
-            int rowFrom = (int) Math.floor(-6.6 * grow * s), rowTo = (int) Math.ceil(5.2 * grow * s);
-            double[] xs = new double[4];
-            for (int row = rowFrom; row < rowTo; row++) {
-                double y = (row + 0.5) / s / grow;
-                int count = 0;
-                for (int i = 0; i < 4; i++) {
-                    double[] p0 = shape[i], p1 = shape[(i + 1) % 4];
-                    if ((p0[1] <= y) != (p1[1] <= y)) xs[count++] = p0[0] + (y - p0[1]) / (p1[1] - p0[1]) * (p1[0] - p0[0]);
+        int pw = (int) Math.round(16 * s), ph = (int) Math.round(18 * s);
+        if (pw < 4 || pw > 512) return;
+        if (arrowTexture == null || arrowSize != pw) {
+            arrowTexture = new DynamicTexture(() -> "lavavisual minimap arrow", pw, ph, true);
+            mc.getTextureManager().register(ARROW, arrowTexture);
+            arrowSize = pw;
+            NativeImage image = arrowTexture.getPixels();
+            if (image == null) return;
+            for (int py = 0; py < ph; py++) for (int px = 0; px < pw; px++) {
+                int rim = 0, body = 0;
+                for (int sy = 0; sy < 4; sy++) for (int sx = 0; sx < 4; sx++) {
+                    double x = (px + (sx + 0.5) / 4) / s - 8, y = (py + (sy + 0.5) / 4) / s - 10;
+                    if (insideArrow(x / 1.45, y / 1.45)) rim++;
+                    if (insideArrow(x, y)) body++;
                 }
-                java.util.Arrays.sort(xs, 0, count);
-                for (int i = 0; i + 1 < count; i += 2) span(g, s, xs[i] * grow, xs[i + 1] * grow, -100, 100, row, color);
+                int out = over(0, (int) Math.round(0x90 * rim / 16.0) << 24);
+                out = over(out, (int) Math.round(255 * body / 16.0) << 24 | 0xFFFFFF);
+                image.setPixel(px, py, out);
             }
-        } finally { g.pose().popMatrix(); }
+            arrowTexture.upload();
+        }
+        g.blit(RenderPipelines.GUI_TEXTURED, ARROW, -8, -10, 0f, 0f, 16, 18, pw, ph, pw, ph, 0xFFFFFFFF);
+    }
+    private static boolean insideArrow(double x, double y) {
+        boolean in = false;
+        for (int i = 0, j = ARROW_SHAPE.length - 1; i < ARROW_SHAPE.length; j = i++) {
+            double[] a = ARROW_SHAPE[i], b = ARROW_SHAPE[j];
+            if ((a[1] > y) != (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) in = !in;
+        }
+        return in;
     }
 }

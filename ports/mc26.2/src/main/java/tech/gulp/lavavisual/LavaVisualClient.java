@@ -56,6 +56,7 @@ public final class LavaVisualClient implements ClientModInitializer {
         save();
         tech.gulp.lavavisual.effects.WorldCosmetics.register();
         tech.gulp.lavavisual.effects.Dummy.register();
+        tech.gulp.lavavisual.effects.CustomSounds.init();
         tech.gulp.lavavisual.effects.AirParticles.register();
         tech.gulp.lavavisual.effects.PlayerTags.registerClient();
         var category = KeyMapping.Category.register(id("hud"));
@@ -135,6 +136,7 @@ public final class LavaVisualClient implements ClientModInitializer {
             tech.gulp.lavavisual.effects.WorldCosmetics.tick(client);
             tech.gulp.lavavisual.effects.Dummy.tick(client);
             tech.gulp.lavavisual.effects.CameraControl.tick(client);
+            tech.gulp.lavavisual.audio.MusicPlayer.tick(client);
             tech.gulp.lavavisual.effects.AirParticles.tick(client);
             tech.gulp.lavavisual.effects.SwingStyles.tick(client);
             tech.gulp.lavavisual.effects.HatSync.tick(client);

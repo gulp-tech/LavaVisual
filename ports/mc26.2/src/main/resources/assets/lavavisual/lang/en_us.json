@@ -14,5 +14,14 @@
   "key.lavavisual.trail": "Toggle trails",
   "key.lavavisual.particles": "Toggle hit particles",
   "key.lavavisual.sounds": "Toggle hit sounds",
-  "key.lavavisual.fps_boost": "Toggle FPS Boost"
+  "key.lavavisual.fps_boost": "Toggle FPS Boost",
+  "key.lavavisual.music": "Music: player",
+  "key.lavavisual.music_play": "Music: play / pause",
+  "key.lavavisual.music_next": "Music: next track",
+  "key.lavavisual.music_prev": "Music: previous track",
+  "key.lavavisual.music_forward": "Music: forward 10 s",
+  "key.lavavisual.music_back": "Music: back 10 s",
+  "key.lavavisual.zoom": "Zoom (hold)",
+  "key.lavavisual.freelook": "FreeLook (hold)",
+  "key.lavavisual.dummy": "Practice dummy"
 }

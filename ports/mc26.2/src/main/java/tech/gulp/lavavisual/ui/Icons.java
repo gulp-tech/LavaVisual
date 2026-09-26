@@ -109,4 +109,15 @@ public final class Icons {
     public static final String SQUARE_PEN = "\uE172";
     public static final String SEARCH = "\uE151";
     public static final String CORNER_DOWN_LEFT = "\uE0A1";
+    public static final String PAUSE = "\uE12E";
+    public static final String SKIP_FORWARD = "\uE160";
+    public static final String SKIP_BACK = "\uE15F";
+    public static final String SHUFFLE = "\uE15E";
+    public static final String REPEAT = "\uE146";
+    public static final String REPEAT_1 = "\uE1FD";
+    public static final String DISC_3 = "\uE494";
+    public static final String FAST_FORWARD = "\uE0BD";
+    public static final String REWIND = "\uE147";
+    public static final String LIST_MUSIC = "\uE2E0";
+    public static final String UPLOAD = "\uE19E";
 }
