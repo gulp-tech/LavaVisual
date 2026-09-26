@@ -17,6 +17,7 @@ final class SmokeWorld {
             TRAIL_AT = CRIT_AT + 50, ZOOM_AT = TRAIL_AT + 95, FREE_AT = ZOOM_AT + 40, WINGS_EDIT_AT = FREE_AT + 40,
             MAP_AT = WINGS_EDIT_AT + 45, SOUND_AT = MAP_AT + 110, MUSIC_AT = SOUND_AT + 12, FORMATS_AT = MUSIC_AT + 72, TIME_AT = FORMATS_AT + 104, ITEMS_AT = TIME_AT + 80,
             PROJ_AT = ITEMS_AT + 70, OUTFIT_AT = PROJ_AT + 50, END_AT = OUTFIT_AT + 94;
+    private static float walkLift;
     private static double p1, p2, p3, p4;
     private static boolean musicPlaying, musicPaused, musicStable, musicSeek, musicNext, musicPrevious;
     private static double hiddenMs, shownMs, timeOnMs;
@@ -425,18 +426,24 @@ final class SmokeWorld {
         // Outfit: royal cape, glasses, headphones and scarf while walking, from behind and from the front.
         if (ticks == OUTFIT_AT) {
             c.hatEnabled = false; c.wingsEnabled = false; c.trailEnabled = false;
-            c.capeEnabled = true; c.capeType = 2; c.capeSway = 1; c.capeStyle = 2;
+            c.capeEnabled = true; c.capeType = 6; c.capeSway = 1; c.capeStyle = 0; c.capePhysics = true;
             c.extras = new java.util.ArrayList<>(java.util.List.of(1, 2, 3));
             tech.gulp.lavavisual.effects.WorldCosmetics.capesDrawn = 0; tech.gulp.lavavisual.effects.WorldCosmetics.extrasDrawn = 0;
             mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
         }
         if (ticks > OUTFIT_AT && ticks < OUTFIT_AT + 40) player.setPos(player.getX(), player.getY(), player.getZ() - 0.22);
         if (ticks == OUTFIT_AT + 22) LavaVisual.LOGGER.info("LavaVisual smoke shot world_outfit_back");
+        if (ticks == OUTFIT_AT + 30) walkLift = tech.gulp.lavavisual.effects.CapeCloth.lastLift;
         if (ticks == OUTFIT_AT + 46) mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
         if (ticks == OUTFIT_AT + 68) {
             long capes = tech.gulp.lavavisual.effects.WorldCosmetics.capesDrawn, extras = tech.gulp.lavavisual.effects.WorldCosmetics.extrasDrawn;
             boolean ok = capes > 0 && extras >= 3;
             LavaVisual.LOGGER.info((ok ? "LavaVisual smoke outfit ok" : "LavaVisual smoke outfit failed") + ": capes " + capes + ", accessories " + extras);
+            float restLift = tech.gulp.lavavisual.effects.CapeCloth.lastLift;
+            long steps = tech.gulp.lavavisual.effects.CapeCloth.steps;
+            boolean cloth = steps > 0 && walkLift < -0.15f && restLift > walkLift + 0.1f && Float.isFinite(restLift);
+            LavaVisual.LOGGER.info((cloth ? "LavaVisual smoke cape cloth ok" : "LavaVisual smoke cape cloth failed") + String.format(java.util.Locale.ROOT,
+                    ": walking %.3f, standing %.3f, steps %d", walkLift, restLift, steps));
             LavaVisual.LOGGER.info("LavaVisual smoke shot world_outfit_front");
         }
         if (ticks == OUTFIT_AT + 90) { c.capeEnabled = false; c.extras.clear(); mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }

@@ -302,7 +302,7 @@ public final class WorldCosmetics {
         return count;
     }
     public static void clear() {
-        RINGS.clear(); SPARKS.clear(); MARKS.clear(); CLICKS.clear(); TRAIL.clear(); BEAMS.clear(); espVisible = false; lastKillId = -1; ready = false; grounded = false; tick = 0; lastHitTick = -100; groundPosition = Vec3.ZERO; combo = 0; comboTarget = null;
+        RINGS.clear(); SPARKS.clear(); MARKS.clear(); CLICKS.clear(); TRAIL.clear(); BEAMS.clear(); CapeCloth.clear(); espVisible = false; lastKillId = -1; ready = false; grounded = false; tick = 0; lastHitTick = -100; groundPosition = Vec3.ZERO; combo = 0; comboTarget = null;
     }
     public static void tick(Minecraft mc) {
         if (mc.player == null || mc.level == null) { clear(); return; }
@@ -512,16 +512,26 @@ public final class WorldCosmetics {
         var chest = s.chestEquipment;
         boolean armor = chest != null && !chest.isEmpty();
         if (armor && chest.is(net.minecraft.world.item.Items.ELYTRA)) return;
-        float lean = 5 + Math.clamp(s.capeLean / 2 + s.capeFlap, -10, 95) * sway + (s.isCrouching ? 22 : 0);
-        float side = Math.clamp(s.capeLean2 / 2, -25, 25) * sway;
         pose.pushPose();
         model.body.translateAndRotate(pose);
         pose.scale(1, -1, -1);
         pose.translate(0, 0, -(armor ? 3.3 : 2.3) / 16.0);
-        pose.mulPose(new Quaternionf().rotationX((float) Math.toRadians(lean)).rotateZ((float) Math.toRadians(side)));
         float k = 1 / 0.9375f;
-        pose.scale(k, k, k);
-        submitModel(collector, pose, cape, new Hats.Look(color, light, style, opacity, seconds, seconds, 1, env(s)), (float) Math.max(0.2, s.scale));
+        Hats.Deform cloth = null;
+        if (LavaVisualClient.config().capePhysics) {
+            pose.scale(k, k, k);
+            var level = Minecraft.getInstance().level;
+            var entity = level == null ? null : level.getEntity(s.id);
+            double vx = 0, vy = 0, vz = 0;
+            if (entity != null) { vx = (entity.getX() - entity.xo) * 20; vy = (entity.getY() - entity.yo) * 20; vz = (entity.getZ() - entity.zo) * 20; }
+            cloth = CapeCloth.shape(s.id, pose.last().pose(), vx, vy, vz, s.isCrouching, sway, frameNow);
+        } else {
+            float lean = 5 + Math.clamp(s.capeLean / 2 + s.capeFlap, -10, 95) * sway + (s.isCrouching ? 22 : 0);
+            float side = Math.clamp(s.capeLean2 / 2, -25, 25) * sway;
+            pose.mulPose(new Quaternionf().rotationX((float) Math.toRadians(lean)).rotateZ((float) Math.toRadians(side)));
+            pose.scale(k, k, k);
+        }
+        submitModel(collector, pose, cape, new Hats.Look(color, light, style, opacity, seconds, seconds, 1, env(s), 0, cloth), (float) Math.max(0.2, s.scale));
         pose.popPose();
         capesDrawn++;
     }

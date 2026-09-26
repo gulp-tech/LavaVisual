@@ -36,6 +36,7 @@ mat: matte, satin (default), gloss, metal, gem, fur, glow (unlit, like lit=false
 """
 import json
 import math
+import random
 import sys
 from pathlib import Path
 
@@ -387,9 +388,10 @@ def hats():
 
 # ---------------------------------------------------------------------------------------------- capes
 
-def cape_sheet(length=16.0, bottom=None, rows=14, cols=13, paint=('c', 'l'), mat='satin', thick=0.9, width=10.0):
+def cape_sheet(length=16.0, bottom=None, rows=19, cols=13, paint=('c', 'l'), mat='satin', thick=0.9, width=10.0, lining=('d',), lining_mat='satin'):
     """Cape cloth in cape space: the top edge runs across the shoulders at y=0, the cloth hangs down (-y) behind the
-    back (-z). bottom(u) adds length (px) to the column at u in -1..1 (flame tongues, torn teeth)."""
+    back (-z). bottom(u) adds length (px) to the column at u in -1..1 (flame tongues, torn teeth). The side towards
+    the body is the lining: it shows when the cloth lifts in the wind."""
     grid = []
     for i in range(rows):
         v = i / (rows - 1)
@@ -403,7 +405,7 @@ def cape_sheet(length=16.0, bottom=None, rows=14, cols=13, paint=('c', 'l'), mat
             row.append(v4((x, y, z), v))
         grid.append(row)
     front, back, rim = slab(grid, thick * PX)
-    return grid, [{'sheet': front, 'paint': list(paint), 'mat': mat, 'two': False},
+    return grid, [{'sheet': front, 'paint': list(lining), 'mat': lining_mat, 'ao': [0.72, 0.95], 'two': False},
                   {'sheet': back, 'paint': list(paint), 'mat': mat, 'ao': [0.8, 0.95], 'two': False},
                   {'sheet': rim, 'paint': paint[-1], 'mat': mat}]
 
@@ -430,10 +432,10 @@ def on_cape(grid, u, v, lift=1.2):
 
 def capes():
     c = []
-    grid, cloth = cape_sheet(paint=('c', 'l'))
+    grid, cloth = cape_sheet(paint=('c', 'l'), lining=('dl', 'd'))
     c.append({'name': 'Классический', 'parts': cloth + cape_edge(grid)})
 
-    grid, cloth = cape_sheet(length=17.5, paint=('d', 'c'))
+    grid, cloth = cape_sheet(length=17.5, paint=('d', 'c'), lining=('l', 'lw'))
     rows, cols = len(grid), len(grid[0])
     band_top = round(0.84 * (rows - 1))
     band = [[[q[0], q[1], q[2] - 1.2 * PX, 0.0], [p2[0], p2[1], p2[2] - 1.2 * PX, 1.0]]
@@ -451,7 +453,7 @@ def capes():
         {'sphere': [5.9 * PX, -1.2 * PX, -1.6 * PX], 'r': 0.75 * PX, 'seg': 10, 'paint': 'g', 'mat': 'metal'},
     ]})
 
-    grid, cloth = cape_sheet(paint=('k', 'd'))
+    grid, cloth = cape_sheet(paint=('k', 'd'), lining=('dl',))
     stars = []
     for u, v, r in ((0.22, 0.14, 1.0), (0.7, 0.2, 0.75), (0.45, 0.35, 1.3), (0.15, 0.5, 0.7), (0.82, 0.45, 1.05),
                     (0.55, 0.6, 0.8), (0.3, 0.72, 1.1), (0.75, 0.78, 0.7), (0.5, 0.88, 0.9), (0.1, 0.9, 0.6), (0.92, 0.9, 0.8)):
@@ -463,15 +465,47 @@ def capes():
     def tongues(u, n=5, depth=5.0):
         phase = (u + 1) / 2 * n
         return depth * (0.5 - 0.5 * math.cos(2 * math.pi * phase)) ** 1.4
-    grid, cloth = cape_sheet(length=13.0, bottom=tongues, rows=16, cols=31, paint=('c', 'l', 'lw'))
+    grid, cloth = cape_sheet(length=13.0, bottom=tongues, rows=20, cols=31, paint=('c', 'l', 'lw'), lining=('d', 'c'))
     c.append({'name': 'Пламя', 'parts': cloth + cape_edge(grid, paint='lw', mat='glow', r=0.3, bottom=False)})
 
     def teeth(u, n=6, depth=3.4):
         phase = (u + 1) / 2 * n
         return depth * (1 - abs(2 * (phase % 1.0) - 1))
-    grid, cloth = cape_sheet(length=14.5, bottom=teeth, rows=15, cols=25, paint=('l', 'c', 'd'), mat='matte')
+    grid, cloth = cape_sheet(length=14.5, bottom=teeth, rows=19, cols=25, paint=('l', 'c', 'd'), mat='matte', lining=('k',), lining_mat='matte')
     c.append({'name': 'Рваный', 'parts': cloth + cape_edge(grid, paint='d', mat='satin', r=0.35, bottom=False)})
+
+    # Lava: dark basalt cloth split by glowing cracks that branch downwards, embers where they meet.
+    grid, cloth = cape_sheet(length=16.5, paint=('k', 'k', 'dl'), mat='matte', lining=('d', 'c'))
+    rng = random.Random(26)
+    cracks, embers = [], []
+    for start in (0.14, 0.38, 0.63, 0.87):
+        u, v = start + rng.uniform(-0.04, 0.04), 0.04
+        path = [cape_point(grid, u, v, 1.02)]
+        while v < 0.97:
+            v = min(0.97, v + rng.uniform(0.045, 0.09))
+            u = min(0.95, max(0.05, u + rng.uniform(-0.075, 0.075)))
+            path.append(cape_point(grid, u, v, 1.02))
+            if rng.random() < 0.22 and v < 0.8:
+                bu = min(0.95, max(0.05, u + rng.choice((-1, 1)) * rng.uniform(0.08, 0.14)))
+                branch = [path[-1], cape_point(grid, (u + bu) / 2, v + 0.06, 1.02), cape_point(grid, bu, min(0.97, v + 0.13), 1.02)]
+                cracks.append({'tube': branch, 'radius': [0.17 * PX, 0.06 * PX], 'sides': 5, 'caps': True, 'paint': 'cw', 'mat': 'glow'})
+                embers.append({'glowdisc': cape_point(grid, u, v, 1.4), 'size': 1.2 * PX, 'paint': 'c', 'alpha': 0.4, 'detail': True})
+        cracks.append({'tube': path, 'radius': [0.25 * PX, 0.09 * PX], 'sides': 5, 'caps': True, 'paint': ['cw', 'c'], 'mat': 'glow'})
+    c.append({'name': 'Лава', 'parts': cloth + cape_edge(grid, paint='c', mat='glow', r=0.28) + cracks + embers})
     return c
+
+
+def cape_point(grid, u, v, lift=1.2):
+    """Point on the back of the cloth at (u, v) in 0..1 (interpolated between grid points), lifted off it (px)."""
+    rows, cols = len(grid), len(grid[0])
+    fr, fc = v * (rows - 1), u * (cols - 1)
+    r0, c0 = min(rows - 2, int(fr)), min(cols - 2, int(fc))
+    tr, tc = fr - r0, fc - c0
+    q = [0.0, 0.0, 0.0]
+    for dr, dc, w in ((0, 0, (1 - tr) * (1 - tc)), (0, 1, (1 - tr) * tc), (1, 0, tr * (1 - tc)), (1, 1, tr * tc)):
+        for k in range(3):
+            q[k] += grid[r0 + dr][c0 + dc][k] * w
+    return [r4(q[0]), r4(q[1]), r4(q[2] - lift * PX)]
 
 
 # ---------------------------------------------------------------------------------------------- accessories

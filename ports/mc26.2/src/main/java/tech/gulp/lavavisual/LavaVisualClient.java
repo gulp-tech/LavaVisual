@@ -89,18 +89,20 @@ public final class LavaVisualClient implements ClientModInitializer {
                     if (smokeTicks == 560) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_INTERFACE));
                     if (smokeTicks == 580) client.gui.setScreen(new tech.gulp.lavavisual.ui.HandEditorScreen(new ClickGuiScreen()));
                     if (smokeTicks == 596) config().hatType = 3;
-                    if (smokeTicks == 600) client.gui.setScreen(new tech.gulp.lavavisual.ui.HatEditorScreen(new ClickGuiScreen(1)));
+                    if (smokeTicks == 600) client.gui.setScreen(new tech.gulp.lavavisual.ui.HatEditorScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COSMETICS)));
                     if (smokeTicks == 630) LavaVisual.LOGGER.info("LavaVisual smoke shot hat");
-                    if (smokeTicks == 640) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_EFFECTS, "hat"));
+                    if (smokeTicks == 640) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COSMETICS, "hat"));
                     if (smokeTicks == 675) LavaVisual.LOGGER.info("LavaVisual smoke shot hats");
                     if (smokeTicks == 690) client.gui.setScreen(new tech.gulp.lavavisual.ui.WaypointScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MAP), null));
                     if (smokeTicks == 720) LavaVisual.LOGGER.info("LavaVisual smoke shot waypoint");
                     if (smokeTicks == 728) config().wingsEnabled = true;
-                    if (smokeTicks == 730) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_EFFECTS, "wings"));
+                    if (smokeTicks == 730) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COSMETICS, "wings"));
                     if (smokeTicks == 760) LavaVisual.LOGGER.info("LavaVisual smoke shot wings");
                     if (smokeTicks == 770) { config().widgets.get("watermark").visible = true; config().widgets.get("coordinates").visible = true; }
                     if (smokeTicks == 780) client.gui.setScreen(new ClickGuiScreen());
                     if (smokeTicks == 820) LavaVisual.LOGGER.info("LavaVisual smoke shot menu");
+                    if (smokeTicks == 830) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COSMETICS));
+                    if (smokeTicks == 858) LavaVisual.LOGGER.info("LavaVisual smoke shot cosmetics");
                     if (smokeTicks == 866) config().badgeShare = true;
                     if (smokeTicks == 870) LavaVisual.LOGGER.info("LavaVisual badge marker " + (tech.gulp.lavavisual.effects.Badge.marked(tech.gulp.lavavisual.effects.Badge.withBit(client.options.buildPlayerInformation(), true)) ? "on" : "off"));
                     if (smokeTicks == 875) config().espStyle = 2;
@@ -113,11 +115,17 @@ public final class LavaVisualClient implements ClientModInitializer {
                     if (smokeTicks == 978) client.gui.setScreen(ClickGuiScreen.restore());
                     if (smokeTicks == 980) LavaVisual.LOGGER.info("LavaVisual menu restore page " + ClickGuiScreen.lastPage());
                     if (smokeTicks == 1000) LavaVisual.LOGGER.info("LavaVisual smoke shot restore");
-                    if (smokeTicks == 1010) SmokeWorld.start(client);
+                    if (smokeTicks == 1002) client.gui.setScreen(new tech.gulp.lavavisual.ui.LavaTitleScreen());
+                    if (smokeTicks == 1026) LavaVisual.LOGGER.info("LavaVisual smoke shot title");
+                    if (smokeTicks == 1030) LavaVisual.LOGGER.info("LavaVisual title screen replaced=" + tech.gulp.lavavisual.ui.LavaTitleScreen.replaced
+                            + " client title: " + Edition.retitle("Minecraft* 26.2 - Singleplayer"));
+                    if (smokeTicks == 1048) SmokeWorld.start(client);
                     SmokeWorld.tick(client);
                 }
             }
             tech.gulp.lavavisual.input.Binds.tick(client);
+            if (client.gui.screen() instanceof net.minecraft.client.gui.screens.TitleScreen && config.customTitle && !client.isDemo())
+                client.gui.setScreen(new tech.gulp.lavavisual.ui.LavaTitleScreen());
             if (previousWorld != client.level) {
                 previousWorld = client.level;
                 STATE.coordinates = "X —   Y —   Z —";

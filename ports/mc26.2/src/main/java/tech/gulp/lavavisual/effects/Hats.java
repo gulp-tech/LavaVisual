@@ -27,7 +27,7 @@ public final class Hats {
     public static final String[] NAMES = {"Конус", "Нимб", "Корона", "Цилиндр", "Ведьмина", "Колпак", "Рожки", "Ушки",
             "Кристалл", "Сомбреро", "Пропеллер", "Звёзды", "Санта", "Кепка"};
     public static final String[] WING_NAMES = {"Ангел", "Демон", "Бабочка", "Дракон", "Феникс"};
-    public static final String[] CAPE_NAMES = {"Классический", "Королевский", "Звёздный", "Пламя", "Рваный"};
+    public static final String[] CAPE_NAMES = {"Классический", "Королевский", "Звёздный", "Пламя", "Рваный", "Лава"};
     public static final String[] EXTRA_NAMES = {"Очки", "Наушники", "Шарф"};
     public static final String[] EXTRA_HINTS = {"Тёмные очки с оправой", "Наушники со светящимися чашками", "Шарф вокруг шеи"};
     /** Accessories worn on the head (the others sit on the body). */
@@ -62,11 +62,16 @@ public final class Hats {
      * Colours (RGB), style (0 pattern, 1 solid, 2 gradient), opacity, animation clocks in seconds, wing beat amount,
      * world light 0..1, and the extra opening of each wing around its root (radians, mirrored for the other wing).
      */
-    public record Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread) {
+    public record Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread, Deform deform) {
         public Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env) {
-            this(color, light, style, alpha, time, swingTime, flap, env, 0);
+            this(color, light, style, alpha, time, swingTime, flap, env, 0, null);
+        }
+        public Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread) {
+            this(color, light, style, alpha, time, swingTime, flap, env, spread, null);
         }
     }
+    /** Optional bend of model-space vertices before the world transform (the cape cloth). */
+    public interface Deform { void apply(Vector3f v); }
 
     public static String name(int type) { return NAMES[Math.floorMod(type - 1, COUNT)]; }
     public static String wingName(int type) { return WING_NAMES[Math.floorMod(type - 1, WING_COUNT)]; }
@@ -326,6 +331,8 @@ public final class Hats {
         int c, l, style, count, rim;
         float alpha, time, swingTime, flap, env, quality, scale, spread;
         boolean glowPass;
+        Deform deform;
+        final float[] ys = new float[4];
         Vector3f right, up;
         final Vector3f[] hat = {new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f()};
         final Vector3f[] cam = {new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f()};
@@ -335,7 +342,7 @@ public final class Hats {
         Emitter setup(PoseStack.Pose pose, VertexConsumer out, Matrix4f world, Look look, boolean glowPass, float scale, Vector3f right, Vector3f up) {
             this.pose = pose; this.out = out; this.world.set(world);
             this.c = look.color() & 0xFFFFFF; this.l = look.light() & 0xFFFFFF; this.style = Math.floorMod(look.style(), 3);
-            this.alpha = Math.clamp(look.alpha(), 0, 1); this.time = look.time(); this.swingTime = look.swingTime(); this.flap = look.flap(); this.spread = look.spread();
+            this.alpha = Math.clamp(look.alpha(), 0, 1); this.time = look.time(); this.swingTime = look.swingTime(); this.flap = look.flap(); this.spread = look.spread(); this.deform = look.deform();
             this.env = Math.clamp(look.env(), 0.2f, 1f); this.glowPass = glowPass; this.scale = scale; this.right = right; this.up = up;
             this.rim = mix(this.l, 0xFFFFFF, 0.5f);
             // Fixed detail level. Deriving it from the live FPS would re-tessellate the mesh whenever the FPS crosses
@@ -458,6 +465,8 @@ public final class Hats {
         void emit(Part part, Matrix4f g, int index, boolean odd, float hx, float hy, float hz, boolean smooth) {
             for (int i = 0; i < 4; i++) {
                 g.transformPosition(p[i * 3], p[i * 3 + 1], p[i * 3 + 2], hat[i]);
+                ys[i] = hat[i].y;
+                if (deform != null) deform.apply(hat[i]);
                 world.transformPosition(hat[i], cam[i]);
             }
             float nx = 0, ny = 0, nz = 0;
@@ -470,7 +479,15 @@ public final class Hats {
             float length = (float) Math.sqrt(nx * nx + ny * ny + nz * nz);
             if (length < 1e-12f || !Float.isFinite(length)) return;
             nx /= length; ny /= length; nz /= length;
-            full.transformDirection(hx, hy, hz, tmp);
+            float hl = (float) Math.sqrt(hx * hx + hy * hy + hz * hz);
+            if (deform != null && hl > 1e-9f) {
+                // The outward hint bends with the cloth, so faces keep the right side even when the cape flies up.
+                float qx = (p[0] + p[3] + p[6] + p[9]) * 0.25f, qy = (p[1] + p[4] + p[7] + p[10]) * 0.25f, qz = (p[2] + p[5] + p[8] + p[11]) * 0.25f, e = 0.01f / hl;
+                g.transformPosition(qx, qy, qz, tmp);
+                g.transformPosition(qx + hx * e, qy + hy * e, qz + hz * e, tmp2);
+                deform.apply(tmp); deform.apply(tmp2);
+                world.transformDirection(tmp2.sub(tmp), tmp);
+            } else full.transformDirection(hx, hy, hz, tmp);
             if (nx * tmp.x + ny * tmp.y + nz * tmp.z < 0) { nx = -nx; ny = -ny; nz = -nz; }
             float cx = (cam[0].x + cam[1].x + cam[2].x + cam[3].x) * 0.25f, cy = (cam[0].y + cam[1].y + cam[2].y + cam[3].y) * 0.25f,
                     cz = (cam[0].z + cam[1].z + cam[2].z + cam[3].z) * 0.25f;
@@ -488,7 +505,7 @@ public final class Hats {
             int a = Math.clamp(Math.round(alpha * part.alpha * 255), 0, 255) << 24;
             for (int i = 0; i < 4; i++) {
                 float mx = nx, my = ny, mz = nz;
-                if (smooth) {
+                if (smooth && deform == null) {
                     normalMatrix.transform(n[i * 3], n[i * 3 + 1], n[i * 3 + 2], vn);
                     float vl = vn.length();
                     if (vl > 1e-9f) {
@@ -497,7 +514,7 @@ public final class Hats {
                         if (sx * nx + sy * ny + sz * nz >= 0.05f) { mx = sx; my = sy; mz = sz; }
                     }
                 }
-                int base = paint(ids, cycle, t[i], hat[i].y, index);
+                int base = paint(ids, cycle, t[i], ys[i], index);
                 if (part.ao != null) base = dim(base, part.ao[0] + (part.ao[1] - part.ao[0]) * Math.clamp(t[i], 0, 1));
                 int rgb = shade(base, mx, my, mz, cam[i], part);
                 out.addVertex(pose, cam[i].x, cam[i].y, cam[i].z).setColor(a | rgb);
@@ -766,7 +783,9 @@ public final class Hats {
             int seg = segments(40);
             if (part.kind == GLOW_DISC) {
                 if (right == null || up == null) return;
-                full.transformPosition(part.center[0], part.center[1], part.center[2], tmp2);
+                g.transformPosition(part.center[0], part.center[1], part.center[2], tmp2);
+                if (deform != null) deform.apply(tmp2);
+                world.transformPosition(tmp2);
                 float size = part.size * scale;
                 int steps = Math.max(8, seg / 2);
                 for (int j = 0; j < steps; j++) {
