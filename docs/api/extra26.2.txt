@@ -7509,84 +7509,233 @@ public class net.minecraft.client.Minecraft extends net.minecraft.util.thread.Re
   static {};
 }
 
+Compiled from "Button.java"
+public abstract class net.minecraft.client.gui.components.Button extends net.minecraft.client.gui.components.AbstractButton {
+  public static final int SMALL_WIDTH;
+  public static final int DEFAULT_WIDTH;
+  public static final int BIG_WIDTH;
+  public static final int DEFAULT_HEIGHT;
+  public static final int DEFAULT_SPACING;
+  protected static final net.minecraft.client.gui.components.Button$CreateNarration DEFAULT_NARRATION;
+  protected final net.minecraft.client.gui.components.Button$OnPress onPress;
+  protected final net.minecraft.client.gui.components.Button$CreateNarration createNarration;
+  public static net.minecraft.client.gui.components.Button$Builder builder(net.minecraft.network.chat.Component, net.minecraft.client.gui.components.Button$OnPress);
+  protected net.minecraft.client.gui.components.Button(int, int, int, int, net.minecraft.network.chat.Component, net.minecraft.client.gui.components.Button$OnPress, net.minecraft.client.gui.components.Button$CreateNarration);
+  public void onPress(net.minecraft.client.input.InputWithModifiers);
+  protected net.minecraft.network.chat.MutableComponent createNarrationMessage();
+  public void updateWidgetNarration(net.minecraft.client.gui.narration.NarrationElementOutput);
+  private net.minecraft.network.chat.MutableComponent lambda$createNarrationMessage$0();
+  private static net.minecraft.network.chat.MutableComponent lambda$static$0(java.util.function.Supplier);
+  static {};
+}
+
+Compiled from "Button.java"
+public class net.minecraft.client.gui.components.Button$Builder {
+  private final net.minecraft.network.chat.Component message;
+  private final net.minecraft.client.gui.components.Button$OnPress onPress;
+  private net.minecraft.client.gui.components.Tooltip tooltip;
+  private int x;
+  private int y;
+  private int width;
+  private int height;
+  private net.minecraft.client.gui.components.Button$CreateNarration createNarration;
+  public net.minecraft.client.gui.components.Button$Builder(net.minecraft.network.chat.Component, net.minecraft.client.gui.components.Button$OnPress);
+  public net.minecraft.client.gui.components.Button$Builder pos(int, int);
+  public net.minecraft.client.gui.components.Button$Builder width(int);
+  public net.minecraft.client.gui.components.Button$Builder size(int, int);
+  public net.minecraft.client.gui.components.Button$Builder bounds(int, int, int, int);
+  public net.minecraft.client.gui.components.Button$Builder tooltip(net.minecraft.client.gui.components.Tooltip);
+  public net.minecraft.client.gui.components.Button$Builder createNarration(net.minecraft.client.gui.components.Button$CreateNarration);
+  public net.minecraft.client.gui.components.Button build();
+}
+
+Compiled from "Button.java"
+public interface net.minecraft.client.gui.components.Button$OnPress {
+  public abstract void onPress(net.minecraft.client.gui.components.Button);
+}
+
+Compiled from "PauseScreen.java"
+public class net.minecraft.client.gui.screens.PauseScreen extends net.minecraft.client.gui.screens.Screen {
+  private static final net.minecraft.resources.Identifier DRAFT_REPORT_SPRITE;
+  private static final int COLUMNS;
+  private static final int MENU_PADDING_TOP;
+  private static final int BUTTON_PADDING;
+  private static final int BUTTON_WIDTH_FULL;
+  private static final int BUTTON_WIDTH_HALF;
+  private static final net.minecraft.network.chat.Component RETURN_TO_GAME;
+  private static final net.minecraft.network.chat.Component ADVANCEMENTS;
+  private static final net.minecraft.network.chat.Component STATS;
+  private static final net.minecraft.network.chat.Component SEND_FEEDBACK;
+  private static final net.minecraft.network.chat.Component REPORT_BUGS;
+  private static final net.minecraft.network.chat.Component OPTIONS;
+  private static final net.minecraft.network.chat.Component MULTIPLAYER_OPTIONS;
+  private static final net.minecraft.network.chat.Component PLAYER_REPORTING;
+  private static final net.minecraft.network.chat.Component GAME;
+  private static final net.minecraft.network.chat.Component PAUSED;
+  private static final net.minecraft.client.gui.components.Tooltip CUSTOM_OPTIONS_TOOLTIP;
+  private static final net.minecraft.client.gui.components.Tooltip NO_PLAYERS_TO_REPORT_TOOLTIP;
+  private final java.lang.Runnable friendListUpdateListener;
+  private net.minecraft.client.gui.components.FriendsButton friends;
+  private final boolean showPauseMenu;
+  private net.minecraft.client.gui.components.Button disconnectButton;
+  public net.minecraft.client.gui.screens.PauseScreen(boolean);
+  public boolean showsPauseMenu();
+  protected void init();
+  private void createPauseMenu();
+  private java.util.Optional<? extends net.minecraft.core.Holder<net.minecraft.server.dialog.Dialog>> getCustomAdditions();
+  private void addCustomDialogButtons(net.minecraft.client.Minecraft, net.minecraft.core.Holder<net.minecraft.server.dialog.Dialog>, net.minecraft.client.gui.layouts.GridLayout$RowHelper);
+  public void tick();
+  public void extractRenderState(net.minecraft.client.gui.GuiGraphicsExtractor, int, int, float);
+  public void extractBackground(net.minecraft.client.gui.GuiGraphicsExtractor, int, int, float);
+  public void onClose();
+  public boolean rendersNowPlayingToast();
+  private boolean isTopmostScreen();
+  private net.minecraft.client.gui.components.Button openScreenButton(net.minecraft.network.chat.Component, java.util.function.Supplier<net.minecraft.client.gui.screens.Screen>);
+  private void onFriendListUpdate();
+  private void lambda$openScreenButton$0(java.util.function.Supplier, net.minecraft.client.gui.components.Button);
+  private void lambda$addCustomDialogButtons$0(net.minecraft.client.Minecraft, net.minecraft.core.Holder, net.minecraft.client.gui.components.Button);
+  private void lambda$createPauseMenu$11(net.minecraft.client.gui.components.Button);
+  private void lambda$createPauseMenu$12();
+  private void lambda$createPauseMenu$10(net.minecraft.client.gui.components.Button);
+  private net.minecraft.client.gui.screens.Screen lambda$createPauseMenu$9();
+  private net.minecraft.client.gui.screens.Screen lambda$createPauseMenu$8();
+  private void lambda$createPauseMenu$7(net.minecraft.client.gui.layouts.GridLayout$RowHelper, net.minecraft.core.Holder);
+  private boolean lambda$createPauseMenu$6(java.util.Map$Entry);
+  private void lambda$createPauseMenu$5(net.minecraft.client.gui.components.Button);
+  private void lambda$createPauseMenu$3(net.minecraft.client.gui.components.Button);
+  private void lambda$createPauseMenu$4();
+  private net.minecraft.client.gui.screens.Screen lambda$createPauseMenu$2();
+  private net.minecraft.client.gui.screens.Screen lambda$createPauseMenu$1();
+  private void lambda$createPauseMenu$0(net.minecraft.client.gui.components.Button);
+  static {};
+}
+
+Compiled from "ScreenEvents.java"
+public final class net.fabricmc.fabric.api.client.screen.v1.ScreenEvents {
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$BeforeInit> BEFORE_INIT;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterInit> AFTER_INIT;
+  public static net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$Remove> remove(net.minecraft.client.gui.screens.Screen);
+  public static net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$BeforeExtract> beforeExtract(net.minecraft.client.gui.screens.Screen);
+  public static net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterBackground> afterBackground(net.minecraft.client.gui.screens.Screen);
+  public static net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterForeground> afterForeground(net.minecraft.client.gui.screens.Screen);
+  public static net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterExtract> afterExtract(net.minecraft.client.gui.screens.Screen);
+  public static net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$BeforeTick> beforeTick(net.minecraft.client.gui.screens.Screen);
+  public static net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterTick> afterTick(net.minecraft.client.gui.screens.Screen);
+  private net.fabricmc.fabric.api.client.screen.v1.ScreenEvents();
+  private static net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterInit lambda$static$2(net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterInit[]);
+  private static void lambda$static$3(net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterInit[], net.minecraft.client.Minecraft, net.minecraft.client.gui.screens.Screen, int, int);
+  private static net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$BeforeInit lambda$static$0(net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$BeforeInit[]);
+  private static void lambda$static$1(net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$BeforeInit[], net.minecraft.client.Minecraft, net.minecraft.client.gui.screens.Screen, int, int);
+  static {};
+}
+
+Compiled from "ScreenEvents.java"
+public interface net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterInit {
+  public abstract void afterInit(net.minecraft.client.Minecraft, net.minecraft.client.gui.screens.Screen, int, int);
+}
+
+Compiled from "Screens.java"
+public final class net.fabricmc.fabric.api.client.screen.v1.Screens {
+  public static java.util.List<net.minecraft.client.gui.components.AbstractWidget> getWidgets(net.minecraft.client.gui.screens.Screen);
+  public static net.minecraft.client.gui.Font getFont(net.minecraft.client.gui.screens.Screen);
+  public static net.minecraft.client.Minecraft getMinecraft(net.minecraft.client.gui.screens.Screen);
+  private net.fabricmc.fabric.api.client.screen.v1.Screens();
+}
+
+Compiled from "SimpleSoundInstance.java"
+public class net.minecraft.client.resources.sounds.SimpleSoundInstance extends net.minecraft.client.resources.sounds.AbstractSoundInstance {
+  public net.minecraft.client.resources.sounds.SimpleSoundInstance(net.minecraft.sounds.SoundEvent, net.minecraft.sounds.SoundSource, float, float, net.minecraft.util.RandomSource, net.minecraft.core.BlockPos);
+  public static net.minecraft.client.resources.sounds.SimpleSoundInstance forUI(net.minecraft.sounds.SoundEvent, float);
+  public static net.minecraft.client.resources.sounds.SimpleSoundInstance forUI(net.minecraft.core.Holder<net.minecraft.sounds.SoundEvent>, float);
+  public static net.minecraft.client.resources.sounds.SimpleSoundInstance forUI(net.minecraft.sounds.SoundEvent, float, float);
+  public static net.minecraft.client.resources.sounds.SimpleSoundInstance forMusic(net.minecraft.sounds.SoundEvent);
+  public static net.minecraft.client.resources.sounds.SimpleSoundInstance forJukeboxSong(net.minecraft.sounds.SoundEvent, net.minecraft.world.phys.Vec3);
+  public static net.minecraft.client.resources.sounds.SimpleSoundInstance forLocalAmbience(net.minecraft.sounds.SoundEvent, float, float);
+  public static net.minecraft.client.resources.sounds.SimpleSoundInstance forAmbientAddition(net.minecraft.sounds.SoundEvent);
+  public static net.minecraft.client.resources.sounds.SimpleSoundInstance forAmbientMood(net.minecraft.sounds.SoundEvent, net.minecraft.util.RandomSource, double, double, double);
+  public net.minecraft.client.resources.sounds.SimpleSoundInstance(net.minecraft.sounds.SoundEvent, net.minecraft.sounds.SoundSource, float, float, net.minecraft.util.RandomSource, double, double, double);
+  private net.minecraft.client.resources.sounds.SimpleSoundInstance(net.minecraft.sounds.SoundEvent, net.minecraft.sounds.SoundSource, float, float, net.minecraft.util.RandomSource, boolean, int, net.minecraft.client.resources.sounds.SoundInstance$Attenuation, double, double, double);
+  public net.minecraft.client.resources.sounds.SimpleSoundInstance(net.minecraft.resources.Identifier, net.minecraft.sounds.SoundSource, float, float, net.minecraft.util.RandomSource, boolean, int, net.minecraft.client.resources.sounds.SoundInstance$Attenuation, double, double, double, boolean);
+}
+
 == class index ==
 net/minecraft/client/model/HumanoidModel
 net/minecraft/client/model/player/PlayerModel
 net/minecraft/client/renderer/blockentity/state/
 net/minecraft/client/renderer/blockentity/state/BannerRenderState
 net/minecraft/client/renderer/blockentity/state/BeaconRenderState
+net/minecraft/client/renderer/blockentity/state/BedRenderState
 net/minecraft/client/renderer/blockentity/state/BellRenderState
+net/minecraft/client/renderer/blockentity/state/BlockEntityWithBoundingBoxRenderState
 net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState
 net/minecraft/client/renderer/blockentity/state/BrushableBlockRenderState
-net/minecraft/client/renderer/blockentity/state/CampfireRenderState
-net/minecraft/client/renderer/blockentity/state/ChestRenderState
 net/minecraft/client/renderer/blockentity/state/ConduitRenderState
+net/minecraft/client/renderer/blockentity/state/CampfireRenderState
 net/minecraft/client/renderer/blockentity/state/CopperGolemStatueRenderState
+net/minecraft/client/renderer/blockentity/state/ChestRenderState
 net/minecraft/client/renderer/blockentity/state/EnchantTableRenderState
 net/minecraft/client/renderer/blockentity/state/DecoratedPotRenderState
-net/minecraft/client/renderer/blockentity/state/EndGatewayRenderState
 net/minecraft/client/renderer/blockentity/state/EndPortalRenderState
-net/minecraft/client/renderer/blockentity/state/BedRenderState
-net/minecraft/client/renderer/blockentity/state/BlockEntityWithBoundingBoxRenderState
-net/minecraft/client/renderer/blockentity/state/PistonHeadRenderState
 net/minecraft/client/renderer/blockentity/state/HangingSignRenderState
+net/minecraft/client/renderer/blockentity/state/LecternRenderState
+net/minecraft/client/renderer/blockentity/state/PistonHeadRenderState
+net/minecraft/client/renderer/blockentity/state/ShelfRenderState
 net/minecraft/client/renderer/blockentity/state/ShulkerBoxRenderState
 net/minecraft/client/renderer/blockentity/state/SignRenderState
 net/minecraft/client/renderer/blockentity/state/SkullBlockRenderState
-net/minecraft/client/renderer/blockentity/state/ShelfRenderState
 net/minecraft/client/renderer/blockentity/state/StandingSignRenderState
 net/minecraft/client/renderer/blockentity/state/VaultRenderState
-net/minecraft/client/renderer/blockentity/state/package-info
-net/minecraft/client/renderer/blockentity/state/LecternRenderState
-net/minecraft/client/renderer/blockentity/state/SpawnerRenderState
 net/minecraft/client/renderer/blockentity/state/TestInstanceRenderState
-net/minecraft/client/renderer/entity/AbstractHoglinRenderer
+net/minecraft/client/renderer/blockentity/state/package-info
+net/minecraft/client/renderer/blockentity/state/EndGatewayRenderState
+net/minecraft/client/renderer/blockentity/state/SpawnerRenderState
+net/minecraft/client/renderer/entity/AbstractCubeMobRenderer
 net/minecraft/client/renderer/entity/AbstractBoatRenderer
+net/minecraft/client/renderer/entity/AbstractHoglinRenderer
 net/minecraft/client/renderer/entity/AbstractHorseRenderer
-net/minecraft/client/renderer/entity/AbstractSkeletonRenderer
 net/minecraft/client/renderer/entity/AbstractMinecartRenderer
-net/minecraft/client/renderer/entity/AbstractZombieRenderer
-net/minecraft/client/renderer/entity/AgeableMobRenderer
+net/minecraft/client/renderer/entity/AbstractSkeletonRenderer
 net/minecraft/client/renderer/entity/AllayRenderer
 net/minecraft/client/renderer/entity/ArmadilloRenderer
 net/minecraft/client/renderer/entity/ArmorStandRenderer
-net/minecraft/client/renderer/entity/ArrowRenderer
-net/minecraft/client/renderer/entity/AbstractCubeMobRenderer
-net/minecraft/client/renderer/entity/BlazeRenderer
+net/minecraft/client/renderer/entity/AgeableMobRenderer
+net/minecraft/client/renderer/entity/BatRenderer
+net/minecraft/client/renderer/entity/AxolotlRenderer
 net/minecraft/client/renderer/entity/BeeRenderer
-net/minecraft/client/renderer/entity/BoggedRenderer
+net/minecraft/client/renderer/entity/ArrowRenderer
 net/minecraft/client/renderer/entity/BoatRenderer
-net/minecraft/client/renderer/entity/CamelHuskRenderer
+net/minecraft/client/renderer/entity/BoggedRenderer
 net/minecraft/client/renderer/entity/BreezeRenderer
-net/minecraft/client/renderer/entity/CatRenderer
-net/minecraft/client/renderer/entity/CamelRenderer
+net/minecraft/client/renderer/entity/CamelHuskRenderer
+net/minecraft/client/renderer/entity/BlazeRenderer
+net/minecraft/client/renderer/entity/AbstractZombieRenderer
 net/minecraft/client/renderer/entity/CaveSpiderRenderer
 net/minecraft/client/renderer/entity/CodRenderer
 net/minecraft/client/renderer/entity/ChickenRenderer
 net/minecraft/client/renderer/entity/CowRenderer
 net/minecraft/client/renderer/entity/CopperGolemRenderer
-net/minecraft/client/renderer/entity/CreakingRenderer
 net/minecraft/client/renderer/entity/CreeperRenderer
-net/minecraft/client/renderer/entity/BatRenderer
-net/minecraft/client/renderer/entity/AxolotlRenderer
-net/minecraft/client/renderer/entity/DisplayRenderer
+net/minecraft/client/renderer/entity/CreakingRenderer
+net/minecraft/client/renderer/entity/CatRenderer
 net/minecraft/client/renderer/entity/DolphinRenderer
 net/minecraft/client/renderer/entity/DonkeyRenderer
 net/minecraft/client/renderer/entity/DragonFireballRenderer
+net/minecraft/client/renderer/entity/CamelRenderer
 net/minecraft/client/renderer/entity/ElderGuardianRenderer
-net/minecraft/client/renderer/entity/DrownedRenderer
 net/minecraft/client/renderer/entity/EndCrystalRenderer
 net/minecraft/client/renderer/entity/EndermanRenderer
-net/minecraft/client/renderer/entity/EntityRenderer
 net/minecraft/client/renderer/entity/EndermiteRenderer
-net/minecraft/client/renderer/entity/EvokerRenderer
-net/minecraft/client/renderer/entity/ExperienceOrbRenderer
-net/minecraft/client/renderer/entity/FallingBlockRenderer
-net/minecraft/client/renderer/entity/FireworkEntityRenderer
+net/minecraft/client/renderer/entity/DisplayRenderer
 net/minecraft/client/renderer/entity/EnderDragonRenderer
 net/minecraft/client/renderer/entity/EvokerFangsRenderer
+net/minecraft/client/renderer/entity/EvokerRenderer
+net/minecraft/client/renderer/entity/DrownedRenderer
+net/minecraft/client/renderer/entity/FallingBlockRenderer
+net/minecraft/client/renderer/entity/ExperienceOrbRenderer
+net/minecraft/client/renderer/entity/FireworkEntityRenderer
 net/minecraft/client/renderer/entity/FoxRenderer
 net/minecraft/client/renderer/entity/FrogRenderer
+net/minecraft/client/renderer/entity/EntityRenderer
 net/minecraft/client/renderer/entity/GhastRenderer
 net/minecraft/client/renderer/entity/GiantMobRenderer
 net/minecraft/client/renderer/entity/GlowSquidRenderer
@@ -7594,49 +7743,49 @@ net/minecraft/client/renderer/entity/GoatRenderer
 net/minecraft/client/renderer/entity/HappyGhastRenderer
 net/minecraft/client/renderer/entity/HoglinRenderer
 net/minecraft/client/renderer/entity/GuardianRenderer
+net/minecraft/client/renderer/entity/HorseRenderer
 net/minecraft/client/renderer/entity/HuskRenderer
-net/minecraft/client/renderer/entity/IllagerRenderer
 net/minecraft/client/renderer/entity/HumanoidMobRenderer
+net/minecraft/client/renderer/entity/IllagerRenderer
+net/minecraft/client/renderer/entity/IllusionerRenderer
 net/minecraft/client/renderer/entity/IronGolemRenderer
 net/minecraft/client/renderer/entity/FishingHookRenderer
-net/minecraft/client/renderer/entity/ItemEntityRenderer
 net/minecraft/client/renderer/entity/LeashKnotRenderer
 net/minecraft/client/renderer/entity/ItemFrameRenderer
 net/minecraft/client/renderer/entity/LightningBoltRenderer
-net/minecraft/client/renderer/entity/HorseRenderer
+net/minecraft/client/renderer/entity/LlamaRenderer
 net/minecraft/client/renderer/entity/LlamaSpitRenderer
+net/minecraft/client/renderer/entity/LivingEntityRenderer
 net/minecraft/client/renderer/entity/MagmaCubeRenderer
 net/minecraft/client/renderer/entity/MinecartRenderer
-net/minecraft/client/renderer/entity/IllusionerRenderer
 net/minecraft/client/renderer/entity/MobRenderer
+net/minecraft/client/renderer/entity/ItemEntityRenderer
 net/minecraft/client/renderer/entity/MushroomCowRenderer
-net/minecraft/client/renderer/entity/NautilusRenderer
 net/minecraft/client/renderer/entity/NoopRenderer
+net/minecraft/client/renderer/entity/NautilusRenderer
 net/minecraft/client/renderer/entity/OcelotRenderer
 net/minecraft/client/renderer/entity/OminousItemSpawnerRenderer
-net/minecraft/client/renderer/entity/PandaRenderer
-net/minecraft/client/renderer/entity/LlamaRenderer
-net/minecraft/client/renderer/entity/ParchedRenderer
-net/minecraft/client/renderer/entity/LivingEntityRenderer
 net/minecraft/client/renderer/entity/PaintingRenderer
+net/minecraft/client/renderer/entity/PandaRenderer
+net/minecraft/client/renderer/entity/ParchedRenderer
+net/minecraft/client/renderer/entity/ParrotRenderer
 net/minecraft/client/renderer/entity/PhantomRenderer
 net/minecraft/client/renderer/entity/PiglinRenderer
 net/minecraft/client/renderer/entity/PigRenderer
 net/minecraft/client/renderer/entity/PolarBearRenderer
+net/minecraft/client/renderer/entity/RabbitRenderer
 net/minecraft/client/renderer/entity/PufferfishRenderer
 net/minecraft/client/renderer/entity/RaftRenderer
-net/minecraft/client/renderer/entity/RabbitRenderer
 net/minecraft/client/renderer/entity/RavagerRenderer
-net/minecraft/client/renderer/entity/SheepRenderer
 net/minecraft/client/renderer/entity/SalmonRenderer
 net/minecraft/client/renderer/entity/ShulkerBulletRenderer
 net/minecraft/client/renderer/entity/SilverfishRenderer
-net/minecraft/client/renderer/entity/ShulkerRenderer
 net/minecraft/client/renderer/entity/SkeletonRenderer
-net/minecraft/client/renderer/entity/SlimeRenderer
-net/minecraft/client/renderer/entity/SnifferRenderer
+net/minecraft/client/renderer/entity/ShulkerRenderer
 net/minecraft/client/renderer/entity/PillagerRenderer
-net/minecraft/client/renderer/entity/ParrotRenderer
+net/minecraft/client/renderer/entity/SlimeRenderer
+net/minecraft/client/renderer/entity/SpectralArrowRenderer
+net/minecraft/client/renderer/entity/SnifferRenderer
 net/minecraft/client/renderer/entity/SpiderRenderer
 net/minecraft/client/renderer/entity/SquidRenderer
 net/minecraft/client/renderer/entity/StrayRenderer
@@ -7646,37 +7795,37 @@ net/minecraft/client/renderer/entity/SulfurCubeRenderer
 net/minecraft/client/renderer/entity/ThrownItemRenderer
 net/minecraft/client/renderer/entity/ThrownTridentRenderer
 net/minecraft/client/renderer/entity/TippableArrowRenderer
-net/minecraft/client/renderer/entity/TntMinecartRenderer
+net/minecraft/client/renderer/entity/SheepRenderer
 net/minecraft/client/renderer/entity/TntRenderer
-net/minecraft/client/renderer/entity/SpectralArrowRenderer
-net/minecraft/client/renderer/entity/SnowGolemRenderer
 net/minecraft/client/renderer/entity/TurtleRenderer
 net/minecraft/client/renderer/entity/TropicalFishRenderer
 net/minecraft/client/renderer/entity/VexRenderer
+net/minecraft/client/renderer/entity/SnowGolemRenderer
 net/minecraft/client/renderer/entity/VillagerRenderer
-net/minecraft/client/renderer/entity/UndeadHorseRenderer
 net/minecraft/client/renderer/entity/VindicatorRenderer
 net/minecraft/client/renderer/entity/WanderingTraderRenderer
 net/minecraft/client/renderer/entity/WindChargeRenderer
 net/minecraft/client/renderer/entity/WardenRenderer
 net/minecraft/client/renderer/entity/WitchRenderer
-net/minecraft/client/renderer/entity/WitherBossRenderer
 net/minecraft/client/renderer/entity/WitherSkeletonRenderer
-net/minecraft/client/renderer/entity/WolfRenderer
+net/minecraft/client/renderer/entity/WitherBossRenderer
 net/minecraft/client/renderer/entity/WitherSkullRenderer
+net/minecraft/client/renderer/entity/WolfRenderer
+net/minecraft/client/renderer/entity/TntMinecartRenderer
 net/minecraft/client/renderer/entity/ZombieRenderer
+net/minecraft/client/renderer/entity/ZombieNautilusRenderer
 net/minecraft/client/renderer/entity/ZombieVillagerRenderer
-net/minecraft/client/renderer/entity/ZombifiedPiglinRenderer
 net/minecraft/client/renderer/entity/layers/
+net/minecraft/client/renderer/entity/ZombifiedPiglinRenderer
 net/minecraft/client/renderer/entity/layers/ArrowLayer
 net/minecraft/client/renderer/entity/layers/BeeStingerLayer
 net/minecraft/client/renderer/entity/layers/BlockDecorationLayer
 net/minecraft/client/renderer/entity/layers/BreezeEyesLayer
 net/minecraft/client/renderer/entity/layers/BreezeWindLayer
-net/minecraft/client/renderer/entity/layers/CapeLayer
+net/minecraft/client/renderer/entity/UndeadHorseRenderer
 net/minecraft/client/renderer/entity/layers/CarriedBlockLayer
-net/minecraft/client/renderer/entity/layers/CatCollarLayer
 net/minecraft/client/renderer/entity/layers/CreeperPowerLayer
+net/minecraft/client/renderer/entity/layers/CatCollarLayer
 net/minecraft/client/renderer/entity/layers/CrossedArmsItemLayer
 net/minecraft/client/renderer/entity/layers/Deadmau5EarsLayer
 net/minecraft/client/renderer/entity/layers/DolphinCarryingItemLayer
@@ -7684,42 +7833,41 @@ net/minecraft/client/renderer/entity/layers/CustomHeadLayer
 net/minecraft/client/renderer/entity/layers/EnderEyesLayer
 net/minecraft/client/renderer/entity/layers/DrownedOuterLayer
 net/minecraft/client/renderer/entity/layers/EnergySwirlLayer
-net/minecraft/client/renderer/entity/layers/EyesLayer
-net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer
-net/minecraft/client/renderer/entity/layers/FoxHeldItemLayer
-net/minecraft/client/renderer/entity/layers/HorseMarkingLayer
-net/minecraft/client/renderer/entity/layers/IronGolemCrackinessLayer
-net/minecraft/client/renderer/entity/layers/HumanoidArmorLayer
-net/minecraft/client/renderer/entity/layers/IronGolemFlowerLayer
 net/minecraft/client/renderer/entity/ZoglinRenderer
-net/minecraft/client/renderer/entity/ZombieNautilusRenderer
-net/minecraft/client/renderer/entity/layers/LlamaDecorLayer
+net/minecraft/client/renderer/entity/layers/EyesLayer
+net/minecraft/client/renderer/entity/layers/FoxHeldItemLayer
+net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer
+net/minecraft/client/renderer/entity/layers/CapeLayer
+net/minecraft/client/renderer/entity/layers/HumanoidArmorLayer
+net/minecraft/client/renderer/entity/layers/HorseMarkingLayer
+net/minecraft/client/renderer/entity/layers/IronGolemFlowerLayer
+net/minecraft/client/renderer/entity/layers/IronGolemCrackinessLayer
+net/minecraft/client/renderer/entity/layers/LivingEntityEmissiveLayer
+net/minecraft/client/renderer/entity/layers/ItemInHandLayer
 net/minecraft/client/renderer/entity/layers/MushroomCowMushroomLayer
+net/minecraft/client/renderer/entity/layers/LlamaDecorLayer
 net/minecraft/client/renderer/entity/layers/PandaHoldsItemLayer
-net/minecraft/client/renderer/entity/layers/PhantomEyesLayer
 net/minecraft/client/renderer/entity/layers/ParrotOnShoulderLayer
-net/minecraft/client/renderer/entity/layers/PlayerItemInHandLayer
+net/minecraft/client/renderer/entity/layers/PhantomEyesLayer
 net/minecraft/client/renderer/entity/layers/RenderLayer
+net/minecraft/client/renderer/entity/layers/PlayerItemInHandLayer
 net/minecraft/client/renderer/entity/layers/RopesLayer
 net/minecraft/client/renderer/entity/layers/SheepWoolLayer
 net/minecraft/client/renderer/entity/layers/SheepWoolUndercoatLayer
-net/minecraft/client/renderer/entity/layers/SimpleEquipmentLayer
 net/minecraft/client/renderer/entity/layers/SkeletonClothingLayer
+net/minecraft/client/renderer/entity/layers/SimpleEquipmentLayer
 net/minecraft/client/renderer/entity/layers/SlimeOuterLayer
 net/minecraft/client/renderer/entity/layers/SnowGolemHeadLayer
 net/minecraft/client/renderer/entity/layers/SpiderEyesLayer
 net/minecraft/client/renderer/entity/layers/SpinAttackEffectLayer
-net/minecraft/client/renderer/entity/layers/SulfurCubeInnerLayer
-net/minecraft/client/renderer/entity/layers/StuckInBodyLayer
-net/minecraft/client/renderer/entity/layers/ItemInHandLayer
 net/minecraft/client/renderer/entity/layers/TropicalFishPatternLayer
-net/minecraft/client/renderer/entity/layers/WingsLayer
 net/minecraft/client/renderer/entity/layers/VillagerProfessionLayer
+net/minecraft/client/renderer/entity/layers/WingsLayer
 net/minecraft/client/renderer/entity/layers/WitchItemLayer
 net/minecraft/client/renderer/entity/layers/WitherArmorLayer
 net/minecraft/client/renderer/entity/layers/WolfCollarLayer
-net/minecraft/client/renderer/entity/layers/WolfArmorLayer
 net/minecraft/client/renderer/entity/layers/package-info
+net/minecraft/client/renderer/entity/layers/WolfArmorLayer
 net/minecraft/client/renderer/entity/player/
 net/minecraft/client/renderer/entity/player/package-info
 net/minecraft/client/renderer/entity/state/
@@ -7733,116 +7881,117 @@ net/minecraft/client/renderer/entity/state/AxolotlRenderState
 net/minecraft/client/renderer/entity/state/BatRenderState
 net/minecraft/client/renderer/entity/state/BeeRenderState
 net/minecraft/client/renderer/entity/state/BlockDisplayEntityRenderState
+net/minecraft/client/renderer/entity/state/BoatRenderState
 net/minecraft/client/renderer/entity/state/BoggedRenderState
 net/minecraft/client/renderer/entity/state/BreezeRenderState
 net/minecraft/client/renderer/entity/state/CamelRenderState
 net/minecraft/client/renderer/entity/state/CatRenderState
 net/minecraft/client/renderer/entity/state/ChickenRenderState
-net/minecraft/client/renderer/entity/state/CopperGolemRenderState
-net/minecraft/client/renderer/entity/player/AvatarRenderer
+net/minecraft/client/renderer/entity/layers/StuckInBodyLayer
 net/minecraft/client/renderer/entity/state/CowRenderState
+net/minecraft/client/renderer/entity/state/CopperGolemRenderState
 net/minecraft/client/renderer/entity/state/CreakingRenderState
-net/minecraft/client/renderer/entity/state/DisplayEntityRenderState
-net/minecraft/client/renderer/entity/state/BoatRenderState
-net/minecraft/client/renderer/entity/layers/LivingEntityEmissiveLayer
+net/minecraft/client/renderer/entity/layers/SulfurCubeInnerLayer
+net/minecraft/client/renderer/entity/player/AvatarRenderer
 net/minecraft/client/renderer/entity/state/DolphinRenderState
 net/minecraft/client/renderer/entity/state/DonkeyRenderState
 net/minecraft/client/renderer/entity/state/EndCrystalRenderState
 net/minecraft/client/renderer/entity/state/EndermanRenderState
 net/minecraft/client/renderer/entity/state/EnderDragonRenderState
-net/minecraft/client/renderer/entity/state/EntityRenderState
 net/minecraft/client/renderer/entity/state/EquineRenderState
+net/minecraft/client/renderer/entity/state/EntityRenderState
 net/minecraft/client/renderer/entity/state/EvokerFangsRenderState
 net/minecraft/client/renderer/entity/state/EvokerRenderState
 net/minecraft/client/renderer/entity/state/ExperienceOrbRenderState
 net/minecraft/client/renderer/entity/state/FallingBlockRenderState
 net/minecraft/client/renderer/entity/state/FelineRenderState
-net/minecraft/client/renderer/entity/state/CreeperRenderState
 net/minecraft/client/renderer/entity/state/FireworkRocketRenderState
-net/minecraft/client/renderer/entity/state/FoxRenderState
 net/minecraft/client/renderer/entity/state/FishingHookRenderState
+net/minecraft/client/renderer/entity/state/FoxRenderState
+net/minecraft/client/renderer/entity/state/GhastRenderState
 net/minecraft/client/renderer/entity/state/FrogRenderState
+net/minecraft/client/renderer/entity/state/GoatRenderState
 net/minecraft/client/renderer/entity/state/GuardianRenderState
 net/minecraft/client/renderer/entity/state/HappyGhastRenderState
 net/minecraft/client/renderer/entity/state/HoglinRenderState
-net/minecraft/client/renderer/entity/state/GhastRenderState
+net/minecraft/client/renderer/entity/state/HoldingEntityRenderState
 net/minecraft/client/renderer/entity/state/HitboxRenderState
-net/minecraft/client/renderer/entity/state/GoatRenderState
 net/minecraft/client/renderer/entity/state/HorseRenderState
 net/minecraft/client/renderer/entity/state/IllagerRenderState
 net/minecraft/client/renderer/entity/state/IllusionerRenderState
 net/minecraft/client/renderer/entity/state/IronGolemRenderState
-net/minecraft/client/renderer/entity/state/HoldingEntityRenderState
 net/minecraft/client/renderer/entity/state/ItemClusterRenderState
-net/minecraft/client/renderer/entity/state/HumanoidRenderState
-net/minecraft/client/renderer/entity/state/ItemEntityRenderState
 net/minecraft/client/renderer/entity/state/ItemDisplayEntityRenderState
+net/minecraft/client/renderer/entity/state/ItemEntityRenderState
+net/minecraft/client/renderer/entity/state/ItemFrameRenderState
+net/minecraft/client/renderer/entity/state/HumanoidRenderState
+net/minecraft/client/renderer/entity/state/CreeperRenderState
+net/minecraft/client/renderer/entity/state/DisplayEntityRenderState
 net/minecraft/client/renderer/entity/state/LlamaRenderState
+net/minecraft/client/renderer/entity/state/LivingEntityRenderState
 net/minecraft/client/renderer/entity/state/LlamaSpitRenderState
 net/minecraft/client/renderer/entity/state/MinecartRenderState
 net/minecraft/client/renderer/entity/state/MinecartTntRenderState
-net/minecraft/client/renderer/entity/state/ItemFrameRenderState
-net/minecraft/client/renderer/entity/state/LivingEntityRenderState
 net/minecraft/client/renderer/entity/state/MushroomCowRenderState
-net/minecraft/client/renderer/entity/state/LightningBoltRenderState
-net/minecraft/client/renderer/entity/state/ParrotRenderState
+net/minecraft/client/renderer/entity/state/NautilusRenderState
+net/minecraft/client/renderer/entity/state/PaintingRenderState
+net/minecraft/client/renderer/entity/state/PandaRenderState
 net/minecraft/client/renderer/entity/state/PhantomRenderState
+net/minecraft/client/renderer/entity/state/ParrotRenderState
 net/minecraft/client/renderer/entity/state/PigRenderState
 net/minecraft/client/renderer/entity/state/PiglinRenderState
 net/minecraft/client/renderer/entity/state/PolarBearRenderState
 net/minecraft/client/renderer/entity/state/PufferfishRenderState
-net/minecraft/client/renderer/entity/state/RabbitRenderState
 net/minecraft/client/renderer/entity/state/RavagerRenderState
+net/minecraft/client/renderer/entity/state/RabbitRenderState
 net/minecraft/client/renderer/entity/state/SalmonRenderState
 net/minecraft/client/renderer/entity/state/SheepRenderState
 net/minecraft/client/renderer/entity/state/ShulkerBulletRenderState
-net/minecraft/client/renderer/entity/state/PaintingRenderState
-net/minecraft/client/renderer/entity/state/NautilusRenderState
-net/minecraft/client/renderer/entity/state/PandaRenderState
+net/minecraft/client/renderer/entity/state/SkeletonRenderState
 net/minecraft/client/renderer/entity/state/ShulkerRenderState
+net/minecraft/client/renderer/entity/state/SlimeRenderState
 net/minecraft/client/renderer/entity/state/SnifferRenderState
 net/minecraft/client/renderer/entity/state/SnowGolemRenderState
 net/minecraft/client/renderer/entity/state/SquidRenderState
-net/minecraft/client/renderer/entity/state/SlimeRenderState
-net/minecraft/client/renderer/entity/state/SkeletonRenderState
 net/minecraft/client/renderer/entity/state/StriderRenderState
+net/minecraft/client/renderer/entity/state/SulfurCubeRenderState
+net/minecraft/client/renderer/entity/state/TextDisplayEntityRenderState
 net/minecraft/client/renderer/entity/state/ThrownItemRenderState
 net/minecraft/client/renderer/entity/state/ThrownTridentRenderState
 net/minecraft/client/renderer/entity/state/TippableArrowRenderState
-net/minecraft/client/renderer/entity/state/TextDisplayEntityRenderState
+net/minecraft/client/renderer/entity/state/TntRenderState
 net/minecraft/client/renderer/entity/state/TropicalFishRenderState
 net/minecraft/client/renderer/entity/state/TurtleRenderState
 net/minecraft/client/renderer/entity/state/UndeadRenderState
 net/minecraft/client/renderer/entity/state/VexRenderState
 net/minecraft/client/renderer/entity/state/VillagerDataHolderRenderState
 net/minecraft/client/renderer/entity/state/VillagerRenderState
-net/minecraft/client/renderer/entity/state/WitchRenderState
 net/minecraft/client/renderer/entity/state/WardenRenderState
-net/minecraft/client/renderer/entity/state/TntRenderState
-net/minecraft/client/renderer/entity/state/SulfurCubeRenderState
+net/minecraft/client/renderer/entity/state/LightningBoltRenderState
 net/minecraft/client/renderer/entity/state/WitherRenderState
+net/minecraft/client/renderer/entity/state/WitherSkullRenderState
+net/minecraft/client/renderer/entity/state/ZombieRenderState
 net/minecraft/client/renderer/entity/state/ZombieVillagerRenderState
+net/minecraft/client/renderer/entity/state/WolfRenderState
 net/minecraft/client/renderer/entity/state/ZombifiedPiglinRenderState
 net/minecraft/client/renderer/entity/state/package-info
-net/minecraft/client/renderer/entity/state/WitherSkullRenderState
-net/minecraft/client/renderer/entity/state/WolfRenderState
-net/minecraft/client/renderer/entity/state/ZombieRenderState
+net/minecraft/client/renderer/entity/state/WitchRenderState
 net/minecraft/world/attribute/EnvironmentAttribute
 net/minecraft/world/attribute/EnvironmentAttributeLayer
 net/minecraft/world/attribute/EnvironmentAttributeMap
-net/minecraft/world/attribute/EnvironmentAttributeReader
 net/minecraft/world/attribute/EnvironmentAttributeProbe
-net/minecraft/world/attribute/EnvironmentAttributeSystem
+net/minecraft/world/attribute/EnvironmentAttributeReader
 net/minecraft/world/attribute/EnvironmentAttributes
+net/minecraft/world/attribute/EnvironmentAttributeSystem
 net/minecraft/world/clock/
 net/minecraft/world/clock/ClockManager
 net/minecraft/world/clock/ClockNetworkState
 net/minecraft/world/clock/ClockTimeMarker
-net/minecraft/world/clock/ClockTimeMarkers
 net/minecraft/world/clock/ClockState
 net/minecraft/world/clock/PackedClockStates
-net/minecraft/world/clock/WorldClocks
+net/minecraft/world/clock/ClockTimeMarkers
 net/minecraft/world/clock/WorldClock
+net/minecraft/world/clock/WorldClocks
 net/minecraft/world/clock/package-info
 net/minecraft/world/clock/ServerClockManager
 net/minecraft/world/entity/projectile/
@@ -7855,38 +8004,38 @@ net/minecraft/world/entity/projectile/FishingHook
 net/minecraft/world/entity/projectile/ProjectileDeflection
 net/minecraft/world/entity/projectile/ProjectileUtil
 net/minecraft/world/entity/projectile/Projectile
-net/minecraft/world/entity/projectile/ThrowableProjectile
 net/minecraft/world/entity/projectile/arrow/
+net/minecraft/world/entity/projectile/ThrowableProjectile
 net/minecraft/world/entity/projectile/ShulkerBullet
-net/minecraft/world/entity/projectile/arrow/Arrow
 net/minecraft/world/entity/projectile/arrow/SpectralArrow
+net/minecraft/world/entity/projectile/arrow/Arrow
 net/minecraft/world/entity/projectile/arrow/package-info
 net/minecraft/world/entity/projectile/hurtingprojectile/
 net/minecraft/world/entity/projectile/hurtingprojectile/AbstractHurtingProjectile
 net/minecraft/world/entity/projectile/arrow/ThrownTrident
 net/minecraft/world/entity/projectile/hurtingprojectile/DragonFireball
-net/minecraft/world/entity/projectile/hurtingprojectile/Fireball
 net/minecraft/world/entity/projectile/hurtingprojectile/LargeFireball
-net/minecraft/world/entity/projectile/arrow/AbstractArrow
+net/minecraft/world/entity/projectile/hurtingprojectile/Fireball
 net/minecraft/world/entity/projectile/hurtingprojectile/package-info
-net/minecraft/world/entity/projectile/hurtingprojectile/WitherSkull
 net/minecraft/world/entity/projectile/hurtingprojectile/windcharge/
-net/minecraft/world/entity/projectile/hurtingprojectile/windcharge/BreezeWindCharge
 net/minecraft/world/entity/projectile/hurtingprojectile/SmallFireball
+net/minecraft/world/entity/projectile/hurtingprojectile/windcharge/BreezeWindCharge
+net/minecraft/world/entity/projectile/hurtingprojectile/WitherSkull
 net/minecraft/world/entity/projectile/hurtingprojectile/windcharge/package-info
 net/minecraft/world/entity/projectile/package-info
 net/minecraft/world/entity/projectile/throwableitemprojectile/
+net/minecraft/world/entity/projectile/hurtingprojectile/windcharge/AbstractWindCharge
 net/minecraft/world/entity/projectile/hurtingprojectile/windcharge/WindCharge
 net/minecraft/world/entity/projectile/throwableitemprojectile/Snowball
-net/minecraft/world/entity/projectile/throwableitemprojectile/AbstractThrownPotion
 net/minecraft/world/entity/projectile/throwableitemprojectile/ThrowableItemProjectile
+net/minecraft/world/entity/projectile/throwableitemprojectile/AbstractThrownPotion
 net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEgg
-net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl
 net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownExperienceBottle
 net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownLingeringPotion
 net/minecraft/world/entity/projectile/throwableitemprojectile/package-info
 net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownSplashPotion
-net/minecraft/world/entity/projectile/hurtingprojectile/windcharge/AbstractWindCharge
+net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl
+net/minecraft/world/entity/projectile/arrow/AbstractArrow
 net/minecraft/world/timeline/
 net/minecraft/world/timeline/AttributeTrackSampler
 net/minecraft/world/timeline/AttributeTrack
