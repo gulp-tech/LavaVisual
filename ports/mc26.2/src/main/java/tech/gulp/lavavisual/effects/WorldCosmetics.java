@@ -537,7 +537,8 @@ public final class WorldCosmetics {
         pose.pushPose();
         model.body.translateAndRotate(pose);
         pose.scale(1, -1, -1);
-        pose.translate(0, 0, -(armor ? 3.3 : 2.3) / 16.0);
+        // Off the jacket layer and the sleeves (the top corners of the cloth curl forward), or off the chestplate.
+        pose.translate(0, 0, -(armor ? 3.45 : 2.6) / 16.0);
         float k = 1 / 0.9375f;
         Hats.Deform cloth = null;
         if (LavaVisualClient.config().capePhysics) {
@@ -578,16 +579,21 @@ public final class WorldCosmetics {
         if (head) {
             model.head.translateAndRotate(pose);
             pose.scale(1, -1, -1);
+            // The models keep 0.1 px off the bare head; scaled about its centre they clear the hat layer (9 px) or a
+            // helmet (10 px) the same way instead of sinking into them.
             boolean helmet = s.headEquipment != null && !s.headEquipment.isEmpty();
-            float grow = helmet ? 1.14f : s.showHat ? 1.06f : 1f;
+            float grow = helmet ? 1.26f : s.showHat ? 1.13f : 1f;
             pose.translate(0, 4 / 16.0, 0);
             pose.scale(grow, grow, grow);
             pose.translate(0, 4 / 16.0, 0);
         } else {
             model.body.translateAndRotate(pose);
             pose.scale(1, -1, -1);
+            // The scarf sits just under the hat layer; under a helmet's rim it moves down, and over a chestplate (1 px
+            // thicker all round) it widens instead of going through it. An elytra is not armour.
+            if (s.headEquipment != null && !s.headEquipment.isEmpty()) pose.translate(0, -0.5 / 16.0, 0);
             var chest = s.chestEquipment;
-            if (chest != null && !chest.isEmpty()) pose.scale(1.1f, 1.02f, 1.3f);
+            if (chest != null && !chest.isEmpty() && !chest.is(net.minecraft.world.item.Items.ELYTRA)) pose.scale(1.25f, 1f, 1.36f);
         }
         float k = 1 / 0.9375f;
         pose.scale(k, k, k);
@@ -617,7 +623,8 @@ public final class WorldCosmetics {
         pose.pushPose();
         model.body.translateAndRotate(pose);
         pose.scale(1, -1, -1);
-        pose.translate(0, -3 / 16.0 + fit.lift(), -(armor ? 3.3 : 2.2) / 16.0 - fit.back());
+        // The roots sit just off the jacket layer (or the chestplate), so neither the beat nor the sweep pushes them in.
+        pose.translate(0, -3 / 16.0 + fit.lift(), -(armor ? 4.0 : 3.0) / 16.0 - fit.back());
         if (fit.tilt() != 0) pose.mulPose(new org.joml.Quaternionf().rotateX((float) Math.toRadians(-fit.tilt())));
         float k = (float) (size / 0.9375);
         pose.scale(k, k, k);

@@ -126,7 +126,8 @@ public final class AccessoryPhysics {
 
     /** The tail below the knot follows an arc of constant curvature (so it keeps its length); the ring stays put. */
     private record ScarfBend(float fwd, float side) implements Hats.Deform {
-        static final float KNOT = -0.085f, LENGTH = 0.40f;
+        /** Just below the ring (it reaches down to y = -0.126 and must not bend) and the length of the tail under it. */
+        static final float KNOT = -0.13f, LENGTH = 0.34f;
         @Override public void apply(Vector3f v) {
             float depth = KNOT - v.y;
             if (depth <= 0) return;

@@ -523,37 +523,70 @@ def rounded_rect(cx, cy, w, h, r, n=4):
 
 def extras():
     """Accessories. attach 'head': hat space (origin on top of the head, +z the face at z=0.2344); 'body': origin at
-    the neck (top centre of the torso, 12 px tall, 8 px wide, 4 px deep), +z the chest."""
+    the neck (top centre of the torso, 12 px tall, 8 px wide, 4 px deep), +z the chest.
+
+    Nothing may enter the player: head accessories keep at least 0.1 px off the bare head (the game scales them out
+    over the hat layer or a helmet), the scarf stays outside the jacket layer and under the hat layer, and only its
+    sides pass under the arms, where no neck is. tools/check_fit.py checks it."""
     e = []
     face, eye = 0.2344, -0.262
+    front = face + 0.0145  # frame and lens front, 0.25 px off the face
     lens = []
     for side in (-1, 1):
         cx = side * 0.112
         outline = rounded_rect(cx, eye, 0.118, 0.078, 0.026)
-        lens.append({'prism': outline, 'z': [face + 0.006, face + 0.012], 'paint': ['k', 'd'], 'mat': 'gem'})
-        lens.append({'tube': [[q[0], q[1], face + 0.013] for q in outline], 'closed': True, 'radius': [0.0065, 0.0065], 'sides': 5, 'paint': 'c', 'mat': 'metal'})
-        lens.append({'tube': [[side * 0.171, eye + 0.018, face + 0.012], [side * 0.243, eye + 0.02, face - 0.02], [side * 0.244, eye + 0.02, 0.02], [side * 0.243, eye - 0.01, -0.07]],
+        lens.append({'prism': outline, 'z': [face + 0.008, face + 0.014], 'paint': ['k', 'd'], 'mat': 'gem'})
+        lens.append({'tube': [[q[0], q[1], front] for q in outline], 'closed': True, 'radius': [0.0065, 0.0065], 'sides': 5, 'paint': 'c', 'mat': 'metal'})
+        # The temple goes round the corner of the head instead of through it, then back along the side to the ear.
+        lens.append({'tube': [[side * 0.171, eye + 0.018, front], [side * 0.226, eye + 0.019, front], [side * 0.2445, eye + 0.02, face + 0.009],
+                              [side * 0.2495, eye + 0.02, face - 0.012], [side * 0.2495, eye + 0.02, 0.02], [side * 0.249, eye - 0.01, -0.07]],
                      'radius': [0.0065, 0.0055], 'sides': 5, 'paint': 'c', 'mat': 'metal'})
-        lens.append({'poly': [[cx - 0.035, eye + 0.028, face + 0.0125], [cx - 0.012, eye + 0.028, face + 0.0125], [cx - 0.042, eye - 0.018, face + 0.0125]], 'paint': 'w', 'mat': 'glow', 'detail': True})
-    lens.append({'tube': bezier([-0.053, eye + 0.012, face + 0.013], [-0.02, eye + 0.03, face + 0.02], [0.02, eye + 0.03, face + 0.02], [0.053, eye + 0.012, face + 0.013], 6),
+        lens.append({'poly': [[cx - 0.035, eye + 0.028, face + 0.0145], [cx - 0.012, eye + 0.028, face + 0.0145], [cx - 0.042, eye - 0.018, face + 0.0145]], 'paint': 'w', 'mat': 'glow', 'detail': True})
+    lens.append({'tube': bezier([-0.053, eye + 0.012, front], [-0.02, eye + 0.03, front + 0.007], [0.02, eye + 0.03, front + 0.007], [0.053, eye + 0.012, front], 6),
                  'radius': [0.006, 0.006], 'sides': 5, 'paint': 'c', 'mat': 'metal'})
     e.append({'name': 'Очки', 'attach': 'head', 'parts': lens})
 
     cup = [{'revolve': [[0.0, 0.0], [0.07, 0.0], [0.08, 0.018], [0.074, 0.042], [0.0, 0.046]], 'seg': 24, 'paint': ['c', 'l'], 'mat': 'gloss'},
            {'torus': [0.055, 0.007], 'y': 0.046, 'seg': 24, 'sides': 6, 'paint': 'l', 'mat': 'glow'},
            {'torus': [0.066, 0.017], 'y': -0.004, 'seg': 24, 'sides': 8, 'paint': 'k', 'mat': 'fur'}]
+    # The band runs 0.26 px over the top of the head and round its corners (it used to cut through them), the coloured
+    # strip lies on its outer side instead of dipping into the head, and the cushions stop short of the sides.
+    right = [(4.75, -3.4), (4.62, -1.9)] + [(3.6 + 0.95 * math.cos(math.radians(a)), -0.4 + 0.95 * math.sin(math.radians(a))) for a in (0, 22.5, 45, 67.5, 90)]
+    top = [(x, 0.55 + 0.12 * (1 - (x / 3.6) ** 2)) for x in (2.4, 1.2, 0.0)]
+    half = right + top
+    arch = [[r4(-x * PX), r4(y * PX), 0.0] for x, y in half] + [[r4(x * PX), r4(y * PX), 0.0] for x, y in reversed(half[:-1])]
+    strip = []
+    for i in range(4, len(arch) - 4):
+        a, b = arch[i - 1], arch[i + 1]
+        tx, ty = b[0] - a[0], b[1] - a[1]
+        n = math.hypot(tx, ty)
+        strip.append([r4(arch[i][0] - ty / n * 0.011), r4(arch[i][1] + tx / n * 0.011), 0.0])
     e.append({'name': 'Наушники', 'attach': 'head', 'parts': [
-        {'tube': bezier([-0.262, -0.19, 0.0], [-0.29, 0.1, 0.0], [0.29, 0.1, 0.0], [0.262, -0.19, 0.0], 18), 'radius': [0.017, 0.017], 'sides': 8, 'paint': 'k', 'mat': 'satin'},
-        {'tube': bezier([-0.2, 0.0, 0.0], [-0.12, 0.052, 0.0], [0.12, 0.052, 0.0], [0.2, 0.0, 0.0], 12), 'radius': [0.013, 0.013], 'sides': 6, 'paint': 'c', 'mat': 'gloss', 'detail': True},
-        {'group': {'mirror': True}, 'parts': [{'group': {'at': [0.25, -0.265, 0.0], 'rot': [0, 0, -90]}, 'parts': cup}]},
+        {'tube': arch, 'radius': [0.017, 0.017], 'sides': 8, 'paint': 'k', 'mat': 'satin'},
+        {'tube': strip, 'radius': [0.011, 0.011], 'sides': 6, 'paint': 'c', 'mat': 'gloss', 'detail': True},
+        {'group': {'mirror': True}, 'parts': [{'group': {'at': [0.266, -0.265, 0.0], 'rot': [0, 0, -90]}, 'parts': cup}]},
     ]})
 
-    ring = [[r4(0.245 * math.sin(a)), r4(-0.03 + 0.012 * math.cos(2 * a)), r4(0.15 * math.cos(a) + 0.01)] for a in (2 * math.pi * i / 28 for i in range(28))]
-    tail = bezier([0.1, -0.05, 0.16], [0.14, -0.2, 0.21], [0.11, -0.33, 0.2], [0.13, -0.44, 0.19], 10)
-    fringe = [{'tube': [[0.13 + dx, -0.44, 0.19], [0.13 + dx * 1.2, -0.49, 0.19]], 'radius': [0.0055, 0.004], 'sides': 4, 'paint': 'l', 'mat': 'fur', 'detail': True}
+    # Scarf ring: a rounded rectangle round the top of the torso, 0.1 px off the jacket in front, thinner and closer at
+    # the back (it stays inside a cape's cloth), just under the hat layer; its sides run inside the arms.
+    y0, zf, zb, side, corner = -1.35 * PX, 3.15 * PX, -2.86 * PX, 5.2 * PX, 1.1 * PX
+
+    def arc(cx, cz, a0, a1, n=5):
+        return [[r4(cx + corner * math.sin(math.radians(a0 + (a1 - a0) * k / n))), r4(y0), r4(cz + corner * math.cos(math.radians(a0 + (a1 - a0) * k / n)))]
+                for k in range(n + 1)]
+    fx, bx = side - corner, side - corner
+    front_half = arc(-fx, zf - corner, -90, 0)[:-1] + [[r4(-fx + (2 * fx) * k / 6), r4(y0), r4(zf)] for k in range(7)] + arc(fx, zf - corner, 0, 90)[1:]
+    back_left = [[r4(-side), r4(y0), r4(zf - corner)], [r4(-side), r4(y0), r4(zb + corner)]] + arc(-bx, zb + corner, -90, -180)[1:] + [[0.0, r4(y0), r4(zb)]]
+    back_right = [[-q[0], q[1], q[2]] for q in back_left]
+    thick, thin = 0.047, 0.03
+    tail = bezier([0.1, y0, 0.196], [0.14, -0.21, 0.22], [0.11, -0.34, 0.211], [0.13, -0.45, 0.202], 10)
+    fringe = [{'tube': [[0.13 + dx, -0.45, 0.202], [0.13 + dx * 1.2, -0.5, 0.202]], 'radius': [0.0055, 0.004], 'sides': 4, 'paint': 'l', 'mat': 'fur', 'detail': True}
               for dx in (-0.024, -0.008, 0.008, 0.024)]
+    wool = {'sides': 10, 'paint': ['c', 'l'], 'alt': ['l', 'c'], 'pattern': {'stripes': 7}, 'mat': 'fur'}
     e.append({'name': 'Шарф', 'attach': 'body', 'parts': [
-        {'tube': ring, 'closed': True, 'radius': [0.047, 0.047], 'sides': 10, 'paint': ['c', 'l'], 'alt': ['l', 'c'], 'pattern': {'stripes': 7}, 'mat': 'fur'},
+        dict(wool, tube=front_half, radius=[thick, thick]),
+        dict(wool, tube=back_left, radius=[thick, thin], power=2),
+        dict(wool, tube=back_right, radius=[thick, thin], power=2),
         {'tube': tail, 'radius': [0.042, 0.036], 'sides': 9, 'paint': ['c', 'l'], 'mat': 'fur'},
     ] + fringe})
     return e
@@ -1533,7 +1566,7 @@ def preview_outfit(path, data, main=0xFF6A2B, second=0xB45CFF, cell=340):
         font = ImageFont.load_default()
     for index, (kind, model) in enumerate(items):
         if kind == 'cape':
-            anchor = matmul(translate(0.0, 24 * p, -2.3 * p), rot_x(math.radians(8)))
+            anchor = matmul(translate(0.0, 24 * p, -2.6 * p), rot_x(math.radians(8)))
             views = [((0.0, 1.2, -2.4), (0.0, 0.95, 0.0)), ((1.8, 1.35, -1.8), (0.0, 0.95, 0.0)), ((2.5, 1.1, 0.1), (0.0, 0.9, 0.0))]
         elif model.get('attach') == 'head':
             anchor = translate(0.0, 32 * p, 0.0)

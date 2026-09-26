@@ -1,4 +1,4 @@
-# LavaVisual Beta 1.0.2 — Minecraft 26.2
+# LavaVisual Beta 1.0.3 — Minecraft 26.2
 
 <img src="ports/mc26.2/src/main/resources/assets/lavavisual/icon.png" width="96" alt="LV">
 
@@ -7,9 +7,9 @@
 
 | | Скачать | Что внутри |
 | --- | --- | --- |
-| **Мод** | [lavavisual-1.0.2-beta-mc26.2.jar](artifacts/lavavisual-1.0.2-beta-mc26.2.jar) | только LavaVisual, в папку `mods` |
-| **Клиент** | [LavaVisual-Client-1.0.2-beta-mc26.2.mrpack](artifacts/LavaVisual-Client-1.0.2-beta-mc26.2.mrpack) | готовая сборка для Modrinth App, Prism Launcher, ATLauncher |
-| **Клиент (архив)** | [LavaVisual-Client-1.0.2-beta-mc26.2.zip](artifacts/LavaVisual-Client-1.0.2-beta-mc26.2.zip) | папки `mods` и `config` для TLauncher, телефонов и ручной установки |
+| **Мод** | [lavavisual-1.0.3-beta-mc26.2.jar](artifacts/lavavisual-1.0.3-beta-mc26.2.jar) | только LavaVisual, в папку `mods` |
+| **Клиент** | [LavaVisual-Client-1.0.3-beta-mc26.2.mrpack](artifacts/LavaVisual-Client-1.0.3-beta-mc26.2.mrpack) | готовая сборка для Modrinth App, Prism Launcher, ATLauncher |
+| **Клиент (архив)** | [LavaVisual-Client-1.0.3-beta-mc26.2.zip](artifacts/LavaVisual-Client-1.0.3-beta-mc26.2.zip) | папки `mods` и `config` для TLauncher, телефонов и ручной установки |
 
 Контрольные суммы — в [SHA256SUMS](artifacts/SHA256SUMS).
 
@@ -62,7 +62,9 @@ PojavLauncher, MojoLauncher, Amethyst и другие лаунчеры на ос
   перетаскиваются и меняют размер, шрифт HUD выбирается.
 - **Косметика:** 14 шляп и 5 видов объёмных крыльев с редакторами (размер, положение, взмахи, цвет), 6 плащей с
   физикой ткани (развеваются от бега, прыжков и поворотов, с подкладкой), аксессуары (очки, наушники, шарф), следы.
-  Хвост шарфа раскачивается, крылья отводятся назад на бегу и приподнимаются в падении.
+  Хвост шарфа раскачивается, крылья отводятся назад на бегу и приподнимаются в падении. Косметика не врезается в
+  скин: очки и наушники сидят поверх второго слоя кожи и шлема, шарф — поверх куртки и нагрудника, плащ и крылья не
+  заходят в спину.
   Шляпы, крылья, плащи и аксессуары видят другие игроки с LavaVisual — без серверного мода; смена доходит до них
   примерно за 15 секунд. У ников таких игроков — логотип LV.
 - **Эффекты:** Target ESP, Jump Circle, частицы ударов, насыщенные криты, Kill Effect, маркер цели, частицы в воздухе.
@@ -100,7 +102,8 @@ PojavLauncher, MojoLauncher, Amethyst и другие лаунчеры на ос
 ./gradlew build
 ```
 
-Нужен JDK 25. CI собирает мод, прогоняет тесты и запускает клиент: проверяет меню, главное меню, мир, физику плаща, пинг,
+Нужен JDK 25. CI проверяет, что косметика не заходит в модель игрока (`tools/check_fit.py`), собирает мод, прогоняет
+тесты и запускает клиент: проверяет меню, главное меню, мир, физику плаща, пинг,
 перезагрузку ресурсов, звук, музыку всех форматов и стоимость миникарты, а скриншоты кладёт в `artifacts/`. Пакеты
 клиента собирает `tools/make_client.py`.
 

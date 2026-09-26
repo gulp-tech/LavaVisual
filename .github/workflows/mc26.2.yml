@@ -1,7 +1,7 @@
 name: Build LavaVisual 26.2 standalone
 on:
   push:
-    paths: ['ports/mc26.2/**', 'tools/client_smoke.py', 'tools/ci_run.sh', 'tools/make_client.py', '.github/workflows/mc26.2.yml']
+    paths: ['ports/mc26.2/**', 'tools/client_smoke.py', 'tools/ci_run.sh', 'tools/make_client.py', 'tools/make_hats.py', 'tools/check_fit.py', '.github/workflows/mc26.2.yml']
   workflow_dispatch:
 concurrency:
   group: lavavisual-standalone-${{ github.ref }}
@@ -19,6 +19,8 @@ jobs:
           distribution: temurin
           java-version: '25'
       - uses: gradle/actions/setup-gradle@v5
+      - name: Check that cosmetics stay outside the player model
+        run: python3 tools/check_fit.py
       - name: Build standalone JAR and run tests
         run: bash tools/ci_run.sh ports/mc26.2/gradlew -p ports/mc26.2 build --no-daemon
       - name: Install virtual display
@@ -43,7 +45,7 @@ jobs:
           from pathlib import Path
           log = Path('ports/mc26.2/build/client-smoke.log').read_text(errors='replace')
           assert 'with Fabric Loader 0.19.3' in log, 'Wrong runtime loader version'
-          with zipfile.ZipFile('ports/mc26.2/build/libs/lavavisual-1.0.2-beta-mc26.2.jar') as jar:
+          with zipfile.ZipFile('ports/mc26.2/build/libs/lavavisual-1.0.3-beta-mc26.2.jar') as jar:
               m = json.loads(jar.read('fabric.mod.json'))
               assert m['id'] == 'lavavisual'
               assert m['depends']['minecraft'] == '26.2'
@@ -78,22 +80,22 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: LavaVisual-1.0.2-beta-mc26.2
-          path: ports/mc26.2/build/libs/lavavisual-1.0.2-beta-mc26.2.jar
+          name: LavaVisual-1.0.3-beta-mc26.2
+          path: ports/mc26.2/build/libs/lavavisual-1.0.3-beta-mc26.2.jar
       - name: Publish tested JAR
         if: github.event_name == 'push'
         run: |
           git pull --ff-only origin "$GITHUB_REF_NAME"
           mkdir -p artifacts
           rm -f artifacts/lavavisual-*.jar
-          cp ports/mc26.2/build/libs/lavavisual-1.0.2-beta-mc26.2.jar artifacts/
+          cp ports/mc26.2/build/libs/lavavisual-1.0.3-beta-mc26.2.jar artifacts/
           rm -f artifacts/ui-*.png
           test ! -f ports/mc26.2/build/ui-smoke.png || cp ports/mc26.2/build/ui-smoke.png artifacts/ui-1.0.png
           for shot in ports/mc26.2/build/shot-*.png; do if [ -f "$shot" ]; then cp "$shot" "artifacts/ui-1.0-$(basename "$shot" .png | cut -c6-).png"; fi; done
           rm -f artifacts/LavaVisual-Client-*
           api=$(grep '^fabric_version=' ports/mc26.2/gradle.properties | cut -d= -f2)
           api_jar=$(find ~/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-api -name "fabric-api-${api}.jar" 2>/dev/null | head -1)
-          python3 tools/make_client.py artifacts/lavavisual-1.0.2-beta-mc26.2.jar artifacts "$api_jar"
+          python3 tools/make_client.py artifacts/lavavisual-1.0.3-beta-mc26.2.jar artifacts "$api_jar"
           (cd artifacts && sha256sum *.jar *.mrpack *.zip > SHA256SUMS)
           printf 'Source: %s\nBuild: https://github.com/%s/actions/runs/%s\nMinecraft: 26.2\nTested Fabric Loader: 0.19.3\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" > artifacts/STANDALONE-26.2.txt
           git config user.name 'github-actions[bot]'
