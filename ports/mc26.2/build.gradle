@@ -5,6 +5,15 @@ version = project.mod_version
 group = 'tech.gulp'
 base { archivesName = 'lavavisual' }
 repositories { mavenCentral() }
+// Pure-Java audio decoders copied into the mod jar (no nested jars): JavaMP3 (MIT) and Concentus Opus (BSD).
+configurations {
+    bundle
+    implementation.extendsFrom(bundle)
+}
+dependencies {
+    bundle 'fr.delthas:javamp3:1.0.1'
+    bundle 'io.github.jaredmdobson:concentus:1.0.2'
+}
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
@@ -28,7 +37,10 @@ loom {
         client { programArgs '--width', '1280', '--height', '960' }
     }
 }
-jar { from('LICENSE') }
+jar {
+    from('LICENSE')
+    from({ configurations.bundle.collect { zipTree(it) } }) { exclude 'META-INF/**', 'module-info.class' }
+}
 
 tasks.register('apiSignatures') {
     doLast {

@@ -78,3 +78,8 @@ org.lwjgl.system.MemoryStack
 net.minecraft.client.gui.screens.Screen
 net.minecraft.client.renderer.texture.AbstractTexture
 net.minecraft.client.renderer.texture.TextureManager
+fr.delthas.javamp3.Sound
+org.concentus.OpusDecoder
+io.github.jaredmdobson.concentus.OpusDecoder
+org.concentus.OpusException
+io.github.jaredmdobson.concentus.OpusException
