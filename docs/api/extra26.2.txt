@@ -4469,6 +4469,259 @@ public class net.minecraft.client.Minecraft extends net.minecraft.util.thread.Re
   static {};
 }
 
+Compiled from "SoundEngine.java"
+public class net.minecraft.client.sounds.SoundEngine {
+  private static final org.slf4j.Marker MARKER;
+  private static final org.slf4j.Logger LOGGER;
+  private static final float PITCH_MIN;
+  private static final float PITCH_MAX;
+  private static final float VOLUME_MIN;
+  private static final float VOLUME_MAX;
+  private static final int MIN_SOURCE_LIFETIME;
+  private static final java.util.Set<net.minecraft.resources.Identifier> ONLY_WARN_ONCE;
+  public static final java.lang.String MISSING_SOUND;
+  public static final java.lang.String OPEN_AL_SOFT_PREFIX;
+  public static final int OPEN_AL_SOFT_PREFIX_LENGTH;
+  private final net.minecraft.client.sounds.SoundManager soundManager;
+  private final net.minecraft.client.Options options;
+  private boolean loaded;
+  private final com.mojang.blaze3d.audio.Library library;
+  private final com.mojang.blaze3d.audio.Listener listener;
+  private final net.minecraft.client.sounds.SoundBufferLibrary soundBuffers;
+  private final net.minecraft.client.sounds.SoundEngineExecutor executor;
+  private final net.minecraft.client.sounds.ChannelAccess channelAccess;
+  private int tickCount;
+  private com.mojang.blaze3d.audio.DeviceList lastSeenDevices;
+  private final com.mojang.blaze3d.audio.DeviceTracker deviceTracker;
+  private final java.util.Map<net.minecraft.client.resources.sounds.SoundInstance, net.minecraft.client.sounds.ChannelAccess$ChannelHandle> instanceToChannel;
+  private final com.google.common.collect.Multimap<net.minecraft.sounds.SoundSource, net.minecraft.client.resources.sounds.SoundInstance> instanceBySource;
+  private final it.unimi.dsi.fastutil.objects.Object2FloatMap<net.minecraft.sounds.SoundSource> gainBySource;
+  private final java.util.List<net.minecraft.client.resources.sounds.TickableSoundInstance> tickingSounds;
+  private final java.util.Map<net.minecraft.client.resources.sounds.SoundInstance, java.lang.Integer> queuedSounds;
+  private final java.util.Map<net.minecraft.client.resources.sounds.SoundInstance, java.lang.Integer> soundDeleteTime;
+  private final java.util.List<net.minecraft.client.sounds.SoundEventListener> listeners;
+  private final java.util.List<net.minecraft.client.resources.sounds.TickableSoundInstance> queuedTickableSounds;
+  private final java.util.List<net.minecraft.client.resources.sounds.Sound> preloadQueue;
+  public net.minecraft.client.sounds.SoundEngine(net.minecraft.client.sounds.SoundManager, net.minecraft.client.Options, net.minecraft.server.packs.resources.ResourceProvider);
+  public void reload();
+  private synchronized void loadLibrary();
+  public void refreshCategoryVolume(net.minecraft.sounds.SoundSource);
+  public void destroy();
+  public void emergencyShutdown();
+  public void stop(net.minecraft.client.resources.sounds.SoundInstance);
+  public void updateCategoryVolume(net.minecraft.sounds.SoundSource, float);
+  public void stopAll();
+  public void addEventListener(net.minecraft.client.sounds.SoundEventListener);
+  public void removeEventListener(net.minecraft.client.sounds.SoundEventListener);
+  private boolean shouldChangeDevice();
+  public void tick(boolean);
+  private void tickInGameSound();
+  private void tickMusicWhenPaused();
+  private static boolean requiresManualLooping(net.minecraft.client.resources.sounds.SoundInstance);
+  private static boolean shouldLoopManually(net.minecraft.client.resources.sounds.SoundInstance);
+  private static boolean shouldLoopAutomatically(net.minecraft.client.resources.sounds.SoundInstance);
+  public boolean isActive(net.minecraft.client.resources.sounds.SoundInstance);
+  public net.minecraft.client.sounds.SoundEngine$PlayResult play(net.minecraft.client.resources.sounds.SoundInstance);
+  public void queueTickingSound(net.minecraft.client.resources.sounds.TickableSoundInstance);
+  public void requestPreload(net.minecraft.client.resources.sounds.Sound);
+  private float calculatePitch(net.minecraft.client.resources.sounds.SoundInstance);
+  private float calculateVolume(net.minecraft.client.resources.sounds.SoundInstance);
+  private float calculateVolume(float, net.minecraft.sounds.SoundSource);
+  public void pauseAllExcept(net.minecraft.sounds.SoundSource...);
+  public void resume();
+  public void playDelayed(net.minecraft.client.resources.sounds.SoundInstance, int);
+  public void updateSource(net.minecraft.client.Camera);
+  public void stop(net.minecraft.resources.Identifier, net.minecraft.sounds.SoundSource);
+  public java.lang.String getChannelDebugString();
+  public void getSoundCacheDebugStats(net.minecraft.client.sounds.SoundBufferLibrary$DebugOutput);
+  public java.util.List<java.lang.String> getAvailableSoundDevices();
+  public com.mojang.blaze3d.audio.ListenerTransform getListenerTransform();
+  private void lambda$updateSource$0(com.mojang.blaze3d.audio.ListenerTransform);
+  private static void lambda$resume$0(java.util.stream.Stream);
+  private static void lambda$play$3(net.minecraft.client.sounds.ChannelAccess$ChannelHandle, net.minecraft.client.sounds.AudioStream);
+  private static void lambda$play$4(net.minecraft.client.sounds.AudioStream, com.mojang.blaze3d.audio.Channel);
+  private static void lambda$play$1(net.minecraft.client.sounds.ChannelAccess$ChannelHandle, com.mojang.blaze3d.audio.SoundBuffer);
+  private static void lambda$play$2(com.mojang.blaze3d.audio.SoundBuffer, com.mojang.blaze3d.audio.Channel);
+  private static void lambda$play$0(float, float, net.minecraft.client.resources.sounds.SoundInstance$Attenuation, float, boolean, boolean, net.minecraft.world.phys.Vec3, boolean, com.mojang.blaze3d.audio.Channel);
+  private static void lambda$tickInGameSound$0(float, float, net.minecraft.world.phys.Vec3, com.mojang.blaze3d.audio.Channel);
+  private void lambda$refreshCategoryVolume$0(net.minecraft.sounds.SoundSource, net.minecraft.client.resources.sounds.SoundInstance, net.minecraft.client.sounds.ChannelAccess$ChannelHandle);
+  private static void lambda$refreshCategoryVolume$1(float, com.mojang.blaze3d.audio.Channel);
+  private static void lambda$new$0(it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap);
+  static {};
+}
+
+Compiled from "SoundEngine.java"
+public final class net.minecraft.client.sounds.SoundEngine$PlayResult extends java.lang.Enum<net.minecraft.client.sounds.SoundEngine$PlayResult> {
+  public static final net.minecraft.client.sounds.SoundEngine$PlayResult STARTED;
+  public static final net.minecraft.client.sounds.SoundEngine$PlayResult STARTED_SILENTLY;
+  public static final net.minecraft.client.sounds.SoundEngine$PlayResult NOT_STARTED;
+  private static final net.minecraft.client.sounds.SoundEngine$PlayResult[] $VALUES;
+  public static net.minecraft.client.sounds.SoundEngine$PlayResult[] values();
+  public static net.minecraft.client.sounds.SoundEngine$PlayResult valueOf(java.lang.String);
+  private net.minecraft.client.sounds.SoundEngine$PlayResult();
+  private static net.minecraft.client.sounds.SoundEngine$PlayResult[] $values();
+  static {};
+}
+
+Compiled from "MusicManager.java"
+public class net.minecraft.client.sounds.MusicManager {
+  private static final int STARTING_DELAY;
+  private final net.minecraft.util.RandomSource random;
+  private final net.minecraft.client.Minecraft minecraft;
+  private net.minecraft.client.resources.sounds.SoundInstance currentMusic;
+  private net.minecraft.client.sounds.MusicManager$MusicFrequency gameMusicFrequency;
+  private float currentGain;
+  private int nextSongDelay;
+  private boolean toastShown;
+  public net.minecraft.client.sounds.MusicManager(net.minecraft.client.Minecraft);
+  public void tick();
+  private static boolean canReplace(net.minecraft.sounds.Music, net.minecraft.client.resources.sounds.SoundInstance);
+  public void startPlaying(net.minecraft.sounds.Music);
+  public void showNowPlayingToastIfNeeded();
+  public void stopPlaying(net.minecraft.sounds.Music);
+  public void stopPlaying();
+  private boolean fadePlaying(float);
+  public boolean isPlayingMusic(net.minecraft.sounds.Music);
+  public java.lang.String getCurrentMusicTranslationKey();
+  public void setMinutesBetweenSongs(net.minecraft.client.sounds.MusicManager$MusicFrequency);
+}
+
+Compiled from "ChannelAccess.java"
+public class net.minecraft.client.sounds.ChannelAccess {
+  private final java.util.Set<net.minecraft.client.sounds.ChannelAccess$ChannelHandle> channels;
+  private final com.mojang.blaze3d.audio.Library library;
+  private final java.util.concurrent.Executor executor;
+  public net.minecraft.client.sounds.ChannelAccess(com.mojang.blaze3d.audio.Library, java.util.concurrent.Executor);
+  public java.util.concurrent.CompletableFuture<net.minecraft.client.sounds.ChannelAccess$ChannelHandle> createHandle(com.mojang.blaze3d.audio.Library$Pool);
+  public void executeOnChannels(java.util.function.Consumer<java.util.stream.Stream<com.mojang.blaze3d.audio.Channel>>);
+  public void scheduleTick();
+  public void clear();
+  private void lambda$scheduleTick$0();
+  private void lambda$executeOnChannels$0(java.util.function.Consumer);
+  private static com.mojang.blaze3d.audio.Channel lambda$executeOnChannels$1(net.minecraft.client.sounds.ChannelAccess$ChannelHandle);
+  private void lambda$createHandle$0(com.mojang.blaze3d.audio.Library$Pool, java.util.concurrent.CompletableFuture);
+}
+
+Compiled from "ChannelAccess.java"
+public class net.minecraft.client.sounds.ChannelAccess$ChannelHandle {
+  private com.mojang.blaze3d.audio.Channel channel;
+  private boolean stopped;
+  final net.minecraft.client.sounds.ChannelAccess this$0;
+  public boolean isStopped();
+  public net.minecraft.client.sounds.ChannelAccess$ChannelHandle(net.minecraft.client.sounds.ChannelAccess, com.mojang.blaze3d.audio.Channel);
+  public void execute(java.util.function.Consumer<com.mojang.blaze3d.audio.Channel>);
+  public void release();
+  private void lambda$execute$0(java.util.function.Consumer);
+}
+
+Compiled from "Channel.java"
+public class com.mojang.blaze3d.audio.Channel {
+  private static final org.slf4j.Logger LOGGER;
+  private static final int QUEUED_BUFFER_COUNT;
+  public static final int BUFFER_DURATION_SECONDS;
+  private final int source;
+  private final java.util.concurrent.atomic.AtomicBoolean initialized;
+  private int streamingBufferSize;
+  private net.minecraft.client.sounds.AudioStream stream;
+  static com.mojang.blaze3d.audio.Channel create();
+  private com.mojang.blaze3d.audio.Channel(int);
+  public void destroy();
+  public void play();
+  private int getState();
+  public void pause();
+  public void unpause();
+  public void stop();
+  public boolean playing();
+  public boolean stopped();
+  public void setSelfPosition(net.minecraft.world.phys.Vec3);
+  public void setPitch(float);
+  public void setLooping(boolean);
+  public void setVolume(float);
+  public void disableAttenuation();
+  public void linearAttenuation(float);
+  public void setRelative(boolean);
+  public void attachStaticBuffer(com.mojang.blaze3d.audio.SoundBuffer);
+  public void attachBufferStream(net.minecraft.client.sounds.AudioStream);
+  private static int calculateBufferSize(javax.sound.sampled.AudioFormat, int);
+  private void pumpBuffers(int);
+  public void updateStream();
+  private int removeProcessedBuffers();
+  private void lambda$pumpBuffers$0(int);
+  private void lambda$attachStaticBuffer$0(int);
+  static {};
+}
+
+Compiled from "NativeImage.java"
+public final class com.mojang.blaze3d.platform.NativeImage implements java.lang.AutoCloseable {
+  private static final org.slf4j.Logger LOGGER;
+  private static final com.mojang.jtracy.MemoryPool MEMORY_POOL;
+  private static final java.util.Set<java.nio.file.StandardOpenOption> OPEN_OPTIONS;
+  private final com.mojang.blaze3d.platform.NativeImage$Format format;
+  private final int width;
+  private final int height;
+  private final boolean useStbFree;
+  private long pixels;
+  private final long size;
+  public com.mojang.blaze3d.platform.NativeImage(int, int, boolean);
+  public com.mojang.blaze3d.platform.NativeImage(com.mojang.blaze3d.platform.NativeImage$Format, int, int, boolean);
+  public com.mojang.blaze3d.platform.NativeImage(com.mojang.blaze3d.platform.NativeImage$Format, int, int, boolean, long);
+  public java.lang.String toString();
+  private boolean isOutsideBounds(int, int);
+  public static com.mojang.blaze3d.platform.NativeImage read(java.io.InputStream) throws java.io.IOException;
+  public static com.mojang.blaze3d.platform.NativeImage read(com.mojang.blaze3d.platform.NativeImage$Format, java.io.InputStream) throws java.io.IOException;
+  public static com.mojang.blaze3d.platform.NativeImage read(java.nio.ByteBuffer) throws java.io.IOException;
+  public static com.mojang.blaze3d.platform.NativeImage read(byte[]) throws java.io.IOException;
+  private static com.mojang.blaze3d.platform.NativeImage putAndRead(java.nio.ByteBuffer, byte[]) throws java.io.IOException;
+  public static com.mojang.blaze3d.platform.NativeImage read(com.mojang.blaze3d.platform.NativeImage$Format, java.nio.ByteBuffer) throws java.io.IOException;
+  private void checkAllocated();
+  public void close();
+  public boolean isClosed();
+  public int getWidth();
+  public int getHeight();
+  public com.mojang.blaze3d.platform.NativeImage$Format format();
+  private int getPixelABGR(int, int);
+  public int getPixel(int, int);
+  public void setPixelABGR(int, int, int);
+  public void setPixel(int, int, int);
+  public com.mojang.blaze3d.platform.NativeImage mappedCopy(java.util.function.IntUnaryOperator);
+  public int[] getPixelsABGR();
+  public int[] getPixels();
+  public byte getLuminanceOrAlpha(int, int);
+  public int[] makePixelArray();
+  public void writeToFile(java.io.File) throws java.io.IOException;
+  public boolean copyFromFont(org.lwjgl.util.freetype.FT_Face, int);
+  public void writeToFile(java.nio.file.Path) throws java.io.IOException;
+  private boolean writeToChannel(java.nio.channels.WritableByteChannel) throws java.io.IOException;
+  public void copyFrom(com.mojang.blaze3d.platform.NativeImage);
+  public void fillRect(int, int, int, int, int);
+  public void copyRect(int, int, int, int, int, int, boolean, boolean);
+  public void copyRect(com.mojang.blaze3d.platform.NativeImage, int, int, int, int, int, int, boolean, boolean);
+  public void resizeSubRectTo(int, int, int, int, com.mojang.blaze3d.platform.NativeImage);
+  public void untrack();
+  public long getPointer();
+  public java.nio.ByteBuffer getPixelBytes();
+  public com.mojang.blaze3d.platform.Transparency computeTransparency(int, int, int, int);
+  public com.mojang.blaze3d.platform.Transparency computeTransparency();
+  static {};
+}
+
+Compiled from "DynamicTexture.java"
+public class net.minecraft.client.renderer.texture.DynamicTexture extends net.minecraft.client.renderer.texture.AbstractTexture implements net.minecraft.client.renderer.texture.Dumpable {
+  private static final org.slf4j.Logger LOGGER;
+  private com.mojang.blaze3d.platform.NativeImage pixels;
+  public net.minecraft.client.renderer.texture.DynamicTexture(java.util.function.Supplier<java.lang.String>, com.mojang.blaze3d.platform.NativeImage);
+  public net.minecraft.client.renderer.texture.DynamicTexture(java.lang.String, int, int, boolean);
+  public net.minecraft.client.renderer.texture.DynamicTexture(java.util.function.Supplier<java.lang.String>, int, int, boolean);
+  private void createTexture(java.util.function.Supplier<java.lang.String>);
+  private void createTexture(java.lang.String);
+  public void upload();
+  public com.mojang.blaze3d.platform.NativeImage getPixels();
+  public void setPixels(com.mojang.blaze3d.platform.NativeImage);
+  public void close();
+  public void dumpContents(net.minecraft.resources.Identifier, java.nio.file.Path) throws java.io.IOException;
+  static {};
+}
+
 == class index ==
 net/minecraft/client/model/HumanoidModel
 net/minecraft/client/model/player/PlayerModel
@@ -4479,115 +4732,115 @@ net/minecraft/client/renderer/blockentity/state/BedRenderState
 net/minecraft/client/renderer/blockentity/state/BellRenderState
 net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState
 net/minecraft/client/renderer/blockentity/state/BlockEntityWithBoundingBoxRenderState
-net/minecraft/client/renderer/blockentity/state/CampfireRenderState
 net/minecraft/client/renderer/blockentity/state/BrushableBlockRenderState
+net/minecraft/client/renderer/blockentity/state/CampfireRenderState
 net/minecraft/client/renderer/blockentity/state/ChestRenderState
-net/minecraft/client/renderer/blockentity/state/CopperGolemStatueRenderState
-net/minecraft/client/renderer/blockentity/state/DecoratedPotRenderState
-net/minecraft/client/renderer/blockentity/state/EnchantTableRenderState
-net/minecraft/client/renderer/blockentity/state/EndGatewayRenderState
-net/minecraft/client/renderer/blockentity/state/EndPortalRenderState
-net/minecraft/client/renderer/blockentity/state/LecternRenderState
-net/minecraft/client/renderer/blockentity/state/HangingSignRenderState
 net/minecraft/client/renderer/blockentity/state/ConduitRenderState
+net/minecraft/client/renderer/blockentity/state/DecoratedPotRenderState
+net/minecraft/client/renderer/blockentity/state/CopperGolemStatueRenderState
+net/minecraft/client/renderer/blockentity/state/EndGatewayRenderState
+net/minecraft/client/renderer/blockentity/state/HangingSignRenderState
+net/minecraft/client/renderer/blockentity/state/LecternRenderState
 net/minecraft/client/renderer/blockentity/state/PistonHeadRenderState
+net/minecraft/client/renderer/blockentity/state/ShelfRenderState
 net/minecraft/client/renderer/blockentity/state/ShulkerBoxRenderState
 net/minecraft/client/renderer/blockentity/state/SignRenderState
+net/minecraft/client/renderer/blockentity/state/SkullBlockRenderState
 net/minecraft/client/renderer/blockentity/state/SpawnerRenderState
 net/minecraft/client/renderer/blockentity/state/StandingSignRenderState
-net/minecraft/client/renderer/blockentity/state/ShelfRenderState
-net/minecraft/client/renderer/blockentity/state/SkullBlockRenderState
 net/minecraft/client/renderer/blockentity/state/TestInstanceRenderState
 net/minecraft/client/renderer/blockentity/state/VaultRenderState
+net/minecraft/client/renderer/blockentity/state/EndPortalRenderState
 net/minecraft/client/renderer/blockentity/state/package-info
+net/minecraft/client/renderer/blockentity/state/EnchantTableRenderState
 net/minecraft/client/renderer/entity/layers/
 net/minecraft/client/renderer/entity/layers/ArrowLayer
 net/minecraft/client/renderer/entity/layers/BeeStingerLayer
-net/minecraft/client/renderer/entity/layers/BlockDecorationLayer
 net/minecraft/client/renderer/entity/layers/BreezeEyesLayer
+net/minecraft/client/renderer/entity/layers/BlockDecorationLayer
 net/minecraft/client/renderer/entity/layers/BreezeWindLayer
 net/minecraft/client/renderer/entity/layers/CapeLayer
 net/minecraft/client/renderer/entity/layers/CarriedBlockLayer
+net/minecraft/client/renderer/entity/layers/CatCollarLayer
 net/minecraft/client/renderer/entity/layers/CreeperPowerLayer
 net/minecraft/client/renderer/entity/layers/CrossedArmsItemLayer
 net/minecraft/client/renderer/entity/layers/Deadmau5EarsLayer
 net/minecraft/client/renderer/entity/layers/DolphinCarryingItemLayer
-net/minecraft/client/renderer/entity/layers/EnderEyesLayer
+net/minecraft/client/renderer/entity/layers/CustomHeadLayer
 net/minecraft/client/renderer/entity/layers/DrownedOuterLayer
 net/minecraft/client/renderer/entity/layers/EnergySwirlLayer
+net/minecraft/client/renderer/entity/layers/EyesLayer
 net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer
-net/minecraft/client/renderer/entity/layers/FoxHeldItemLayer
+net/minecraft/client/renderer/entity/layers/EnderEyesLayer
 net/minecraft/client/renderer/entity/layers/HorseMarkingLayer
+net/minecraft/client/renderer/entity/layers/IronGolemCrackinessLayer
 net/minecraft/client/renderer/entity/layers/HumanoidArmorLayer
-net/minecraft/client/renderer/entity/layers/CustomHeadLayer
 net/minecraft/client/renderer/entity/layers/IronGolemFlowerLayer
 net/minecraft/client/renderer/entity/layers/ItemInHandLayer
-net/minecraft/client/renderer/entity/layers/EyesLayer
 net/minecraft/client/renderer/entity/layers/LivingEntityEmissiveLayer
 net/minecraft/client/renderer/entity/layers/LlamaDecorLayer
-net/minecraft/client/renderer/entity/layers/PandaHoldsItemLayer
 net/minecraft/client/renderer/entity/layers/MushroomCowMushroomLayer
+net/minecraft/client/renderer/entity/layers/PandaHoldsItemLayer
 net/minecraft/client/renderer/entity/layers/PhantomEyesLayer
 net/minecraft/client/renderer/entity/layers/ParrotOnShoulderLayer
 net/minecraft/client/renderer/entity/layers/PlayerItemInHandLayer
 net/minecraft/client/renderer/entity/layers/RenderLayer
 net/minecraft/client/renderer/entity/layers/RopesLayer
 net/minecraft/client/renderer/entity/layers/SheepWoolLayer
-net/minecraft/client/renderer/entity/layers/SheepWoolUndercoatLayer
+net/minecraft/client/renderer/entity/layers/FoxHeldItemLayer
 net/minecraft/client/renderer/entity/layers/SkeletonClothingLayer
-net/minecraft/client/renderer/entity/layers/SimpleEquipmentLayer
 net/minecraft/client/renderer/entity/layers/SlimeOuterLayer
-net/minecraft/client/renderer/entity/layers/SnowGolemHeadLayer
 net/minecraft/client/renderer/entity/layers/SpiderEyesLayer
+net/minecraft/client/renderer/entity/layers/SnowGolemHeadLayer
 net/minecraft/client/renderer/entity/layers/SpinAttackEffectLayer
+net/minecraft/client/renderer/entity/layers/SulfurCubeInnerLayer
 net/minecraft/client/renderer/entity/layers/StuckInBodyLayer
-net/minecraft/client/renderer/entity/layers/CatCollarLayer
 net/minecraft/client/renderer/entity/layers/TropicalFishPatternLayer
+net/minecraft/client/renderer/entity/layers/WingsLayer
 net/minecraft/client/renderer/entity/layers/VillagerProfessionLayer
 net/minecraft/client/renderer/entity/layers/WitchItemLayer
 net/minecraft/client/renderer/entity/layers/WitherArmorLayer
-net/minecraft/client/renderer/entity/layers/WolfArmorLayer
-net/minecraft/client/renderer/entity/layers/WolfCollarLayer
+net/minecraft/client/renderer/entity/layers/SheepWoolUndercoatLayer
 net/minecraft/client/renderer/entity/layers/package-info
+net/minecraft/client/renderer/entity/layers/WolfCollarLayer
 net/minecraft/client/renderer/entity/player/
-net/minecraft/client/renderer/entity/player/AvatarRenderer
 net/minecraft/client/renderer/entity/player/package-info
-net/minecraft/client/renderer/entity/layers/IronGolemCrackinessLayer
 net/minecraft/client/renderer/entity/state/
+net/minecraft/client/renderer/entity/state/AllayRenderState
 net/minecraft/client/renderer/entity/state/ArmadilloRenderState
 net/minecraft/client/renderer/entity/state/ArmedEntityRenderState
 net/minecraft/client/renderer/entity/state/ArmorStandRenderState
 net/minecraft/client/renderer/entity/state/ArrowRenderState
 net/minecraft/client/renderer/entity/state/AvatarRenderState
 net/minecraft/client/renderer/entity/state/AxolotlRenderState
-net/minecraft/client/renderer/entity/state/BatRenderState
+net/minecraft/client/renderer/entity/layers/SimpleEquipmentLayer
 net/minecraft/client/renderer/entity/state/BeeRenderState
 net/minecraft/client/renderer/entity/state/BlockDisplayEntityRenderState
 net/minecraft/client/renderer/entity/state/BoatRenderState
+net/minecraft/client/renderer/entity/layers/WolfArmorLayer
 net/minecraft/client/renderer/entity/state/BoggedRenderState
 net/minecraft/client/renderer/entity/state/BreezeRenderState
 net/minecraft/client/renderer/entity/state/CamelRenderState
-net/minecraft/client/renderer/entity/state/CatRenderState
 net/minecraft/client/renderer/entity/state/ChickenRenderState
-net/minecraft/client/renderer/entity/state/CopperGolemRenderState
+net/minecraft/client/renderer/entity/state/CatRenderState
 net/minecraft/client/renderer/entity/state/CowRenderState
+net/minecraft/client/renderer/entity/state/CopperGolemRenderState
 net/minecraft/client/renderer/entity/state/CreakingRenderState
 net/minecraft/client/renderer/entity/state/CreeperRenderState
-net/minecraft/client/renderer/entity/layers/WingsLayer
-net/minecraft/client/renderer/entity/state/DisplayEntityRenderState
 net/minecraft/client/renderer/entity/state/DolphinRenderState
+net/minecraft/client/renderer/entity/state/DisplayEntityRenderState
 net/minecraft/client/renderer/entity/state/DonkeyRenderState
 net/minecraft/client/renderer/entity/state/EndCrystalRenderState
 net/minecraft/client/renderer/entity/state/EndermanRenderState
 net/minecraft/client/renderer/entity/state/EnderDragonRenderState
 net/minecraft/client/renderer/entity/state/EquineRenderState
-net/minecraft/client/renderer/entity/state/EntityRenderState
 net/minecraft/client/renderer/entity/state/EvokerFangsRenderState
 net/minecraft/client/renderer/entity/state/EvokerRenderState
 net/minecraft/client/renderer/entity/state/ExperienceOrbRenderState
 net/minecraft/client/renderer/entity/state/FallingBlockRenderState
 net/minecraft/client/renderer/entity/state/FelineRenderState
 net/minecraft/client/renderer/entity/state/FireworkRocketRenderState
+net/minecraft/client/renderer/entity/state/FishingHookRenderState
 net/minecraft/client/renderer/entity/state/FoxRenderState
 net/minecraft/client/renderer/entity/state/FrogRenderState
 net/minecraft/client/renderer/entity/state/GhastRenderState
@@ -4596,26 +4849,26 @@ net/minecraft/client/renderer/entity/state/GuardianRenderState
 net/minecraft/client/renderer/entity/state/HappyGhastRenderState
 net/minecraft/client/renderer/entity/state/HitboxRenderState
 net/minecraft/client/renderer/entity/state/HoglinRenderState
-net/minecraft/client/renderer/entity/layers/SulfurCubeInnerLayer
 net/minecraft/client/renderer/entity/state/HoldingEntityRenderState
 net/minecraft/client/renderer/entity/state/HorseRenderState
 net/minecraft/client/renderer/entity/state/HumanoidRenderState
 net/minecraft/client/renderer/entity/state/IllagerRenderState
 net/minecraft/client/renderer/entity/state/IllusionerRenderState
 net/minecraft/client/renderer/entity/state/IronGolemRenderState
-net/minecraft/client/renderer/entity/state/ItemClusterRenderState
+net/minecraft/client/renderer/entity/state/BatRenderState
 net/minecraft/client/renderer/entity/state/ItemDisplayEntityRenderState
 net/minecraft/client/renderer/entity/state/ItemEntityRenderState
-net/minecraft/client/renderer/entity/state/LightningBoltRenderState
 net/minecraft/client/renderer/entity/state/ItemFrameRenderState
-net/minecraft/client/renderer/entity/state/LlamaRenderState
+net/minecraft/client/renderer/entity/state/LightningBoltRenderState
 net/minecraft/client/renderer/entity/state/LivingEntityRenderState
+net/minecraft/client/renderer/entity/player/AvatarRenderer
+net/minecraft/client/renderer/entity/state/LlamaRenderState
 net/minecraft/client/renderer/entity/state/LlamaSpitRenderState
 net/minecraft/client/renderer/entity/state/MinecartTntRenderState
-net/minecraft/client/renderer/entity/state/MinecartRenderState
 net/minecraft/client/renderer/entity/state/MushroomCowRenderState
+net/minecraft/client/renderer/entity/state/EntityRenderState
 net/minecraft/client/renderer/entity/state/NautilusRenderState
-net/minecraft/client/renderer/entity/state/PaintingRenderState
+net/minecraft/client/renderer/entity/state/PandaRenderState
 net/minecraft/client/renderer/entity/state/ParrotRenderState
 net/minecraft/client/renderer/entity/state/PhantomRenderState
 net/minecraft/client/renderer/entity/state/PigRenderState
@@ -4627,37 +4880,37 @@ net/minecraft/client/renderer/entity/state/RavagerRenderState
 net/minecraft/client/renderer/entity/state/SalmonRenderState
 net/minecraft/client/renderer/entity/state/SheepRenderState
 net/minecraft/client/renderer/entity/state/ShulkerBulletRenderState
-net/minecraft/client/renderer/entity/state/FishingHookRenderState
-net/minecraft/client/renderer/entity/state/AllayRenderState
 net/minecraft/client/renderer/entity/state/ShulkerRenderState
 net/minecraft/client/renderer/entity/state/SkeletonRenderState
-net/minecraft/client/renderer/entity/state/SnowGolemRenderState
+net/minecraft/client/renderer/entity/state/SlimeRenderState
 net/minecraft/client/renderer/entity/state/SnifferRenderState
+net/minecraft/client/renderer/entity/state/SnowGolemRenderState
 net/minecraft/client/renderer/entity/state/SquidRenderState
 net/minecraft/client/renderer/entity/state/StriderRenderState
 net/minecraft/client/renderer/entity/state/SulfurCubeRenderState
 net/minecraft/client/renderer/entity/state/TextDisplayEntityRenderState
-net/minecraft/client/renderer/entity/state/ThrownTridentRenderState
-net/minecraft/client/renderer/entity/state/TippableArrowRenderState
-net/minecraft/client/renderer/entity/state/TntRenderState
-net/minecraft/client/renderer/entity/state/TropicalFishRenderState
-net/minecraft/client/renderer/entity/state/TurtleRenderState
-net/minecraft/client/renderer/entity/state/UndeadRenderState
 net/minecraft/client/renderer/entity/state/ThrownItemRenderState
-net/minecraft/client/renderer/entity/state/PandaRenderState
+net/minecraft/client/renderer/entity/state/ThrownTridentRenderState
+net/minecraft/client/renderer/entity/state/PaintingRenderState
+net/minecraft/client/renderer/entity/state/TippableArrowRenderState
+net/minecraft/client/renderer/entity/state/MinecartRenderState
+net/minecraft/client/renderer/entity/state/ItemClusterRenderState
+net/minecraft/client/renderer/entity/state/TurtleRenderState
+net/minecraft/client/renderer/entity/state/VexRenderState
+net/minecraft/client/renderer/entity/state/UndeadRenderState
 net/minecraft/client/renderer/entity/state/VillagerDataHolderRenderState
 net/minecraft/client/renderer/entity/state/VillagerRenderState
-net/minecraft/client/renderer/entity/state/WardenRenderState
 net/minecraft/client/renderer/entity/state/WitchRenderState
-net/minecraft/client/renderer/entity/state/WitherRenderState
+net/minecraft/client/renderer/entity/state/WardenRenderState
+net/minecraft/client/renderer/entity/state/TntRenderState
 net/minecraft/client/renderer/entity/state/WitherSkullRenderState
-net/minecraft/client/renderer/entity/state/WolfRenderState
+net/minecraft/client/renderer/entity/state/TropicalFishRenderState
 net/minecraft/client/renderer/entity/state/ZombieRenderState
 net/minecraft/client/renderer/entity/state/ZombieVillagerRenderState
 net/minecraft/client/renderer/entity/state/ZombifiedPiglinRenderState
 net/minecraft/client/renderer/entity/state/package-info
-net/minecraft/client/renderer/entity/state/SlimeRenderState
-net/minecraft/client/renderer/entity/state/VexRenderState
+net/minecraft/client/renderer/entity/state/WitherRenderState
+net/minecraft/client/renderer/entity/state/WolfRenderState
 net/fabricmc/fabric/api/client/rendering/v1/FeatureRendererRegistry
 net/fabricmc/fabric/api/client/rendering/v1/LivingEntityFeatureRenderEvents
 net/fabricmc/fabric/api/client/rendering/v1/LivingEntityRenderLayerRegistrationCallback
