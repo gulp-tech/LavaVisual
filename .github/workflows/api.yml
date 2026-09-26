@@ -30,7 +30,7 @@ jobs:
           echo '== class index ==' >> "$OUT"
           for j in $(echo "$CP" | tr ':' '\n'); do
             [ -f "$j" ] || continue
-            unzip -Z1 "$j" 2>/dev/null | grep -E 'entity/state/|entity/layers/|rendering/v1/[A-Za-z]*(Layer|Feature)|client/model/[a-z/]*(Humanoid|Player)Model|renderer/entity/player/' | grep -v '[$]' | sed 's/[.]class$//' >> "$OUT" || true
+            unzip -Z1 "$j" 2>/dev/null | grep -E 'world/clock/|world/timeline/|world/attribute/Environment|world/entity/projectile/|client/renderer/entity/[A-Za-z]*Renderer[.]class|entity/state/|entity/layers/|rendering/v1/[A-Za-z]*(Layer|Feature)|client/model/[a-z/]*(Humanoid|Player)Model|renderer/entity/player/' | grep -v '[$]' | sed 's/[.]class$//' >> "$OUT" || true
           done
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -58,3 +58,4 @@ jobs:
 # touch 1790403912
 # touch 1790405040
 # touch 1790408479
+# touch: clocks, item entity, projectiles
