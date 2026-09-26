@@ -189,7 +189,8 @@ public final class WorldCosmetics {
                 espHeight = snapshot.entity().getBbHeight();
                 espWidth = snapshot.entity().getBbWidth();
             }
-            if (RINGS.isEmpty() && SPARKS.isEmpty() && MARKS.isEmpty() && TRAIL.isEmpty() && BEAMS.isEmpty() && hats.isEmpty() && esp == null && waypointBeams.isEmpty()) { context.levelState().setData(DATA, null); return; }
+            if (RINGS.isEmpty() && SPARKS.isEmpty() && MARKS.isEmpty() && TRAIL.isEmpty() && BEAMS.isEmpty() && hats.isEmpty() && esp == null && waypointBeams.isEmpty()
+                    && ProjectileTrails.active() == 0) { context.levelState().setData(DATA, null); return; }
             int particleColor = c.color("particles") & 0xFFFFFF, ambientColor = c.color("ambient") & 0xFFFFFF, killColor = c.color("kill") & 0xFFFFFF,
                     critColor = c.color("crit") & 0xFFFFFF, trailColor = c.color2("trail") & 0xFFFFFF;
             double now = tick + context.deltaTracker().getGameTimeDeltaPartialTick(false);
