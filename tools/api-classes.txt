@@ -60,3 +60,11 @@ net.minecraft.client.KeyMapping
 net.minecraft.world.entity.ai.attributes.Attributes
 com.mojang.blaze3d.pipeline.BlendFunction
 net.minecraft.client.Minecraft
+net.minecraft.client.sounds.SoundEngine
+net.minecraft.client.sounds.SoundEngine$PlayResult
+net.minecraft.client.sounds.MusicManager
+net.minecraft.client.sounds.ChannelAccess
+net.minecraft.client.sounds.ChannelAccess$ChannelHandle
+com.mojang.blaze3d.audio.Channel
+com.mojang.blaze3d.platform.NativeImage
+net.minecraft.client.renderer.texture.DynamicTexture
