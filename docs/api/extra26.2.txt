@@ -6081,6 +6081,828 @@ public class io.github.jaredmdobson.concentus.OpusException extends java.lang.Ex
   public java.lang.String getMessage();
 }
 
+Compiled from "ClientClockManager.java"
+public class net.minecraft.client.ClientClockManager implements net.minecraft.world.clock.ClockManager {
+  private final java.util.Map<net.minecraft.core.Holder<net.minecraft.world.clock.WorldClock>, net.minecraft.client.ClientClockManager$ClockInstance> clocks;
+  private long lastTickGameTime;
+  public net.minecraft.client.ClientClockManager();
+  private net.minecraft.client.ClientClockManager$ClockInstance getInstance(net.minecraft.core.Holder<net.minecraft.world.clock.WorldClock>);
+  public void tick(long);
+  public void handleUpdates(long, java.util.Map<net.minecraft.core.Holder<net.minecraft.world.clock.WorldClock>, net.minecraft.world.clock.ClockNetworkState>);
+  public long getTotalTicks(net.minecraft.core.Holder<net.minecraft.world.clock.WorldClock>);
+  private void lambda$handleUpdates$0(net.minecraft.core.Holder, net.minecraft.world.clock.ClockNetworkState);
+  private static net.minecraft.client.ClientClockManager$ClockInstance lambda$getInstance$0(net.minecraft.core.Holder);
+}
+
+Compiled from "ClockManager.java"
+public interface net.minecraft.world.clock.ClockManager {
+  public abstract long getTotalTicks(net.minecraft.core.Holder<net.minecraft.world.clock.WorldClock>);
+}
+
+Compiled from "WorldClock.java"
+public final class net.minecraft.world.clock.WorldClock extends java.lang.Record {
+  public static final com.mojang.serialization.Codec<net.minecraft.core.Holder<net.minecraft.world.clock.WorldClock>> CODEC;
+  public static final net.minecraft.network.codec.StreamCodec<net.minecraft.network.RegistryFriendlyByteBuf, net.minecraft.core.Holder<net.minecraft.world.clock.WorldClock>> STREAM_CODEC;
+  public static final com.mojang.serialization.Codec<net.minecraft.world.clock.WorldClock> DIRECT_CODEC;
+  public net.minecraft.world.clock.WorldClock();
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  static {};
+}
+
+Compiled from "WorldClocks.java"
+public interface net.minecraft.world.clock.WorldClocks {
+  public static final net.minecraft.resources.ResourceKey<net.minecraft.world.clock.WorldClock> OVERWORLD;
+  public static final net.minecraft.resources.ResourceKey<net.minecraft.world.clock.WorldClock> THE_END;
+  public static void bootstrap(net.minecraft.data.worldgen.BootstrapContext<net.minecraft.world.clock.WorldClock>);
+  private static net.minecraft.resources.ResourceKey<net.minecraft.world.clock.WorldClock> key(java.lang.String);
+  static {};
+}
+
+Compiled from "ClockState.java"
+public final class net.minecraft.world.clock.ClockState extends java.lang.Record {
+  private final long totalTicks;
+  private final float partialTick;
+  private final float rate;
+  private final boolean paused;
+  public static final com.mojang.serialization.Codec<net.minecraft.world.clock.ClockState> CODEC;
+  public net.minecraft.world.clock.ClockState(long, float, float, boolean);
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public long totalTicks();
+  public float partialTick();
+  public float rate();
+  public boolean paused();
+  private static com.mojang.datafixers.kinds.App lambda$static$0(com.mojang.serialization.codecs.RecordCodecBuilder$Instance);
+  static {};
+}
+
+Compiled from "ClockTimeMarker.java"
+public final class net.minecraft.world.clock.ClockTimeMarker extends java.lang.Record {
+  private final net.minecraft.core.Holder<net.minecraft.world.clock.WorldClock> clock;
+  private final int ticks;
+  private final java.util.Optional<java.lang.Integer> periodTicks;
+  private final boolean showInCommands;
+  public static final com.mojang.serialization.Codec<net.minecraft.resources.ResourceKey<net.minecraft.world.clock.ClockTimeMarker>> KEY_CODEC;
+  public net.minecraft.world.clock.ClockTimeMarker(net.minecraft.core.Holder<net.minecraft.world.clock.WorldClock>, int, java.util.Optional<java.lang.Integer>, boolean);
+  public long getRepetitionCount(long);
+  public long resolveTimeToMoveTo(long);
+  public boolean occursAt(long);
+  private static long durationToNext(int, long, long);
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public net.minecraft.core.Holder<net.minecraft.world.clock.WorldClock> clock();
+  public int ticks();
+  public java.util.Optional<java.lang.Integer> periodTicks();
+  public boolean showInCommands();
+  static {};
+}
+
+Compiled from "ClockTimeMarkers.java"
+public interface net.minecraft.world.clock.ClockTimeMarkers {
+  public static final net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<net.minecraft.world.clock.ClockTimeMarker>> ROOT_ID;
+  public static final net.minecraft.resources.ResourceKey<net.minecraft.world.clock.ClockTimeMarker> DAY;
+  public static final net.minecraft.resources.ResourceKey<net.minecraft.world.clock.ClockTimeMarker> NOON;
+  public static final net.minecraft.resources.ResourceKey<net.minecraft.world.clock.ClockTimeMarker> NIGHT;
+  public static final net.minecraft.resources.ResourceKey<net.minecraft.world.clock.ClockTimeMarker> MIDNIGHT;
+  public static final net.minecraft.resources.ResourceKey<net.minecraft.world.clock.ClockTimeMarker> WAKE_UP_FROM_SLEEP;
+  public static final net.minecraft.resources.ResourceKey<net.minecraft.world.clock.ClockTimeMarker> ROLL_VILLAGE_SIEGE;
+  public static net.minecraft.resources.ResourceKey<net.minecraft.world.clock.ClockTimeMarker> createKey(java.lang.String);
+  static {};
+}
+
+Compiled from "Timeline.java"
+public class net.minecraft.world.timeline.Timeline {
+  public static final com.mojang.serialization.Codec<net.minecraft.core.Holder<net.minecraft.world.timeline.Timeline>> CODEC;
+  private static final com.mojang.serialization.Codec<java.util.Map<net.minecraft.world.attribute.EnvironmentAttribute<?>, net.minecraft.world.timeline.AttributeTrack<?, ?>>> TRACKS_CODEC;
+  public static final com.mojang.serialization.Codec<net.minecraft.world.timeline.Timeline> DIRECT_CODEC;
+  public static final com.mojang.serialization.Codec<net.minecraft.world.timeline.Timeline> NETWORK_CODEC;
+  private final net.minecraft.core.Holder<net.minecraft.world.clock.WorldClock> clock;
+  private final java.util.Optional<java.lang.Integer> periodTicks;
+  private final java.util.Map<net.minecraft.world.attribute.EnvironmentAttribute<?>, net.minecraft.world.timeline.AttributeTrack<?, ?>> tracks;
+  private final java.util.Map<net.minecraft.resources.ResourceKey<net.minecraft.world.clock.ClockTimeMarker>, net.minecraft.world.timeline.Timeline$TimeMarkerInfo> timeMarkers;
+  private static net.minecraft.world.timeline.Timeline filterSyncableTracks(net.minecraft.world.timeline.Timeline);
+  private net.minecraft.world.timeline.Timeline(net.minecraft.core.Holder<net.minecraft.world.clock.WorldClock>, java.util.Optional<java.lang.Integer>, java.util.Map<net.minecraft.world.attribute.EnvironmentAttribute<?>, net.minecraft.world.timeline.AttributeTrack<?, ?>>, java.util.Map<net.minecraft.resources.ResourceKey<net.minecraft.world.clock.ClockTimeMarker>, net.minecraft.world.timeline.Timeline$TimeMarkerInfo>);
+  public static void validateRegistry(net.minecraft.core.Registry<net.minecraft.world.timeline.Timeline>, java.util.Map<net.minecraft.resources.ResourceKey<?>, java.lang.Exception>);
+  private static com.mojang.serialization.DataResult<net.minecraft.world.timeline.Timeline> validateInternal(net.minecraft.world.timeline.Timeline);
+  public static net.minecraft.world.timeline.Timeline$Builder builder(net.minecraft.core.Holder<net.minecraft.world.clock.WorldClock>);
+  public int getPeriodCount(net.minecraft.world.clock.ClockManager);
+  public long getCurrentTicks(net.minecraft.world.clock.ClockManager);
+  public long getTotalTicks(net.minecraft.world.clock.ClockManager);
+  public net.minecraft.core.Holder<net.minecraft.world.clock.WorldClock> clock();
+  public java.util.Optional<java.lang.Integer> periodTicks();
+  public void registerTimeMarkers(java.util.function.BiConsumer<net.minecraft.resources.ResourceKey<net.minecraft.world.clock.ClockTimeMarker>, net.minecraft.world.clock.ClockTimeMarker>);
+  public java.util.Set<net.minecraft.world.attribute.EnvironmentAttribute<?>> attributes();
+  public <Value> net.minecraft.world.timeline.AttributeTrackSampler<Value, ?> createTrackSampler(net.minecraft.world.attribute.EnvironmentAttribute<Value>, net.minecraft.world.clock.ClockManager);
+  private static net.minecraft.world.timeline.Timeline lambda$validateInternal$1(net.minecraft.world.timeline.Timeline, net.minecraft.world.timeline.AttributeTrack);
+  private static java.lang.String lambda$validateInternal$0(java.util.Map$Entry, int);
+  private static void lambda$validateRegistry$0(com.google.common.collect.Multimap, java.util.Map, net.minecraft.core.Holder$Reference);
+  private static com.mojang.datafixers.kinds.App lambda$static$0(com.mojang.serialization.codecs.RecordCodecBuilder$Instance);
+  private static java.util.Map lambda$static$4(net.minecraft.world.timeline.Timeline);
+  private static java.util.Map lambda$static$3(net.minecraft.world.timeline.Timeline);
+  private static java.util.Optional lambda$static$2(net.minecraft.world.timeline.Timeline);
+  private static net.minecraft.core.Holder lambda$static$1(net.minecraft.world.timeline.Timeline);
+  static {};
+}
+
+Compiled from "EnvironmentAttributes.java"
+public interface net.minecraft.world.attribute.EnvironmentAttributes {
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Integer> FOG_COLOR;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> FOG_START_DISTANCE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> FOG_END_DISTANCE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> SKY_FOG_END_DISTANCE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> CLOUD_FOG_END_DISTANCE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Integer> WATER_FOG_COLOR;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> WATER_FOG_START_DISTANCE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> WATER_FOG_END_DISTANCE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Integer> SKY_COLOR;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Integer> SUNRISE_SUNSET_COLOR;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Integer> CLOUD_COLOR;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> CLOUD_HEIGHT;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> SUN_ANGLE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> MOON_ANGLE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> STAR_ANGLE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<net.minecraft.world.level.MoonPhase> MOON_PHASE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> STAR_BRIGHTNESS;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Integer> BLOCK_LIGHT_TINT;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Integer> SKY_LIGHT_COLOR;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> SKY_LIGHT_FACTOR;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Integer> NIGHT_VISION_COLOR;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Integer> AMBIENT_LIGHT_COLOR;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<net.minecraft.core.particles.ParticleOptions> DEFAULT_DRIPSTONE_PARTICLE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.util.List<net.minecraft.world.attribute.AmbientParticle>> AMBIENT_PARTICLES;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<net.minecraft.world.attribute.BackgroundMusic> BACKGROUND_MUSIC;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> MUSIC_VOLUME;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<net.minecraft.world.attribute.AmbientSounds> AMBIENT_SOUNDS;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Boolean> FIREFLY_BUSH_SOUNDS;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> SKY_LIGHT_LEVEL;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Boolean> CAN_START_RAID;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Boolean> WATER_EVAPORATES;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<net.minecraft.world.attribute.BedRule> BED_RULE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Boolean> RESPAWN_ANCHOR_WORKS;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Boolean> NETHER_PORTAL_SPAWNS_PIGLINS;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Boolean> FAST_LAVA;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Boolean> INCREASED_FIRE_BURNOUT;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<net.minecraft.util.TriState> EYEBLOSSOM_OPEN;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> TURTLE_EGG_HATCH_CHANCE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Boolean> PIGLINS_ZOMBIFY;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Boolean> SNOW_GOLEM_MELTS;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Boolean> CREAKING_ACTIVE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> SURFACE_SLIME_SPAWN_CHANCE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Float> CAT_WAKING_UP_GIFT_CHANCE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Boolean> BEES_STAY_IN_HIVE;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Boolean> MONSTERS_BURN;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<java.lang.Boolean> CAN_PILLAGER_PATROL_SPAWN;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<net.minecraft.world.entity.schedule.Activity> VILLAGER_ACTIVITY;
+  public static final net.minecraft.world.attribute.EnvironmentAttribute<net.minecraft.world.entity.schedule.Activity> BABY_VILLAGER_ACTIVITY;
+  public static final com.mojang.serialization.Codec<net.minecraft.world.attribute.EnvironmentAttribute<?>> CODEC;
+  public static net.minecraft.world.attribute.EnvironmentAttribute<?> bootstrap(net.minecraft.core.Registry<net.minecraft.world.attribute.EnvironmentAttribute<?>>);
+  private static <Value> net.minecraft.world.attribute.EnvironmentAttribute<Value> register(java.lang.String, net.minecraft.world.attribute.EnvironmentAttribute$Builder<Value>);
+  static {};
+}
+
+Compiled from "EnvironmentAttributeSystem.java"
+public class net.minecraft.world.attribute.EnvironmentAttributeSystem implements net.minecraft.world.attribute.EnvironmentAttributeReader {
+  private final java.util.Map<net.minecraft.world.attribute.EnvironmentAttribute<?>, net.minecraft.world.attribute.EnvironmentAttributeSystem$ValueSampler<?>> attributeSamplers;
+  private net.minecraft.world.attribute.EnvironmentAttributeSystem(java.util.Map<net.minecraft.world.attribute.EnvironmentAttribute<?>, java.util.List<net.minecraft.world.attribute.EnvironmentAttributeLayer<?>>>);
+  private <Value> net.minecraft.world.attribute.EnvironmentAttributeSystem$ValueSampler<Value> bakeLayerSampler(net.minecraft.world.attribute.EnvironmentAttribute<Value>, java.util.List<? extends net.minecraft.world.attribute.EnvironmentAttributeLayer<?>>);
+  public static net.minecraft.world.attribute.EnvironmentAttributeSystem$Builder builder();
+  private static void addDefaultLayers(net.minecraft.world.attribute.EnvironmentAttributeSystem$Builder, net.minecraft.world.level.Level);
+  private static void addDimensionLayer(net.minecraft.world.attribute.EnvironmentAttributeSystem$Builder, net.minecraft.world.level.dimension.DimensionType);
+  private static void addBiomeLayer(net.minecraft.world.attribute.EnvironmentAttributeSystem$Builder, net.minecraft.core.HolderLookup<net.minecraft.world.level.biome.Biome>, net.minecraft.world.level.biome.BiomeManager);
+  private static <Value> void addBiomeLayerForAttribute(net.minecraft.world.attribute.EnvironmentAttributeSystem$Builder, net.minecraft.world.attribute.EnvironmentAttribute<Value>, net.minecraft.world.level.biome.BiomeManager);
+  public void invalidateTickCache();
+  private <Value> net.minecraft.world.attribute.EnvironmentAttributeSystem$ValueSampler<Value> getValueSampler(net.minecraft.world.attribute.EnvironmentAttribute<Value>);
+  public <Value> Value getDimensionValue(net.minecraft.world.attribute.EnvironmentAttribute<Value>);
+  public <Value> Value getValue(net.minecraft.world.attribute.EnvironmentAttribute<Value>, net.minecraft.world.phys.Vec3, net.minecraft.world.attribute.SpatialAttributeInterpolator);
+  <Value> Value getConstantBaseValue(net.minecraft.world.attribute.EnvironmentAttribute<Value>);
+  boolean isAffectedByPosition(net.minecraft.world.attribute.EnvironmentAttribute<?>);
+  private static java.lang.Object lambda$addBiomeLayerForAttribute$0(net.minecraft.world.attribute.EnvironmentAttribute, net.minecraft.world.level.biome.BiomeManager, java.lang.Object, net.minecraft.world.phys.Vec3, net.minecraft.world.attribute.SpatialAttributeInterpolator);
+  private static void lambda$addBiomeLayer$1(net.minecraft.world.attribute.EnvironmentAttributeSystem$Builder, net.minecraft.world.level.biome.BiomeManager, net.minecraft.world.attribute.EnvironmentAttribute);
+  private static java.util.stream.Stream lambda$addBiomeLayer$0(net.minecraft.core.Holder$Reference);
+  private static void lambda$addDefaultLayers$0(net.minecraft.world.attribute.EnvironmentAttributeSystem$Builder, net.minecraft.world.clock.ClockManager, net.minecraft.core.Holder);
+  private static boolean lambda$bakeLayerSampler$0(net.minecraft.world.attribute.EnvironmentAttributeLayer);
+  private void lambda$new$0(net.minecraft.world.attribute.EnvironmentAttribute, java.util.List);
+}
+
+Compiled from "ClientLevel.java"
+public class net.minecraft.client.multiplayer.ClientLevel extends net.minecraft.world.level.Level implements net.minecraft.client.renderer.block.BlockAndTintGetter, net.minecraft.client.multiplayer.CacheSlot$Cleaner<net.minecraft.client.multiplayer.ClientLevel> {
+  private static final org.slf4j.Logger LOGGER;
+  public static final net.minecraft.network.chat.Component DEFAULT_QUIT_MESSAGE;
+  private static final double FLUID_PARTICLE_SPAWN_OFFSET;
+  private static final int NORMAL_LIGHT_UPDATES_PER_FRAME;
+  private static final int LIGHT_UPDATE_QUEUE_SIZE_THRESHOLD;
+  private static final float RAIN_PARTICLES_PER_BLOCK;
+  private static final int RAIN_RADIUS;
+  private final net.minecraft.world.level.entity.EntityTickList tickingEntities;
+  private final net.minecraft.world.level.entity.TransientEntitySectionManager<net.minecraft.world.entity.Entity> entityStorage;
+  private final net.minecraft.client.multiplayer.ClientPacketListener connection;
+  private final net.minecraft.client.renderer.extract.LevelExtractor levelExtractor;
+  private final net.minecraft.client.renderer.LevelEventHandler levelEventHandler;
+  private final net.minecraft.client.multiplayer.ClientLevel$ClientLevelData clientLevelData;
+  private final net.minecraft.world.TickRateManager tickRateManager;
+  private final net.minecraft.client.renderer.EndFlashState endFlashState;
+  private final net.minecraft.client.Minecraft minecraft;
+  private final java.util.List<net.minecraft.client.player.AbstractClientPlayer> players;
+  private final java.util.List<net.minecraft.world.entity.boss.enderdragon.EnderDragonPart> dragonParts;
+  private final java.util.Map<net.minecraft.world.level.saveddata.maps.MapId, net.minecraft.world.level.saveddata.maps.MapItemSavedData> mapData;
+  private int skyFlashTime;
+  private int rainSoundTime;
+  private final it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap<net.minecraft.world.level.ColorResolver, net.minecraft.client.color.block.BlockTintCache> tintCaches;
+  private final net.minecraft.client.multiplayer.ClientChunkCache chunkSource;
+  private final java.util.Deque<java.lang.Runnable> lightUpdateQueue;
+  private int serverSimulationDistance;
+  private final net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler blockStatePredictionHandler;
+  private final java.util.Set<net.minecraft.world.level.block.entity.BlockEntity> globallyRenderedBlockEntities;
+  private final net.minecraft.client.multiplayer.ClientExplosionTracker explosionTracker;
+  private final net.minecraft.world.level.border.WorldBorder worldBorder;
+  private final net.minecraft.world.attribute.EnvironmentAttributeSystem environmentAttributes;
+  private final it.unimi.dsi.fastutil.ints.Int2ObjectMap<net.minecraft.server.level.BlockDestructionProgress> destroyingBlocks;
+  private final it.unimi.dsi.fastutil.longs.Long2ObjectMap<java.util.SortedSet<net.minecraft.server.level.BlockDestructionProgress>> destructionProgress;
+  private final int seaLevel;
+  private static final java.util.Set<net.minecraft.world.item.Item> MARKER_PARTICLE_ITEMS;
+  public void handleBlockChangedAck(int);
+  public void onBlockEntityAdded(net.minecraft.world.level.block.entity.BlockEntity);
+  public java.util.Set<net.minecraft.world.level.block.entity.BlockEntity> getGloballyRenderedBlockEntities();
+  public void setServerVerifiedBlockState(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, int);
+  public void syncBlockState(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, net.minecraft.world.phys.Vec3);
+  net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler getBlockStatePredictionHandler();
+  public boolean setBlock(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, int, int);
+  public net.minecraft.client.multiplayer.ClientLevel(net.minecraft.client.multiplayer.ClientPacketListener, net.minecraft.client.multiplayer.ClientLevel$ClientLevelData, net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>, net.minecraft.core.Holder<net.minecraft.world.level.dimension.DimensionType>, int, int, net.minecraft.client.renderer.extract.LevelExtractor, boolean, long, int);
+  private net.minecraft.world.attribute.EnvironmentAttributeSystem$Builder addEnvironmentAttributeLayers(net.minecraft.world.attribute.EnvironmentAttributeSystem$Builder);
+  public void queueLightUpdate(java.lang.Runnable);
+  public void pollLightUpdates();
+  public net.minecraft.client.renderer.EndFlashState endFlashState();
+  public void tick(java.util.function.BooleanSupplier);
+  public void tickWeatherEffects();
+  public net.minecraft.world.level.biome.Biome$Precipitation getPrecipitationAt(net.minecraft.core.BlockPos);
+  private void removeBlockBreakingProgress();
+  private void removeProgress(net.minecraft.server.level.BlockDestructionProgress);
+  public it.unimi.dsi.fastutil.longs.Long2ObjectMap<java.util.SortedSet<net.minecraft.server.level.BlockDestructionProgress>> destructionProgress();
+  private void tickTime();
+  public void setTimeFromServer(long);
+  public java.lang.Iterable<net.minecraft.world.entity.Entity> entitiesForRendering();
+  public void tickEntities();
+  public boolean isTickingEntity(net.minecraft.world.entity.Entity);
+  public boolean shouldTickDeath(net.minecraft.world.entity.Entity);
+  public void tickNonPassenger(net.minecraft.world.entity.Entity);
+  private void tickPassenger(net.minecraft.world.entity.Entity, net.minecraft.world.entity.Entity);
+  public void update();
+  public void unload(net.minecraft.world.level.chunk.LevelChunk);
+  public void onChunkLoaded(net.minecraft.world.level.ChunkPos);
+  public void clearTintCaches();
+  public boolean hasChunk(int, int);
+  public int getEntityCount();
+  public void addEntity(net.minecraft.world.entity.Entity);
+  public void removeEntity(int, net.minecraft.world.entity.Entity$RemovalReason);
+  public java.util.List<net.minecraft.world.entity.Entity> getPushableEntities(net.minecraft.world.entity.Entity, net.minecraft.world.phys.AABB);
+  public net.minecraft.world.entity.Entity getEntity(int);
+  public void disconnect(net.minecraft.network.chat.Component);
+  public void animateTick(int, int, int);
+  private net.minecraft.world.level.block.Block getMarkerParticleTarget();
+  public void doAnimateTick(int, int, int, int, net.minecraft.util.RandomSource, net.minecraft.world.level.block.Block, net.minecraft.core.BlockPos$MutableBlockPos);
+  private void trySpawnDripParticles(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, net.minecraft.core.particles.ParticleOptions, boolean);
+  private void spawnParticle(net.minecraft.core.BlockPos, net.minecraft.core.particles.ParticleOptions, net.minecraft.world.phys.shapes.VoxelShape, double);
+  private void spawnFluidParticle(double, double, double, double, double, net.minecraft.core.particles.ParticleOptions);
+  public net.minecraft.CrashReportCategory fillReportDetails(net.minecraft.CrashReport);
+  public void playSeededSound(net.minecraft.world.entity.Entity, double, double, double, net.minecraft.core.Holder<net.minecraft.sounds.SoundEvent>, net.minecraft.sounds.SoundSource, float, float, long);
+  public void playSeededSound(net.minecraft.world.entity.Entity, net.minecraft.world.entity.Entity, net.minecraft.core.Holder<net.minecraft.sounds.SoundEvent>, net.minecraft.sounds.SoundSource, float, float, long);
+  public void playLocalSound(net.minecraft.world.entity.Entity, net.minecraft.sounds.SoundEvent, net.minecraft.sounds.SoundSource, float, float);
+  public void playPlayerSound(net.minecraft.sounds.SoundEvent, net.minecraft.sounds.SoundSource, float, float);
+  public void playLocalSound(double, double, double, net.minecraft.sounds.SoundEvent, net.minecraft.sounds.SoundSource, float, float, boolean);
+  private void playSound(double, double, double, net.minecraft.sounds.SoundEvent, net.minecraft.sounds.SoundSource, float, float, boolean, long);
+  public void createFireworks(double, double, double, double, double, double, java.util.List<net.minecraft.world.item.component.FireworkExplosion>);
+  public void sendPacketToServer(net.minecraft.network.protocol.Packet<?>);
+  public net.minecraft.world.level.border.WorldBorder getWorldBorder();
+  public net.minecraft.world.item.crafting.RecipeAccess recipeAccess();
+  public net.minecraft.world.TickRateManager tickRateManager();
+  public net.minecraft.client.ClientClockManager clockManager();
+  public net.minecraft.world.attribute.EnvironmentAttributeSystem environmentAttributes();
+  public net.minecraft.world.ticks.LevelTickAccess<net.minecraft.world.level.block.Block> getBlockTicks();
+  public net.minecraft.world.ticks.LevelTickAccess<net.minecraft.world.level.material.Fluid> getFluidTicks();
+  public net.minecraft.client.multiplayer.ClientChunkCache getChunkSource();
+  public net.minecraft.world.level.saveddata.maps.MapItemSavedData getMapData(net.minecraft.world.level.saveddata.maps.MapId);
+  public void overrideMapData(net.minecraft.world.level.saveddata.maps.MapId, net.minecraft.world.level.saveddata.maps.MapItemSavedData);
+  public net.minecraft.world.scores.Scoreboard getScoreboard();
+  public void sendBlockUpdated(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.block.state.BlockState, int);
+  public void setBlocksDirty(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.block.state.BlockState);
+  public void setSectionDirtyWithNeighbors(int, int, int);
+  public void setSectionRangeDirty(int, int, int, int, int, int);
+  public void destroyBlockProgress(int, net.minecraft.core.BlockPos, int);
+  public void globalLevelEvent(int, net.minecraft.core.BlockPos, int);
+  public void levelEvent(net.minecraft.world.entity.Entity, int, net.minecraft.core.BlockPos, int);
+  public void addParticle(net.minecraft.core.particles.ParticleOptions, double, double, double, double, double, double);
+  public void addParticle(net.minecraft.core.particles.ParticleOptions, boolean, boolean, double, double, double, double, double, double);
+  public void addAlwaysVisibleParticle(net.minecraft.core.particles.ParticleOptions, double, double, double, double, double, double);
+  public void addAlwaysVisibleParticle(net.minecraft.core.particles.ParticleOptions, boolean, double, double, double, double, double, double);
+  private void doAddParticle(net.minecraft.core.particles.ParticleOptions, boolean, boolean, double, double, double, double, double, double);
+  private net.minecraft.server.level.ParticleStatus calculateParticleLevel(boolean);
+  public java.util.List<net.minecraft.client.player.AbstractClientPlayer> players();
+  public java.util.List<net.minecraft.world.entity.boss.enderdragon.EnderDragonPart> dragonParts();
+  public net.minecraft.core.Holder<net.minecraft.world.level.biome.Biome> getUncachedNoiseBiome(int, int, int);
+  private int getSkyFlashTime();
+  public void setSkyFlashTime(int);
+  public net.minecraft.world.level.CardinalLighting cardinalLighting();
+  public int getBlockTint(net.minecraft.core.BlockPos, net.minecraft.world.level.ColorResolver);
+  public int calculateBlockTint(net.minecraft.core.BlockPos, net.minecraft.world.level.ColorResolver);
+  public void setRespawnData(net.minecraft.world.level.storage.LevelData$RespawnData);
+  public net.minecraft.world.level.storage.LevelData$RespawnData getRespawnData();
+  public java.lang.String toString();
+  public net.minecraft.client.multiplayer.ClientLevel$ClientLevelData getLevelData();
+  public void gameEvent(net.minecraft.core.Holder<net.minecraft.world.level.gameevent.GameEvent>, net.minecraft.world.phys.Vec3, net.minecraft.world.level.gameevent.GameEvent$Context);
+  protected java.util.Map<net.minecraft.world.level.saveddata.maps.MapId, net.minecraft.world.level.saveddata.maps.MapItemSavedData> getAllMapData();
+  protected void addMapData(java.util.Map<net.minecraft.world.level.saveddata.maps.MapId, net.minecraft.world.level.saveddata.maps.MapItemSavedData>);
+  protected net.minecraft.world.level.entity.LevelEntityGetter<net.minecraft.world.entity.Entity> getEntities();
+  public java.lang.String gatherChunkSourceStats();
+  public void addDestroyBlockEffect(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState);
+  public void addBreakingBlockEffect(net.minecraft.core.BlockPos, net.minecraft.core.Direction);
+  public void setServerSimulationDistance(int);
+  public int getServerSimulationDistance();
+  public net.minecraft.world.flag.FeatureFlagSet enabledFeatures();
+  public net.minecraft.world.item.alchemy.PotionBrewing potionBrewing();
+  public net.minecraft.world.level.block.entity.FuelValues fuelValues();
+  public void explode(net.minecraft.world.entity.Entity, net.minecraft.world.damagesource.DamageSource, net.minecraft.world.level.ExplosionDamageCalculator, double, double, double, float, boolean, net.minecraft.world.level.Level$ExplosionInteraction, net.minecraft.core.particles.ParticleOptions, net.minecraft.core.particles.ParticleOptions, net.minecraft.util.random.WeightedList<net.minecraft.core.particles.ExplosionParticleInfo>, net.minecraft.core.Holder<net.minecraft.sounds.SoundEvent>);
+  public int getSeaLevel();
+  public int getClientLeafTintColor(net.minecraft.core.BlockPos);
+  public void registerForCleaning(net.minecraft.client.multiplayer.CacheSlot<net.minecraft.client.multiplayer.ClientLevel, ?>);
+  public void trackExplosionEffects(net.minecraft.world.phys.Vec3, float, int, net.minecraft.util.random.WeightedList<net.minecraft.core.particles.ExplosionParticleInfo>);
+  public net.minecraft.world.clock.ClockManager clockManager();
+  public net.minecraft.world.level.storage.LevelData getLevelData();
+  public java.util.Collection dragonParts();
+  public net.minecraft.world.level.chunk.ChunkSource getChunkSource();
+  public net.minecraft.world.attribute.EnvironmentAttributeReader environmentAttributes();
+  private void lambda$addDestroyBlockEffect$0(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, double, double, double, double, double, double);
+  private java.lang.String lambda$doAddParticle$1(double, double, double) throws java.lang.Exception;
+  private java.lang.String lambda$doAddParticle$0(net.minecraft.core.particles.ParticleOptions) throws java.lang.Exception;
+  private static java.util.SortedSet lambda$destroyBlockProgress$0(long);
+  private java.lang.String lambda$fillReportDetails$3() throws java.lang.Exception;
+  private java.lang.String lambda$fillReportDetails$2() throws java.lang.Exception;
+  private java.lang.String lambda$fillReportDetails$1() throws java.lang.Exception;
+  private java.lang.String lambda$fillReportDetails$0() throws java.lang.Exception;
+  private static void lambda$clearTintCaches$0(net.minecraft.world.level.ColorResolver, net.minecraft.client.color.block.BlockTintCache);
+  private static void lambda$onChunkLoaded$0(net.minecraft.world.level.ChunkPos, net.minecraft.world.level.ColorResolver, net.minecraft.client.color.block.BlockTintCache);
+  private void lambda$tickEntities$0(net.minecraft.world.entity.Entity);
+  private java.lang.Float lambda$addEnvironmentAttributeLayers$1(java.lang.Float, int);
+  private java.lang.Integer lambda$addEnvironmentAttributeLayers$0(int, java.lang.Integer, int);
+  private void lambda$new$0(it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap);
+  private int lambda$new$4(net.minecraft.core.BlockPos);
+  private int lambda$new$3(net.minecraft.core.BlockPos);
+  private int lambda$new$2(net.minecraft.core.BlockPos);
+  private int lambda$new$1(net.minecraft.core.BlockPos);
+  static {};
+}
+
+Compiled from "ClientLevel.java"
+public class net.minecraft.client.multiplayer.ClientLevel$ClientLevelData implements net.minecraft.world.level.storage.WritableLevelData {
+  private final boolean hardcore;
+  private final boolean isFlat;
+  private net.minecraft.world.level.storage.LevelData$RespawnData respawnData;
+  private long gameTime;
+  private net.minecraft.world.Difficulty difficulty;
+  private boolean difficultyLocked;
+  public net.minecraft.client.multiplayer.ClientLevel$ClientLevelData(net.minecraft.world.Difficulty, boolean, boolean);
+  public net.minecraft.world.level.storage.LevelData$RespawnData getRespawnData();
+  public long getGameTime();
+  public void setGameTime(long);
+  public void setSpawn(net.minecraft.world.level.storage.LevelData$RespawnData);
+  public boolean isHardcore();
+  public net.minecraft.world.Difficulty getDifficulty();
+  public boolean isDifficultyLocked();
+  public void fillCrashReportCategory(net.minecraft.CrashReportCategory, net.minecraft.world.level.LevelHeightAccessor);
+  public void setDifficulty(net.minecraft.world.Difficulty);
+  public void setDifficultyLocked(boolean);
+  public double getHorizonHeight(net.minecraft.world.level.LevelHeightAccessor);
+  public float voidDarknessOnsetRange();
+}
+
+Compiled from "Level.java"
+public abstract class net.minecraft.world.level.Level implements net.minecraft.world.level.LevelAccessor,java.lang.AutoCloseable,net.fabricmc.fabric.api.attachment.v1.AttachmentTarget,net.fabricmc.fabric.api.attachment.v1.GlobalAttachmentsProvider {
+  public static final com.mojang.serialization.Codec<net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>> RESOURCE_KEY_CODEC;
+  public static final net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> OVERWORLD;
+  public static final net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> NETHER;
+  public static final net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> END;
+  public static final int MAX_LEVEL_SIZE;
+  public static final int ACROSS_THE_WHOLE_WORLD;
+  public static final int LONG_PARTICLE_CLIP_RANGE;
+  public static final int SHORT_PARTICLE_CLIP_RANGE;
+  public static final int MAX_BRIGHTNESS;
+  public static final int MAX_ENTITY_SPAWN_Y;
+  public static final int MIN_ENTITY_SPAWN_Y;
+  private static final net.minecraft.util.random.WeightedList<net.minecraft.core.particles.ExplosionParticleInfo> DEFAULT_EXPLOSION_BLOCK_PARTICLES;
+  protected final java.util.List<net.minecraft.world.level.block.entity.TickingBlockEntity> blockEntityTickers;
+  protected final net.minecraft.world.level.redstone.CollectingNeighborUpdater neighborUpdater;
+  private final java.util.List<net.minecraft.world.level.block.entity.TickingBlockEntity> pendingBlockEntityTickers;
+  private boolean tickingBlockEntities;
+  private final java.lang.Thread thread;
+  private final boolean isDebug;
+  private int skyDarken;
+  protected int randValue;
+  protected final int addend;
+  protected float oRainLevel;
+  protected float rainLevel;
+  protected float oThunderLevel;
+  protected float thunderLevel;
+  protected final net.minecraft.util.RandomSource random;
+  private final net.minecraft.util.RandomSource soundSeedGenerator;
+  private final net.minecraft.core.Holder<net.minecraft.world.level.dimension.DimensionType> dimensionTypeRegistration;
+  protected final net.minecraft.world.level.storage.WritableLevelData levelData;
+  private final boolean isClientSide;
+  private final net.minecraft.world.level.biome.BiomeManager biomeManager;
+  private final net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension;
+  private final net.minecraft.core.RegistryAccess registryAccess;
+  private final net.minecraft.world.damagesource.DamageSources damageSources;
+  private final net.minecraft.world.level.chunk.PalettedContainerFactory palettedContainerFactory;
+  private long subTickCount;
+  protected net.minecraft.world.level.Level(net.minecraft.world.level.storage.WritableLevelData, net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>, net.minecraft.core.RegistryAccess, net.minecraft.core.Holder<net.minecraft.world.level.dimension.DimensionType>, boolean, boolean, long, int);
+  public int getNextEntityId();
+  public boolean isClientSide();
+  public net.minecraft.server.MinecraftServer getServer();
+  public boolean isInWorldBounds(net.minecraft.core.BlockPos);
+  public boolean isInValidBounds(net.minecraft.core.BlockPos);
+  public static boolean isInSpawnableBounds(net.minecraft.core.BlockPos);
+  private static boolean isInWorldBoundsHorizontal(net.minecraft.core.BlockPos);
+  private static boolean isInValidBoundsHorizontal(net.minecraft.core.BlockPos);
+  private static boolean isOutsideSpawnableHeight(int);
+  public net.minecraft.world.level.chunk.LevelChunk getChunkAt(net.minecraft.core.BlockPos);
+  public net.minecraft.world.level.chunk.LevelChunk getChunk(int, int);
+  public net.minecraft.world.level.chunk.ChunkAccess getChunk(int, int, net.minecraft.world.level.chunk.status.ChunkStatus, boolean);
+  public boolean setBlock(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, int);
+  public boolean setBlock(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, int, int);
+  public void updatePOIOnBlockStateChange(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.block.state.BlockState);
+  public boolean removeBlock(net.minecraft.core.BlockPos, boolean);
+  public boolean destroyBlock(net.minecraft.core.BlockPos, boolean, net.minecraft.world.entity.Entity, int);
+  public void addDestroyBlockEffect(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState);
+  public boolean setBlockAndUpdate(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState);
+  public abstract void sendBlockUpdated(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.block.state.BlockState, int);
+  public void setBlocksDirty(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.block.state.BlockState);
+  public void updateNeighborsAt(net.minecraft.core.BlockPos, net.minecraft.world.level.block.Block, net.minecraft.world.level.redstone.Orientation);
+  public void updateNeighborsAtExceptFromFacing(net.minecraft.core.BlockPos, net.minecraft.world.level.block.Block, net.minecraft.core.Direction, net.minecraft.world.level.redstone.Orientation);
+  public void neighborChanged(net.minecraft.core.BlockPos, net.minecraft.world.level.block.Block, net.minecraft.world.level.redstone.Orientation);
+  public void neighborChanged(net.minecraft.world.level.block.state.BlockState, net.minecraft.core.BlockPos, net.minecraft.world.level.block.Block, net.minecraft.world.level.redstone.Orientation, boolean);
+  public void neighborShapeChanged(net.minecraft.core.Direction, net.minecraft.core.BlockPos, net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, int, int);
+  public int getHeight(net.minecraft.world.level.levelgen.Heightmap$Types, int, int);
+  public net.minecraft.world.level.lighting.LevelLightEngine getLightEngine();
+  public net.minecraft.world.level.block.state.BlockState getBlockState(net.minecraft.core.BlockPos);
+  public net.minecraft.world.level.material.FluidState getFluidState(net.minecraft.core.BlockPos);
+  public boolean isBrightOutside();
+  public boolean isDarkOutside();
+  public void playSound(net.minecraft.world.entity.Entity, net.minecraft.core.BlockPos, net.minecraft.sounds.SoundEvent, net.minecraft.sounds.SoundSource, float, float);
+  public abstract void playSeededSound(net.minecraft.world.entity.Entity, double, double, double, net.minecraft.core.Holder<net.minecraft.sounds.SoundEvent>, net.minecraft.sounds.SoundSource, float, float, long);
+  public void playSeededSound(net.minecraft.world.entity.Entity, double, double, double, net.minecraft.sounds.SoundEvent, net.minecraft.sounds.SoundSource, float, float, long);
+  public abstract void playSeededSound(net.minecraft.world.entity.Entity, net.minecraft.world.entity.Entity, net.minecraft.core.Holder<net.minecraft.sounds.SoundEvent>, net.minecraft.sounds.SoundSource, float, float, long);
+  public void playSound(net.minecraft.world.entity.Entity, double, double, double, net.minecraft.sounds.SoundEvent, net.minecraft.sounds.SoundSource);
+  public void playSound(net.minecraft.world.entity.Entity, double, double, double, net.minecraft.sounds.SoundEvent, net.minecraft.sounds.SoundSource, float, float);
+  public void playSound(net.minecraft.world.entity.Entity, double, double, double, net.minecraft.core.Holder<net.minecraft.sounds.SoundEvent>, net.minecraft.sounds.SoundSource, float, float);
+  public void playSound(net.minecraft.world.entity.Entity, net.minecraft.world.entity.Entity, net.minecraft.sounds.SoundEvent, net.minecraft.sounds.SoundSource, float, float);
+  public void playLocalSound(net.minecraft.core.BlockPos, net.minecraft.sounds.SoundEvent, net.minecraft.sounds.SoundSource, float, float, boolean);
+  public void playLocalSound(net.minecraft.world.entity.Entity, net.minecraft.sounds.SoundEvent, net.minecraft.sounds.SoundSource, float, float);
+  public void playLocalSound(double, double, double, net.minecraft.sounds.SoundEvent, net.minecraft.sounds.SoundSource, float, float, boolean);
+  public void playPlayerSound(net.minecraft.sounds.SoundEvent, net.minecraft.sounds.SoundSource, float, float);
+  public void addParticle(net.minecraft.core.particles.ParticleOptions, double, double, double, double, double, double);
+  public void addParticle(net.minecraft.core.particles.ParticleOptions, boolean, boolean, double, double, double, double, double, double);
+  public void addAlwaysVisibleParticle(net.minecraft.core.particles.ParticleOptions, double, double, double, double, double, double);
+  public void addAlwaysVisibleParticle(net.minecraft.core.particles.ParticleOptions, boolean, double, double, double, double, double, double);
+  public void addBlockEntityTicker(net.minecraft.world.level.block.entity.TickingBlockEntity);
+  public void tickBlockEntities();
+  public <T extends net.minecraft.world.entity.Entity> void guardEntityTick(java.util.function.Consumer<T>, T);
+  public boolean shouldTickDeath(net.minecraft.world.entity.Entity);
+  public boolean shouldTickBlocksAt(long);
+  public boolean shouldTickBlocksAt(net.minecraft.core.BlockPos);
+  public void explode(net.minecraft.world.entity.Entity, double, double, double, float, net.minecraft.world.level.Level$ExplosionInteraction);
+  public void explode(net.minecraft.world.entity.Entity, double, double, double, float, boolean, net.minecraft.world.level.Level$ExplosionInteraction);
+  public void explode(net.minecraft.world.entity.Entity, net.minecraft.world.damagesource.DamageSource, net.minecraft.world.level.ExplosionDamageCalculator, net.minecraft.world.phys.Vec3, float, boolean, net.minecraft.world.level.Level$ExplosionInteraction);
+  public void explode(net.minecraft.world.entity.Entity, net.minecraft.world.damagesource.DamageSource, net.minecraft.world.level.ExplosionDamageCalculator, double, double, double, float, boolean, net.minecraft.world.level.Level$ExplosionInteraction);
+  public abstract void explode(net.minecraft.world.entity.Entity, net.minecraft.world.damagesource.DamageSource, net.minecraft.world.level.ExplosionDamageCalculator, double, double, double, float, boolean, net.minecraft.world.level.Level$ExplosionInteraction, net.minecraft.core.particles.ParticleOptions, net.minecraft.core.particles.ParticleOptions, net.minecraft.util.random.WeightedList<net.minecraft.core.particles.ExplosionParticleInfo>, net.minecraft.core.Holder<net.minecraft.sounds.SoundEvent>);
+  public abstract java.lang.String gatherChunkSourceStats();
+  public net.minecraft.world.level.block.entity.BlockEntity getBlockEntity(net.minecraft.core.BlockPos);
+  public void setBlockEntity(net.minecraft.world.level.block.entity.BlockEntity);
+  public void removeBlockEntity(net.minecraft.core.BlockPos);
+  public boolean isLoaded(net.minecraft.core.BlockPos);
+  public boolean loadedAndEntityCanStandOnFace(net.minecraft.core.BlockPos, net.minecraft.world.entity.Entity, net.minecraft.core.Direction);
+  public boolean loadedAndEntityCanStandOn(net.minecraft.core.BlockPos, net.minecraft.world.entity.Entity);
+  public void updateSkyBrightness();
+  public void setSpawnSettings(boolean);
+  public abstract void setRespawnData(net.minecraft.world.level.storage.LevelData$RespawnData);
+  public abstract net.minecraft.world.level.storage.LevelData$RespawnData getRespawnData();
+  public net.minecraft.world.level.storage.LevelData$RespawnData getWorldBorderAdjustedRespawnData(net.minecraft.world.level.storage.LevelData$RespawnData);
+  public void close() throws java.io.IOException;
+  public net.minecraft.world.level.BlockGetter getChunkForCollisions(int, int);
+  public java.util.List<net.minecraft.world.entity.Entity> getEntities(net.minecraft.world.entity.Entity, net.minecraft.world.phys.AABB, java.util.function.Predicate<? super net.minecraft.world.entity.Entity>);
+  public <T extends net.minecraft.world.entity.Entity> java.util.List<T> getEntities(net.minecraft.world.level.entity.EntityTypeTest<net.minecraft.world.entity.Entity, T>, net.minecraft.world.phys.AABB, java.util.function.Predicate<? super T>);
+  public <T extends net.minecraft.world.entity.Entity> void getEntities(net.minecraft.world.level.entity.EntityTypeTest<net.minecraft.world.entity.Entity, T>, net.minecraft.world.phys.AABB, java.util.function.Predicate<? super T>, java.util.List<? super T>);
+  public <T extends net.minecraft.world.entity.Entity> void getEntities(net.minecraft.world.level.entity.EntityTypeTest<net.minecraft.world.entity.Entity, T>, net.minecraft.world.phys.AABB, java.util.function.Predicate<? super T>, java.util.List<? super T>, int);
+  public <T extends net.minecraft.world.entity.Entity> boolean hasEntities(net.minecraft.world.level.entity.EntityTypeTest<net.minecraft.world.entity.Entity, T>, net.minecraft.world.phys.AABB, java.util.function.Predicate<? super T>);
+  public java.util.List<net.minecraft.world.entity.Entity> getPushableEntities(net.minecraft.world.entity.Entity, net.minecraft.world.phys.AABB);
+  public abstract net.minecraft.world.entity.Entity getEntity(int);
+  public net.minecraft.world.entity.Entity getEntity(java.util.UUID);
+  public net.minecraft.world.entity.Entity getEntityInAnyDimension(java.util.UUID);
+  public net.minecraft.world.entity.player.Player getPlayerInAnyDimension(java.util.UUID);
+  public abstract java.util.Collection<net.minecraft.world.entity.boss.enderdragon.EnderDragonPart> dragonParts();
+  public void blockEntityChanged(net.minecraft.core.BlockPos);
+  public void onBlockEntityAdded(net.minecraft.world.level.block.entity.BlockEntity);
+  public long getOverworldClockTime();
+  public long getDefaultClockTime();
+  private long getClockTimeTicks(java.util.Optional<? extends net.minecraft.core.Holder<net.minecraft.world.clock.WorldClock>>);
+  public boolean mayInteract(net.minecraft.world.entity.Entity, net.minecraft.core.BlockPos);
+  public void broadcastEntityEvent(net.minecraft.world.entity.Entity, byte);
+  public void broadcastDamageEvent(net.minecraft.world.entity.Entity, net.minecraft.world.damagesource.DamageSource);
+  public void blockEvent(net.minecraft.core.BlockPos, net.minecraft.world.level.block.Block, int, int);
+  public net.minecraft.world.level.storage.LevelData getLevelData();
+  public abstract net.minecraft.world.TickRateManager tickRateManager();
+  public float getThunderLevel(float);
+  public void setThunderLevel(float);
+  public float getRainLevel(float);
+  public void setRainLevel(float);
+  public boolean canHaveWeather();
+  public boolean isThundering();
+  public boolean isRaining();
+  public boolean isRainingAt(net.minecraft.core.BlockPos);
+  public net.minecraft.world.level.biome.Biome$Precipitation precipitationAt(net.minecraft.core.BlockPos);
+  public abstract net.minecraft.world.level.saveddata.maps.MapItemSavedData getMapData(net.minecraft.world.level.saveddata.maps.MapId);
+  public void globalLevelEvent(int, net.minecraft.core.BlockPos, int);
+  public net.minecraft.CrashReportCategory fillReportDetails(net.minecraft.CrashReport);
+  public abstract void destroyBlockProgress(int, net.minecraft.core.BlockPos, int);
+  public void createFireworks(double, double, double, double, double, double, java.util.List<net.minecraft.world.item.component.FireworkExplosion>);
+  public abstract net.minecraft.world.scores.Scoreboard getScoreboard();
+  public void updateNeighbourForOutputSignal(net.minecraft.core.BlockPos, net.minecraft.world.level.block.Block);
+  public int getSkyDarken();
+  public void setSkyFlashTime(int);
+  public void sendPacketToServer(net.minecraft.network.protocol.Packet<?>);
+  public net.minecraft.world.level.dimension.DimensionType dimensionType();
+  public net.minecraft.core.Holder<net.minecraft.world.level.dimension.DimensionType> dimensionTypeRegistration();
+  public net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> dimension();
+  public net.minecraft.util.RandomSource getRandom();
+  public boolean isStateAtPosition(net.minecraft.core.BlockPos, java.util.function.Predicate<net.minecraft.world.level.block.state.BlockState>);
+  public boolean isFluidAtPosition(net.minecraft.core.BlockPos, java.util.function.Predicate<net.minecraft.world.level.material.FluidState>);
+  public abstract net.minecraft.world.item.crafting.RecipeAccess recipeAccess();
+  public net.minecraft.core.BlockPos getBlockRandomPos(int, int, int, int);
+  public boolean noSave();
+  public net.minecraft.world.level.biome.BiomeManager getBiomeManager();
+  public final boolean isDebug();
+  protected abstract net.minecraft.world.level.entity.LevelEntityGetter<net.minecraft.world.entity.Entity> getEntities();
+  public long nextSubTickCount();
+  public net.minecraft.core.RegistryAccess registryAccess();
+  public net.minecraft.world.damagesource.DamageSources damageSources();
+  public abstract net.minecraft.world.clock.ClockManager clockManager();
+  public abstract net.minecraft.world.attribute.EnvironmentAttributeSystem environmentAttributes();
+  public abstract net.minecraft.world.item.alchemy.PotionBrewing potionBrewing();
+  public abstract net.minecraft.world.level.block.entity.FuelValues fuelValues();
+  public int getClientLeafTintColor(net.minecraft.core.BlockPos);
+  public net.minecraft.world.level.chunk.PalettedContainerFactory palettedContainerFactory();
+  public net.minecraft.world.attribute.EnvironmentAttributeReader environmentAttributes();
+  public net.minecraft.world.level.chunk.ChunkAccess getChunk(int, int);
+  private java.lang.String lambda$fillReportDetails$2() throws java.lang.Exception;
+  private java.lang.String lambda$fillReportDetails$1() throws java.lang.Exception;
+  private java.lang.String lambda$fillReportDetails$0() throws java.lang.Exception;
+  private java.lang.Long lambda$getClockTimeTicks$0(net.minecraft.core.Holder);
+  private static net.minecraft.util.AbortableIterationConsumer$Continuation lambda$hasEntities$0(java.util.function.Predicate, org.apache.commons.lang3.mutable.MutableBoolean, net.minecraft.world.level.entity.EntityTypeTest, net.minecraft.world.entity.Entity);
+  private static net.minecraft.util.AbortableIterationConsumer$Continuation lambda$getEntities$1(java.util.function.Predicate, java.util.List, int, net.minecraft.world.level.entity.EntityTypeTest, net.minecraft.world.entity.Entity);
+  private static void lambda$getEntities$0(net.minecraft.world.entity.Entity, java.util.function.Predicate, java.util.List, net.minecraft.world.entity.Entity);
+  static {};
+}
+
+Compiled from "LevelData.java"
+public interface net.minecraft.world.level.storage.LevelData {
+  public abstract net.minecraft.world.level.storage.LevelData$RespawnData getRespawnData();
+  public abstract long getGameTime();
+  public abstract boolean isHardcore();
+  public abstract net.minecraft.world.Difficulty getDifficulty();
+  public abstract boolean isDifficultyLocked();
+  public default void fillCrashReportCategory(net.minecraft.CrashReportCategory, net.minecraft.world.level.LevelHeightAccessor);
+  private java.lang.String lambda$fillCrashReportCategory$0(net.minecraft.world.level.LevelHeightAccessor) throws java.lang.Exception;
+}
+
+Compiled from "ItemEntityRenderer.java"
+public class net.minecraft.client.renderer.entity.ItemEntityRenderer extends net.minecraft.client.renderer.entity.EntityRenderer<net.minecraft.world.entity.item.ItemEntity, net.minecraft.client.renderer.entity.state.ItemEntityRenderState> {
+  private static final float ITEM_MIN_HOVER_HEIGHT;
+  private static final float ITEM_BUNDLE_OFFSET_SCALE;
+  private static final float FLAT_ITEM_DEPTH_THRESHOLD;
+  private final net.minecraft.client.renderer.item.ItemModelResolver itemModelResolver;
+  private final net.minecraft.util.RandomSource random;
+  public net.minecraft.client.renderer.entity.ItemEntityRenderer(net.minecraft.client.renderer.entity.EntityRendererProvider$Context);
+  public net.minecraft.client.renderer.entity.state.ItemEntityRenderState createRenderState();
+  public void extractRenderState(net.minecraft.world.entity.item.ItemEntity, net.minecraft.client.renderer.entity.state.ItemEntityRenderState, float);
+  public void submit(net.minecraft.client.renderer.entity.state.ItemEntityRenderState, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, net.minecraft.client.renderer.state.level.CameraRenderState);
+  public static void submitMultipleFromCount(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, int, net.minecraft.client.renderer.entity.state.ItemClusterRenderState, net.minecraft.util.RandomSource);
+  public static void submitMultipleFromCount(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, int, net.minecraft.client.renderer.entity.state.ItemClusterRenderState, net.minecraft.util.RandomSource, net.minecraft.world.phys.AABB);
+  public static void renderMultipleFromCount(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, int, net.minecraft.client.renderer.entity.state.ItemClusterRenderState, net.minecraft.util.RandomSource);
+  public void extractRenderState(net.minecraft.world.entity.Entity, net.minecraft.client.renderer.entity.state.EntityRenderState, float);
+  public net.minecraft.client.renderer.entity.state.EntityRenderState createRenderState();
+  public void submit(net.minecraft.client.renderer.entity.state.EntityRenderState, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, net.minecraft.client.renderer.state.level.CameraRenderState);
+}
+
+Compiled from "ItemEntityRenderState.java"
+public class net.minecraft.client.renderer.entity.state.ItemEntityRenderState extends net.minecraft.client.renderer.entity.state.ItemClusterRenderState {
+  public float bobOffset;
+  public net.minecraft.client.renderer.entity.state.ItemEntityRenderState();
+}
+
+Compiled from "ItemClusterRenderState.java"
+public class net.minecraft.client.renderer.entity.state.ItemClusterRenderState extends net.minecraft.client.renderer.entity.state.EntityRenderState {
+  public final net.minecraft.client.renderer.item.ItemStackRenderState item;
+  public int count;
+  public int seed;
+  public net.minecraft.client.renderer.entity.state.ItemClusterRenderState();
+  public void extractItemGroupRenderState(net.minecraft.world.entity.Entity, net.minecraft.world.item.ItemStack, net.minecraft.client.renderer.item.ItemModelResolver);
+  public static int getSeedForItemStack(net.minecraft.world.item.ItemStack);
+  public static int getRenderedAmount(int);
+}
+
+Compiled from "ItemStackRenderState.java"
+public class net.minecraft.client.renderer.item.ItemStackRenderState implements net.fabricmc.fabric.api.client.rendering.v1.FabricRenderState {
+  net.minecraft.world.item.ItemDisplayContext displayContext;
+  private int activeLayerCount;
+  private boolean animated;
+  private boolean oversizedInGui;
+  private net.minecraft.world.phys.AABB cachedModelBoundingBox;
+  private net.minecraft.client.renderer.item.ItemStackRenderState$LayerRenderState[] layers;
+  public net.minecraft.client.renderer.item.ItemStackRenderState();
+  public void ensureCapacity(int);
+  public net.minecraft.client.renderer.item.ItemStackRenderState$LayerRenderState newLayer();
+  public void clear();
+  public void setAnimated();
+  public boolean isAnimated();
+  public void appendModelIdentityElement(java.lang.Object);
+  private net.minecraft.client.renderer.item.ItemStackRenderState$LayerRenderState firstLayer();
+  public boolean isEmpty();
+  public boolean usesBlockLight();
+  public net.minecraft.client.resources.model.sprite.Material$Baked pickParticleMaterial(net.minecraft.util.RandomSource);
+  public void visitExtents(java.util.function.Consumer<org.joml.Vector3fc>);
+  public void submit(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, int, int, int);
+  public net.minecraft.world.phys.AABB getModelBoundingBox();
+  public void setOversizedInGui(boolean);
+  public boolean isOversizedInGui();
+}
+
+Compiled from "ItemEntity.java"
+public class net.minecraft.world.entity.item.ItemEntity extends net.minecraft.world.entity.Entity implements net.minecraft.world.entity.TraceableEntity {
+  private static final net.minecraft.network.syncher.EntityDataAccessor<net.minecraft.world.item.ItemStack> DATA_ITEM;
+  private static final float FLOAT_HEIGHT;
+  public static final float EYE_HEIGHT;
+  private static final int LIFETIME;
+  private static final int INFINITE_PICKUP_DELAY;
+  private static final int INFINITE_LIFETIME;
+  public static final int DEFAULT_HEALTH;
+  private static final short DEFAULT_AGE;
+  private static final short DEFAULT_PICKUP_DELAY;
+  private int age;
+  private int pickupDelay;
+  private int health;
+  private net.minecraft.world.entity.EntityReference<net.minecraft.world.entity.Entity> thrower;
+  private java.util.UUID target;
+  public final float bobOffs;
+  public net.minecraft.world.entity.item.ItemEntity(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.item.ItemEntity>, net.minecraft.world.level.Level);
+  public net.minecraft.world.entity.item.ItemEntity(net.minecraft.world.level.Level, double, double, double, net.minecraft.world.item.ItemStack);
+  public net.minecraft.world.entity.item.ItemEntity(net.minecraft.world.level.Level, double, double, double, net.minecraft.world.item.ItemStack, double, double, double);
+  public boolean dampensVibrations();
+  public net.minecraft.world.entity.Entity getOwner();
+  public void restoreFrom(net.minecraft.world.entity.Entity);
+  protected net.minecraft.world.entity.Entity$MovementEmission getMovementEmission();
+  protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData$Builder);
+  protected double getDefaultGravity();
+  public void tick();
+  public net.minecraft.core.BlockPos getBlockPosBelowThatAffectsMyMovement();
+  private void setUnderwaterMovement();
+  private void setUnderLavaMovement();
+  private void setFluidMovement(double);
+  private void mergeWithNeighbours();
+  private boolean isMergable();
+  private void tryToMerge(net.minecraft.world.entity.item.ItemEntity);
+  public static boolean areMergable(net.minecraft.world.item.ItemStack, net.minecraft.world.item.ItemStack);
+  public static net.minecraft.world.item.ItemStack merge(net.minecraft.world.item.ItemStack, net.minecraft.world.item.ItemStack, int);
+  private static void merge(net.minecraft.world.entity.item.ItemEntity, net.minecraft.world.item.ItemStack, net.minecraft.world.item.ItemStack);
+  private static void merge(net.minecraft.world.entity.item.ItemEntity, net.minecraft.world.item.ItemStack, net.minecraft.world.entity.item.ItemEntity, net.minecraft.world.item.ItemStack);
+  public boolean fireImmune();
+  protected boolean shouldPlayLavaHurtSound();
+  public final boolean hurtClient(net.minecraft.world.damagesource.DamageSource);
+  public final boolean hurtServer(net.minecraft.server.level.ServerLevel, net.minecraft.world.damagesource.DamageSource, float);
+  public boolean ignoreExplosion(net.minecraft.world.level.Explosion);
+  protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput);
+  protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput);
+  public void playerTouch(net.minecraft.world.entity.player.Player);
+  public net.minecraft.network.chat.Component getName();
+  public boolean isAttackable();
+  public net.minecraft.world.entity.Entity teleport(net.minecraft.world.level.portal.TeleportTransition);
+  public net.minecraft.world.item.ItemStack getItem();
+  public void setItem(net.minecraft.world.item.ItemStack);
+  public void setTarget(java.util.UUID);
+  public void setThrower(net.minecraft.world.entity.Entity);
+  public int getAge();
+  public void setDefaultPickUpDelay();
+  public void setNoPickUpDelay();
+  public void setNeverPickUp();
+  public void setPickUpDelay(int);
+  public boolean hasPickUpDelay();
+  public void setUnlimitedLifetime();
+  public void setExtendedLifetime();
+  public void makeFakeItem();
+  public static float getSpin(float, float);
+  public net.minecraft.sounds.SoundSource getSoundSource();
+  public float getVisualRotationYInDegrees();
+  public net.minecraft.world.entity.SlotAccess getSlot(int);
+  private boolean lambda$mergeWithNeighbours$0(net.minecraft.world.entity.item.ItemEntity);
+  static {};
+}
+
+Compiled from "Projectile.java"
+public abstract class net.minecraft.world.entity.projectile.Projectile extends net.minecraft.world.entity.Entity implements net.minecraft.world.entity.TraceableEntity {
+  private static final boolean DEFAULT_LEFT_OWNER;
+  private static final boolean DEFAULT_HAS_BEEN_SHOT;
+  protected net.minecraft.world.entity.EntityReference<net.minecraft.world.entity.Entity> owner;
+  private boolean leftOwner;
+  private boolean leftOwnerChecked;
+  private boolean hasBeenShot;
+  private net.minecraft.world.entity.Entity lastDeflectedBy;
+  public net.minecraft.world.entity.projectile.Projectile(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.projectile.Projectile>, net.minecraft.world.level.Level);
+  protected void setOwner(net.minecraft.world.entity.EntityReference<net.minecraft.world.entity.Entity>);
+  public void setOwner(net.minecraft.world.entity.Entity);
+  public net.minecraft.world.entity.Entity getOwner();
+  public net.minecraft.world.entity.Entity getEffectSource();
+  protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput);
+  protected boolean ownedBy(net.minecraft.world.entity.Entity);
+  protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput);
+  public void restoreFrom(net.minecraft.world.entity.Entity);
+  public void tick();
+  protected void checkLeftOwner();
+  private boolean isOutsideOwnerCollisionRange();
+  public net.minecraft.world.phys.Vec3 getMovementToShoot(double, double, double, float, float);
+  public void shoot(double, double, double, float, float);
+  public void shootFromRotation(net.minecraft.world.entity.Entity, float, float, float, float, float);
+  public void onAboveBubbleColumn(boolean, net.minecraft.core.BlockPos);
+  public void onInsideBubbleColumn(boolean);
+  public static <T extends net.minecraft.world.entity.projectile.Projectile> T spawnProjectileFromRotation(net.minecraft.world.entity.projectile.Projectile$ProjectileFactory<T>, net.minecraft.server.level.ServerLevel, net.minecraft.world.item.ItemStack, net.minecraft.world.entity.LivingEntity, float, float, float);
+  public static <T extends net.minecraft.world.entity.projectile.Projectile> T spawnProjectileUsingShoot(net.minecraft.world.entity.projectile.Projectile$ProjectileFactory<T>, net.minecraft.server.level.ServerLevel, net.minecraft.world.item.ItemStack, net.minecraft.world.entity.LivingEntity, double, double, double, float, float);
+  public static <T extends net.minecraft.world.entity.projectile.Projectile> T spawnProjectileUsingShoot(T, net.minecraft.server.level.ServerLevel, net.minecraft.world.item.ItemStack, double, double, double, float, float);
+  public static <T extends net.minecraft.world.entity.projectile.Projectile> T spawnProjectile(T, net.minecraft.server.level.ServerLevel, net.minecraft.world.item.ItemStack);
+  public static <T extends net.minecraft.world.entity.projectile.Projectile> T spawnProjectile(T, net.minecraft.server.level.ServerLevel, net.minecraft.world.item.ItemStack, java.util.function.Consumer<T>);
+  public void applyOnProjectileSpawned(net.minecraft.server.level.ServerLevel, net.minecraft.world.item.ItemStack);
+  protected net.minecraft.world.entity.projectile.ProjectileDeflection hitTargetOrDeflectSelf(net.minecraft.world.phys.HitResult);
+  protected boolean shouldBounceOnWorldBorder();
+  public boolean deflect(net.minecraft.world.entity.projectile.ProjectileDeflection, net.minecraft.world.entity.Entity, net.minecraft.world.entity.EntityReference<net.minecraft.world.entity.Entity>, boolean);
+  protected void onDeflection(boolean);
+  protected void onItemBreak(net.minecraft.world.item.Item);
+  protected void onHit(net.minecraft.world.phys.HitResult);
+  protected void onHitEntity(net.minecraft.world.phys.EntityHitResult);
+  protected void onHitBlock(net.minecraft.world.phys.BlockHitResult);
+  protected boolean canHitEntity(net.minecraft.world.entity.Entity);
+  protected void updateRotation();
+  protected static float lerpRotation(float, float);
+  public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getAddEntityPacket(net.minecraft.server.level.ServerEntity);
+  public void recreateFromPacket(net.minecraft.network.protocol.game.ClientboundAddEntityPacket);
+  public boolean mayInteract(net.minecraft.server.level.ServerLevel, net.minecraft.core.BlockPos);
+  public boolean mayBreak(net.minecraft.server.level.ServerLevel);
+  public boolean isPickable();
+  public float getPickRadius();
+  public it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair calculateHorizontalHurtKnockbackDirection(net.minecraft.world.entity.LivingEntity, net.minecraft.world.damagesource.DamageSource);
+  public int getDimensionChangingDelay();
+  public boolean hurtServer(net.minecraft.server.level.ServerLevel, net.minecraft.world.damagesource.DamageSource, float);
+  private static void lambda$applyOnProjectileSpawned$0(net.minecraft.world.item.Item);
+  private static void lambda$spawnProjectile$0(net.minecraft.world.entity.projectile.Projectile);
+  private static void lambda$spawnProjectileUsingShoot$1(net.minecraft.world.entity.projectile.Projectile, double, double, double, float, float, net.minecraft.world.entity.projectile.Projectile);
+  private static void lambda$spawnProjectileUsingShoot$0(double, double, double, float, float, net.minecraft.world.entity.projectile.Projectile);
+  private static void lambda$spawnProjectileFromRotation$0(net.minecraft.world.entity.LivingEntity, float, float, float, net.minecraft.world.entity.projectile.Projectile);
+  private static boolean lambda$isOutsideOwnerCollisionRange$0(net.minecraft.world.phys.AABB, net.minecraft.world.entity.Entity);
+}
+
+Compiled from "EntityRenderer.java"
+public abstract class net.minecraft.client.renderer.entity.EntityRenderer<T extends net.minecraft.world.entity.Entity, S extends net.minecraft.client.renderer.entity.state.EntityRenderState> {
+  private static final float SHADOW_POWER_FALLOFF_Y;
+  private static final float MAX_SHADOW_RADIUS;
+  public static final float NAMETAG_SCALE;
+  protected final net.minecraft.client.renderer.entity.EntityRenderDispatcher entityRenderDispatcher;
+  private final net.minecraft.client.gui.Font font;
+  protected float shadowRadius;
+  protected float shadowStrength;
+  protected net.minecraft.client.renderer.entity.EntityRenderer(net.minecraft.client.renderer.entity.EntityRendererProvider$Context);
+  public final int getPackedLightCoords(T, float);
+  protected int getSkyLightLevel(T, net.minecraft.core.BlockPos);
+  protected int getBlockLightLevel(T, net.minecraft.core.BlockPos);
+  public boolean shouldRender(T, net.minecraft.client.renderer.culling.Frustum, double, double, double);
+  protected net.minecraft.world.phys.AABB getBoundingBoxForCulling(T);
+  protected boolean affectedByCulling(T);
+  public net.minecraft.world.phys.Vec3 getRenderOffset(S);
+  public void submit(S, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, net.minecraft.client.renderer.state.level.CameraRenderState);
+  protected boolean shouldShowName(T, double);
+  public net.minecraft.client.gui.Font getFont();
+  protected void submitNameDisplay(S, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, net.minecraft.client.renderer.state.level.CameraRenderState);
+  protected final <S extends net.minecraft.client.renderer.entity.state.EntityRenderState> void submitNameDisplay(S, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.SubmitNodeCollector, net.minecraft.client.renderer.state.level.CameraRenderState, int);
+  protected net.minecraft.network.chat.Component getNameTag(T);
+  protected float getShadowRadius(S);
+  protected float getShadowStrength(S);
+  public abstract S createRenderState();
+  public final S createRenderState(T, float);
+  public void extractRenderState(T, S, float);
+  protected void extractNameTags(T, S, float);
+  protected final void extractNameTags(T, S, float, double, double);
+  protected void finalizeRenderState(T, S);
+  private void extractShadow(S, net.minecraft.client.Minecraft, net.minecraft.world.level.Level);
+  private void extractShadowPiece(S, net.minecraft.world.level.Level, float, net.minecraft.core.BlockPos$MutableBlockPos, net.minecraft.world.level.chunk.ChunkAccess);
+  private static net.minecraft.world.entity.Entity getServerSideEntity(net.minecraft.world.entity.Entity);
+}
+
 == class index ==
 net/minecraft/client/model/HumanoidModel
 net/minecraft/client/model/player/PlayerModel
@@ -6088,10 +6910,9 @@ net/minecraft/client/renderer/blockentity/state/
 net/minecraft/client/renderer/blockentity/state/BannerRenderState
 net/minecraft/client/renderer/blockentity/state/BeaconRenderState
 net/minecraft/client/renderer/blockentity/state/BedRenderState
-net/minecraft/client/renderer/blockentity/state/BellRenderState
-net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState
+net/minecraft/client/renderer/blockentity/state/BlockEntityWithBoundingBoxRenderState
+net/minecraft/client/renderer/blockentity/state/BrushableBlockRenderState
 net/minecraft/client/renderer/blockentity/state/CampfireRenderState
-net/minecraft/client/renderer/blockentity/state/ChestRenderState
 net/minecraft/client/renderer/blockentity/state/ConduitRenderState
 net/minecraft/client/renderer/blockentity/state/CopperGolemStatueRenderState
 net/minecraft/client/renderer/blockentity/state/DecoratedPotRenderState
@@ -6104,48 +6925,178 @@ net/minecraft/client/renderer/blockentity/state/PistonHeadRenderState
 net/minecraft/client/renderer/blockentity/state/ShelfRenderState
 net/minecraft/client/renderer/blockentity/state/ShulkerBoxRenderState
 net/minecraft/client/renderer/blockentity/state/SignRenderState
+net/minecraft/client/renderer/blockentity/state/SkullBlockRenderState
 net/minecraft/client/renderer/blockentity/state/SpawnerRenderState
 net/minecraft/client/renderer/blockentity/state/StandingSignRenderState
 net/minecraft/client/renderer/blockentity/state/TestInstanceRenderState
 net/minecraft/client/renderer/blockentity/state/VaultRenderState
 net/minecraft/client/renderer/blockentity/state/package-info
-net/minecraft/client/renderer/blockentity/state/BlockEntityWithBoundingBoxRenderState
-net/minecraft/client/renderer/blockentity/state/BrushableBlockRenderState
-net/minecraft/client/renderer/blockentity/state/SkullBlockRenderState
+net/minecraft/client/renderer/blockentity/state/BellRenderState
+net/minecraft/client/renderer/blockentity/state/BlockEntityRenderState
+net/minecraft/client/renderer/blockentity/state/ChestRenderState
+net/minecraft/client/renderer/entity/AbstractBoatRenderer
+net/minecraft/client/renderer/entity/AbstractHoglinRenderer
+net/minecraft/client/renderer/entity/AbstractCubeMobRenderer
+net/minecraft/client/renderer/entity/AbstractHorseRenderer
+net/minecraft/client/renderer/entity/AbstractSkeletonRenderer
+net/minecraft/client/renderer/entity/AbstractZombieRenderer
+net/minecraft/client/renderer/entity/AgeableMobRenderer
+net/minecraft/client/renderer/entity/ArmadilloRenderer
+net/minecraft/client/renderer/entity/ArmorStandRenderer
+net/minecraft/client/renderer/entity/ArrowRenderer
+net/minecraft/client/renderer/entity/BatRenderer
+net/minecraft/client/renderer/entity/AxolotlRenderer
+net/minecraft/client/renderer/entity/BlazeRenderer
+net/minecraft/client/renderer/entity/BeeRenderer
+net/minecraft/client/renderer/entity/AbstractMinecartRenderer
+net/minecraft/client/renderer/entity/BoggedRenderer
+net/minecraft/client/renderer/entity/BreezeRenderer
+net/minecraft/client/renderer/entity/AllayRenderer
+net/minecraft/client/renderer/entity/CatRenderer
+net/minecraft/client/renderer/entity/CamelRenderer
+net/minecraft/client/renderer/entity/CaveSpiderRenderer
+net/minecraft/client/renderer/entity/CodRenderer
+net/minecraft/client/renderer/entity/ChickenRenderer
+net/minecraft/client/renderer/entity/CowRenderer
+net/minecraft/client/renderer/entity/CopperGolemRenderer
+net/minecraft/client/renderer/entity/CreeperRenderer
+net/minecraft/client/renderer/entity/CreakingRenderer
+net/minecraft/client/renderer/entity/BoatRenderer
+net/minecraft/client/renderer/entity/DisplayRenderer
+net/minecraft/client/renderer/entity/DolphinRenderer
+net/minecraft/client/renderer/entity/DonkeyRenderer
+net/minecraft/client/renderer/entity/DragonFireballRenderer
+net/minecraft/client/renderer/entity/ElderGuardianRenderer
+net/minecraft/client/renderer/entity/DrownedRenderer
+net/minecraft/client/renderer/entity/EndCrystalRenderer
+net/minecraft/client/renderer/entity/CamelHuskRenderer
+net/minecraft/client/renderer/entity/EndermiteRenderer
+net/minecraft/client/renderer/entity/EndermanRenderer
+net/minecraft/client/renderer/entity/EvokerFangsRenderer
+net/minecraft/client/renderer/entity/EvokerRenderer
+net/minecraft/client/renderer/entity/ExperienceOrbRenderer
+net/minecraft/client/renderer/entity/FallingBlockRenderer
+net/minecraft/client/renderer/entity/EnderDragonRenderer
+net/minecraft/client/renderer/entity/FoxRenderer
+net/minecraft/client/renderer/entity/FrogRenderer
+net/minecraft/client/renderer/entity/GhastRenderer
+net/minecraft/client/renderer/entity/FishingHookRenderer
+net/minecraft/client/renderer/entity/EntityRenderer
+net/minecraft/client/renderer/entity/GlowSquidRenderer
+net/minecraft/client/renderer/entity/GiantMobRenderer
+net/minecraft/client/renderer/entity/GoatRenderer
+net/minecraft/client/renderer/entity/HappyGhastRenderer
+net/minecraft/client/renderer/entity/HoglinRenderer
+net/minecraft/client/renderer/entity/FireworkEntityRenderer
+net/minecraft/client/renderer/entity/HorseRenderer
+net/minecraft/client/renderer/entity/HumanoidMobRenderer
+net/minecraft/client/renderer/entity/HuskRenderer
+net/minecraft/client/renderer/entity/IllagerRenderer
+net/minecraft/client/renderer/entity/IllusionerRenderer
+net/minecraft/client/renderer/entity/IronGolemRenderer
+net/minecraft/client/renderer/entity/ItemEntityRenderer
+net/minecraft/client/renderer/entity/ItemFrameRenderer
+net/minecraft/client/renderer/entity/LeashKnotRenderer
+net/minecraft/client/renderer/entity/LlamaRenderer
+net/minecraft/client/renderer/entity/LlamaSpitRenderer
+net/minecraft/client/renderer/entity/MagmaCubeRenderer
+net/minecraft/client/renderer/entity/GuardianRenderer
+net/minecraft/client/renderer/entity/LivingEntityRenderer
+net/minecraft/client/renderer/entity/MobRenderer
+net/minecraft/client/renderer/entity/MushroomCowRenderer
+net/minecraft/client/renderer/entity/NautilusRenderer
+net/minecraft/client/renderer/entity/NoopRenderer
+net/minecraft/client/renderer/entity/OcelotRenderer
+net/minecraft/client/renderer/entity/OminousItemSpawnerRenderer
+net/minecraft/client/renderer/entity/PandaRenderer
+net/minecraft/client/renderer/entity/PaintingRenderer
+net/minecraft/client/renderer/entity/ParchedRenderer
+net/minecraft/client/renderer/entity/PhantomRenderer
+net/minecraft/client/renderer/entity/LightningBoltRenderer
+net/minecraft/client/renderer/entity/PigRenderer
+net/minecraft/client/renderer/entity/PiglinRenderer
+net/minecraft/client/renderer/entity/PillagerRenderer
+net/minecraft/client/renderer/entity/MinecartRenderer
+net/minecraft/client/renderer/entity/PolarBearRenderer
+net/minecraft/client/renderer/entity/RaftRenderer
+net/minecraft/client/renderer/entity/RabbitRenderer
+net/minecraft/client/renderer/entity/RavagerRenderer
+net/minecraft/client/renderer/entity/SheepRenderer
+net/minecraft/client/renderer/entity/SalmonRenderer
+net/minecraft/client/renderer/entity/ShulkerBulletRenderer
+net/minecraft/client/renderer/entity/SilverfishRenderer
+net/minecraft/client/renderer/entity/SkeletonRenderer
+net/minecraft/client/renderer/entity/ShulkerRenderer
+net/minecraft/client/renderer/entity/SlimeRenderer
+net/minecraft/client/renderer/entity/SnifferRenderer
+net/minecraft/client/renderer/entity/SnowGolemRenderer
+net/minecraft/client/renderer/entity/SpectralArrowRenderer
+net/minecraft/client/renderer/entity/SpiderRenderer
+net/minecraft/client/renderer/entity/StrayRenderer
+net/minecraft/client/renderer/entity/ParrotRenderer
+net/minecraft/client/renderer/entity/StriderRenderer
+net/minecraft/client/renderer/entity/TadpoleRenderer
+net/minecraft/client/renderer/entity/SulfurCubeRenderer
+net/minecraft/client/renderer/entity/ThrownTridentRenderer
+net/minecraft/client/renderer/entity/PufferfishRenderer
+net/minecraft/client/renderer/entity/TippableArrowRenderer
+net/minecraft/client/renderer/entity/TntMinecartRenderer
+net/minecraft/client/renderer/entity/TntRenderer
+net/minecraft/client/renderer/entity/TurtleRenderer
+net/minecraft/client/renderer/entity/TropicalFishRenderer
+net/minecraft/client/renderer/entity/VexRenderer
+net/minecraft/client/renderer/entity/UndeadHorseRenderer
+net/minecraft/client/renderer/entity/VillagerRenderer
+net/minecraft/client/renderer/entity/VindicatorRenderer
+net/minecraft/client/renderer/entity/WanderingTraderRenderer
+net/minecraft/client/renderer/entity/WindChargeRenderer
+net/minecraft/client/renderer/entity/SquidRenderer
+net/minecraft/client/renderer/entity/WardenRenderer
+net/minecraft/client/renderer/entity/WitherSkeletonRenderer
+net/minecraft/client/renderer/entity/WitchRenderer
+net/minecraft/client/renderer/entity/WitherBossRenderer
+net/minecraft/client/renderer/entity/ThrownItemRenderer
+net/minecraft/client/renderer/entity/ZoglinRenderer
+net/minecraft/client/renderer/entity/ZombieRenderer
+net/minecraft/client/renderer/entity/ZombieVillagerRenderer
+net/minecraft/client/renderer/entity/ZombifiedPiglinRenderer
 net/minecraft/client/renderer/entity/layers/
 net/minecraft/client/renderer/entity/layers/ArrowLayer
 net/minecraft/client/renderer/entity/layers/BeeStingerLayer
 net/minecraft/client/renderer/entity/layers/BlockDecorationLayer
 net/minecraft/client/renderer/entity/layers/BreezeEyesLayer
 net/minecraft/client/renderer/entity/layers/BreezeWindLayer
-net/minecraft/client/renderer/entity/layers/CapeLayer
+net/minecraft/client/renderer/entity/WitherSkullRenderer
 net/minecraft/client/renderer/entity/layers/CarriedBlockLayer
-net/minecraft/client/renderer/entity/layers/CreeperPowerLayer
 net/minecraft/client/renderer/entity/layers/CatCollarLayer
+net/minecraft/client/renderer/entity/layers/CreeperPowerLayer
+net/minecraft/client/renderer/entity/layers/CrossedArmsItemLayer
 net/minecraft/client/renderer/entity/layers/CustomHeadLayer
 net/minecraft/client/renderer/entity/layers/Deadmau5EarsLayer
 net/minecraft/client/renderer/entity/layers/DolphinCarryingItemLayer
-net/minecraft/client/renderer/entity/layers/CrossedArmsItemLayer
 net/minecraft/client/renderer/entity/layers/DrownedOuterLayer
 net/minecraft/client/renderer/entity/layers/EnderEyesLayer
+net/minecraft/client/renderer/entity/layers/EnergySwirlLayer
+net/minecraft/client/renderer/entity/WolfRenderer
+net/minecraft/client/renderer/entity/ZombieNautilusRenderer
 net/minecraft/client/renderer/entity/layers/EyesLayer
 net/minecraft/client/renderer/entity/layers/FoxHeldItemLayer
-net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer
 net/minecraft/client/renderer/entity/layers/HorseMarkingLayer
-net/minecraft/client/renderer/entity/layers/EnergySwirlLayer
+net/minecraft/client/renderer/entity/layers/IronGolemCrackinessLayer
 net/minecraft/client/renderer/entity/layers/HumanoidArmorLayer
 net/minecraft/client/renderer/entity/layers/IronGolemFlowerLayer
 net/minecraft/client/renderer/entity/layers/LivingEntityEmissiveLayer
 net/minecraft/client/renderer/entity/layers/ItemInHandLayer
-net/minecraft/client/renderer/entity/layers/LlamaDecorLayer
-net/minecraft/client/renderer/entity/layers/PandaHoldsItemLayer
-net/minecraft/client/renderer/entity/layers/ParrotOnShoulderLayer
 net/minecraft/client/renderer/entity/layers/MushroomCowMushroomLayer
-net/minecraft/client/renderer/entity/layers/IronGolemCrackinessLayer
+net/minecraft/client/renderer/entity/layers/PandaHoldsItemLayer
+net/minecraft/client/renderer/entity/layers/LlamaDecorLayer
+net/minecraft/client/renderer/entity/layers/PhantomEyesLayer
+net/minecraft/client/renderer/entity/layers/ParrotOnShoulderLayer
+net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer
+net/minecraft/client/renderer/entity/layers/RenderLayer
 net/minecraft/client/renderer/entity/layers/PlayerItemInHandLayer
 net/minecraft/client/renderer/entity/layers/RopesLayer
 net/minecraft/client/renderer/entity/layers/SheepWoolLayer
-net/minecraft/client/renderer/entity/layers/SheepWoolUndercoatLayer
 net/minecraft/client/renderer/entity/layers/SkeletonClothingLayer
 net/minecraft/client/renderer/entity/layers/SimpleEquipmentLayer
 net/minecraft/client/renderer/entity/layers/SlimeOuterLayer
@@ -6159,83 +7110,82 @@ net/minecraft/client/renderer/entity/layers/WingsLayer
 net/minecraft/client/renderer/entity/layers/VillagerProfessionLayer
 net/minecraft/client/renderer/entity/layers/WitchItemLayer
 net/minecraft/client/renderer/entity/layers/WitherArmorLayer
-net/minecraft/client/renderer/entity/layers/WolfCollarLayer
+net/minecraft/client/renderer/entity/layers/CapeLayer
+net/minecraft/client/renderer/entity/layers/WolfArmorLayer
 net/minecraft/client/renderer/entity/layers/package-info
-net/minecraft/client/renderer/entity/layers/PhantomEyesLayer
-net/minecraft/client/renderer/entity/layers/RenderLayer
+net/minecraft/client/renderer/entity/layers/SheepWoolUndercoatLayer
 net/minecraft/client/renderer/entity/player/
 net/minecraft/client/renderer/entity/player/package-info
 net/minecraft/client/renderer/entity/state/
 net/minecraft/client/renderer/entity/state/AllayRenderState
 net/minecraft/client/renderer/entity/state/ArmadilloRenderState
+net/minecraft/client/renderer/entity/state/ArmedEntityRenderState
 net/minecraft/client/renderer/entity/state/ArmorStandRenderState
 net/minecraft/client/renderer/entity/state/ArrowRenderState
-net/minecraft/client/renderer/entity/state/ArmedEntityRenderState
 net/minecraft/client/renderer/entity/state/AvatarRenderState
 net/minecraft/client/renderer/entity/state/AxolotlRenderState
+net/minecraft/client/renderer/entity/state/BatRenderState
 net/minecraft/client/renderer/entity/state/BeeRenderState
 net/minecraft/client/renderer/entity/state/BlockDisplayEntityRenderState
 net/minecraft/client/renderer/entity/state/BoatRenderState
 net/minecraft/client/renderer/entity/state/BoggedRenderState
 net/minecraft/client/renderer/entity/state/BreezeRenderState
-net/minecraft/client/renderer/entity/state/CamelRenderState
 net/minecraft/client/renderer/entity/player/AvatarRenderer
+net/minecraft/client/renderer/entity/state/CamelRenderState
 net/minecraft/client/renderer/entity/state/CatRenderState
-net/minecraft/client/renderer/entity/state/ChickenRenderState
 net/minecraft/client/renderer/entity/state/CopperGolemRenderState
 net/minecraft/client/renderer/entity/state/CowRenderState
+net/minecraft/client/renderer/entity/state/CreakingRenderState
 net/minecraft/client/renderer/entity/state/CreeperRenderState
 net/minecraft/client/renderer/entity/state/DisplayEntityRenderState
 net/minecraft/client/renderer/entity/state/DolphinRenderState
 net/minecraft/client/renderer/entity/state/DonkeyRenderState
-net/minecraft/client/renderer/entity/state/CreakingRenderState
-net/minecraft/client/renderer/entity/state/BatRenderState
 net/minecraft/client/renderer/entity/state/EndCrystalRenderState
 net/minecraft/client/renderer/entity/state/EnderDragonRenderState
 net/minecraft/client/renderer/entity/state/EndermanRenderState
-net/minecraft/client/renderer/entity/state/EquineRenderState
-net/minecraft/client/renderer/entity/state/EvokerFangsRenderState
-net/minecraft/client/renderer/entity/layers/WolfArmorLayer
 net/minecraft/client/renderer/entity/state/EntityRenderState
-net/minecraft/client/renderer/entity/state/ExperienceOrbRenderState
+net/minecraft/client/renderer/entity/layers/WolfCollarLayer
+net/minecraft/client/renderer/entity/state/ChickenRenderState
+net/minecraft/client/renderer/entity/state/EvokerFangsRenderState
+net/minecraft/client/renderer/entity/state/EquineRenderState
 net/minecraft/client/renderer/entity/state/EvokerRenderState
-net/minecraft/client/renderer/entity/state/FelineRenderState
-net/minecraft/client/renderer/entity/state/FireworkRocketRenderState
-net/minecraft/client/renderer/entity/state/FishingHookRenderState
-net/minecraft/client/renderer/entity/state/FoxRenderState
-net/minecraft/client/renderer/entity/state/GhastRenderState
-net/minecraft/client/renderer/entity/state/FrogRenderState
-net/minecraft/client/renderer/entity/state/GoatRenderState
-net/minecraft/client/renderer/entity/state/HappyGhastRenderState
-net/minecraft/client/renderer/entity/state/GuardianRenderState
-net/minecraft/client/renderer/entity/state/HoglinRenderState
-net/minecraft/client/renderer/entity/state/HitboxRenderState
+net/minecraft/client/renderer/entity/state/ExperienceOrbRenderState
 net/minecraft/client/renderer/entity/state/FallingBlockRenderState
+net/minecraft/client/renderer/entity/state/FireworkRocketRenderState
+net/minecraft/client/renderer/entity/state/FoxRenderState
+net/minecraft/client/renderer/entity/state/FishingHookRenderState
+net/minecraft/client/renderer/entity/state/FrogRenderState
+net/minecraft/client/renderer/entity/state/FelineRenderState
+net/minecraft/client/renderer/entity/state/GhastRenderState
+net/minecraft/client/renderer/entity/state/GoatRenderState
+net/minecraft/client/renderer/entity/state/GuardianRenderState
+net/minecraft/client/renderer/entity/state/HappyGhastRenderState
+net/minecraft/client/renderer/entity/state/HoglinRenderState
 net/minecraft/client/renderer/entity/state/HoldingEntityRenderState
 net/minecraft/client/renderer/entity/state/HorseRenderState
-net/minecraft/client/renderer/entity/state/HumanoidRenderState
+net/minecraft/client/renderer/entity/state/HitboxRenderState
 net/minecraft/client/renderer/entity/state/IllagerRenderState
+net/minecraft/client/renderer/entity/state/HumanoidRenderState
 net/minecraft/client/renderer/entity/state/IllusionerRenderState
 net/minecraft/client/renderer/entity/state/IronGolemRenderState
-net/minecraft/client/renderer/entity/state/ItemDisplayEntityRenderState
 net/minecraft/client/renderer/entity/state/ItemEntityRenderState
-net/minecraft/client/renderer/entity/state/ItemClusterRenderState
-net/minecraft/client/renderer/entity/state/ItemFrameRenderState
 net/minecraft/client/renderer/entity/state/LightningBoltRenderState
-net/minecraft/client/renderer/entity/state/LivingEntityRenderState
+net/minecraft/client/renderer/entity/state/ItemFrameRenderState
+net/minecraft/client/renderer/entity/state/LlamaRenderState
+net/minecraft/client/renderer/entity/state/LlamaSpitRenderState
 net/minecraft/client/renderer/entity/state/MinecartRenderState
 net/minecraft/client/renderer/entity/state/MinecartTntRenderState
+net/minecraft/client/renderer/entity/state/MushroomCowRenderState
 net/minecraft/client/renderer/entity/state/NautilusRenderState
 net/minecraft/client/renderer/entity/state/PaintingRenderState
-net/minecraft/client/renderer/entity/state/PandaRenderState
+net/minecraft/client/renderer/entity/state/ItemDisplayEntityRenderState
+net/minecraft/client/renderer/entity/state/LivingEntityRenderState
+net/minecraft/client/renderer/entity/state/ItemClusterRenderState
 net/minecraft/client/renderer/entity/state/ParrotRenderState
-net/minecraft/client/renderer/entity/state/LlamaSpitRenderState
-net/minecraft/client/renderer/entity/state/PhantomRenderState
 net/minecraft/client/renderer/entity/state/PigRenderState
 net/minecraft/client/renderer/entity/state/PiglinRenderState
 net/minecraft/client/renderer/entity/state/PolarBearRenderState
 net/minecraft/client/renderer/entity/state/PufferfishRenderState
-net/minecraft/client/renderer/entity/state/RabbitRenderState
 net/minecraft/client/renderer/entity/state/RavagerRenderState
 net/minecraft/client/renderer/entity/state/SalmonRenderState
 net/minecraft/client/renderer/entity/state/SheepRenderState
@@ -6253,7 +7203,8 @@ net/minecraft/client/renderer/entity/state/ThrownItemRenderState
 net/minecraft/client/renderer/entity/state/ThrownTridentRenderState
 net/minecraft/client/renderer/entity/state/TippableArrowRenderState
 net/minecraft/client/renderer/entity/state/TntRenderState
-net/minecraft/client/renderer/entity/state/LlamaRenderState
+net/minecraft/client/renderer/entity/state/TropicalFishRenderState
+net/minecraft/client/renderer/entity/state/TurtleRenderState
 net/minecraft/client/renderer/entity/state/UndeadRenderState
 net/minecraft/client/renderer/entity/state/VexRenderState
 net/minecraft/client/renderer/entity/state/VillagerDataHolderRenderState
@@ -6267,9 +7218,75 @@ net/minecraft/client/renderer/entity/state/ZombieRenderState
 net/minecraft/client/renderer/entity/state/ZombieVillagerRenderState
 net/minecraft/client/renderer/entity/state/ZombifiedPiglinRenderState
 net/minecraft/client/renderer/entity/state/package-info
-net/minecraft/client/renderer/entity/state/MushroomCowRenderState
-net/minecraft/client/renderer/entity/state/TropicalFishRenderState
-net/minecraft/client/renderer/entity/state/TurtleRenderState
+net/minecraft/client/renderer/entity/state/PandaRenderState
+net/minecraft/client/renderer/entity/state/RabbitRenderState
+net/minecraft/client/renderer/entity/state/PhantomRenderState
+net/minecraft/world/attribute/EnvironmentAttribute
+net/minecraft/world/attribute/EnvironmentAttributeLayer
+net/minecraft/world/attribute/EnvironmentAttributeProbe
+net/minecraft/world/attribute/EnvironmentAttributeMap
+net/minecraft/world/attribute/EnvironmentAttributeReader
+net/minecraft/world/attribute/EnvironmentAttributes
+net/minecraft/world/attribute/EnvironmentAttributeSystem
+net/minecraft/world/clock/
+net/minecraft/world/clock/ClockManager
+net/minecraft/world/clock/ClockNetworkState
+net/minecraft/world/clock/ClockTimeMarkers
+net/minecraft/world/clock/ClockTimeMarker
+net/minecraft/world/clock/ServerClockManager
+net/minecraft/world/clock/WorldClock
+net/minecraft/world/clock/WorldClocks
+net/minecraft/world/clock/package-info
+net/minecraft/world/clock/PackedClockStates
+net/minecraft/world/clock/ClockState
+net/minecraft/world/entity/projectile/
+net/minecraft/world/entity/projectile/EvokerFangs
+net/minecraft/world/entity/projectile/EyeOfEnder
+net/minecraft/world/entity/projectile/ItemSupplier
+net/minecraft/world/entity/projectile/LlamaSpit
+net/minecraft/world/entity/projectile/FireworkRocketEntity
+net/minecraft/world/entity/projectile/ProjectileDeflection
+net/minecraft/world/entity/projectile/FishingHook
+net/minecraft/world/entity/projectile/ProjectileUtil
+net/minecraft/world/entity/projectile/Projectile
+net/minecraft/world/entity/projectile/arrow/
+net/minecraft/world/entity/projectile/ThrowableProjectile
+net/minecraft/world/entity/projectile/ShulkerBullet
+net/minecraft/world/entity/projectile/arrow/Arrow
+net/minecraft/world/entity/projectile/arrow/SpectralArrow
+net/minecraft/world/entity/projectile/arrow/package-info
+net/minecraft/world/entity/projectile/hurtingprojectile/
+net/minecraft/world/entity/projectile/arrow/ThrownTrident
+net/minecraft/world/entity/projectile/hurtingprojectile/AbstractHurtingProjectile
+net/minecraft/world/entity/projectile/hurtingprojectile/DragonFireball
+net/minecraft/world/entity/projectile/hurtingprojectile/Fireball
+net/minecraft/world/entity/projectile/hurtingprojectile/LargeFireball
+net/minecraft/world/entity/projectile/hurtingprojectile/SmallFireball
+net/minecraft/world/entity/projectile/hurtingprojectile/windcharge/
+net/minecraft/world/entity/projectile/hurtingprojectile/package-info
+net/minecraft/world/entity/projectile/hurtingprojectile/windcharge/BreezeWindCharge
+net/minecraft/world/entity/projectile/arrow/AbstractArrow
+net/minecraft/world/entity/projectile/hurtingprojectile/WitherSkull
+net/minecraft/world/entity/projectile/hurtingprojectile/windcharge/package-info
+net/minecraft/world/entity/projectile/package-info
+net/minecraft/world/entity/projectile/throwableitemprojectile/
+net/minecraft/world/entity/projectile/hurtingprojectile/windcharge/AbstractWindCharge
+net/minecraft/world/entity/projectile/hurtingprojectile/windcharge/WindCharge
+net/minecraft/world/entity/projectile/throwableitemprojectile/Snowball
+net/minecraft/world/entity/projectile/throwableitemprojectile/ThrowableItemProjectile
+net/minecraft/world/entity/projectile/throwableitemprojectile/AbstractThrownPotion
+net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEgg
+net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownExperienceBottle
+net/minecraft/world/entity/projectile/throwableitemprojectile/package-info
+net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownLingeringPotion
+net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEnderpearl
+net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownSplashPotion
+net/minecraft/world/timeline/
+net/minecraft/world/timeline/AttributeTrackSampler
+net/minecraft/world/timeline/AttributeTrack
+net/minecraft/world/timeline/package-info
+net/minecraft/world/timeline/Timelines
+net/minecraft/world/timeline/Timeline
 net/fabricmc/fabric/api/client/rendering/v1/FeatureRendererRegistry
 net/fabricmc/fabric/api/client/rendering/v1/LivingEntityFeatureRenderEvents
 net/fabricmc/fabric/api/client/rendering/v1/LivingEntityRenderLayerRegistrationCallback
