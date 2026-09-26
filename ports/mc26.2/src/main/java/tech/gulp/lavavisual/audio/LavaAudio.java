@@ -1,8 +1,6 @@
 package tech.gulp.lavavisual.audio;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,15 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.ALC10;
-import org.lwjgl.stb.STBVorbis;
-import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.system.libc.LibCStdlib;
 import tech.gulp.lavavisual.LavaVisual;
 
 /**
- * Plays the user's own .ogg files directly through Minecraft's OpenAL device, decoded with the STB Vorbis decoder that
- * ships with the game. No resource pack and no resource reload: a file dropped into the folder plays immediately,
+ * Plays the user's own sound files (MP3, Ogg Vorbis, Opus, WAV) directly through Minecraft's OpenAL device. No resource pack and no resource reload: a file dropped into the folder plays immediately,
  * whatever its name (spaces, capitals, Cyrillic). Short clips are decoded once and cached.
  */
 public final class LavaAudio {
@@ -93,29 +87,20 @@ public final class LavaAudio {
         if (cached != null && cached.stamp() == stamp) return cached;
         if (cached != null) AL10.alDeleteBuffers(cached.buffer());
         CLIPS.remove(file);
-        byte[] bytes = Files.readAllBytes(file);
-        if (bytes.length == 0 || bytes.length > 24 << 20) return null;
-        ByteBuffer data = MemoryUtil.memAlloc(bytes.length);
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            data.put(bytes).flip();
-            IntBuffer channels = stack.mallocInt(1), rate = stack.mallocInt(1);
-            ShortBuffer pcm = STBVorbis.stb_vorbis_decode_memory(data, channels, rate);
-            if (pcm == null) return null;
-            try {
-                int ch = channels.get(0);
-                if (ch < 1 || ch > 2) return null;
-                AL10.alGetError();
-                int buffer = AL10.alGenBuffers();
-                AL10.alBufferData(buffer, ch == 1 ? AL10.AL_FORMAT_MONO16 : AL10.AL_FORMAT_STEREO16, pcm, rate.get(0));
-                if (AL10.alGetError() != AL10.AL_NO_ERROR) { AL10.alDeleteBuffers(buffer); return null; }
-                Clip clip = new Clip(buffer, stamp);
-                CLIPS.put(file, clip);
-                return clip;
-            } finally {
-                LibCStdlib.free(pcm);
-            }
+        if (Files.size(file) == 0 || Files.size(file) > 24 << 20) return null;
+        Decoders.Pcm decoded = Decoders.decodeAll(file, 20);
+        ShortBuffer pcm = MemoryUtil.memAllocShort(decoded.frames() * decoded.channels());
+        try {
+            pcm.put(decoded.data(), 0, decoded.frames() * decoded.channels()).flip();
+            AL10.alGetError();
+            int buffer = AL10.alGenBuffers();
+            AL10.alBufferData(buffer, decoded.channels() == 1 ? AL10.AL_FORMAT_MONO16 : AL10.AL_FORMAT_STEREO16, pcm, decoded.rate());
+            if (AL10.alGetError() != AL10.AL_NO_ERROR) { AL10.alDeleteBuffers(buffer); return null; }
+            Clip clip = new Clip(buffer, stamp);
+            CLIPS.put(file, clip);
+            return clip;
         } finally {
-            MemoryUtil.memFree(data);
+            MemoryUtil.memFree(pcm);
         }
     }
 }

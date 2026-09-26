@@ -9,11 +9,11 @@ public final class HudConfig {
     public static final int SCHEMA = 3;
     /** Built-in sounds in CustomAudio.IDS; index SOUND_LIBRARY means the user's own file. */
     public static final int SOUND_LIBRARY = 35;
-    /** Before 2.11 the library had 27 sounds and index 27 meant «Свой файл»; ConfigStore migrates such files. */
+    /** The first library had 27 sounds and index 27 meant «Свой файл»; ConfigStore migrates such files. */
     public static final int OLD_CUSTOM_SOUND = 27;
-    /** Written to every saved file; files without it come from before 2.11 (see ConfigStore). */
+    /** Written to every saved file; files without it use the first sound library (see ConfigStore). */
     public int soundVersion = 1;
-    /** 1 since 2.13: sharing hats and wings is on by default (see ConfigStore.migrateShare). */
+    /** 1: sharing hats and wings is on by default (see ConfigStore.migrateShare). */
     public int shareVersion = 1;
     public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark", "minimap", "music");
     /** Every element with its own colour. Missing from {@link #colors} means "follow the theme colour". */
@@ -22,7 +22,7 @@ public final class HudConfig {
     public int schemaVersion = SCHEMA;
     /** Theme: accent and second gradient colour. Default = the logo's lava orange to amethyst. */
     public int rgb = 0xFF6A2B, rgb2 = 0xA77BFF;
-    /** 0 = config from before 2.9 (single-colour themes); see {@link #sanitize()}. */
+    /** 0 = config with single-colour themes; see {@link #sanitize()}. */
     public int styleVersion;
     public static final String[] THEME_NAMES = {"LavaVisual", "Лава", "Мята", "Океан", "Неон", "Золото", "Роза", "Закат", "Лёд"};
     public static final int[][] THEMES = {{0xFF6A2B, 0xA77BFF}, {0xFF5A36, 0xFFC233}, {0x85F56A, 0x2CE0C8}, {0x36C8FF, 0x4C6BFF},
@@ -38,7 +38,7 @@ public final class HudConfig {
     public int hitPreset, critPreset, totemPreset;
     public double hitVolume = 0.65, critVolume = 0.65, totemVolume = 0.65;
     public int hitSound = 27, critSound = 31, totemSound = 19, killSound = 17;
-    /** 2.11: the held item does not dip while the attack cooldown recharges; the crosshair indicator stays vanilla. */
+    /** The held item does not dip while the attack cooldown recharges; the crosshair indicator stays vanilla. */
     public boolean noCooldownDip = true;
     public boolean killSoundEnabled;
     public double killVolume = 0.65;
@@ -80,7 +80,10 @@ public final class HudConfig {
     public double fireHeight = 1;
     public int markerShape, skyRgb = 0x83B9FF;
     public double markerDuration = 2, markerSize = 0.45, skyStrength = 0.65, targetHold = 3;
-    public int savedRenderDistance = -1, savedParticles = -1;
+    public int savedRenderDistance = -1, savedParticles = -1, savedClouds = -1, savedBlur = -1;
+    public double savedEntityDistance = -1;
+    /** FPS Boost level 1..4 (Лёгкий, Средний, Сильный, Макс). */
+    public int fpsBoostLevel = 2;
     public boolean savedEntityShadows = true, boostApplied;
     public int accent() { return 0xFF000000 | rgb; }
     /** Per-element colours (RGB) and elements that cycle through the rainbow. New fields: older configs simply follow the theme. */
@@ -96,6 +99,8 @@ public final class HudConfig {
     public boolean wingsEnabled;
     public int wingsType = 1, wingsStyle;
     public double wingsSize = 1, wingsOpacity = 0.95, wingsFlap = 1;
+    /** Wings editor: height and distance from the back (blocks), forward tilt and spread (degrees), beat speed. */
+    public double wingsLift, wingsBack, wingsTilt, wingsSpread, wingsSpeed = 1;
     /** HUD text family (UiFont.FAMILIES): 0 Montserrat (default, like visual clients), 1 Rubik, 2 Inter (menu font). */
     public int hudFont;
     /** Minimap: terrain only, north up. Zoom index into blocks-per-view {48, 64, 96}. */
@@ -184,7 +189,7 @@ public final class HudConfig {
         rgb = Math.max(0, Math.min(0xFFFFFF, rgb));
         rgb2 = Math.max(0, Math.min(0xFFFFFF, rgb2));
         if (styleVersion < 1) {
-            // 2.9: themes became two-colour gradients. The untouched old default moves to the new logo theme.
+            // Themes are two-colour gradients; an untouched single-colour default moves to the logo theme.
             if (rgb == 0x85F56A) { rgb = THEMES[0][0]; rgb2 = THEMES[0][1]; }
             else {
                 rgb2 = ColorMath.companion(rgb);
@@ -228,6 +233,9 @@ public final class HudConfig {
         hatOpacity = bounded(hatOpacity, 0.15, 1, 0.9); hatSpin = bounded(hatSpin, 0, 3, 0); hatStyle = Math.floorMod(hatStyle, 3);
         hatType = hatType < 1 || hatType > tech.gulp.lavavisual.effects.Hats.COUNT ? 1 : hatType;
         wingsType = wingsType < 1 || wingsType > tech.gulp.lavavisual.effects.Hats.WING_COUNT ? 1 : wingsType;
+        wingsLift = bounded(wingsLift, -0.25, 0.35, 0); wingsBack = bounded(wingsBack, -0.1, 0.25, 0);
+        wingsTilt = bounded(wingsTilt, -30, 30, 0); wingsSpread = bounded(wingsSpread, -35, 35, 0); wingsSpeed = bounded(wingsSpeed, 0.3, 2.5, 1);
+        fpsBoostLevel = Math.clamp(fpsBoostLevel, 1, 4); savedClouds = Math.clamp(savedClouds, -1, 2); savedBlur = Math.clamp(savedBlur, -1, 10);
         wingsSize = bounded(wingsSize, 0.5, 1.6, 1); wingsOpacity = bounded(wingsOpacity, 0.15, 1, 0.95); wingsFlap = bounded(wingsFlap, 0, 2, 1);
         wingsStyle = Math.floorMod(wingsStyle, 3);
         hudFont = Math.floorMod(hudFont, 3);

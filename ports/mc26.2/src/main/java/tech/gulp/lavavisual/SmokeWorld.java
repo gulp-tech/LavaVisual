@@ -11,13 +11,17 @@ import net.minecraft.world.Difficulty;
  * cosmetics are judged in the real game renderer instead of the Python preview.
  */
 final class SmokeWorld {
-    private static final int[] HATS = {1, 3, 5, 13};
+    private static final int[] HATS = {1, 3, 5, 13, 14};
     private static final int WING_STEP = 60, HAT_STEP = 40, HATS_AT = 60 + 5 * WING_STEP + 10,
             DUMMY_AT = HATS_AT + HATS.length * HAT_STEP + 10, HANDS_AT = DUMMY_AT + 70, CRIT_AT = HANDS_AT + 50,
-            TRAIL_AT = CRIT_AT + 50, ZOOM_AT = TRAIL_AT + 95, FREE_AT = ZOOM_AT + 40, MAP_AT = FREE_AT + 40, SOUND_AT = MAP_AT + 20,
-            MUSIC_AT = SOUND_AT + 12, END_AT = MUSIC_AT + 72;
+            TRAIL_AT = CRIT_AT + 50, ZOOM_AT = TRAIL_AT + 95, FREE_AT = ZOOM_AT + 40, WINGS_EDIT_AT = FREE_AT + 40,
+            MAP_AT = WINGS_EDIT_AT + 45, SOUND_AT = MAP_AT + 110, MUSIC_AT = SOUND_AT + 12, FORMATS_AT = MUSIC_AT + 72, END_AT = FORMATS_AT + 104;
     private static double p1, p2, p3, p4;
     private static boolean musicPlaying, musicPaused, musicStable, musicSeek, musicNext, musicPrevious;
+    private static double hiddenMs, shownMs;
+    private static int buildsBefore;
+    private static boolean mp3Ok, mp3Seek, opusOk, wavOk, renamedOk, clipsOk, clickOk, bindOk;
+    private static String formatNotes = "";
     private static int stage = -1, ticks;
     private SmokeWorld() { }
 
@@ -146,8 +150,27 @@ final class SmokeWorld {
             LavaVisual.LOGGER.info("LavaVisual smoke shot world_freelook");
         }
         if (ticks == FREE_AT + 32) tech.gulp.lavavisual.effects.CameraControl.force(0, false);
-        // Minimap: round window, no letters.
-        if (ticks == MAP_AT) { c.widgets.get("minimap").visible = true; c.mapShape = 0; mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }
+        // Wings editor: live preview from behind with custom placement.
+        if (ticks == WINGS_EDIT_AT) {
+            c.wingsEnabled = true; c.wingsType = 1; c.wingsLift = 0.08; c.wingsTilt = 12; c.wingsSpread = 18; c.wingsSpeed = 1.4;
+            mc.gui.setScreen(new tech.gulp.lavavisual.ui.WingsEditorScreen(null));
+        }
+        if (ticks == WINGS_EDIT_AT + 16) {
+            boolean ok = mc.gui.screen() instanceof tech.gulp.lavavisual.ui.WingsEditorScreen && mc.options.getCameraType() == CameraType.THIRD_PERSON_BACK;
+            LavaVisual.LOGGER.info(ok ? "LavaVisual smoke wings editor ok" : "LavaVisual smoke wings editor failed: screen=" + mc.gui.screen() + " camera=" + mc.options.getCameraType());
+            LavaVisual.LOGGER.info("LavaVisual smoke shot world_wings_editor");
+        }
+        if (ticks == WINGS_EDIT_AT + 40) {
+            mc.gui.setScreen(null);
+            c.wingsEnabled = false; c.wingsLift = 0; c.wingsTilt = 0; c.wingsSpread = 0; c.wingsSpeed = 1;
+        }
+        // Minimap: round window, no letters. Rainbow on the map and on the HUD background is the worst case: the
+        // frame textures must not be repainted for it.
+        if (ticks == MAP_AT) {
+            c.widgets.get("minimap").visible = true; c.mapShape = 0; mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+            if (!c.chroma.contains("minimap")) c.chroma.add("minimap");
+            if (!c.chroma.contains("hud_bg")) c.chroma.add("hud_bg");
+        }
         if (ticks == MAP_AT + 3) tech.gulp.lavavisual.map.Minimap.resetCost();
         if (ticks == MAP_AT + 12) LavaVisual.LOGGER.info("LavaVisual smoke shot world_minimap");
         if (ticks == MAP_AT + 16) {
@@ -155,6 +178,25 @@ final class SmokeWorld {
             long frames = tech.gulp.lavavisual.map.Minimap.frames();
             LavaVisual.LOGGER.info("LavaVisual smoke minimap cost {} us over {} frames", String.format(java.util.Locale.ROOT, "%.1f", micros), frames);
             if (frames > 0 && micros < 2500) LavaVisual.LOGGER.info("LavaVisual smoke minimap fast");
+        }
+        // Frame time with the map hidden, then shown (same scene, 2 s each).
+        if (ticks == MAP_AT + 30) { c.widgets.get("minimap").visible = false; tech.gulp.lavavisual.map.Minimap.clock(true); }
+        if (ticks == MAP_AT + 65) {
+            hiddenMs = tech.gulp.lavavisual.map.Minimap.clockMillis();
+            c.widgets.get("minimap").visible = true;
+            tech.gulp.lavavisual.map.Minimap.clock(false);
+        }
+        if (ticks == MAP_AT + 68) { buildsBefore = tech.gulp.lavavisual.map.Minimap.builds(); tech.gulp.lavavisual.map.Minimap.clock(true); tech.gulp.lavavisual.map.Minimap.resetCost(); }
+        if (ticks == MAP_AT + 103) {
+            shownMs = tech.gulp.lavavisual.map.Minimap.clockMillis();
+            long frames = tech.gulp.lavavisual.map.Minimap.clockFrames();
+            int rebuilt = tech.gulp.lavavisual.map.Minimap.builds() - buildsBefore;
+            tech.gulp.lavavisual.map.Minimap.clock(false);
+            boolean ok = frames > 5 && rebuilt == 0 && shownMs <= hiddenMs * 1.25 + 2;
+            LavaVisual.LOGGER.info((ok ? "LavaVisual smoke minimap fps ok" : "LavaVisual smoke minimap fps failed")
+                    + String.format(java.util.Locale.ROOT, ": hidden %.2f ms, shown %.2f ms per frame (%d frames), frame repaints %d, draw %.1f us, scan tick %.1f us",
+                    hiddenMs, shownMs, frames, rebuilt, tech.gulp.lavavisual.map.Minimap.averageMicros(), tech.gulp.lavavisual.map.Minimap.tickMicros()));
+            c.chroma.remove("minimap"); c.chroma.remove("hud_bg");
         }
         // Custom sounds: Cyrillic file names in the per-event folders, listed, previewed, and replacing the totem sound.
         if (ticks == SOUND_AT) {
@@ -197,6 +239,13 @@ final class SmokeWorld {
                     java.nio.file.Files.copy(java.nio.file.Path.of(test, "test_track.png"), music.resolve("Тестовый трек.png"), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                 }
                 copy("/assets/lavavisual/sounds/crit_arcade.ogg", music.resolve("Второй трек.ogg"));
+                if (test != null) {
+                    var replace = java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+                    java.nio.file.Files.copy(java.nio.file.Path.of(test, "test_track.mp3"), music.resolve("Формат MP3.mp3"), replace);
+                    java.nio.file.Files.copy(java.nio.file.Path.of(test, "test_track.opus"), music.resolve("Формат Opus.opus"), replace);
+                    java.nio.file.Files.copy(java.nio.file.Path.of(test, "test_track.wav"), music.resolve("Формат WAV.wav"), replace);
+                    java.nio.file.Files.copy(java.nio.file.Path.of(test, "test_track.mp3"), music.resolve("MP3 под видом ogg.ogg"), replace);
+                }
                 tech.gulp.lavavisual.audio.MusicPlayer.rescan(music);
                 c.musicRepeat = 1; c.musicShuffle = false; c.musicVolume = 0.5; c.musicHudAuto = true;
                 c.widgets.get("music").visible = true;
@@ -229,7 +278,11 @@ final class SmokeWorld {
         if (ticks == MUSIC_AT + 44) tech.gulp.lavavisual.audio.MusicPlayer.next(false);
         if (ticks == MUSIC_AT + 47) {
             var now = tech.gulp.lavavisual.audio.MusicPlayer.current();
-            musicNext = now != null && now.name().equals("Второй трек") && tech.gulp.lavavisual.audio.MusicPlayer.playing();
+            var list = tech.gulp.lavavisual.audio.MusicPlayer.tracks();
+            int at = -1;
+            for (int i = 0; i < list.size(); i++) if (list.get(i).name().equals("Тестовый трек")) at = i;
+            String expected = at < 0 ? "" : list.get((at + 1) % list.size()).name();
+            musicNext = now != null && now.name().equals(expected) && tech.gulp.lavavisual.audio.MusicPlayer.playing();
             tech.gulp.lavavisual.audio.MusicPlayer.previous();
         }
         if (ticks == MUSIC_AT + 50) {
@@ -246,6 +299,75 @@ final class SmokeWorld {
             mc.gui.setScreen(null);
             tech.gulp.lavavisual.audio.MusicPlayer.stop();
         }
+        // Every format by content: MP3 with an ID3 tag and cover, Opus, WAV, and an MP3 renamed to .ogg; seeking,
+        // durations and tags; clips; the real play button of the player screen and the pause bind.
+        if (ticks == FORMATS_AT) mp3Ok = playNamed("Формат MP3");
+        if (ticks == FORMATS_AT + 16) {
+            var t = tech.gulp.lavavisual.audio.MusicPlayer.current();
+            double pos = tech.gulp.lavavisual.audio.MusicPlayer.position(), len = tech.gulp.lavavisual.audio.MusicPlayer.duration();
+            mp3Ok &= playingAt(0.2) && Math.abs(len - 8.05) < 0.4 && t != null && t.title().equals("Тест MP3") && t.artist().equals("LavaVisual");
+            formatNotes += String.format(java.util.Locale.ROOT, " mp3 %.2f/%.2f '%s' '%s' %s;", pos, len, t == null ? "" : t.title(), t == null ? "" : t.artist(), tech.gulp.lavavisual.audio.MusicPlayer.error());
+            tech.gulp.lavavisual.audio.MusicPlayer.seek(5.0);
+        }
+        if (ticks == FORMATS_AT + 22) {
+            double pos = tech.gulp.lavavisual.audio.MusicPlayer.position();
+            mp3Seek = pos >= 4.9 && pos < 6.6 && tech.gulp.lavavisual.audio.MusicPlayer.playing();
+            formatNotes += String.format(java.util.Locale.ROOT, " seek %.2f;", pos);
+        }
+        if (ticks == FORMATS_AT + 26) opusOk = playNamed("Формат Opus");
+        if (ticks == FORMATS_AT + 42) {
+            var t = tech.gulp.lavavisual.audio.MusicPlayer.current();
+            double len = tech.gulp.lavavisual.audio.MusicPlayer.duration();
+            opusOk &= playingAt(0.2) && Math.abs(len - 6.0) < 0.4 && t != null && t.title().equals("Тест Opus");
+            formatNotes += String.format(java.util.Locale.ROOT, " opus %.2f/%.2f %s;", tech.gulp.lavavisual.audio.MusicPlayer.position(), len, tech.gulp.lavavisual.audio.MusicPlayer.error());
+        }
+        if (ticks == FORMATS_AT + 44) wavOk = playNamed("Формат WAV");
+        if (ticks == FORMATS_AT + 56) {
+            wavOk &= playingAt(0.2);
+            formatNotes += String.format(java.util.Locale.ROOT, " wav %.2f/%.2f %s;", tech.gulp.lavavisual.audio.MusicPlayer.position(), tech.gulp.lavavisual.audio.MusicPlayer.duration(), tech.gulp.lavavisual.audio.MusicPlayer.error());
+        }
+        if (ticks == FORMATS_AT + 58) {
+            renamedOk = playNamed("MP3 под видом ogg");
+            try {
+                var hits = tech.gulp.lavavisual.effects.CustomSounds.dir().resolve("hits");
+                String test = System.getProperty("lavavisual.testAudio");
+                if (test != null) {
+                    java.nio.file.Files.copy(java.nio.file.Path.of(test, "test_track.wav"), hits.resolve("Удар WAV.wav"), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    java.nio.file.Files.copy(java.nio.file.Path.of(test, "test_track.opus"), hits.resolve("Удар Opus.opus"), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    clipsOk = tech.gulp.lavavisual.audio.LavaAudio.play(hits.resolve("Удар WAV.wav"), 0.3f) && tech.gulp.lavavisual.audio.LavaAudio.play(hits.resolve("Удар Opus.opus"), 0.3f);
+                }
+            } catch (Exception error) {
+                LavaVisual.LOGGER.warn("LavaVisual smoke clip formats failed", error);
+            }
+        }
+        if (ticks == FORMATS_AT + 72) {
+            renamedOk &= playingAt(0.2);
+            formatNotes += String.format(java.util.Locale.ROOT, " renamed %.2f %s;", tech.gulp.lavavisual.audio.MusicPlayer.position(), tech.gulp.lavavisual.audio.MusicPlayer.error());
+            mc.gui.setScreen(new tech.gulp.lavavisual.ui.MusicScreen(null));
+        }
+        if (ticks == FORMATS_AT + 78 && mc.gui.screen() instanceof tech.gulp.lavavisual.ui.MusicScreen screen) {
+            boolean hit = screen.click(screen.playX(), screen.playY());
+            clickOk = hit && tech.gulp.lavavisual.audio.MusicPlayer.paused();
+        }
+        if (ticks == FORMATS_AT + 82 && mc.gui.screen() instanceof tech.gulp.lavavisual.ui.MusicScreen screen) {
+            clickOk &= screen.click(screen.playX(), screen.playY()) && tech.gulp.lavavisual.audio.MusicPlayer.playing();
+            formatNotes += " button " + screen.playX() + "," + screen.playY() + ";";
+        }
+        if (ticks == FORMATS_AT + 86) {
+            tech.gulp.lavavisual.input.Binds.press(tech.gulp.lavavisual.input.Binds.Action.MUSIC_PLAY, mc);
+            bindOk = tech.gulp.lavavisual.audio.MusicPlayer.paused();
+        }
+        if (ticks == FORMATS_AT + 90) {
+            tech.gulp.lavavisual.input.Binds.press(tech.gulp.lavavisual.input.Binds.Action.MUSIC_PLAY, mc);
+            bindOk &= tech.gulp.lavavisual.audio.MusicPlayer.playing();
+        }
+        if (ticks == FORMATS_AT + 96) {
+            boolean ok = mp3Ok && mp3Seek && opusOk && wavOk && renamedOk && clipsOk && clickOk && bindOk;
+            LavaVisual.LOGGER.info((ok ? "LavaVisual smoke formats ok" : "LavaVisual smoke formats failed") + ": mp3=" + mp3Ok + " seek=" + mp3Seek + " opus=" + opusOk
+                    + " wav=" + wavOk + " renamed=" + renamedOk + " clips=" + clipsOk + " click=" + clickOk + " bind=" + bindOk + " |" + formatNotes);
+            mc.gui.setScreen(null);
+            tech.gulp.lavavisual.audio.MusicPlayer.stop();
+        }
         if (ticks == END_AT) finish(null);
     }
 
@@ -259,6 +381,20 @@ final class SmokeWorld {
             if (in == null) throw new java.io.IOException("missing " + asset);
             java.nio.file.Files.copy(in, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         }
+    }
+    private static boolean playNamed(String name) {
+        var list = tech.gulp.lavavisual.audio.MusicPlayer.tracks();
+        for (int i = 0; i < list.size(); i++) {
+            if (!list.get(i).name().equals(name)) continue;
+            tech.gulp.lavavisual.audio.MusicPlayer.play(i);
+            return tech.gulp.lavavisual.audio.MusicPlayer.active();
+        }
+        formatNotes += " missing " + name + ";";
+        return false;
+    }
+    private static boolean playingAt(double seconds) {
+        return tech.gulp.lavavisual.audio.MusicPlayer.playing() && tech.gulp.lavavisual.audio.MusicPlayer.position() > seconds
+                && tech.gulp.lavavisual.audio.MusicPlayer.alState() == org.lwjgl.openal.AL10.AL_PLAYING;
     }
     private static int index(int group, String name) {
         var list = tech.gulp.lavavisual.effects.CustomSounds.list(group);

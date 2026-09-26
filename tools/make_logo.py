@@ -23,7 +23,7 @@ JAVA = ROOT / "ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LogoSizes.java
 MENU_H, HUD_H, HALVES = 30, 16, range(2, 17)
 # Background threshold: the stone outline of the original logo is only ~0.15 bright, so it must stay above this.
 THRESHOLD = 0.08
-DEFAULT_SOURCE = ROOT / "tools/logo/seedream-4.5_b_убери_огонь_частицы_.jpeg"
+DEFAULT_SOURCE = ROOT / "tools/logo/lv-logo.jpeg"
 
 
 def extract(path):

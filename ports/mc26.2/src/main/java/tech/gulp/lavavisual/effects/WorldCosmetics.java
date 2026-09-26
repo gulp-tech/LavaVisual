@@ -420,7 +420,7 @@ public final class WorldCosmetics {
             if (c.hatEnabled) hat(model, pose, collector, s, c.hatType, Hats.hat(c.hatType), c.color("hat"), c.color2("hat"), c.hatStyle, (float) c.hatOpacity,
                     c.hatSize, c.hatLift, c.hatCone, (float) (frameNow * 0.06 * c.hatSpin), seconds);
             if (c.wingsEnabled) wings(model, pose, collector, s, Hats.wing(c.wingsType), c.color("wings"), c.color2("wings"), c.wingsStyle,
-                    (float) c.wingsOpacity, c.wingsSize, (float) c.wingsFlap, seconds, nanos);
+                    (float) c.wingsOpacity, c.wingsSize, (float) c.wingsFlap, WingFit.of(c), seconds, nanos);
             return;
         }
         if (!c.hatOthers || !HatSync.any() || s.distanceToCameraSq >= 48 * 48) return;
@@ -435,7 +435,7 @@ public final class WorldCosmetics {
         if (remote.wings() > 0) {
             int color = remote.wingRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue, 0.72, 1) : remote.wingRgb();
             int light = remote.wingRainbow() ? tech.gulp.lavavisual.config.ColorMath.hsv(hue + 0.16, 0.72, 1) : tech.gulp.lavavisual.config.ColorMath.companion(color);
-            wings(model, pose, collector, s, Hats.wing(remote.wings()), color, light, 0, 0.95f, 1, 1, seconds, nanos);
+            wings(model, pose, collector, s, Hats.wing(remote.wings()), color, light, 0, 0.95f, 1, 1, WingFit.DEFAULT, seconds, nanos);
         }
     }
     /**
@@ -462,7 +462,7 @@ public final class WorldCosmetics {
     /** Wings on the upper back, on the model's body transform (attack twist and crouch lean included); hidden with an elytra. */
     private static void wings(net.minecraft.client.model.player.PlayerModel model, PoseStack pose, net.minecraft.client.renderer.SubmitNodeCollector collector,
                               net.minecraft.client.renderer.entity.state.AvatarRenderState s, Hats.Model wing, int color, int light, int style,
-                              float opacity, double size, float flap, float seconds, long nanos) {
+                              float opacity, double size, float flap, WingFit fit, float seconds, long nanos) {
         if (wing == null) return;
         var chest = s.chestEquipment;
         boolean armor = chest != null && !chest.isEmpty();
@@ -470,17 +470,26 @@ public final class WorldCosmetics {
         float walk = Math.clamp(s.walkAnimationSpeed, 0, 1);
         WingClock clock = WING_CLOCKS.computeIfAbsent(s.id, id -> new WingClock(nanos));
         double dt = Math.min(0.1, Math.max(0, (nanos - clock.last) / 1e9));
-        clock.phase += dt * (1 + 1.4 * walk);
+        clock.phase += dt * (1 + 1.4 * walk) * fit.speed();
         clock.last = nanos;
         pose.pushPose();
         model.body.translateAndRotate(pose);
         pose.scale(1, -1, -1);
-        pose.translate(0, -3 / 16.0, -(armor ? 3.3 : 2.2) / 16.0);
+        pose.translate(0, -3 / 16.0 + fit.lift(), -(armor ? 3.3 : 2.2) / 16.0 - fit.back());
+        if (fit.tilt() != 0) pose.mulPose(new org.joml.Quaternionf().rotateX((float) Math.toRadians(-fit.tilt())));
         float k = (float) (size / 0.9375);
         pose.scale(k, k, k);
-        submitModel(collector, pose, wing, new Hats.Look(color, light, style, opacity, seconds, (float) clock.phase, flap * (0.8f + 0.5f * walk), env(s)),
+        submitModel(collector, pose, wing, new Hats.Look(color, light, style, opacity, seconds, (float) clock.phase, flap * (0.8f + 0.5f * walk), env(s),
+                        (float) Math.toRadians(fit.spread())),
                 (float) (size * Math.max(0.2, s.scale)));
         pose.popPose();
+    }
+    /** Wings editor values: height and distance from the back (blocks), tilt and spread (degrees), beat speed. */
+    private record WingFit(float lift, float back, float tilt, float spread, float speed) {
+        static final WingFit DEFAULT = new WingFit(0, 0, 0, 0, 1);
+        static WingFit of(tech.gulp.lavavisual.config.HudConfig c) {
+            return new WingFit((float) c.wingsLift, (float) c.wingsBack, (float) c.wingsTilt, (float) c.wingsSpread, (float) c.wingsSpeed);
+        }
     }
     private static void submitModel(net.minecraft.client.renderer.SubmitNodeCollector collector, PoseStack pose, Hats.Model model, Hats.Look look, float worldScale) {
         Vector3f right = new Vector3f(CAMERA_RIGHT), up = new Vector3f(CAMERA_UP);

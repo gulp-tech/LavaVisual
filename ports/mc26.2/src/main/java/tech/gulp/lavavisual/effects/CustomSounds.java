@@ -12,10 +12,10 @@ import java.util.stream.Stream;
 import net.fabricmc.loader.api.FabricLoader;
 import tech.gulp.lavavisual.LavaVisual;
 import tech.gulp.lavavisual.audio.MusicPlayer;
-import tech.gulp.lavavisual.audio.OggInfo;
+import tech.gulp.lavavisual.audio.AudioInfo;
 
 /**
- * The user's own .ogg files. The folders are created automatically:
+ * The user's own sound files (.mp3, .ogg, .opus, .wav). The folders are created automatically:
  * config/lavavisual-hud/sounds/{hits, crits, totems, kills} — each file shows by its own name in that list
  * (files directly in sounds/ show in every list), and config/lavavisual-hud/music for the music player.
  * Files play directly through OpenAL (LavaAudio), so no resource pack or reload is needed and any file name works.
@@ -23,7 +23,7 @@ import tech.gulp.lavavisual.audio.OggInfo;
 public final class CustomSounds {
     public static final String[] FOLDERS = {"hits", "crits", "totems", "kills"};
     public static final String[] FOLDER_TITLES = {"удары", "криты", "тотемы", "убийства"};
-    /** key: folder/file name ("*" for the shared folder); name: file name without .ogg. */
+    /** key: folder/file name ("*" for the shared folder); name: file name without the extension. */
     public record Entry(String key, String name, Path file, boolean playable) { }
     private static final List<List<Entry>> GROUPS = List.of(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     private static int files, skipped;
@@ -34,7 +34,7 @@ public final class CustomSounds {
     public static Path dir() { return root().resolve("sounds"); }
     public static Path musicDir() { return root().resolve("music"); }
 
-    /** Startup: folders, removal of the pre-2.18 generated resource pack, first scan of sounds and music. */
+    /** Startup: folders, removal of the old generated resource pack, first scan of sounds and music. */
     public static void init() {
         ensureFolders();
         try {
@@ -52,8 +52,8 @@ public final class CustomSounds {
             for (String folder : FOLDERS) Files.createDirectories(dir().resolve(folder));
             Files.createDirectories(musicDir());
             Path readme = dir().resolve("ПРОЧТИ.txt");
-            if (!Files.exists(readme)) Files.writeString(readme, """
-                    Свои звуки LavaVisual — файлы .ogg (Vorbis).
+            if (!Files.exists(readme) || Files.readString(readme).contains("(Vorbis)")) Files.writeString(readme, """
+                    Свои звуки LavaVisual — файлы .mp3, .ogg, .opus или .wav.
                     hits   — звуки ударов
                     crits  — звуки критов
                     totems — звуки тотема
@@ -63,8 +63,8 @@ public final class CustomSounds {
                     Список обновляется сам, выбор — в меню LavaVisual → Звуки (стрелки у каждого события).
                     """, StandardCharsets.UTF_8);
             Path music = musicDir().resolve("ПРОЧТИ.txt");
-            if (!Files.exists(music)) Files.writeString(music, """
-                    Музыка LavaVisual — файлы .ogg (Vorbis).
+            if (!Files.exists(music) || Files.readString(music).contains("(Vorbis)")) Files.writeString(music, """
+                    Музыка LavaVisual — файлы .mp3, .ogg, .opus или .wav.
                     Плеер открывается клавишей M (меняется во вкладке «Бинды»).
                     Обложка: встроенная в файл или картинка рядом с тем же именем (.png / .jpg).
                     """, StandardCharsets.UTF_8);
@@ -94,9 +94,9 @@ public final class CustomSounds {
         List<Entry> out = new ArrayList<>();
         if (!Files.isDirectory(folder)) return out;
         try (Stream<Path> stream = Files.list(folder)) {
-            for (Path file : stream.filter(MusicPlayer::isOgg).sorted().toList()) {
+            for (Path file : stream.filter(AudioInfo::isAudio).sorted().toList()) {
                 String name = file.getFileName().toString();
-                out.add(new Entry(key + "/" + name, name.substring(0, name.length() - 4), file, OggInfo.read(file, 65536, false).playable()));
+                out.add(new Entry(key + "/" + name, AudioInfo.baseName(file), file, AudioInfo.read(file, 65536, false).playable()));
             }
         } catch (IOException error) {
             LavaVisual.LOGGER.warn("LavaVisual: cannot read {}", folder, error);
@@ -107,12 +107,12 @@ public final class CustomSounds {
     public static int files() { return files; }
     public static int skipped() { return skipped; }
 
-    /** Copies dropped .ogg files into the folder; returns how many were copied. */
+    /** Copies dropped audio files into the folder; returns how many were copied. */
     public static int importFiles(List<Path> dropped, Path target) {
         ensureFolders();
         int copied = 0;
         for (Path file : dropped) {
-            if (!MusicPlayer.isOgg(file)) continue;
+            if (!AudioInfo.isAudio(file)) continue;
             try {
                 Files.copy(file, target.resolve(file.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
                 copied++;

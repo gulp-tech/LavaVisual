@@ -43,7 +43,7 @@ jobs:
           from pathlib import Path
           log = Path('ports/mc26.2/build/client-smoke.log').read_text(errors='replace')
           assert 'with Fabric Loader 0.19.3' in log, 'Wrong runtime loader version'
-          with zipfile.ZipFile('ports/mc26.2/build/libs/lavavisual-2.18.0-mc26.2.jar') as jar:
+          with zipfile.ZipFile('ports/mc26.2/build/libs/lavavisual-2.19.0-mc26.2.jar') as jar:
               m = json.loads(jar.read('fabric.mod.json'))
               assert m['id'] == 'lavavisual'
               assert m['depends']['minecraft'] == '26.2'
@@ -53,6 +53,9 @@ jobs:
               assert 'licenses/Inter-OFL.txt' in jar.namelist()
               assert 'licenses/Kenney-CC0.txt' in jar.namelist()
               assert 'licenses/Lucide-ISC.txt' in jar.namelist()
+              assert 'licenses/JavaMP3-MIT.txt' in jar.namelist() and 'licenses/Concentus-BSD.txt' in jar.namelist()
+              assert 'fr/delthas/javamp3/Sound.class' in jar.namelist(), 'MP3 decoder not bundled'
+              assert 'io/github/jaredmdobson/concentus/OpusDecoder.class' in jar.namelist(), 'Opus decoder not bundled'
               fonts = [n for n in jar.namelist() if n.startswith('assets/lavavisual/font/') and n.endswith('.json')]
               assert len(fonts) == 226, len(fonts)
               sounds = [name for name in jar.namelist() if name.endswith('.ogg')]
@@ -74,17 +77,18 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: LavaVisual-2.18.0-mc26.2-standalone
-          path: ports/mc26.2/build/libs/lavavisual-2.18.0-mc26.2.jar
+          name: LavaVisual-2.19.0-mc26.2-standalone
+          path: ports/mc26.2/build/libs/lavavisual-2.19.0-mc26.2.jar
       - name: Publish tested JAR
         if: github.ref == 'refs/heads/arena/01a0d2b1-lavavisual'
         run: |
           git pull --ff-only origin arena/01a0d2b1-lavavisual
           mkdir -p artifacts
-          cp ports/mc26.2/build/libs/lavavisual-2.18.0-mc26.2.jar artifacts/
+          rm -f artifacts/lavavisual-*.jar
+          cp ports/mc26.2/build/libs/lavavisual-2.19.0-mc26.2.jar artifacts/
           rm -f artifacts/ui-2.*.png
-          test ! -f ports/mc26.2/build/ui-smoke.png || cp ports/mc26.2/build/ui-smoke.png artifacts/ui-2.18.png
-          for shot in ports/mc26.2/build/shot-*.png; do if [ -f "$shot" ]; then cp "$shot" "artifacts/ui-2.18-$(basename "$shot" .png | cut -c6-).png"; fi; done
+          test ! -f ports/mc26.2/build/ui-smoke.png || cp ports/mc26.2/build/ui-smoke.png artifacts/ui-2.19.png
+          for shot in ports/mc26.2/build/shot-*.png; do if [ -f "$shot" ]; then cp "$shot" "artifacts/ui-2.19-$(basename "$shot" .png | cut -c6-).png"; fi; done
           (cd artifacts && sha256sum *.jar > SHA256SUMS)
           printf 'Source: %s\nBuild: https://github.com/%s/actions/runs/%s\nMinecraft: 26.2\nTested Fabric Loader: 0.19.3\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" > artifacts/STANDALONE-26.2.txt
           git config user.name 'github-actions[bot]'

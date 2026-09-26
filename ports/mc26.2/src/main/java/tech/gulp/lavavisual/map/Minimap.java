@@ -50,6 +50,13 @@ public final class Minimap {
     private static void restart() { pass = 0; column = 0; idle = 0; }
 
     public static void tick(Minecraft mc) {
+        long started = System.nanoTime();
+        try { update(mc); } finally { tickNanos += System.nanoTime() - started; ticks++; }
+    }
+    private static long tickNanos, ticks;
+    /** CI: average tick cost of the scanner in microseconds since resetCost(). */
+    public static double tickMicros() { return ticks == 0 ? 0 : tickNanos / 1000.0 / ticks; }
+    private static void update(Minecraft mc) {
         HudConfig c = LavaVisualClient.config();
         if (mc.level == null || mc.player == null) { if (level != null) reset(); return; }
         if (!c.widgets.get("minimap").visible || LavaVisualClient.STATE.hudHidden) return;
@@ -58,12 +65,15 @@ public final class Minimap {
         if (!valid) { originX = px - HALF; originZ = pz - HALF; valid = true; restart(); }
         else if (Math.abs(px - (originX + HALF)) > RECENTER || Math.abs(pz - (originZ + HALF)) > RECENTER) shift(px - HALF - originX, pz - HALF - originZ);
         boolean ceiling = mc.level.dimensionType().hasCeiling();
-        int budget = PerformanceMode.active() ? 128 : 256;
+        // A few map pixels per tick (centre rows first); a standing player's map is refreshed every 10 s, and the
+        // texture goes to the GPU at most twice a second (once a second with FPS Boost).
+        boolean boost = PerformanceMode.active();
+        int budget = boost ? 64 : 128;
         if (ceiling) budget /= 3;
-        if (pass >= SIZE) { if (++idle >= 40) restart(); }
+        if (pass >= SIZE) { if (++idle >= 200) restart(); }
         else scan(mc.level, budget, ceiling, Mth.floor(mc.player.getY()));
         uploadTimer++;
-        if (dirty && (uploadTimer >= 4 || !uploaded)) upload(mc);
+        if (dirty && (uploadTimer >= (boost ? 20 : 10) || !uploaded)) upload(mc);
     }
     private static void shift(int dx, int dz) {
         Arrays.fill(SCRATCH_P, 0); Arrays.fill(SCRATCH_H, UNKNOWN);
@@ -156,7 +166,7 @@ public final class Minimap {
         boolean round = c.mapShape == 0;
         // The round window is cut from the square map with the panel colour, so that panel is opaque.
         double op = round ? 1 : w.opacity;
-        int panelTop = UiDraw.alpha(UiDraw.mix(bg, 0xFFFFFF, 0.05), op), panelBottom = UiDraw.alpha(bg, op);
+        int panelTop = round ? UiDraw.alpha(bg, 1) : UiDraw.alpha(UiDraw.mix(bg, 0xFFFFFF, 0.05), op), panelBottom = UiDraw.alpha(bg, op);
         if (c.shadows) {
             UiDraw.round(g, -1, 1, bw + 2, bh + 2, 8, UiDraw.alpha(0, w.opacity * 0.12));
             UiDraw.round(g, 0, 2, bw, bh, 7, UiDraw.alpha(0, w.opacity * 0.22));
@@ -177,10 +187,9 @@ public final class Minimap {
             g.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, m, m, u, v, size, size, (int) view, (int) view, SIZE, SIZE, 0xFFFFFFFF);
             g.disableScissor();
         } else if (!edit) UiFont.centered(g, font, "загрузка", m + size / 2, m + size / 2 - 4, 0xFF8C93A1, UiFont.Face.SMALL);
-        // Window shape, inner shadow, glow and ring: one cached texture (drawing them per pixel row every frame cost
-        // thousands of quads and dropped weak PCs and phones to a few FPS).
-        frame(mc, g, bw, bh, m, size, round, UiDraw.alpha(UiDraw.mix(bg, 0xFFFFFF, 0.05), 1), UiDraw.alpha(bg, 1), accent, accent2,
-                c.chroma != null && c.chroma.contains("minimap"));
+        // Window shape, inner shadow, glow and ring come from cached white / black textures tinted when drawn, so
+        // rainbow or changed colours never repaint them.
+        frame(mc, g, bw, bh, m, size, round, bg, accent, accent2);
         double scale = size / view;
         if (c.mapWaypoints && player != null && mc.level != null) {
             for (Waypoints.Point p : Waypoints.here(mc)) {
@@ -206,75 +215,102 @@ public final class Minimap {
             UiFont.centered(g, font, text, bw / 2, m + size + 4, 0xFFC9CED8, UiFont.Face.SMALL);
         }
     }
-    private static final Identifier FRAME = Identifier.fromNamespaceAndPath("lavavisual", "minimap_frame");
-    private static DynamicTexture frameTexture;
-    private static int frameW, frameH;
+    private static final Identifier FRAME = Identifier.fromNamespaceAndPath("lavavisual", "minimap_frame"),
+            RING = Identifier.fromNamespaceAndPath("lavavisual", "minimap_ring"),
+            RING2 = Identifier.fromNamespaceAndPath("lavavisual", "minimap_ring2");
+    private static DynamicTexture frameTexture, ringTexture, ring2Texture;
+    private static int frameW, frameH, builds;
     private static long frameKey = Long.MIN_VALUE, frameBuilt;
     private static long costNanos, costFrames;
+    private static long clockLast, clockSum, clockFrames;
+    private static boolean clockOn;
     /** Draw time of the minimap (CI budget check). */
     public static void cost(long nanos) { costNanos += nanos; costFrames++; }
-    public static void resetCost() { costNanos = 0; costFrames = 0; }
+    public static void resetCost() { costNanos = 0; costFrames = 0; tickNanos = 0; ticks = 0; }
     public static double averageMicros() { return costFrames == 0 ? 0 : costNanos / 1000.0 / costFrames; }
     public static long frames() { return costFrames; }
+    /** CI: how many times the frame textures were painted (only size or shape changes should do it). */
+    public static int builds() { return builds; }
+    /** CI frame clock: called once per HUD frame; measures the average time between frames while on. */
+    public static void frameClock(long now) {
+        if (clockOn && clockLast != 0) { clockSum += now - clockLast; clockFrames++; }
+        clockLast = now;
+    }
+    public static void clock(boolean on) { clockOn = on; clockSum = 0; clockFrames = 0; clockLast = 0; }
+    public static double clockMillis() { return clockFrames == 0 ? 0 : clockSum / 1e6 / clockFrames; }
+    public static long clockFrames() { return clockFrames; }
     private static double pixels(GuiGraphicsExtractor g) {
         var p = g.pose();
         return UiFont.guiScale() * Math.sqrt(Math.abs(p.m00() * p.m11() - p.m01() * p.m10()));
     }
-    /** Rebuilt only when the size, shape or colours change (a rainbow colour at most 5 times per second). */
-    private static void frame(Minecraft mc, GuiGraphicsExtractor g, int bw, int bh, int m, int size, boolean round,
-                              int top, int bottom, int accent, int accent2, boolean animated) {
+    /**
+     * Three textures that never depend on colours: the window mask (white, tinted with the panel colour) with the
+     * inner shadow (black), and the ring in two layers tinted with the two accent colours. The alphas are split so
+     * that the two tinted layers reproduce the top-to-bottom gradient exactly. Repainted only when the size or the
+     * shape changes (at most four times a second while a HUD animation scales it).
+     */
+    private static void frame(Minecraft mc, GuiGraphicsExtractor g, int bw, int bh, int m, int size, boolean round, int bg, int accent, int accent2) {
         double s = pixels(g);
         int pw = (int) Math.round(bw * s), ph = (int) Math.round(bh * s);
         if (pw < 8 || ph < 8 || pw > 2048 || ph > 2048) return;
-        long key = ((((long) pw * 4099 + ph) * 31 + (round ? 1 : 0)) * 1_000_003L + top) * 1_000_033L + bottom;
-        key = key * 1_000_037L + accent;
-        key = key * 1_000_039L + accent2;
+        long key = ((long) pw * 4099 + ph) * 31 + (round ? 1 : 0);
         long now = System.nanoTime();
-        boolean resized = frameTexture == null || frameW != pw || frameH != ph;
-        if (key != frameKey && (resized || !animated || now - frameBuilt > 200_000_000L)) {
-            if (resized) {
+        if (key != frameKey && (frameTexture == null || now - frameBuilt > 250_000_000L)) {
+            if (frameTexture == null || frameW != pw || frameH != ph) {
                 frameTexture = new DynamicTexture(() -> "lavavisual minimap frame", pw, ph, true);
-                mc.getTextureManager().register(FRAME, frameTexture); // replaces (and closes) the previous one
+                ringTexture = new DynamicTexture(() -> "lavavisual minimap ring", pw, ph, true);
+                ring2Texture = new DynamicTexture(() -> "lavavisual minimap ring 2", pw, ph, true);
+                var textures = mc.getTextureManager();
+                textures.register(FRAME, frameTexture); // replaces (and closes) the previous ones
+                textures.register(RING, ringTexture);
+                textures.register(RING2, ring2Texture);
                 frameW = pw; frameH = ph;
             }
-            NativeImage image = frameTexture.getPixels();
-            if (image == null) return;
-            paintFrame(image, pw, ph, s, m, size, round, top, bottom, accent, accent2, bh);
+            NativeImage base = frameTexture.getPixels(), ring = ringTexture.getPixels(), ring2 = ring2Texture.getPixels();
+            if (base == null || ring == null || ring2 == null) return;
+            paintFrame(base, ring, ring2, pw, ph, s, m, size, round);
             frameTexture.upload();
+            ringTexture.upload();
+            ring2Texture.upload();
             frameKey = key;
             frameBuilt = now;
+            builds++;
         }
-        g.blit(RenderPipelines.GUI_TEXTURED, FRAME, 0, 0, 0f, 0f, bw, bh, pw, ph, pw, ph, 0xFFFFFFFF);
+        g.blit(RenderPipelines.GUI_TEXTURED, FRAME, 0, 0, 0f, 0f, bw, bh, frameW, frameH, frameW, frameH, 0xFF000000 | bg);
+        g.blit(RenderPipelines.GUI_TEXTURED, RING, 0, 0, 0f, 0f, bw, bh, frameW, frameH, frameW, frameH, 0xFF000000 | accent);
+        g.blit(RenderPipelines.GUI_TEXTURED, RING2, 0, 0, 0f, 0f, bw, bh, frameW, frameH, frameW, frameH, 0xFF000000 | accent2);
     }
-    private static void paintFrame(NativeImage image, int pw, int ph, double s, int m, int size, boolean round,
-                                   int top, int bottom, int accent, int accent2, int bh) {
+    private static void paintFrame(NativeImage base, NativeImage ring, NativeImage ring2, int pw, int ph, double s, int m, int size, boolean round) {
         double cx = m + size / 2.0, cy = m + size / 2.0, r = size / 2.0, corner = 6;
         for (int py = 0; py < ph; py++) {
-            double y = (py + 0.5) / s;
-            int mask = UiDraw.lerpArgb(top, bottom, Math.clamp(y / bh, 0, 1));
-            int ring = UiDraw.lerpArgb(accent | 0xFF000000, accent2 | 0xFF000000, Math.clamp((y - m) / size, 0, 1)) & 0xFFFFFF;
+            double y = (py + 0.5) / s, t = Math.clamp((y - m) / size, 0, 1);
             for (int px = 0; px < pw; px++) {
                 double x = (px + 0.5) / s;
                 boolean inside = x >= m && x < m + size && y >= m && y < m + size;
                 int out = 0;
+                double a = 0; // ring opacity (glow and line)
                 if (round) {
                     double d = Math.hypot(x - cx, y - cy);
                     if (inside) {
                         double cover = Math.clamp((d - r) * s + 0.5, 0, 1);
                         if (d < r) { double v = Math.clamp((d - (r - 7)) / 7, 0, 1); out = over(out, (int) Math.round(0.24 * v * v * 255) << 24); }
-                        if (cover > 0) out = over(out, UiDraw.fade(mask, cover));
+                        if (cover > 0) out = over(out, (int) Math.round(cover * 255) << 24 | 0xFFFFFF);
                     }
-                    if (d > r - 1 && d < r + 3.4) { double t = Math.clamp((d - r) / 3.4, 0, 1); out = over(out, UiDraw.alpha(ring, 0.2 * (1 - t) * (1 - t))); }
+                    if (d > r - 1 && d < r + 3.4) { double k = Math.clamp((d - r) / 3.4, 0, 1); a = 0.2 * (1 - k) * (1 - k); }
                     double edge = Math.abs(d - (r + 0.2)) - 0.7, line = Math.clamp(0.5 - edge * s, 0, 1);
-                    if (line > 0) out = over(out, UiDraw.alpha(ring, 0.95 * line));
+                    if (line > 0) a = a + 0.95 * line * (1 - a);
                 } else {
                     double dx = Math.max(Math.abs(x - cx) - (size / 2.0 - corner), 0), dy = Math.max(Math.abs(y - cy) - (size / 2.0 - corner), 0);
                     double d = Math.hypot(dx, dy) - corner;
-                    if (inside) { double cover = Math.clamp(d * s + 0.5, 0, 1); if (cover > 0) out = over(out, UiDraw.fade(mask, cover)); }
+                    if (inside) { double cover = Math.clamp(d * s + 0.5, 0, 1); if (cover > 0) out = over(out, (int) Math.round(cover * 255) << 24 | 0xFFFFFF); }
                     double edge = Math.abs(d + 0.1) - 0.55, line = Math.clamp(0.5 - edge * s, 0, 1);
-                    if (line > 0) out = over(out, UiDraw.alpha(ring, 0.85 * line));
+                    if (line > 0) a = 0.85 * line;
                 }
-                image.setPixel(px, py, out);
+                base.setPixel(px, py, out);
+                // Layer 1 (accent) under layer 2 (accent2 with opacity a*t): together opacity a, colour mixed by t.
+                double a2 = a * t, a1 = a2 >= 0.999 ? 0 : a * (1 - t) / (1 - a2);
+                ring.setPixel(px, py, (int) Math.round(Math.clamp(a1, 0, 1) * 255) << 24 | 0xFFFFFF);
+                ring2.setPixel(px, py, (int) Math.round(Math.clamp(a2, 0, 1) * 255) << 24 | 0xFFFFFF);
             }
         }
     }
@@ -289,15 +325,6 @@ public final class Minimap {
         int gg = (int) Math.round(((src >> 8 & 255) * as + (dst >> 8 & 255) * ad) / a);
         int b = (int) Math.round(((src & 255) * as + (dst & 255) * ad) / a);
         return (int) Math.round(a * 255) << 24 | r << 16 | gg << 8 | b;
-    }
-    /** One row segment [a, b] (GUI units) clipped to [x0, x1], in physical pixels with fractional end coverage. */
-    private static void span(GuiGraphicsExtractor g, double s, double a, double b, double x0, double x1, int row, int color) {
-        a = Math.max(a, x0) * s; b = Math.min(b, x1) * s;
-        if (b <= a) return;
-        int ia = (int) Math.ceil(a), ib = (int) Math.floor(b);
-        if (ib > ia) g.fill(ia, row, ib, row + 1, color);
-        if (ia > a && ia - 1 >= Math.floor(a)) g.fill(ia - 1, row, ia, row + 1, UiDraw.fade(color, Math.min(1, ia - a)));
-        if (b > ib && ib >= ia) g.fill(ib, row, ib + 1, row + 1, UiDraw.fade(color, Math.min(1, b - ib)));
     }
     private static final Identifier ARROW = Identifier.fromNamespaceAndPath("lavavisual", "minimap_arrow");
     private static final double[][] ARROW_SHAPE = {{0, -6.6}, {4.9, 5.2}, {0, 2.5}, {-4.9, 5.2}};

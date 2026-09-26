@@ -10,7 +10,7 @@ import tech.gulp.lavavisual.config.HudConfig;
 
 /** One shared sound library for hits, crits, totems and kills; each event may use any sound or a custom file. */
 public final class CustomAudio {
-    /** Sound event paths (see sounds.json): 29 synthesised in tools/make_sounds.py (8 saturated hits/crits since 2.11), 6 Kenney CC0. */
+    /** Sound event paths (see sounds.json): 29 synthesised in tools/make_sounds.py (8 of them saturated hits/crits), 6 Kenney CC0. */
     public static final String[] IDS = {"lib.bell", "lib.bubble", "lib.click", "lib.tick", "lib.punch", "lib.metal", "lib.glass",
             "lib.laser", "lib.coin", "lib.crystal", "lib.retro", "lib.bass", "lib.snap", "lib.drop", "lib.wood", "lib.zap",
             "lib.sparkle", "lib.double", "lib.thunder", "lib.fanfare", "lib.magic",
@@ -21,7 +21,7 @@ public final class CustomAudio {
             "Искра", "Двойной звон", "Гром", "Фанфары", "Магия",
             "Мягкий взмах", "Тяжёлый удар", "Лязг", "Аркада", "Колокольчик", "Power Up",
             "Сочный удар", "Мощный панч", "Хлёсткий удар", "Глухой бум", "Крит · Клинок", "Крит · Взрыв", "Крит · Молния", "Крит · Сияние"};
-    /** First index of the 2.11 saturated sounds: 4 hits, then 4 crits. */
+    /** First index of the saturated sounds: 4 hits, then 4 crits. */
     public static final int RICH = 27;
     public static final int CUSTOM = IDS.length;
     private static final int[] FALLBACK = {3, 16, 19, 17};
@@ -35,7 +35,7 @@ public final class CustomAudio {
         if (index < IDS.length) return NAMES[Math.max(0, index)];
         var list = CustomSounds.list(group);
         int i = index - IDS.length;
-        return i < list.size() ? "★ " + list.get(i).name() + (list.get(i).playable() ? "" : " · не Vorbis") : "★ файл удалён";
+        return i < list.size() ? "★ " + list.get(i).name() + (list.get(i).playable() ? "" : " · не читается") : "★ файл удалён";
     }
     private static String key(int group) {
         var c = LavaVisualClient.config();
@@ -50,7 +50,7 @@ public final class CustomAudio {
         var list = CustomSounds.list(group);
         String key = key(group);
         for (var entry : list) if (entry.key().equals(key)) return entry;
-        return key.isEmpty() && !list.isEmpty() ? list.getFirst() : null; // pre-2.18 «Свой файл»
+        return key.isEmpty() && !list.isEmpty() ? list.getFirst() : null; // an old single «Свой файл» choice
     }
     public static int selected(int group) {
         var c = LavaVisualClient.config();

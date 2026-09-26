@@ -53,8 +53,15 @@ public final class Hats {
         private final Part[] parts;
         private Model(Part[] parts) { this.parts = parts; }
     }
-    /** Colours (RGB), style (0 pattern, 1 solid, 2 gradient), opacity, animation clocks in seconds, wing beat amount, world light 0..1. */
-    public record Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env) { }
+    /**
+     * Colours (RGB), style (0 pattern, 1 solid, 2 gradient), opacity, animation clocks in seconds, wing beat amount,
+     * world light 0..1, and the extra opening of each wing around its root (radians, mirrored for the other wing).
+     */
+    public record Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread) {
+        public Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env) {
+            this(color, light, style, alpha, time, swingTime, flap, env, 0);
+        }
+    }
 
     public static String name(int type) { return NAMES[Math.floorMod(type - 1, COUNT)]; }
     public static String wingName(int type) { return WING_NAMES[Math.floorMod(type - 1, WING_COUNT)]; }
@@ -302,7 +309,7 @@ public final class Hats {
         final Matrix4f world = new Matrix4f(), full = new Matrix4f();
         final Matrix3f normalMatrix = new Matrix3f();
         int c, l, style, count, rim;
-        float alpha, time, swingTime, flap, env, quality, scale;
+        float alpha, time, swingTime, flap, env, quality, scale, spread;
         boolean glowPass;
         Vector3f right, up;
         final Vector3f[] hat = {new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f()};
@@ -313,11 +320,11 @@ public final class Hats {
         Emitter setup(PoseStack.Pose pose, VertexConsumer out, Matrix4f world, Look look, boolean glowPass, float scale, Vector3f right, Vector3f up) {
             this.pose = pose; this.out = out; this.world.set(world);
             this.c = look.color() & 0xFFFFFF; this.l = look.light() & 0xFFFFFF; this.style = Math.floorMod(look.style(), 3);
-            this.alpha = Math.clamp(look.alpha(), 0, 1); this.time = look.time(); this.swingTime = look.swingTime(); this.flap = look.flap();
+            this.alpha = Math.clamp(look.alpha(), 0, 1); this.time = look.time(); this.swingTime = look.swingTime(); this.flap = look.flap(); this.spread = look.spread();
             this.env = Math.clamp(look.env(), 0.2f, 1f); this.glowPass = glowPass; this.scale = scale; this.right = right; this.up = up;
             this.rim = mix(this.l, 0xFFFFFF, 0.5f);
-            // Fixed detail level: it used to follow the live FPS, so near 30/40/50 FPS the mesh was re-tessellated
-            // every second and hats and wings visibly twitched. Only the FPS Boost switch lowers it now.
+            // Fixed detail level. Deriving it from the live FPS would re-tessellate the mesh whenever the FPS crosses
+            // a threshold and make the models jitter; only FPS Boost lowers it.
             this.quality = PerformanceMode.active() ? 0.75f : 1f;
             return this;
         }
@@ -360,8 +367,10 @@ public final class Hats {
                     g.translate(ax, ay, az);
                     if (part.rot != null) g.rotateY(rad(part.rot[1])).rotateX(rad(part.rot[0])).rotateZ(rad(part.rot[2]));
                     if (part.spinAxis >= 0) rotate(g, part.spinAxis, part.spinSpeed * time);
-                    if (part.swing != null)
+                    if (part.swing != null) {
+                        if (spread != 0) g.rotateY(spread); // wing roots; the mirrored wing opens the other way
                         for (float[] s : part.swing) rotate(g, (int) s[0], s[1] * flap * (float) Math.sin(s[2] * swingTime + s[3]));
+                    }
                     build(part.parts, g, part.repeat > 1 ? k : index);
                 }
             }

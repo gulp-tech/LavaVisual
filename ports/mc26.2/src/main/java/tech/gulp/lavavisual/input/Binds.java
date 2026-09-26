@@ -99,6 +99,8 @@ public final class Binds {
         if (modifier != null && modifier.isDown()) return true;
         try { return InputConstants.isKeyDown(mc.getWindow(), GLFW.GLFW_KEY_F3); } catch (RuntimeException e) { return false; }
     }
+    /** Runs a bind's action exactly as its key would (CI uses it for the music keys). */
+    public static void press(Action action, Minecraft mc) { run(action, mc); }
     private static void run(Action action, Minecraft mc) {
         var c = LavaVisualClient.config();
         switch (action) {

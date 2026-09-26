@@ -2,8 +2,8 @@ package tech.gulp.lavavisual.config;
 
 /**
  * Rainbow phase that advances by elapsed time times the current speed. Changing the speed only changes how fast the
- * phase moves from now on, so dragging the speed slider no longer makes the colours jump (the old hue was
- * absolute time x speed, which flickered while the slider moved and wrapped every ~17 minutes).
+ * phase moves from now on, so dragging the speed slider never makes the colours jump (a hue computed as absolute
+ * time x speed would flicker while the slider moves).
  */
 public final class ChromaClock {
     private static long last;

@@ -14,7 +14,7 @@ import org.lwjgl.system.MemoryUtil;
 import tech.gulp.lavavisual.LavaVisual;
 
 /**
- * Album cover of the current track: the picture embedded in the .ogg, or an image next to it (same name .png / .jpg,
+ * Album cover of the current track: the picture embedded in the file, or an image next to it (same name .png / .jpg,
  * cover.png / cover.jpg / folder.jpg). Decoded with STB (PNG and JPEG), scaled to 64x64 once per track. No cover ->
  * null, and the HUD draws a spinning disc instead.
  */
@@ -48,7 +48,7 @@ public final class Covers {
         return present ? ID : null;
     }
     private static byte[] find(Path file) {
-        OggInfo info = OggInfo.read(file, 8 << 20, true);
+        AudioInfo info = AudioInfo.read(file, 8 << 20, true);
         if (info.cover != null) return info.cover;
         String name = file.getFileName().toString();
         String base = name.substring(0, name.length() - 4);

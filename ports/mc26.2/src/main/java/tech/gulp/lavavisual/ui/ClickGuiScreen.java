@@ -316,7 +316,7 @@ public final class ClickGuiScreen extends Screen {
             text(g, TABS[i], left + 33, y + tabPad + 1, tabColor, side - 40);
             hit(left + 8, y, side - 16, tabH, () -> navigate(next));
         }
-        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.18", left + 13, top + panelH - 21, 0xFF586272, side - 18);
+        if (72 + TABS.length * tabStep + 14 < panelH - 21) text(g, "26.2 · 2.19", left + 13, top + panelH - 21, 0xFF586272, side - 18);
         boolean searching = !query.isBlank();
         String heading = searching ? "Поиск" : selected == null ? TABS[page] : selected.equals("crosshair") ? "Прицел" : selected.equals("hat") ? "Шляпы" : selected.equals("wings") ? "Крылья" : HudRenderer.title(selected);
         searchW = Math.max(70, Math.min(150, bodyW / 2 - 20)); searchX = left + panelW - 58 - searchW; searchY = top + 11;
@@ -586,6 +586,7 @@ public final class ClickGuiScreen extends Screen {
         button(g, Icons.PENCIL, "Редактор шляпы · вид, цвет, размер", () -> minecraft.gui.setScreen(new HatEditorScreen(this)));
         toggle(g, "wings", "Крылья", Hats.WING_COUNT + " видов: ангел, демон, бабочка, дракон, феникс · по стрелке", c.wingsEnabled,
                 () -> { c.wingsEnabled = !c.wingsEnabled; changed(); }, () -> select("wings"));
+        button(g, Icons.PENCIL, "Редактор крыльев · положение, взмахи, цвет", () -> minecraft.gui.setScreen(new WingsEditorScreen(this)));
         toggle(g, "trail", "Trails", "Светящийся след из тела", c.trailEnabled, () -> { c.trailEnabled = !c.trailEnabled; changed(); }, null);
         chips(g, TRAIL_STYLES, c.trailStyle, i -> { c.trailStyle = i; c.trailEnabled = true; changed(); });
         slider(g, "Длина следа · сек", c.trailLength, 0.4, 3, v -> c.trailLength = v, false);
@@ -670,7 +671,7 @@ public final class ClickGuiScreen extends Screen {
             action(g, Icons.PLAY, "Слушать", bodyX + bodyW - listen, y, listen, () -> CustomAudio.preview(group));
             cursor += 32;
             if (group < 2) {
-                // 2.11: the saturated sounds one click away (they are also in the full list above).
+                // The saturated sounds one click away (they are also in the full list above).
                 String[] rich = group == 0 ? new String[]{"Сочный", "Панч", "Хлёсткий", "Бум"} : new String[]{"Клинок", "Взрыв", "Молния", "Сияние"};
                 int base = CustomAudio.RICH + group * 4, chosen = CustomAudio.selected(group) - base;
                 chips(g, rich, chosen >= 0 && chosen < 4 ? chosen : -1, k -> {
@@ -695,10 +696,10 @@ public final class ClickGuiScreen extends Screen {
         });
         cursor += 32;
         int skippedSounds = tech.gulp.lavavisual.effects.CustomSounds.skipped();
-        note(g, "Своих файлов: " + tech.gulp.lavavisual.effects.CustomSounds.files() + (skippedSounds > 0 ? " · не Vorbis, не играют: " + skippedSounds : "") + " · в списках отмечены ★");
+        note(g, "Своих файлов: " + tech.gulp.lavavisual.effects.CustomSounds.files() + (skippedSounds > 0 ? " · не читаются: " + skippedSounds : "") + " · в списках отмечены ★");
         note(g, "Папки: hits — удары, crits — криты, totems — тотем, kills — убийство");
         note(g, "Файлы прямо в папке sounds появятся во всех списках.");
-        note(g, "Формат .ogg (Vorbis), имя любое. Можно перетащить файлы в окно.");
+        note(g, "Форматы " + tech.gulp.lavavisual.audio.AudioInfo.EXTENSIONS + ", имя любое. Можно перетащить файлы в окно.");
     }
     private void music(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
@@ -707,7 +708,7 @@ public final class ClickGuiScreen extends Screen {
                 () -> minecraft.gui.setScreen(new MusicScreen(this)));
         var tracks = tech.gulp.lavavisual.audio.MusicPlayer.tracks();
         note(g, track == null || !tech.gulp.lavavisual.audio.MusicPlayer.active()
-                ? (tracks.isEmpty() ? "Треков нет — положите .ogg в папку music" : "Ничего не играет · треков: " + tracks.size())
+                ? (tracks.isEmpty() ? "Треков нет — положите музыку в папку music" : "Ничего не играет · треков: " + tracks.size())
                 : (tech.gulp.lavavisual.audio.MusicPlayer.paused() ? "Пауза · " : "Играет · ") + track.line() + " · "
                 + tech.gulp.lavavisual.audio.MusicPlayer.time(tech.gulp.lavavisual.audio.MusicPlayer.position()) + " / "
                 + tech.gulp.lavavisual.audio.MusicPlayer.time(tech.gulp.lavavisual.audio.MusicPlayer.duration()));
@@ -732,15 +733,15 @@ public final class ClickGuiScreen extends Screen {
         action(g, Icons.REFRESH_CW, "Обновить список", bodyX + half + 8, cursor, half, () -> tech.gulp.lavavisual.audio.MusicPlayer.rescan(tech.gulp.lavavisual.effects.CustomSounds.musicDir()));
         cursor += 32;
         int bad = tech.gulp.lavavisual.audio.MusicPlayer.skipped();
-        note(g, "Треков: " + tracks.size() + (bad > 0 ? " · не Vorbis, не играют: " + bad : "") + " · формат .ogg (Vorbis)");
-        note(g, "Можно перетащить .ogg в окно игры. Клавиши плеера — во вкладке «Бинды».");
+        note(g, "Треков: " + tracks.size() + (bad > 0 ? " · не читаются: " + bad : "") + " · " + tech.gulp.lavavisual.audio.AudioInfo.EXTENSIONS);
+        note(g, "Файлы можно перетащить в окно игры. Клавиши плеера — во вкладке «Бинды».");
     }
-    /** .ogg files dropped onto the menu go to the music folder on the Music page, otherwise to the shared sounds folder. */
+    /** Audio files dropped onto the menu go to the music folder on the Music page, otherwise to the shared sounds folder. */
     @Override public void onFilesDrop(List<java.nio.file.Path> files) {
         boolean music = page == PAGE_MUSIC;
         int copied = tech.gulp.lavavisual.effects.CustomSounds.importFiles(files,
                 music ? tech.gulp.lavavisual.effects.CustomSounds.musicDir() : tech.gulp.lavavisual.effects.CustomSounds.dir());
-        tech.gulp.lavavisual.input.Binds.Toast.show(copied > 0 ? "Добавлено: " + copied + (music ? " · музыка" : " · звуки") : "Нужны файлы .ogg");
+        tech.gulp.lavavisual.input.Binds.Toast.show(copied > 0 ? "Добавлено: " + copied + (music ? " · музыка" : " · звуки") : "Нужны файлы " + tech.gulp.lavavisual.audio.AudioInfo.EXTENSIONS);
     }
     private void iconButton(GuiGraphicsExtractor g, String icon, int x, int y, Runnable callback) {
         boolean over = hover(x, y, 24, 24);
@@ -819,8 +820,14 @@ public final class ClickGuiScreen extends Screen {
                 () -> { c.freeLookEnabled = !c.freeLookEnabled; changed(); }, null);
         note(g, "Клавиши меняются во вкладке «Бинды».");
         section(g, "Производительность");
-        toggle(g, "boost", "FPS Boost", "Дальность до 12, меньше частиц, без теней, мягче биомы, лимит FPS в AFK", c.fpsBoost, () -> { c.fpsBoost = !c.fpsBoost; tech.gulp.lavavisual.effects.PerformanceMode.update(minecraft); changed(); }, null);
-        note(g, "Выключение возвращает прежние настройки.");
+        toggle(g, "boost", "FPS Boost", "Больше кадров в секунду без заметной разницы в игре", c.fpsBoost, () -> { c.fpsBoost = !c.fpsBoost; tech.gulp.lavavisual.effects.PerformanceMode.update(minecraft); changed(); }, null);
+        chips(g, tech.gulp.lavavisual.effects.PerformanceMode.LEVELS, c.fpsBoostLevel - 1, i -> {
+            c.fpsBoostLevel = i + 1;
+            c.fpsBoost = true;
+            tech.gulp.lavavisual.effects.PerformanceMode.update(minecraft);
+            changed();
+        });
+        note(g, "Уровень выше — больше FPS. Выключение возвращает прежние настройки.");
     }
     private void settings(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config(); boolean cross = selected.equals("crosshair");
@@ -871,6 +878,7 @@ public final class ClickGuiScreen extends Screen {
         java.util.function.IntConsumer pickWings = i -> { c.wingsType = i + 1; c.wingsEnabled = true; changed(); };
         carousel(g, "Вид крыльев", Hats.WING_NAMES, c.wingsType - 1, pickWings);
         chips(g, Hats.WING_NAMES, c.wingsType - 1, pickWings, 5);
+        button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new WingsEditorScreen(this)));
         section(g, "Настройка");
         slider(g, "Размер", c.wingsSize, 0.5, 1.6, v -> c.wingsSize = v, false);
         slider(g, "Взмахи · 0 = неподвижно", c.wingsFlap, 0, 2, v -> c.wingsFlap = v < 0.05 ? 0 : v, false);

@@ -46,7 +46,7 @@ with log.open('w') as output:
                                     + ' -Dlavavisual.testAudio=' + str(Path(__file__).resolve().parent / 'test-audio')})
     ready_since = None
     try:
-        deadline = time.monotonic() + 540
+        deadline = time.monotonic() + 600
         while time.monotonic() < deadline:
             text = log.read_text(errors='replace')
             if process.poll() is not None:
@@ -60,7 +60,7 @@ with log.open('w') as output:
                     shots.add(name)
                     capture(project / 'build' / f'shot-{name}.png')
             # Atlas creation follows model/shader loading. Stay alive for a few seconds afterwards.
-            if re.search(r'LavaVisual 2\.[0-9]+\.[0-9]+', text) and re.search(r'Created:.*(atlas|textures)', text) and 'LavaVisual UI smoke complete' in text and 'LavaVisual audio regression passed' in text and 'LavaVisual badge marker on' in text and 'LavaVisual hat sync self-test passed' in text and 'LavaVisual hats ready' in text and 'LavaVisual menu restore page 9' in text and 'LavaVisual smoke dummy ok' in text and 'LavaVisual smoke hand editor ok' in text and 'LavaVisual smoke zoom ok' in text and 'LavaVisual smoke freelook ok' in text and 'LavaVisual smoke minimap fast' in text and 'LavaVisual smoke custom sounds ok' in text and 'LavaVisual smoke music ok' in text:
+            if re.search(r'LavaVisual 2\.[0-9]+\.[0-9]+', text) and re.search(r'Created:.*(atlas|textures)', text) and 'LavaVisual UI smoke complete' in text and 'LavaVisual audio regression passed' in text and 'LavaVisual badge marker on' in text and 'LavaVisual hat sync self-test passed' in text and 'LavaVisual hats ready' in text and 'LavaVisual menu restore page 9' in text and 'LavaVisual smoke dummy ok' in text and 'LavaVisual smoke hand editor ok' in text and 'LavaVisual smoke zoom ok' in text and 'LavaVisual smoke freelook ok' in text and 'LavaVisual smoke minimap fast' in text and 'LavaVisual smoke custom sounds ok' in text and 'LavaVisual smoke music ok' in text and 'LavaVisual smoke formats ok' in text and 'LavaVisual smoke minimap fps ok' in text and 'LavaVisual smoke wings editor ok' in text:
                 ready_since = ready_since or time.monotonic()
                 if time.monotonic() - ready_since >= 12:
                     capture(project / 'build' / 'ui-smoke.png')
@@ -81,6 +81,10 @@ with log.open('w') as output:
         except subprocess.TimeoutExpired:
             os.killpg(process.pid, signal.SIGKILL)
             process.wait()
+# Every in-world check with its numbers, pass or fail, readable through the Checks API.
+checks = [line for line in log.read_text(errors='replace').splitlines() if re.search(r'LavaVisual smoke (?!shot)', line)]
+if checks:
+    print('::notice title=Smoke checks::' + '\n'.join(line[-400:] for line in checks[-40:]).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A'))
 if result:
     all_lines = log.read_text(errors='replace').splitlines()
     indices = set(range(max(0, len(all_lines) - 30), len(all_lines)))

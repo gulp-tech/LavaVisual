@@ -27,7 +27,7 @@ public final class ConfigStore {
             migrateSounds(document, config);
             migrateShare(document, config);
             config.sanitize();
-            // One-time migration of 2.0 defaults: preserve layout, but do not surprise users with enabled panels.
+            // One-time migration of the first defaults: keep the layout, but do not surprise anyone with enabled panels.
             if (!document.isJsonObject() || !document.getAsJsonObject().has("schemaVersion")
                     || document.getAsJsonObject().get("schemaVersion").getAsInt() < HudConfig.SCHEMA) config.disableAll();
             return config;
@@ -36,7 +36,7 @@ public final class ConfigStore {
             return new HudConfig();
         }
     }
-    /** 2.11 added 8 library sounds, so the old «Свой файл» index 27 moves to the new end of the library. */
+    /** The library grew by 8 sounds, so the old «Свой файл» index 27 moves to the new end of the library. */
     private static void migrateSounds(com.google.gson.JsonElement document, HudConfig config) {
         if (!document.isJsonObject() || document.getAsJsonObject().has("soundVersion")) return;
         var o = document.getAsJsonObject();
@@ -46,7 +46,7 @@ public final class ConfigStore {
         if (oldCustom(o, "killSound")) config.killSound = HudConfig.SOUND_LIBRARY;
         config.soundVersion = 1;
     }
-    /** 2.13: hats and wings are meant to be seen by other LavaVisual players, so sharing is switched on once. */
+    /** Hats and wings are meant to be seen by other LavaVisual players, so sharing is switched on once. */
     private static void migrateShare(com.google.gson.JsonElement document, HudConfig config) {
         if (!document.isJsonObject() || document.getAsJsonObject().has("shareVersion")) return;
         config.badgeShare = true;

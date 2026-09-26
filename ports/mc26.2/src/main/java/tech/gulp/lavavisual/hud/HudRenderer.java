@@ -98,6 +98,7 @@ public final class HudRenderer {
         HudConfig c = LavaVisualClient.config();
         long now = System.nanoTime();
         double dt = Math.min(0.1, (now - lastNs) / 1e9); lastNs = now;
+        if (!edit) tech.gulp.lavavisual.map.Minimap.frameClock(now);
         Minecraft mc = Minecraft.getInstance();
         PANEL = c.color("hud_bg") & 0xFFFFFF;
         if (!edit && (mc.player == null || mc.gui.screen() instanceof tech.gulp.lavavisual.ui.HudEditorScreen)) return;

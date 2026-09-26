@@ -19,8 +19,8 @@ import tech.gulp.lavavisual.LavaVisualClient;
  * colour 5, check 4) with a 0 stuffed after every two 1s, so no run of 1s inside a frame lasts more than two seconds
  * and a frame can only start after three or more seconds of idle 1. That is at most one settings packet per second,
  * only while other players are around, and a frame takes about half a minute. Receivers sample the bit every tick.
- * Colour codes: 0 rainbow, 1..27 hues, 28..31 white, light grey, dark grey, black. (2.12 used 0 0 1 + RGB444; the
- * preambles differ, so the versions simply ignore each other's frames.)
+ * Colour codes: 0 rainbow, 1..27 hues, 28..31 white, light grey, dark grey, black. Frames with another preamble
+ * (the first protocol used 0 0 1 + RGB444) are ignored.
  */
 public final class HatSync {
     /** Shared cosmetics of another player; type 0 = none. */

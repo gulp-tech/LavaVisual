@@ -20,10 +20,11 @@ import tech.gulp.lavavisual.input.Binds;
 /**
  * Music player (M by default): cover or spinning disc, title, a progress bar you can click or drag to seek, previous /
  * back 10 s / play-pause / forward 10 s / next, shuffle and repeat, volume, the track list and the folder buttons.
- * Keys: Space pause, arrows seek and volume, N / P next / previous. .ogg files dropped on the window go to the folder.
+ * Keys: Space pause, arrows seek and volume, N / P next / previous. Audio files dropped on the window go to the folder.
  */
 public final class MusicScreen extends Screen {
     private record Hit(int x, int y, int w, int h, Runnable action) { }
+    private int playX, playY;
     private static final int ROW = 18;
     private final Screen parent;
     private final UiButtons buttons = new UiButtons();
@@ -72,9 +73,11 @@ public final class MusicScreen extends Screen {
         var tracks = MusicPlayer.tracks();
         String title = track == null ? (tracks.isEmpty() ? "Треков нет" : "Выберите трек") : track.shown();
         UiFont.text(g, font, title, ix, cy + 2, 0xFFF2F4F8, iw, UiFont.Face.BOLD);
-        String sub = track == null ? (tracks.isEmpty() ? "Положите .ogg в папку music или перетащите сюда" : "Нажмите на трек в списке")
+        String err = MusicPlayer.error();
+        boolean broken = track != null && !MusicPlayer.active() && !err.isEmpty();
+        String sub = broken ? "Не играет: " + err : track == null ? (tracks.isEmpty() ? "Положите музыку в папку music или перетащите файлы сюда" : "Нажмите на трек в списке")
                 : (track.artist().isBlank() ? "" : track.artist() + " · ") + (MusicPlayer.paused() ? "пауза" : MusicPlayer.playing() ? "играет" : "стоп");
-        UiFont.text(g, font, sub, ix, cy + 15, 0xFF9AA3B2, iw);
+        UiFont.text(g, font, sub, ix, cy + 15, broken ? 0xFFFF8A80 : 0xFF9AA3B2, iw);
         barX = ix; barY = cy + 32; barW = iw;
         double len = MusicPlayer.duration(), pos = seeking ? seekPreview : MusicPlayer.position();
         double progress = len > 0 ? Math.clamp(pos / len, 0, 1) : 0;
@@ -98,6 +101,7 @@ public final class MusicScreen extends Screen {
         UiDraw.circle(g, mid, by, 14, overPlay ? 0xFF000000 | UiDraw.mix(ac, 0xFFFFFF, 0.15) : ac);
         UiFont.icon(g, font, on ? Icons.PAUSE : Icons.PLAY, mid - 5, by - 5, 0xFFFFFFFF);
         hits.add(new Hit(mid - 14, by - 14, 28, 28, MusicPlayer::toggle));
+        playX = mid; playY = by;
         round(g, mx, my, mid + 38, by, 10, Icons.FAST_FORWARD, 0xFFE8EAF0, () -> MusicPlayer.skip(10));
         round(g, mx, my, mid + 66, by, 10, Icons.SKIP_FORWARD, 0xFFE8EAF0, () -> MusicPlayer.next(false));
         String repeatIcon = c.musicRepeat == 2 ? Icons.REPEAT_1 : Icons.REPEAT;
@@ -114,7 +118,7 @@ public final class MusicScreen extends Screen {
 
         // Track list.
         listX = px + 14; listY = cy + cs + 22; listW = pw - 28; listH = Math.max(ROW, py + ph - 40 - listY);
-        UiFont.text(g, font, "Треки · " + tracks.size() + (MusicPlayer.skipped() > 0 ? " · не Vorbis: " + MusicPlayer.skipped() : ""), listX, listY - 11, 0xFF838994, listW, UiFont.Face.SMALL);
+        UiFont.text(g, font, "Треки · " + tracks.size() + (MusicPlayer.skipped() > 0 ? " · не читаются: " + MusicPlayer.skipped() : ""), listX, listY - 11, 0xFF838994, listW, UiFont.Face.SMALL);
         UiDraw.round(g, listX, listY, listW, listH, 6, 0x40000000);
         int max = Math.max(0, tracks.size() * ROW - listH);
         scroll = Math.clamp(scroll, 0, max);
@@ -131,7 +135,7 @@ public final class MusicScreen extends Screen {
             String number = (i + 1 < 10 ? "0" : "") + (i + 1);
             if (i == current && MusicPlayer.active()) UiFont.iconSmall(g, font, MusicPlayer.paused() ? Icons.PAUSE : Icons.PLAY, listX + 7, y + 4, ac);
             else UiFont.text(g, font, number, listX + 8, y + 5, i == current ? ac : 0xFF6B7280, 16, UiFont.Face.SMALL);
-            String dur = t.playable() ? MusicPlayer.time(t.seconds()) : "не Vorbis";
+            String dur = t.playable() ? MusicPlayer.time(t.seconds()) : "не читается";
             int dw = UiFont.width(g, font, dur, UiFont.Face.SMALL);
             UiFont.text(g, font, t.line(), listX + 28, y + 5, color, listW - 44 - dw);
             UiFont.text(g, font, dur, listX + listW - 8 - dw, y + 5, 0xFF8C95A4, dw + 2, UiFont.Face.SMALL);
@@ -168,14 +172,20 @@ public final class MusicScreen extends Screen {
     }
 
     @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        double x = event.x(), y = event.y();
-        if (event.button() != 0) return super.mouseClicked(event, doubleClick);
+        if (event.button() == 0 && click(event.x(), event.y())) return true;
+        return super.mouseClicked(event, doubleClick);
+    }
+    /** Centre of the play / pause button in the last frame (CI clicks it). */
+    public int playX() { return playX; }
+    public int playY() { return playY; }
+    /** Left click at a screen position; true when something was hit. */
+    public boolean click(double x, double y) {
         if (buttons.click(x, y)) return true;
         if (y >= barY - 5 && y < barY + 9 && x >= barX - 4 && x <= barX + barW + 4 && MusicPlayer.active()) { seeking = true; seekTo(x); return true; }
         if (y >= volY - 5 && y < volY + 8 && x >= volX - 4 && x <= volX + volW + 4) { volumeDrag = true; volumeTo(x); return true; }
         for (Hit hit : List.copyOf(hits))
             if (x >= hit.x() && x < hit.x() + hit.w() && y >= hit.y() && y < hit.y() + hit.h()) { hit.action().run(); return true; }
-        return super.mouseClicked(event, doubleClick);
+        return false;
     }
     @Override public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
         if (seeking) { seekTo(event.x()); return true; }
@@ -216,7 +226,7 @@ public final class MusicScreen extends Screen {
     }
     @Override public void onFilesDrop(List<Path> files) {
         int copied = CustomSounds.importFiles(files, CustomSounds.musicDir());
-        Binds.Toast.show(copied > 0 ? "Добавлено треков: " + copied : "Нужны файлы .ogg");
+        Binds.Toast.show(copied > 0 ? "Добавлено треков: " + copied : "Нужны файлы " + tech.gulp.lavavisual.audio.AudioInfo.EXTENSIONS);
     }
     @Override public void onClose() { LavaVisualClient.save(); minecraft.gui.setScreen(parent); }
     @Override public boolean isPauseScreen() { return false; }

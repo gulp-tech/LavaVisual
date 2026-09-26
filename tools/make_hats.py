@@ -348,10 +348,33 @@ def hats():
             {'sphere': [0.014, -0.004, 0.012], 'r': 0.011, 'seg': 8, 'paint': 'r', 'mat': 'gloss'},
         ]},
     ]})
+    def cap_visor():
+        # Bill of a baseball cap: starts under the crown's front, widest in the middle (0.145 past the crown),
+        # tapering to nothing at the sides, bending down a little towards the edge and more at the sides.
+        rows, cols, reach = 6, 17, math.radians(70)
+        grid = []
+        for i in range(rows):
+            u = i / (rows - 1)
+            row = []
+            for j in range(cols):
+                v = j / (cols - 1)
+                phi = -reach + 2 * reach * v
+                inner = (0.248 * math.sin(phi), 0.248 * math.cos(phi))
+                outer = (0.262 * math.sin(phi), 0.40 * math.cos(phi))
+                taper = math.sin(math.pi * v) ** 0.55
+                x = inner[0] + (outer[0] - inner[0]) * u * taper
+                z = inner[1] + (outer[1] - inner[1]) * u * taper
+                y = 0.014 - 0.026 * u * u * taper - 0.018 * (2 * v - 1) ** 2 * u
+                row.append(v4((x, y, z), u))
+            grid.append(row)
+        front, back, rim = slab(grid, 0.012)
+        return [{'sheet': front, 'paint': 'd', 'mat': 'satin', 'two': False},
+                {'sheet': back, 'paint': 'd', 'mat': 'satin', 'ao': [0.8, 0.65], 'two': False},
+                {'sheet': rim, 'paint': 'd', 'mat': 'satin'}]
     h.append({'name': 'Кепка', 'parts': [
         {'revolve': [[0.255, 0.0], [0.25, 0.045], [0.228, 0.092], [0.185, 0.13], [0.12, 0.155], [0.06, 0.166], [0.0, 0.169]], 'seg': 36,
          'paint': 'c', 'alt': 'm', 'pattern': {'stripes': 6}, 'mat': 'satin'},
-        {'revolve': [[0.43, 0.004], [0.36, 0.016], [0.29, 0.02], [0.235, 0.02]], 'arc': [-62, 62], 'seg': 22, 'two': True, 'paint': 'd', 'mat': 'satin'},
+        *cap_visor(),
         {'torus': [0.253, 0.01], 'y': 0.006, 'seg': 36, 'sides': 6, 'paint': 'd', 'mat': 'satin'},
         {'sphere': [0, 0.169, 0], 'r': 0.021, 'seg': 10, 'paint': 'l', 'mat': 'satin'},
         {'group': {'at': [0, 0.085, 0.228], 'rot': [-28, 0, 0]}, 'parts': [
