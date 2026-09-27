@@ -68,7 +68,7 @@ public abstract class MouseHandlerMixin {
         original.call(player, dx * k, dy * k);
     }
 
-    @Inject(method = "onButton", at = @At("RETURN"))
+    @Inject(method = "onPress", at = @At("RETURN"))
     private void lava$clicks(long handle, int button, int action, int modifiers, CallbackInfo ci) {
         MouseHandler self = (MouseHandler) (Object) this;
         boolean left = self.isLeftPressed(), right = self.isRightPressed();
