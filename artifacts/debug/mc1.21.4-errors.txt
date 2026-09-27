@@ -1,27 +1,6 @@
 > Configure project :
 > Task :compileJava
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:3: error: cannot find symbol
-  symbol:   class BlendFunction
-  location: package com.mojang.blaze3d.pipeline
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:4: error: cannot find symbol
-  symbol:   class RenderPipeline
-  location: package com.mojang.blaze3d.pipeline
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:18: error: package net.minecraft.client.renderer.rendertype does not exist
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:259: error: cannot find symbol
-  symbol:   class LevelRenderState
-  location: package net.minecraft.client.renderer.state
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/ItemEntityRendererMixin.java:7: error: cannot find symbol
-  symbol:   class CameraRenderState
-  location: package net.minecraft.client.renderer.state
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/ItemEntityRendererMixin.java:22: error: cannot find symbol
-  symbol:   class CameraRenderState
-  location: class ItemEntityRendererMixin
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/LevelRendererMixin.java:4: error: cannot find symbol
-  symbol:   class LevelRenderState
-  location: package net.minecraft.client.renderer.state
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/LevelRendererMixin.java:16: error: cannot find symbol
-  symbol:   class LevelRenderState
-  location: class LevelRendererMixin
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:79: error: package RenderStateShard does not exist
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:93: error: cannot find symbol
   symbol:   method rotate(float)
   location: class PoseStack
@@ -139,94 +118,73 @@
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AudioRegression.java:48: error: cannot find symbol
   symbol:   method getIdentifier()
   location: variable replacement of type SoundInstance
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
-  symbol:   variable RenderSetup
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:85: error: cannot find symbol
+  symbol:   variable RenderStateShard
   location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
-  symbol:   variable RenderPipelines
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:84: error: cannot find symbol
+  symbol:   variable RenderStateShard
   location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:87: error: cannot find symbol
-  symbol:   variable BlendFunction
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:82: error: cannot find symbol
+  symbol:   variable RenderStateShard
   location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
-  symbol:   variable RenderPipelines
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:86: error: cannot find symbol
+  symbol:   variable RenderStateShard
   location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
-  symbol:   variable RenderPipeline
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:86: error: cannot find symbol
+  symbol:   variable RenderStateShard
   location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
-  symbol:   variable RenderSetup
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
-  symbol:   variable RenderPipelines
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:95: error: cannot find symbol
-  symbol:   variable BlendFunction
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:89: error: cannot find symbol
+  symbol:   variable RenderStateShard
   location: class WorldCosmetics
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
-  symbol:   variable RenderPipelines
+  symbol:   variable RenderStateShard
   location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
-  symbol:   variable RenderPipeline
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:93: error: cannot find symbol
+  symbol:   variable RenderStateShard
   location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
-  symbol:   variable RenderSetup
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
-  symbol:   variable RenderPipelines
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:103: error: cannot find symbol
-  symbol:   variable BlendFunction
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
-  symbol:   variable RenderPipelines
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
-  symbol:   variable RenderPipeline
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:108: error: type PlayerRenderer does not take parameters
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:97: error: type PlayerRenderer does not take parameters
             if (renderer instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer<?> avatar) helper.register(new CosmeticLayer(avatar));
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:114: error: cannot find symbol
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:103: error: cannot find symbol
   symbol:   method getId()
   location: variable player of type PlayerRenderState
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:114: error: cannot find symbol
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:103: error: cannot find symbol
   symbol:   method getId()
   location: variable player of type PlayerRenderState
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:117: error: incompatible types: PlayerRenderState cannot be converted to Entity
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:118: error: incompatible types: PlayerRenderState cannot be converted to Entity
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:364: error: cannot find symbol
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:106: error: incompatible types: PlayerRenderState cannot be converted to Entity
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:107: error: incompatible types: PlayerRenderState cannot be converted to Entity
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:353: error: cannot find symbol
   symbol:   method matrices()
   location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:367: error: cannot find symbol
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:356: error: cannot find symbol
             new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW, (pose, out) -> {
   symbol:   method matrices()
   location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:408: error: cannot find symbol
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:397: error: cannot find symbol
   symbol:   method matrices()
   location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:410: error: cannot find symbol
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:399: error: cannot find symbol
   symbol:   method matrices()
   location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:416: error: cannot find symbol
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:405: error: cannot find symbol
                 new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW, (pose, out) -> {
   symbol:   method matrices()
   location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:419: error: cannot find symbol
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:408: error: cannot find symbol
                 if (cfg.projGlow) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW_ADD, (pose, out) -> {
   symbol:   method matrices()
   location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:423: error: cannot find symbol
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:412: error: cannot find symbol
             if (!frame.hats.isEmpty()) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), HAT, (pose, out) -> {
   symbol:   method matrices()
   location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:426: error: cannot find symbol
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:415: error: cannot find symbol
   symbol:   method matrices()
   location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:439: error: cannot find symbol
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:428: error: cannot find symbol
         int block = s.lightCoords >> 4 & 15, sky = s.lightCoords >> 20 & 15;
   symbol:   variable lightCoords
   location: variable s of type PlayerRenderState
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:439: error: cannot find symbol
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:428: error: cannot find symbol
         int block = s.lightCoords >> 4 & 15, sky = s.lightCoords >> 20 & 15;
   symbol:   variable lightCoords
   location: variable s of type PlayerRenderState
@@ -254,11 +212,18 @@
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:177: error: cannot find symbol
   symbol:   method matrices()
   location: variable context of type WorldRenderContext
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:179: error: cannot find symbol
+            new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), WorldCosmetics.GLOW, (pose, out) -> {
+  symbol:   method matrices()
+  location: variable context of type WorldRenderContext
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:229: error: cannot find symbol
+  symbol:   method matrices()
+  location: variable context of type WorldRenderContext
 > Task :compileJava FAILED
 FAILURE: Build failed with an exception.
 * What went wrong:
 > Compilation failed; see the compiler output below.
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:108: error: type PlayerRenderer does not take parameters
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:97: error: type PlayerRenderer does not take parameters
               if (renderer instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer<?> avatar) helper.register(new CosmeticLayer(avatar));
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:129: error: method scale in class PoseStack cannot be applied to given types;
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:132: error: method scale in class PoseStack cannot be applied to given types;
@@ -295,29 +260,8 @@ FAILURE: Build failed with an exception.
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:39: error: incompatible types: possible lossy conversion from double to int
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/input/Binds.java:100: error: incompatible types: Window cannot be converted to long
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1296: error: incompatible types: KeyEvent cannot be converted to String
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:117: error: incompatible types: PlayerRenderState cannot be converted to Entity
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:118: error: incompatible types: PlayerRenderState cannot be converted to Entity
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:3: error: cannot find symbol
-    symbol:   class BlendFunction
-    location: package com.mojang.blaze3d.pipeline
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:4: error: cannot find symbol
-    symbol:   class RenderPipeline
-    location: package com.mojang.blaze3d.pipeline
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:259: error: cannot find symbol
-    symbol:   class LevelRenderState
-    location: package net.minecraft.client.renderer.state
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/ItemEntityRendererMixin.java:7: error: cannot find symbol
-    symbol:   class CameraRenderState
-    location: package net.minecraft.client.renderer.state
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/ItemEntityRendererMixin.java:22: error: cannot find symbol
-    symbol:   class CameraRenderState
-    location: class ItemEntityRendererMixin
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/LevelRendererMixin.java:4: error: cannot find symbol
-    symbol:   class LevelRenderState
-    location: package net.minecraft.client.renderer.state
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/LevelRendererMixin.java:16: error: cannot find symbol
-    symbol:   class LevelRenderState
-    location: class LevelRendererMixin
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:106: error: incompatible types: PlayerRenderState cannot be converted to Entity
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:107: error: incompatible types: PlayerRenderState cannot be converted to Entity
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:99: error: cannot find symbol
     symbol:   class FontDescription
     location: class UiFont
@@ -334,56 +278,35 @@ FAILURE: Build failed with an exception.
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:63: error: cannot find symbol
     symbol:   variable Category
     location: class KeyMapping
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
-    symbol:   variable RenderSetup
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:85: error: cannot find symbol
+    symbol:   variable RenderStateShard
     location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
-    symbol:   variable RenderPipelines
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:84: error: cannot find symbol
+    symbol:   variable RenderStateShard
     location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:87: error: cannot find symbol
-    symbol:   variable BlendFunction
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:82: error: cannot find symbol
+    symbol:   variable RenderStateShard
     location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
-    symbol:   variable RenderPipelines
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:86: error: cannot find symbol
+    symbol:   variable RenderStateShard
     location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
-    symbol:   variable RenderPipeline
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:86: error: cannot find symbol
+    symbol:   variable RenderStateShard
     location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
-    symbol:   variable RenderSetup
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
-    symbol:   variable RenderPipelines
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:95: error: cannot find symbol
-    symbol:   variable BlendFunction
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:89: error: cannot find symbol
+    symbol:   variable RenderStateShard
     location: class WorldCosmetics
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
-    symbol:   variable RenderPipelines
+    symbol:   variable RenderStateShard
     location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
-    symbol:   variable RenderPipeline
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:93: error: cannot find symbol
+    symbol:   variable RenderStateShard
     location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
-    symbol:   variable RenderSetup
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
-    symbol:   variable RenderPipelines
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:103: error: cannot find symbol
-    symbol:   variable BlendFunction
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
-    symbol:   variable RenderPipelines
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
-    symbol:   variable RenderPipeline
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:439: error: cannot find symbol
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:428: error: cannot find symbol
           int block = s.lightCoords >> 4 & 15, sky = s.lightCoords >> 20 & 15;
     symbol:   variable lightCoords
     location: variable s of type PlayerRenderState
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:439: error: cannot find symbol
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:428: error: cannot find symbol
           int block = s.lightCoords >> 4 & 15, sky = s.lightCoords >> 20 & 15;
     symbol:   variable lightCoords
     location: variable s of type PlayerRenderState
@@ -459,38 +382,38 @@ FAILURE: Build failed with an exception.
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AudioRegression.java:48: error: cannot find symbol
     symbol:   method getIdentifier()
     location: variable replacement of type SoundInstance
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:114: error: cannot find symbol
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:103: error: cannot find symbol
     symbol:   method getId()
     location: variable player of type PlayerRenderState
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:114: error: cannot find symbol
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:103: error: cannot find symbol
     symbol:   method getId()
     location: variable player of type PlayerRenderState
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:364: error: cannot find symbol
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:353: error: cannot find symbol
     symbol:   method matrices()
     location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:367: error: cannot find symbol
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:356: error: cannot find symbol
               new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW, (pose, out) -> {
     symbol:   method matrices()
     location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:408: error: cannot find symbol
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:397: error: cannot find symbol
     symbol:   method matrices()
     location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:410: error: cannot find symbol
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:399: error: cannot find symbol
     symbol:   method matrices()
     location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:416: error: cannot find symbol
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:405: error: cannot find symbol
                   new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW, (pose, out) -> {
     symbol:   method matrices()
     location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:419: error: cannot find symbol
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:408: error: cannot find symbol
                   if (cfg.projGlow) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW_ADD, (pose, out) -> {
     symbol:   method matrices()
     location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:423: error: cannot find symbol
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:412: error: cannot find symbol
               if (!frame.hats.isEmpty()) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), HAT, (pose, out) -> {
     symbol:   method matrices()
     location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:426: error: cannot find symbol
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:415: error: cannot find symbol
     symbol:   method matrices()
     location: variable context of type WorldRenderContext
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/CustomAudio.java:105: error: cannot find symbol
@@ -511,7 +434,14 @@ FAILURE: Build failed with an exception.
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:177: error: cannot find symbol
     symbol:   method matrices()
     location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:18: error: package net.minecraft.client.renderer.rendertype does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:179: error: cannot find symbol
+              new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), WorldCosmetics.GLOW, (pose, out) -> {
+    symbol:   method matrices()
+    location: variable context of type WorldRenderContext
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:229: error: cannot find symbol
+    symbol:   method matrices()
+    location: variable context of type WorldRenderContext
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:79: error: package RenderStateShard does not exist
 > Check your code and dependencies to fix the compilation error(s)
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).
-200
+176
