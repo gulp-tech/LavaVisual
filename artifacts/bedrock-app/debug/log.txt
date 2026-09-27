@@ -12,8 +12,8 @@ Starting: Intent { cmp=tech.gulp.lavavisual.app/.MainActivity }
 Status: ok
 LaunchState: COLD
 Activity: com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity
-TotalTime: 2127
-WaitTime: 2145
+TotalTime: 3727
+WaitTime: 3732
 Complete
 + shot 1-setup 4
 + sleep 4
@@ -24,20 +24,14 @@ shot 1-setup
 Starting: Intent { cmp=tech.gulp.lavavisual.app/.MainActivity (has extras) }
 Warning: Activity not started, intent has been delivered to currently running top-most instance.
 + sleep 3
-+ adb shell input keyevent KEYCODE_HOME
++ adb shell am start -a android.intent.action.MAIN -c android.intent.category.HOME
+Starting: Intent { act=android.intent.action.MAIN cat=[android.intent.category.HOME] }
+Warning: Activity not started, its current task has been brought to the front
 + shot 2-badge 3
 + sleep 3
 + adb exec-out screencap -p
 + echo 'shot 2-badge'
 shot 2-badge
-+ adb shell input tap 33 161
-+ shot 3-menu 4
-+ sleep 4
-+ adb exec-out screencap -p
-+ echo 'shot 3-menu'
-shot 3-menu
++ head -14
 + adb shell dumpsys window windows
-+ grep -q 'LavaVisual menu'
-+ echo 'the menu did not open'
-the menu did not open
-+ exit 1
++ grep -B 2 -A 8 'LavaVisual badge'
