@@ -1,17 +1,5 @@
 > Configure project :
 > Task :compileJava
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:7: error: cannot find symbol
-  symbol:   class FontDescription
-  location: package net.minecraft.network.chat
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:27: error: cannot find symbol
-  symbol:   class FontDescription
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:33: error: cannot find symbol
-  symbol:   class FontDescription
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/input/Binds.java:51: error: cannot find symbol
-  symbol:   class Category
-  location: class KeyMapping
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:3: error: cannot find symbol
   symbol:   class BlendFunction
   location: package com.mojang.blaze3d.pipeline
@@ -22,58 +10,24 @@
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:259: error: cannot find symbol
   symbol:   class LevelRenderState
   location: package net.minecraft.client.renderer.state
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/Dummy.java:18: error: cannot find symbol
-  symbol:   class PlayerSkin
-  location: package net.minecraft.world.entity.player
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/Dummy.java:154: error: cannot find symbol
-  symbol:   class PlayerSkin
-  location: class DummyPlayer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:5: error: cannot find symbol
-  symbol:   class FontDescription
-  location: package net.minecraft.network.chat
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:19: error: cannot find symbol
-  symbol:   class FontDescription
-  location: class PlayerTags
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/ItemEntityRendererMixin.java:7: error: cannot find symbol
   symbol:   class CameraRenderState
   location: package net.minecraft.client.renderer.state
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/ItemEntityRendererMixin.java:22: error: cannot find symbol
   symbol:   class CameraRenderState
   location: class ItemEntityRendererMixin
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/MouseHandlerMixin.java:10: error: package net.minecraft.client.input does not exist
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/MouseHandlerMixin.java:73: error: cannot find symbol
-  symbol:   class MouseButtonInfo
-  location: class MouseHandlerMixin
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/LevelRendererMixin.java:4: error: cannot find symbol
   symbol:   class LevelRenderState
   location: package net.minecraft.client.renderer.state
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/LevelRendererMixin.java:16: error: cannot find symbol
   symbol:   class LevelRenderState
   location: class LevelRendererMixin
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:91: error: cannot find symbol
-  symbol:   method pushMatrix()
-  location: class PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:92: error: no suitable method found for translate(int,int)
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:93: error: cannot find symbol
   symbol:   method rotate(float)
-  location: class PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:96: error: cannot find symbol
-  symbol:   method popMatrix()
-  location: class PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Waypoints.java:87: error: cannot find symbol
-  symbol:   method identifier()
-  location: class ResourceKey<Level>
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:146: error: no suitable constructor found for DynamicTexture(()->"lavav[...]imap",int,int,boolean)
-            texture = new DynamicTexture(() -> "lavavisual minimap", SIZE, SIZE, true);
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:207: error: cannot find symbol
-  symbol:   method pushMatrix()
   location: class PoseStack
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:208: error: no suitable method found for translate(float,float)
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:209: error: cannot find symbol
   symbol:   method rotate(float)
-  location: class PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:211: error: cannot find symbol
-  symbol:   method popMatrix()
   location: class PoseStack
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:243: error: cannot find symbol
   symbol:   method m00()
@@ -97,101 +51,27 @@
             arrowTexture = new DynamicTexture(() -> "lavavisual minimap arrow", pw, ph, true);
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:34: error: incompatible types: Screen is not a functional interface
         CreateWorldScreen.openFresh(mc, () -> mc.setScreen(null));
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:27: error: cannot find symbol
-  symbol:   class FontDescription
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:35: error: cannot find symbol
-  symbol:   class FontDescription
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:36: error: package FontDescription does not exist
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:40: error: incompatible types: possible lossy conversion from double to int
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:43: error: cannot find symbol
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:39: error: incompatible types: possible lossy conversion from double to int
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:42: error: cannot find symbol
   symbol:   method m00()
   location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:43: error: cannot find symbol
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:42: error: cannot find symbol
   symbol:   method m11()
   location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:43: error: cannot find symbol
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:42: error: cannot find symbol
   symbol:   method m01()
   location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:43: error: cannot find symbol
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:42: error: cannot find symbol
   symbol:   method m10()
   location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:58: error: cannot find symbol
-  symbol:   method m00()
-  location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:58: error: cannot find symbol
-  symbol:   method m10()
-  location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:58: error: cannot find symbol
-  symbol:   method m20()
-  location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:58: error: cannot find symbol
-  symbol:   method m01()
-  location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:58: error: cannot find symbol
-  symbol:   method m11()
-  location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:58: error: cannot find symbol
-  symbol:   method m21()
-  location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:59: error: cannot find symbol
-  symbol:   method m00()
-  location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:59: error: cannot find symbol
-  symbol:   method m11()
-  location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:59: error: cannot find symbol
-  symbol:   method m01()
-  location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:59: error: cannot find symbol
-  symbol:   method m10()
-  location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:62: error: cannot find symbol
-  symbol:   method m11()
-  location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:62: error: cannot find symbol
-  symbol:   method m10()
-  location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:62: error: cannot find symbol
-  symbol:   method m00()
-  location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:62: error: cannot find symbol
-  symbol:   method m01()
-  location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:62: error: no suitable method found for translate(float,float)
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:67: error: cannot find symbol
-  symbol:   method pushMatrix()
-  location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:71: error: cannot find symbol
-  symbol:   method popMatrix()
-  location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:76: error: cannot find symbol
-  symbol:   class FontDescription
-  location: class UiFont
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:99: error: cannot find symbol
   symbol:   class FontDescription
   location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:126: error: cannot find symbol
-  symbol:   method pushMatrix()
-  location: class PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:128: error: no suitable method found for translate(int,int)
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:129: error: method scale in class PoseStack cannot be applied to given types;
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:131: error: no suitable method found for translate(float,float)
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:132: error: method scale in class PoseStack cannot be applied to given types;
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:133: error: no suitable method found for translate(float,float)
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:153: error: cannot find symbol
-  symbol:   method popMatrix()
-  location: class PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:211: error: cannot find symbol
-  symbol:   method pushMatrix()
-  location: class PoseStack
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:212: error: no suitable method found for translate(float,float)
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:213: error: cannot find symbol
   symbol:   method rotate(float)
-  location: class PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:217: error: cannot find symbol
-  symbol:   method popMatrix()
   location: class PoseStack
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:395: error: cannot find symbol
   symbol:   method transformPosition(Vector2f)
@@ -199,26 +79,14 @@
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:396: error: cannot find symbol
   symbol:   method transformPosition(Vector2f)
   location: class PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:404: error: cannot find symbol
-  symbol:   method pushMatrix()
-  location: class PoseStack
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:406: error: cannot find symbol
   symbol:   method identity()
-  location: class PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:411: error: cannot find symbol
-  symbol:   method popMatrix()
   location: class PoseStack
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:418: error: cannot find symbol
   symbol:   method body()
   location: class PlayerSkin
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:526: error: cannot find symbol
-  symbol:   method pushMatrix()
-  location: class PoseStack
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:528: error: no suitable method found for translate(float,float)
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:529: error: method scale in class PoseStack cannot be applied to given types;
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:538: error: cannot find symbol
-  symbol:   method popMatrix()
-  location: class PoseStack
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/TargetSnapshot.java:47: error: cannot find symbol
   symbol:   method body()
   location: class PlayerSkin
@@ -242,32 +110,168 @@
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:110: error: cannot find symbol
   symbol:   method m10()
   location: variable m of type PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:134: error: cannot find symbol
-  symbol:   method pushMatrix()
-  location: class PoseStack
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:136: error: method scale in class PoseStack cannot be applied to given types;
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:144: error: cannot find symbol
-  symbol:   method popMatrix()
-  location: class PoseStack
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:197: error: cannot find symbol
-  symbol:   method pushMatrix()
-  location: class PoseStack
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:199: error: method scale in class PoseStack cannot be applied to given types;
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:203: error: cannot find symbol
-  symbol:   method popMatrix()
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:228: error: cannot find symbol
+  symbol:   method rotate(float)
   location: class PoseStack
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/Logo.java:27: error: method scale in class PoseStack cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:109: error: method scale in class PoseStack cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:115: error: method scale in class PoseStack cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:305: error: method scale in class PoseStack cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:319: error: method scale in class PoseStack cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:320: error: no suitable method found for translate(float,float)
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:871: error: cannot find symbol
+        button(g, Icons.FOLDER_OPEN, "Открыть папку конфигов", () -> net.minecraft.util.Util.getPlatform().openPath(LavaVisualClient.configDirectory()));
+  symbol:   class Util
+  location: package net.minecraft.util
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1296: error: incompatible types: KeyEvent cannot be converted to String
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1319: error: method matches in class KeyMapping cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1381: error: cannot find symbol
+  symbol:   variable doubleClick
+  location: class ClickGuiScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/MusicScreen.java:263: error: method matches in class KeyMapping cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:63: error: cannot find symbol
+  symbol:   variable Category
+  location: class KeyMapping
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/audio/Covers.java:70: error: no suitable constructor found for DynamicTexture(()->"lavav[...]over",NativeImage)
+                    texture = new DynamicTexture(() -> "lavavisual music cover", image);
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AudioRegression.java:48: error: cannot find symbol
+  symbol:   method getIdentifier()
+  location: variable replacement of type SoundInstance
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
+  symbol:   variable RenderSetup
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
+  symbol:   variable RenderPipelines
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:87: error: cannot find symbol
+  symbol:   variable BlendFunction
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
+  symbol:   variable RenderPipelines
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
+  symbol:   variable RenderPipeline
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
+  symbol:   variable RenderSetup
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
+  symbol:   variable RenderPipelines
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:95: error: cannot find symbol
+  symbol:   variable BlendFunction
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
+  symbol:   variable RenderPipelines
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
+  symbol:   variable RenderPipeline
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
+  symbol:   variable RenderSetup
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
+  symbol:   variable RenderPipelines
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:103: error: cannot find symbol
+  symbol:   variable BlendFunction
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
+  symbol:   variable RenderPipelines
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
+  symbol:   variable RenderPipeline
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:108: error: type PlayerRenderer does not take parameters
+            if (renderer instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer<?> avatar) helper.register(new CosmeticLayer(avatar));
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:114: error: cannot find symbol
+  symbol:   method getId()
+  location: variable player of type PlayerRenderState
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:114: error: cannot find symbol
+  symbol:   method getId()
+  location: variable player of type PlayerRenderState
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:117: error: incompatible types: PlayerRenderState cannot be converted to Entity
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:118: error: incompatible types: PlayerRenderState cannot be converted to Entity
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:364: error: cannot find symbol
+  symbol:   method matrices()
+  location: variable context of type WorldRenderContext
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:367: error: cannot find symbol
+            new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW, (pose, out) -> {
+  symbol:   method matrices()
+  location: variable context of type WorldRenderContext
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:408: error: cannot find symbol
+  symbol:   method matrices()
+  location: variable context of type WorldRenderContext
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:410: error: cannot find symbol
+  symbol:   method matrices()
+  location: variable context of type WorldRenderContext
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:416: error: cannot find symbol
+                new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW, (pose, out) -> {
+  symbol:   method matrices()
+  location: variable context of type WorldRenderContext
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:419: error: cannot find symbol
+                if (cfg.projGlow) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW_ADD, (pose, out) -> {
+  symbol:   method matrices()
+  location: variable context of type WorldRenderContext
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:423: error: cannot find symbol
+            if (!frame.hats.isEmpty()) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), HAT, (pose, out) -> {
+  symbol:   method matrices()
+  location: variable context of type WorldRenderContext
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:426: error: cannot find symbol
+  symbol:   method matrices()
+  location: variable context of type WorldRenderContext
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:439: error: cannot find symbol
+        int block = s.lightCoords >> 4 & 15, sky = s.lightCoords >> 20 & 15;
+  symbol:   variable lightCoords
+  location: variable s of type PlayerRenderState
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:439: error: cannot find symbol
+        int block = s.lightCoords >> 4 & 15, sky = s.lightCoords >> 20 & 15;
+  symbol:   variable lightCoords
+  location: variable s of type PlayerRenderState
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/CustomAudio.java:105: error: cannot find symbol
+  symbol:   method getIdentifier()
+  location: variable original of type SoundInstance
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/CustomAudio.java:113: error: cannot find symbol
+  symbol:   method getIdentifier()
+  location: variable original of type SoundInstance
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/CustomAudio.java:115: error: cannot find symbol
+  symbol:   method getIdentifier()
+  location: variable original of type SoundInstance
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/CustomAudio.java:125: error: cannot find symbol
+  symbol:   method getIdentifier()
+  location: variable original of type SoundInstance
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/CustomSounds.java:174: error: cannot find symbol
+  symbol:   class Util
+  location: package net.minecraft.util
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/ItemPhysics.java:43: error: cannot find symbol
+  symbol:   method getModelBoundingBox()
+  location: variable item of type ItemStackRenderState
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/ItemPhysics.java:75: error: cannot find symbol
+  symbol:   variable lightCoords
+  location: variable s of type ItemEntityRenderState
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:177: error: cannot find symbol
+  symbol:   method matrices()
+  location: variable context of type WorldRenderContext
 > Task :compileJava FAILED
 FAILURE: Build failed with an exception.
 * What went wrong:
 > Compilation failed; see the compiler output below.
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:108: error: type PlayerRenderer does not take parameters
+              if (renderer instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer<?> avatar) helper.register(new CosmeticLayer(avatar));
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:129: error: method scale in class PoseStack cannot be applied to given types;
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:132: error: method scale in class PoseStack cannot be applied to given types;
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:529: error: method scale in class PoseStack cannot be applied to given types;
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:136: error: method scale in class PoseStack cannot be applied to given types;
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:199: error: method scale in class PoseStack cannot be applied to given types;
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:92: error: no suitable method found for translate(int,int)
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:146: error: no suitable constructor found for DynamicTexture(()->"lavav[...]imap",int,int,boolean)
-              texture = new DynamicTexture(() -> "lavavisual minimap", SIZE, SIZE, true);
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/Logo.java:27: error: method scale in class PoseStack cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:109: error: method scale in class PoseStack cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:115: error: method scale in class PoseStack cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:305: error: method scale in class PoseStack cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:319: error: method scale in class PoseStack cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1319: error: method matches in class KeyMapping cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/MusicScreen.java:263: error: method matches in class KeyMapping cannot be applied to given types;
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:208: error: no suitable method found for translate(float,float)
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:259: error: no suitable constructor found for DynamicTexture(()->"lavav[...]rame",int,int,boolean)
                   frameTexture = new DynamicTexture(() -> "lavavisual minimap frame", pw, ph, true);
@@ -277,32 +281,22 @@ FAILURE: Build failed with an exception.
                   ring2Texture = new DynamicTexture(() -> "lavavisual minimap ring 2", pw, ph, true);
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:338: error: no suitable constructor found for DynamicTexture(()->"lavav[...]rrow",int,int,boolean)
               arrowTexture = new DynamicTexture(() -> "lavavisual minimap arrow", pw, ph, true);
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:62: error: no suitable method found for translate(float,float)
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:128: error: no suitable method found for translate(int,int)
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:131: error: no suitable method found for translate(float,float)
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:133: error: no suitable method found for translate(float,float)
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:212: error: no suitable method found for translate(float,float)
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:528: error: no suitable method found for translate(float,float)
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:40: error: no suitable constructor found for DynamicTexture(()->"lavav[...]cles",int,int,boolean)
                   DynamicTexture created = new DynamicTexture(() -> "lavavisual ui circles", WIDTH, HEIGHT, true);
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:82: error: no suitable constructor found for DynamicTexture(()->"lavav[...]glow",int,int,boolean)
                   DynamicTexture created = new DynamicTexture(() -> "lavavisual ui glow", SIZE, SIZE, true);
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:320: error: no suitable method found for translate(float,float)
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/audio/Covers.java:70: error: no suitable constructor found for DynamicTexture(()->"lavav[...]over",NativeImage)
+                      texture = new DynamicTexture(() -> "lavavisual music cover", image);
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:34: error: incompatible types: Screen is not a functional interface
           CreateWorldScreen.openFresh(mc, () -> mc.setScreen(null));
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:40: error: incompatible types: possible lossy conversion from double to int
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:39: error: incompatible types: possible lossy conversion from double to int
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/input/Binds.java:100: error: incompatible types: Window cannot be converted to long
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:7: error: cannot find symbol
-    symbol:   class FontDescription
-    location: package net.minecraft.network.chat
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:27: error: cannot find symbol
-    symbol:   class FontDescription
-    location: class UiFont
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:33: error: cannot find symbol
-    symbol:   class FontDescription
-    location: class UiFont
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/input/Binds.java:51: error: cannot find symbol
-    symbol:   class Category
-    location: class KeyMapping
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1296: error: incompatible types: KeyEvent cannot be converted to String
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:117: error: incompatible types: PlayerRenderState cannot be converted to Entity
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:118: error: incompatible types: PlayerRenderState cannot be converted to Entity
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:3: error: cannot find symbol
     symbol:   class BlendFunction
     location: package com.mojang.blaze3d.pipeline
@@ -312,69 +306,99 @@ FAILURE: Build failed with an exception.
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:259: error: cannot find symbol
     symbol:   class LevelRenderState
     location: package net.minecraft.client.renderer.state
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/Dummy.java:18: error: cannot find symbol
-    symbol:   class PlayerSkin
-    location: package net.minecraft.world.entity.player
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/Dummy.java:154: error: cannot find symbol
-    symbol:   class PlayerSkin
-    location: class DummyPlayer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:5: error: cannot find symbol
-    symbol:   class FontDescription
-    location: package net.minecraft.network.chat
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:19: error: cannot find symbol
-    symbol:   class FontDescription
-    location: class PlayerTags
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/ItemEntityRendererMixin.java:7: error: cannot find symbol
     symbol:   class CameraRenderState
     location: package net.minecraft.client.renderer.state
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/ItemEntityRendererMixin.java:22: error: cannot find symbol
     symbol:   class CameraRenderState
     location: class ItemEntityRendererMixin
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/MouseHandlerMixin.java:73: error: cannot find symbol
-    symbol:   class MouseButtonInfo
-    location: class MouseHandlerMixin
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/LevelRendererMixin.java:4: error: cannot find symbol
     symbol:   class LevelRenderState
     location: package net.minecraft.client.renderer.state
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/LevelRendererMixin.java:16: error: cannot find symbol
     symbol:   class LevelRenderState
     location: class LevelRendererMixin
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:27: error: cannot find symbol
-    symbol:   class FontDescription
-    location: class UiFont
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:35: error: cannot find symbol
-    symbol:   class FontDescription
-    location: class UiFont
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:76: error: cannot find symbol
-    symbol:   class FontDescription
-    location: class UiFont
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:99: error: cannot find symbol
     symbol:   class FontDescription
     location: class UiFont
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:144: error: cannot find symbol
     symbol:   variable doubleClick
     location: class HudEditorScreen
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:91: error: cannot find symbol
-    symbol:   method pushMatrix()
-    location: class PoseStack
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:871: error: cannot find symbol
+          button(g, Icons.FOLDER_OPEN, "Открыть папку конфигов", () -> net.minecraft.util.Util.getPlatform().openPath(LavaVisualClient.configDirectory()));
+    symbol:   class Util
+    location: package net.minecraft.util
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1381: error: cannot find symbol
+    symbol:   variable doubleClick
+    location: class ClickGuiScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:63: error: cannot find symbol
+    symbol:   variable Category
+    location: class KeyMapping
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
+    symbol:   variable RenderSetup
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
+    symbol:   variable RenderPipelines
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:87: error: cannot find symbol
+    symbol:   variable BlendFunction
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
+    symbol:   variable RenderPipelines
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
+    symbol:   variable RenderPipeline
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
+    symbol:   variable RenderSetup
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
+    symbol:   variable RenderPipelines
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:95: error: cannot find symbol
+    symbol:   variable BlendFunction
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
+    symbol:   variable RenderPipelines
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
+    symbol:   variable RenderPipeline
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
+    symbol:   variable RenderSetup
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
+    symbol:   variable RenderPipelines
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:103: error: cannot find symbol
+    symbol:   variable BlendFunction
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
+    symbol:   variable RenderPipelines
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
+    symbol:   variable RenderPipeline
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:439: error: cannot find symbol
+          int block = s.lightCoords >> 4 & 15, sky = s.lightCoords >> 20 & 15;
+    symbol:   variable lightCoords
+    location: variable s of type PlayerRenderState
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:439: error: cannot find symbol
+          int block = s.lightCoords >> 4 & 15, sky = s.lightCoords >> 20 & 15;
+    symbol:   variable lightCoords
+    location: variable s of type PlayerRenderState
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/CustomSounds.java:174: error: cannot find symbol
+    symbol:   class Util
+    location: package net.minecraft.util
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/ItemPhysics.java:75: error: cannot find symbol
+    symbol:   variable lightCoords
+    location: variable s of type ItemEntityRenderState
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:93: error: cannot find symbol
     symbol:   method rotate(float)
-    location: class PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:96: error: cannot find symbol
-    symbol:   method popMatrix()
-    location: class PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Waypoints.java:87: error: cannot find symbol
-    symbol:   method identifier()
-    location: class ResourceKey<Level>
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:207: error: cannot find symbol
-    symbol:   method pushMatrix()
     location: class PoseStack
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:209: error: cannot find symbol
     symbol:   method rotate(float)
     location: class PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:211: error: cannot find symbol
-    symbol:   method popMatrix()
-    location: class PoseStack
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:243: error: cannot find symbol
     symbol:   method m00()
     location: variable p of type PoseStack
@@ -387,80 +411,20 @@ FAILURE: Build failed with an exception.
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:243: error: cannot find symbol
     symbol:   method m10()
     location: variable p of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:43: error: cannot find symbol
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:42: error: cannot find symbol
     symbol:   method m00()
     location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:43: error: cannot find symbol
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:42: error: cannot find symbol
     symbol:   method m11()
     location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:43: error: cannot find symbol
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:42: error: cannot find symbol
     symbol:   method m01()
     location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:43: error: cannot find symbol
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:42: error: cannot find symbol
     symbol:   method m10()
     location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:58: error: cannot find symbol
-    symbol:   method m00()
-    location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:58: error: cannot find symbol
-    symbol:   method m10()
-    location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:58: error: cannot find symbol
-    symbol:   method m20()
-    location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:58: error: cannot find symbol
-    symbol:   method m01()
-    location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:58: error: cannot find symbol
-    symbol:   method m11()
-    location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:58: error: cannot find symbol
-    symbol:   method m21()
-    location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:59: error: cannot find symbol
-    symbol:   method m00()
-    location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:59: error: cannot find symbol
-    symbol:   method m11()
-    location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:59: error: cannot find symbol
-    symbol:   method m01()
-    location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:59: error: cannot find symbol
-    symbol:   method m10()
-    location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:62: error: cannot find symbol
-    symbol:   method m11()
-    location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:62: error: cannot find symbol
-    symbol:   method m10()
-    location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:62: error: cannot find symbol
-    symbol:   method m00()
-    location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:62: error: cannot find symbol
-    symbol:   method m01()
-    location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:67: error: cannot find symbol
-    symbol:   method pushMatrix()
-    location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:71: error: cannot find symbol
-    symbol:   method popMatrix()
-    location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:126: error: cannot find symbol
-    symbol:   method pushMatrix()
-    location: class PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:153: error: cannot find symbol
-    symbol:   method popMatrix()
-    location: class PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:211: error: cannot find symbol
-    symbol:   method pushMatrix()
-    location: class PoseStack
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:213: error: cannot find symbol
     symbol:   method rotate(float)
-    location: class PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:217: error: cannot find symbol
-    symbol:   method popMatrix()
     location: class PoseStack
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:395: error: cannot find symbol
     symbol:   method transformPosition(Vector2f)
@@ -468,24 +432,12 @@ FAILURE: Build failed with an exception.
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:396: error: cannot find symbol
     symbol:   method transformPosition(Vector2f)
     location: class PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:404: error: cannot find symbol
-    symbol:   method pushMatrix()
-    location: class PoseStack
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:406: error: cannot find symbol
     symbol:   method identity()
-    location: class PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:411: error: cannot find symbol
-    symbol:   method popMatrix()
     location: class PoseStack
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:418: error: cannot find symbol
     symbol:   method body()
     location: class PlayerSkin
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:526: error: cannot find symbol
-    symbol:   method pushMatrix()
-    location: class PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:538: error: cannot find symbol
-    symbol:   method popMatrix()
-    location: class PoseStack
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/TargetSnapshot.java:47: error: cannot find symbol
     symbol:   method body()
     location: class PlayerSkin
@@ -501,21 +453,65 @@ FAILURE: Build failed with an exception.
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:110: error: cannot find symbol
     symbol:   method m10()
     location: variable m of type PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:134: error: cannot find symbol
-    symbol:   method pushMatrix()
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:228: error: cannot find symbol
+    symbol:   method rotate(float)
     location: class PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:144: error: cannot find symbol
-    symbol:   method popMatrix()
-    location: class PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:197: error: cannot find symbol
-    symbol:   method pushMatrix()
-    location: class PoseStack
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:203: error: cannot find symbol
-    symbol:   method popMatrix()
-    location: class PoseStack
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AudioRegression.java:48: error: cannot find symbol
+    symbol:   method getIdentifier()
+    location: variable replacement of type SoundInstance
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:114: error: cannot find symbol
+    symbol:   method getId()
+    location: variable player of type PlayerRenderState
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:114: error: cannot find symbol
+    symbol:   method getId()
+    location: variable player of type PlayerRenderState
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:364: error: cannot find symbol
+    symbol:   method matrices()
+    location: variable context of type WorldRenderContext
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:367: error: cannot find symbol
+              new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW, (pose, out) -> {
+    symbol:   method matrices()
+    location: variable context of type WorldRenderContext
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:408: error: cannot find symbol
+    symbol:   method matrices()
+    location: variable context of type WorldRenderContext
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:410: error: cannot find symbol
+    symbol:   method matrices()
+    location: variable context of type WorldRenderContext
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:416: error: cannot find symbol
+                  new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW, (pose, out) -> {
+    symbol:   method matrices()
+    location: variable context of type WorldRenderContext
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:419: error: cannot find symbol
+                  if (cfg.projGlow) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW_ADD, (pose, out) -> {
+    symbol:   method matrices()
+    location: variable context of type WorldRenderContext
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:423: error: cannot find symbol
+              if (!frame.hats.isEmpty()) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), HAT, (pose, out) -> {
+    symbol:   method matrices()
+    location: variable context of type WorldRenderContext
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:426: error: cannot find symbol
+    symbol:   method matrices()
+    location: variable context of type WorldRenderContext
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/CustomAudio.java:105: error: cannot find symbol
+    symbol:   method getIdentifier()
+    location: variable original of type SoundInstance
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/CustomAudio.java:113: error: cannot find symbol
+    symbol:   method getIdentifier()
+    location: variable original of type SoundInstance
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/CustomAudio.java:115: error: cannot find symbol
+    symbol:   method getIdentifier()
+    location: variable original of type SoundInstance
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/CustomAudio.java:125: error: cannot find symbol
+    symbol:   method getIdentifier()
+    location: variable original of type SoundInstance
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/ItemPhysics.java:43: error: cannot find symbol
+    symbol:   method getModelBoundingBox()
+    location: variable item of type ItemStackRenderState
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:177: error: cannot find symbol
+    symbol:   method matrices()
+    location: variable context of type WorldRenderContext
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:18: error: package net.minecraft.client.renderer.rendertype does not exist
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/MouseHandlerMixin.java:10: error: package net.minecraft.client.input does not exist
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:36: error: package FontDescription does not exist
 > Check your code and dependencies to fix the compilation error(s)
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).
 200
