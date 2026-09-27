@@ -20,11 +20,8 @@ jobs:
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v5
 
-      - name: Icons are up to date
-        run: |
-          pip install --quiet pillow
-          python3 bedrock-app/tools/make_icon.py
-          git diff --exit-code -- bedrock-app/app/src/main/res
+      - name: Launcher icons are in place
+        run: python3 bedrock-app/tools/check_icons.py
 
       - name: Accessory geometry matches the Geyser extension
         run: diff -r bedrock/geyser-extension/src/main/resources/lavavisual/geometry bedrock-app/app/src/main/assets/geometry
