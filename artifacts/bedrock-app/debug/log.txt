@@ -1,0 +1,103 @@
++ adb wait-for-device
++ adb shell input keyevent KEYCODE_WAKEUP
++ adb shell wm dismiss-keyguard
++ adb install -r -g /home/runner/work/LavaVisual/LavaVisual/bedrock-app/app/build/outputs/apk/debug/app-debug.apk
+Performing Streamed Install
+Success
++ adb shell appops set tech.gulp.lavavisual.app SYSTEM_ALERT_WINDOW allow
++ adb logcat -c
++ adb shell am start -W -n tech.gulp.lavavisual.app/.MainActivity
+Starting: Intent { cmp=tech.gulp.lavavisual.app/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity
+TotalTime: 2713
+WaitTime: 2754
+Complete
++ shot 1-setup 4
++ sleep 4
++ adb exec-out screencap -p
++ echo 'shot 1-setup'
+shot 1-setup
++ adb shell am start -n tech.gulp.lavavisual.app/.MainActivity --ez autostart true
+Starting: Intent { cmp=tech.gulp.lavavisual.app/.MainActivity (has extras) }
+Warning: Activity not started, intent has been delivered to currently running top-most instance.
++ shot 2-badge 4
++ sleep 4
++ adb exec-out screencap -p
++ echo 'shot 2-badge'
+shot 2-badge
++ adb shell am start -n tech.gulp.lavavisual.app/.MainActivity --ez menu true
+Starting: Intent { cmp=tech.gulp.lavavisual.app/.MainActivity (has extras) }
+Warning: Activity not started, intent has been delivered to currently running top-most instance.
++ shot 3-menu 4
++ sleep 4
++ adb exec-out screencap -p
++ echo 'shot 3-menu'
+shot 3-menu
+++ tr -d '\r'
+++ awk '{print $3}'
+++ adb shell wm size
++ size=320x640
++ width=320
++ height=640
+++ python3 -c 'print(int(640 * 0.145))'
++ tab_y=92
++ for index in 1 2 3
+++ python3 -c 'print(int(320 * (0.145 + 0.235 * 1)))'
++ x=121
++ adb shell input tap 121 92
++ shot 4-menu-tab1 2
++ sleep 2
++ adb exec-out screencap -p
++ echo 'shot 4-menu-tab1'
+shot 4-menu-tab1
++ for index in 1 2 3
+++ python3 -c 'print(int(320 * (0.145 + 0.235 * 2)))'
++ x=196
++ adb shell input tap 196 92
++ shot 4-menu-tab2 2
++ sleep 2
++ adb exec-out screencap -p
++ echo 'shot 4-menu-tab2'
+shot 4-menu-tab2
++ for index in 1 2 3
+++ python3 -c 'print(int(320 * (0.145 + 0.235 * 3)))'
++ x=272
++ adb shell input tap 272 92
++ shot 4-menu-tab3 2
++ sleep 2
++ adb exec-out screencap -p
++ echo 'shot 4-menu-tab3'
+shot 4-menu-tab3
++ adb shell input keyevent KEYCODE_BACK
++ shot 5-badge-only 3
++ sleep 3
++ adb exec-out screencap -p
++ echo 'shot 5-badge-only'
+shot 5-badge-only
++ adb shell am start -n tech.gulp.lavavisual.app/.MainActivity
+Starting: Intent { cmp=tech.gulp.lavavisual.app/.MainActivity }
++ sleep 3
++ adb shell am start -n tech.gulp.lavavisual.app/.AppPickerActivity
+Starting: Intent { cmp=tech.gulp.lavavisual.app/.AppPickerActivity }
+
+Exception occurred while executing 'start':
+java.lang.SecurityException: Permission Denial: starting Intent { flg=0x10000000 cmp=tech.gulp.lavavisual.app/.AppPickerActivity } from null (pid=4638, uid=2000) not exported from uid 10192
+	at com.android.server.wm.ActivityTaskSupervisor.checkStartAnyActivityPermission(ActivityTaskSupervisor.java:1136)
+	at com.android.server.wm.ActivityStarter.executeRequest(ActivityStarter.java:1069)
+	at com.android.server.wm.ActivityStarter.execute(ActivityStarter.java:742)
+	at com.android.server.wm.ActivityTaskManagerService.startActivityAsUser(ActivityTaskManagerService.java:1288)
+	at com.android.server.wm.ActivityTaskManagerService.startActivityAsUser(ActivityTaskManagerService.java:1239)
+	at com.android.server.am.ActivityManagerService.startActivityAsUserWithFeature(ActivityManagerService.java:3248)
+	at com.android.server.am.ActivityManagerShellCommand.runStartActivity(ActivityManagerShellCommand.java:724)
+	at com.android.server.am.ActivityManagerShellCommand.onCommand(ActivityManagerShellCommand.java:233)
+	at com.android.modules.utils.BasicShellCommandHandler.exec(BasicShellCommandHandler.java:97)
+	at android.os.ShellCommand.exec(ShellCommand.java:38)
+	at com.android.server.am.ActivityManagerService.onShellCommand(ActivityManagerService.java:9697)
+	at android.os.Binder.shellCommand(Binder.java:1068)
+	at android.os.Binder.onTransact(Binder.java:888)
+	at android.app.IActivityManager$Stub.onTransact(IActivityManager.java:5267)
+	at com.android.server.am.ActivityManagerService.onTransact(ActivityManagerService.java:2720)
+	at android.os.Binder.execTransactInternal(Binder.java:1344)
+	at android.os.Binder.execTransact(Binder.java:1275)
