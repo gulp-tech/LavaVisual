@@ -14,6 +14,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.util.Log;
 import android.widget.Toast;
 
 /** Keeps the LV badge, the HUD and the menu on the screen while the game is in front. */
@@ -40,6 +41,7 @@ public class OverlayService extends Service {
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getBooleanExtra("launch", false)) launchGame();
         if (intent != null && intent.getBooleanExtra("menu", false)) openMenu();
+        Log.i("LavaVisual", "service command: " + (intent == null ? "restart" : intent.getExtras()));
         return START_STICKY;
     }
 
@@ -80,6 +82,7 @@ public class OverlayService extends Service {
         int size = Ui.dp(this, cfg.badgeSize());
         layout.width = size; layout.height = size;
         layout.x = cfg.badgeX(); layout.y = cfg.badgeY();
+        layout.setTitle("LavaVisual badge");
         badge.setOnTouchListener(new Dragger(layout, badge, (x, y) -> cfg.badgePos(x, y), this::openMenu));
         windows.addView(badge, layout);
     }
@@ -101,6 +104,7 @@ public class OverlayService extends Service {
                 | (movingHud ? 0 : WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         WindowManager.LayoutParams layout = params(flags);
         layout.x = cfg.hudX(); layout.y = cfg.hudY();
+        layout.setTitle("LavaVisual hud");
         if (movingHud) hud.setOnTouchListener(new Dragger(layout, hud, (x, y) -> cfg.hudPos(x, y), null));
         windows.addView(hud, layout);
     }
@@ -123,10 +127,12 @@ public class OverlayService extends Service {
         WindowManager.LayoutParams layout = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT,
                 windowType(), WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH, PixelFormat.TRANSLUCENT);
+        layout.setTitle("LavaVisual menu");
         layout.dimAmount = 0.45f;
         layout.flags |= WindowManager.LayoutParams.FLAG_DIM_BEHIND;
         windows.addView(menu, layout);
         if (badge != null) badge.setVisibility(View.GONE);
+        Log.i("LavaVisual", "menu opened");
     }
 
     void closeMenu() {

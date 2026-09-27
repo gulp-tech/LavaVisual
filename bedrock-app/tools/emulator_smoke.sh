@@ -21,21 +21,24 @@ adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS || true
 adb logcat -c
 
 adb shell am start -W -n $PKG/.MainActivity
-sleep 3
-adb shell input keyevent KEYCODE_BACK   # any permission dialog
-shot 1-setup 3
+shot 1-setup 4
 
 # The overlay: badge plus HUD, then the menu.
 adb shell am start -n $PKG/.MainActivity --ez autostart true
-shot 2-badge 4
-adb shell am start -n $PKG/.MainActivity --ez menu true
+sleep 3
+adb shell input keyevent KEYCODE_HOME
+shot 2-badge 3
+
+# Tapping the badge, the way a player opens the menu.
+adb shell input tap 33 161
 shot 3-menu 4
+adb shell dumpsys window windows | grep -q 'LavaVisual menu' || { echo 'the menu did not open'; exit 1; }
 
 # Every section of the menu, tapped through by hand.
 size=$(adb shell wm size | tr -d '\r' | awk '{print $3}')
 width=${size%x*}
 height=${size#*x}
-tab_y=$(python3 -c "print(int($height * 0.145))")
+tab_y=$(python3 -c "print(int($height * 0.19))")
 for index in 1 2 3; do
   x=$(python3 -c "print(int($width * (0.145 + 0.235 * $index)))")
   adb shell input tap "$x" "$tab_y"
@@ -44,6 +47,8 @@ done
 
 adb shell input keyevent KEYCODE_BACK
 shot 5-badge-only 3
+adb shell dumpsys window windows | grep -q 'LavaVisual badge' || { echo 'the badge is gone'; exit 1; }
+adb shell dumpsys window windows | grep -q 'LavaVisual hud' || { echo 'the hud is gone'; exit 1; }
 
 # The app picker.
 adb shell am start -n $PKG/.MainActivity
@@ -59,5 +64,5 @@ if adb logcat -d | grep -q "FATAL EXCEPTION"; then
   exit 1
 fi
 adb shell pidof $PKG > /dev/null || { echo "the overlay service is not running"; exit 1; }
-adb shell dumpsys window windows | grep -q "$PKG" || { echo "no overlay window"; exit 1; }
+adb logcat -d -s LavaVisual:I | tail -20
 echo "LavaVisual app ok"
