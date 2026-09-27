@@ -301,7 +301,7 @@ public final class ClickGuiScreen extends Screen {
         mx = (int) (mouseX / renderScale); my = (int) (mouseY / renderScale);
         int canvasW = (int) (width / renderScale), canvasH = (int) (height / renderScale);
         g.fill(0, 0, width, height, UiDraw.alpha(0x06090F, c.menuDim * enter));
-        g.pose().pushMatrix();
+        g.pose().pushPose();
         g.pose().scale((float) renderScale);
         int ac = accent(), ac2 = accent2();
         g.fillGradient(0, 0, canvasW, canvasH / 3, UiDraw.alpha(0x05070B, 0.28 * enter), 0x00000000);
@@ -315,7 +315,7 @@ public final class ClickGuiScreen extends Screen {
         if (enter < 1) {
             // Entrance: a short scale-in around the panel centre; exactly 1 afterwards, so text stays pixel-exact.
             float grow = (float) (0.965 + 0.035 * enter);
-            g.pose().translate(left + panelW / 2f, top + panelH / 2f);
+            g.pose().translate(left + panelW / 2f, top + panelH / 2f, 0f);
             g.pose().scale(grow);
             g.pose().translate(-(left + panelW / 2f), -(top + panelH / 2f));
         }
@@ -402,7 +402,7 @@ public final class ClickGuiScreen extends Screen {
             text(g, "Назад к модулям", bodyX + 11, top + panelH - 20, 0xFFB3BAC7, bodyW - 11);
         }
         if (selected != null && !searching) hit(bodyX, clipBottom + 2, bodyW, 27, () -> select(null));
-        g.pose().popMatrix();
+        g.pose().popPose();
     }
     private static String norm(String value) { return value.toLowerCase(Locale.ROOT).replace('ё', 'е'); }
     /** Search box in the header: click, Ctrl+F or just start typing. */

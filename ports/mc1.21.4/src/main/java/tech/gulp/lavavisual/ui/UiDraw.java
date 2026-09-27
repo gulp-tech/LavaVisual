@@ -131,7 +131,7 @@ public final class UiDraw {
         int pw = x1 - x0, ph = y1 - y0;
         if (pw <= 0 || ph <= 0) return;
         int r = Math.min((int) Math.round(Math.min(radius, Math.min(w, h) / 2.0) * s), Math.min(pw, ph) / 2);
-        g.pose().pushMatrix();
+        g.pose().pushPose();
         try {
             g.pose().scale((float) (1 / s));
             if (r <= 0) {
@@ -141,7 +141,7 @@ public final class UiDraw {
             } else {
                 rows(g, x0, y0, pw, ph, r, top, bottom);
             }
-        } finally { g.pose().popMatrix(); }
+        } finally { g.pose().popPose(); }
     }
 
     private static void corners(GuiGraphics g, int x0, int y0, int x1, int y1, int r, int top, int bottom) {
@@ -194,13 +194,13 @@ public final class UiDraw {
         if (r <= 0 || (color >>> 24) == 0) return;
         double s = pixels(g);
         int pr = Math.max(1, (int) Math.round(r * s)), px = (int) Math.round(cx * s) - pr, py = (int) Math.round(cy * s) - pr;
-        g.pose().pushMatrix();
+        g.pose().pushPose();
         try {
             g.pose().scale((float) (1 / s));
             if (pr <= Circles.MAX_R && Circles.ready())
                 g.blit(net.minecraft.client.renderer.RenderType::guiTextured, Circles.ID, px, py, Circles.U[pr], Circles.V[pr], 2 * pr, 2 * pr, 2 * pr, 2 * pr, Circles.WIDTH, Circles.HEIGHT, color);
             else rows(g, px, py, 2 * pr, 2 * pr, pr, color, color);
-        } finally { g.pose().popMatrix(); }
+        } finally { g.pose().popPose(); }
     }
 
     public static int mix(int a, int b, double t) {
@@ -222,12 +222,12 @@ public final class UiDraw {
     public static void roundH(GuiGraphics g, int x, int y, int w, int h, int radius, int left, int right) {
         if (w <= 0 || h <= 0) return;
         if (left == right) { round(g, x, y, w, h, radius, left); return; }
-        g.pose().pushMatrix();
+        g.pose().pushPose();
         try {
-            g.pose().translate(x, y + h);
+            g.pose().translate(x, y + h, 0f);
             g.pose().rotate((float) (-Math.PI / 2));
             roundV(g, 0, 0, h, w, radius, left, right);
-        } finally { g.pose().popMatrix(); }
+        } finally { g.pose().popPose(); }
     }
     /** Soft drop shadow from a few stacked translucent layers; strength is the opacity right under the element. */
     public static void shadow(GuiGraphics g, int x, int y, int w, int h, int radius, int spread, int drop, double strength) {

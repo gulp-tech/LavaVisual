@@ -123,14 +123,14 @@ public final class HudRenderer {
             int x = x(id, w, g.guiWidth()), y = y(id, w, g.guiHeight());
             int bw = baseWidth(id), bh = baseHeight(id), accent = c.color(id), accent2 = c.color2(id);
             boolean off = edit && !w.visible;
-            g.pose().pushMatrix();
+            g.pose().pushPose();
             try {
-                g.pose().translate(x, y);
+                g.pose().translate(x, y, 0f);
                 g.pose().scale((float) scale(w));
                 if (scaleAnim != 1) {
-                    g.pose().translate(bw / 2f, bh / 2f);
+                    g.pose().translate(bw / 2f, bh / 2f, 0f);
                     g.pose().scale((float) scaleAnim);
-                    g.pose().translate(-bw / 2f, -bh / 2f);
+                    g.pose().translate(-bw / 2f, -bh / 2f, 0f);
                 }
                 if (edit && id.equals(selected)) g.renderOutline(-3, -3, bw + 6, bh + 6, UiDraw.alpha(accent, 0.9));
                 switch (id) {
@@ -150,7 +150,7 @@ public final class HudRenderer {
                     UiDraw.round(g, 0, -12, 26, 10, 3, 0xCC111216);
                     UiFont.text(g, mc.font, "выкл", 4, -12, 0xFF9AA0AC, 22, Face.SMALL);
                 }
-            } finally { g.pose().popMatrix(); }
+            } finally { g.pose().popPose(); }
         }
     }
 
@@ -208,13 +208,13 @@ public final class HudRenderer {
         UiDraw.circle(g, cx, cy, r * 0.4, 0xFF000000 | accent);
         UiDraw.circle(g, cx, cy, r * 0.4 - 2, 0xFF000000 | UiDraw.mix(accent, accent2, 0.6));
         UiDraw.circle(g, cx, cy, Math.max(1.5, r * 0.07), 0xFF0B0C10);
-        g.pose().pushMatrix();
+        g.pose().pushPose();
         g.pose().translate((float) cx, (float) cy);
         g.pose().rotate((float) Math.toRadians(angle));
         g.fill((int) Math.round(r * 0.45), -1, (int) Math.round(r - 3), 0, 0x55FFFFFF);
         g.fill(-(int) Math.round(r - 3), 0, -(int) Math.round(r * 0.45), 1, 0x30FFFFFF);
         g.fill(-1, -(int) Math.round(r * 0.36), 0, -(int) Math.round(r * 0.14), 0xCCFFFFFF);
-        g.pose().popMatrix();
+        g.pose().popPose();
     }
 
     /** HUD panel: soft two-layer shadow, faint top-lit gradient and a hairline in the element's two colours. */
@@ -401,14 +401,14 @@ public final class HudRenderer {
         float extent = Math.max(0.3f, Math.max(entity.getBbHeight(), entity.getBbWidth()));
         int scale = (int) Math.clamp(box * 0.8f / extent, 2, 120);
         float cx = (x0 + x1) / 2f, cy = (y0 + y1) / 2f;
-        g.pose().pushMatrix();
+        g.pose().pushPose();
         try {
             g.pose().identity();
             InventoryScreen.renderEntityInInventoryFollowsMouse(g, x0, y0, x1, y1, scale, 0.0625f, cx + 18, cy - 6, entity);
             return true;
         } catch (RuntimeException error) {
             return false;
-        } finally { g.pose().popMatrix(); }
+        } finally { g.pose().popPose(); }
     }
 
     private static void target(GuiGraphics g, Minecraft mc, HudConfig c, HudConfig.Widget w, TargetSnapshot target, double fade, int accent, int accent2, double dt) {
@@ -523,7 +523,7 @@ public final class HudRenderer {
     public static void crosshair(GuiGraphics g) {
         HudConfig c = LavaVisualClient.config();
         int color = UiDraw.alpha(c.color("crosshair"), c.crosshairOpacity);
-        g.pose().pushMatrix();
+        g.pose().pushPose();
         try {
             g.pose().translate(g.guiWidth() / 2f, g.guiHeight() / 2f);
             g.pose().scale((float) c.crosshairScale);
@@ -535,6 +535,6 @@ public final class HudRenderer {
                 g.fill(-4, -4, 5, -3, color); g.fill(-4, 4, 5, 5, color);
                 g.fill(-4, -3, -3, 4, color); g.fill(4, -3, 5, 4, color);
             }
-        } finally { g.pose().popMatrix(); }
+        } finally { g.pose().popPose(); }
     }
 }

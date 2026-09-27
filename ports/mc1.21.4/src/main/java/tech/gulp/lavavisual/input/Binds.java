@@ -48,7 +48,7 @@ public final class Binds {
     }
     private static final EnumMap<Action, KeyMapping> MAPPINGS = new EnumMap<>(Action.class);
 
-    public static void register(KeyMapping.Category category) {
+    public static void register(String category) {
         for (Action action : Action.values())
             MAPPINGS.put(action, KeyBindingHelper.registerKeyBinding(new KeyMapping("key.lavavisual." + action.id, InputConstants.Type.KEYSYM, action.defaultKey, category)));
     }

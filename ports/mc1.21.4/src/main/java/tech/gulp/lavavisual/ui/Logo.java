@@ -20,12 +20,12 @@ public final class Logo {
         ResourceLocation[] ids = hud ? HUD : MENU;
         if (ids[i] == null) ids[i] = ResourceLocation.fromNamespaceAndPath("lavavisual", "textures/gui/logo/" + (hud ? "hud_" : "menu_") + (h / 2) + (h % 2 == 0 ? "" : "_5") + ".png");
         int tw = (hud ? LogoSizes.HUD_W : LogoSizes.MENU_W)[i], th = (hud ? HUD_H : MENU_H) * h / 2;
-        g.pose().pushMatrix();
+        g.pose().pushPose();
         try {
             UiFont.snap(g, x, y);
-            g.pose().translate(x, y);
+            g.pose().translate(x, y, 0f);
             g.pose().scale(2f / h);
             g.blit(net.minecraft.client.renderer.RenderType::guiTextured, ids[i], 0, 0, 0, 0, tw, th, tw, th, tw, th, color);
-        } finally { g.pose().popMatrix(); }
+        } finally { g.pose().popPose(); }
     }
 }

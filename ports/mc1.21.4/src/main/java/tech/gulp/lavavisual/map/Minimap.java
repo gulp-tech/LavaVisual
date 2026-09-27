@@ -143,7 +143,7 @@ public final class Minimap {
     }
     private static void upload(Minecraft mc) {
         if (texture == null) {
-            texture = new DynamicTexture(() -> "lavavisual minimap", SIZE, SIZE, true);
+            texture = new DynamicTexture(SIZE, SIZE, true);
             mc.getTextureManager().register(TEXTURE, texture);
         }
         NativeImage image = texture.getPixels();
@@ -204,11 +204,11 @@ public final class Minimap {
             }
         }
         float yaw = player == null ? 180 : Mth.lerp(partial, player.yRotO, player.getYRot());
-        g.pose().pushMatrix();
+        g.pose().pushPose();
         g.pose().translate((float) cx, (float) cy);
         g.pose().rotate((float) Math.toRadians(yaw - 180));
         arrow(mc, g);
-        g.pose().popMatrix();
+        g.pose().popPose();
         if (c.mapCoords) {
             String text = player == null ? "X 0  Y 64  Z 0" : "X " + Mth.floor(px) + "  Y " + Mth.floor(player.getY()) + "  Z " + Mth.floor(pz);
             UiFont.centered(g, font, text, bw / 2, m + size + 4, 0xFFC9CED8, UiFont.Face.SMALL);

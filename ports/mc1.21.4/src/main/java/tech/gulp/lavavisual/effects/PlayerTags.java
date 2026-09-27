@@ -2,7 +2,6 @@ package tech.gulp.lavavisual.effects;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FontDescription;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -16,7 +15,7 @@ import tech.gulp.lavavisual.LavaVisualClient;
  * Purely client-side: no custom packets or channels.
  */
 public final class PlayerTags {
-    private static final FontDescription FONT = new FontDescription.Resource(ResourceLocation.fromNamespaceAndPath("lavavisual", "badge"));
+    private static final ResourceLocation FONT = ResourceLocation.fromNamespaceAndPath("lavavisual", "badge");
     private static final Component LOGO = Component.literal("\uE000").withStyle(style -> style.withFont(FONT).withColor(0xFFFFFF));
     private PlayerTags() { }
 

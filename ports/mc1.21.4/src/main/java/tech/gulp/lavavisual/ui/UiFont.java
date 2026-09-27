@@ -4,7 +4,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FontDescription;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -24,17 +23,17 @@ public final class UiFont {
     public static final String[] FAMILIES = {"Montserrat", "Rubik", "Inter"};
     public static final int MENU = 2;
     private static final String[] PREFIX = {"m", "u", ""};
-    private static final FontDescription[][][] FACES = new FontDescription[FAMILIES.length][Face.values().length][17];
+    private static final ResourceLocation[][][] FACES = new ResourceLocation[FAMILIES.length][Face.values().length][17];
     private static int family = MENU;
     private UiFont() { }
     /** Switches the text family for the following draw and width calls; returns the previous one for restoring. */
     public static int use(int next) { int previous = family; family = Math.clamp(next, 0, FAMILIES.length - 1); return previous; }
     /** Face for {@code half} half-pixels per GUI unit (2 = one pixel per unit ... 16 = eight). */
-    public static FontDescription face(Face face, int half) {
+    public static ResourceLocation face(Face face, int half) {
         int h = Math.clamp(half, 2, 16), f = face.ordinal() <= Face.HEADING.ordinal() ? family : MENU;
-        FontDescription description = FACES[f][face.ordinal()][h];
-        if (description == null) FACES[f][face.ordinal()][h] = description = new FontDescription.Resource(
-                ResourceLocation.fromNamespaceAndPath("lavavisual", PREFIX[f] + face.key + (h / 2) + (h % 2 == 0 ? "" : "_5")));
+        ResourceLocation description = FACES[f][face.ordinal()][h];
+        if (description == null) FACES[f][face.ordinal()][h] = description =
+                ResourceLocation.fromNamespaceAndPath("lavavisual", PREFIX[f] + face.key + (h / 2) + (h % 2 == 0 ? "" : "_5"));
         return description;
     }
     public static int guiScale() { return Math.max(1, Minecraft.getInstance().getWindow().getGuiScale()); }
@@ -53,27 +52,28 @@ public final class UiFont {
     }
     /** Moves the pose so local (x, y) lands on a whole screen pixel; call between pushMatrix and popMatrix. */
     static void snap(GuiGraphics g, float x, float y) {
-        var m = g.pose();
+        var stack = g.pose();
+        var m = stack.last().pose();
         int gs = guiScale();
-        double px = gs * (m.m00() * x + m.m10() * y + m.m20()), py = gs * (m.m01() * x + m.m11() * y + m.m21());
+        double px = gs * (m.m00() * x + m.m10() * y + m.m30()), py = gs * (m.m01() * x + m.m11() * y + m.m31());
         double fx = Math.round(px) - px, fy = Math.round(py) - py, det = m.m00() * m.m11() - m.m01() * m.m10();
         if ((Math.abs(fx) < 0.02 && Math.abs(fy) < 0.02) || Math.abs(det) < 1e-9) return;
         double ax = fx / gs, ay = fy / gs;
-        m.translate((float) ((m.m11() * ax - m.m10() * ay) / det), (float) ((m.m00() * ay - m.m01() * ax) / det));
+        stack.translate((float) ((m.m11() * ax - m.m10() * ay) / det), (float) ((m.m00() * ay - m.m01() * ax) / det), 0f);
     }
     /** Draws with the origin moved to the nearest screen pixel, so glyph texels map 1:1 at half-step scales too. */
     private static void draw(GuiGraphics g, Font font, Component text, int x, int y, int color) {
         var m = g.pose();
-        m.pushMatrix();
+        m.pushPose();
         try {
             snap(g, x, y);
             g.drawString(font, text, x, y, color, false);
-        } finally { m.popMatrix(); }
+        } finally { m.popPose(); }
     }
     public static Component component(String value) { return component(value, Face.REGULAR, 2 * guiScale()); }
     public static Component component(String value, Face face, int scale) {
         if (face.ordinal() <= Face.HEADING.ordinal() && !covered(value)) return Component.literal(value);
-        FontDescription description = face(face, scale);
+        ResourceLocation description = face(face, scale);
         return Component.literal(value).withStyle(style -> style.withFont(description));
     }
     /**

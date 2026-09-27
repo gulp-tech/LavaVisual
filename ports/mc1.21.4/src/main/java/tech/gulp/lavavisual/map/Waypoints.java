@@ -84,7 +84,7 @@ public final class Waypoints {
         return "unknown";
     }
     public static String dimension(Minecraft mc) {
-        return mc.level == null ? "minecraft:overworld" : mc.level.dimension().identifier().toString();
+        return mc.level == null ? "minecraft:overworld" : mc.level.dimension().location().toString();
     }
     /** Every point saved for the current world (all dimensions); editable list. */
     public static List<Point> all(Minecraft mc) {

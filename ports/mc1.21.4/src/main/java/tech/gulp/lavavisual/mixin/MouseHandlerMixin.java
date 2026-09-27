@@ -7,7 +7,6 @@ import net.minecraft.client.player.LocalPlayer;
 import tech.gulp.lavavisual.effects.CameraControl;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
-import net.minecraft.client.input.MouseButtonInfo;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -70,7 +69,7 @@ public abstract class MouseHandlerMixin {
     }
 
     @Inject(method = "onButton", at = @At("RETURN"))
-    private void lava$clicks(long handle, MouseButtonInfo info, int action, CallbackInfo ci) {
+    private void lava$clicks(long handle, int button, int action, int modifiers, CallbackInfo ci) {
         MouseHandler self = (MouseHandler) (Object) this;
         boolean left = self.isLeftPressed(), right = self.isRightPressed();
         if (left && !lava$left) ClickCounter.press(true);

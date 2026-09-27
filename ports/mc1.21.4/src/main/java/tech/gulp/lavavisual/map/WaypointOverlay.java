@@ -88,12 +88,12 @@ public final class WaypointOverlay {
         double halfW = width / 2.0 - 26, halfH = height / 2.0 - 22;
         double t = Math.min(halfW / Math.max(1e-6, Math.abs(dx)), halfH / Math.max(1e-6, Math.abs(dy)));
         int x = (int) (width / 2.0 + dx * t), y = (int) (height / 2.0 + dy * t);
-        g.pose().pushMatrix();
-        g.pose().translate(x, y);
+        g.pose().pushPose();
+        g.pose().translate(x, y, 0f);
         g.pose().rotate((float) Math.atan2(dy, dx));
         for (int i = 0; i < 7; i++) g.fill(-4 + i - 1, -(7 - i) / 2 - 1 - 1, -4 + i + 1, (7 - i) / 2 + 1 + 1, 0xB0000000);
         for (int i = 0; i < 7; i++) g.fill(-4 + i, -(7 - i) / 2 - 1, -4 + i + 1, (7 - i) / 2 + 1, 0xFF000000 | label.color);
-        g.pose().popMatrix();
+        g.pose().popPose();
         String text = label.distance;
         int tw = UiFont.width(g, font, text, UiFont.Face.SMALL);
         double len = Math.max(1e-6, Math.hypot(dx, dy));
