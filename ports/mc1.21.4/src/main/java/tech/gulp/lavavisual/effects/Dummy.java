@@ -8,7 +8,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -122,7 +122,7 @@ public final class Dummy {
 
     /** Local sound at the dummy; hit sounds go through the LavaVisual sound replacement like real ones. */
     private static void play(String id, Entity at, float volume) {
-        Minecraft.getInstance().getSoundManager().play(new SimpleSoundInstance(Identifier.fromNamespaceAndPath("minecraft", id), SoundSource.PLAYERS,
+        Minecraft.getInstance().getSoundManager().play(new SimpleSoundInstance(ResourceLocation.fromNamespaceAndPath("minecraft", id), SoundSource.PLAYERS,
                 volume, 1f, SoundInstance.createUnseededRandom(), false, 0, SoundInstance.Attenuation.LINEAR,
                 at.getX(), at.getY() + 1, at.getZ(), false));
     }

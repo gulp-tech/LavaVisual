@@ -3,13 +3,13 @@ package tech.gulp.lavavisual.ui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import tech.gulp.lavavisual.LavaVisualClient;
 
 /** The vanilla button click for LavaVisual's own menus (Interface tab: "Звук кнопок"). */
 public final class UiSound {
-    private static final Identifier CLICK = Identifier.fromNamespaceAndPath("minecraft", "ui.button.click");
+    private static final ResourceLocation CLICK = ResourceLocation.fromNamespaceAndPath("minecraft", "ui.button.click");
     private UiSound() { }
 
     public static void click() {

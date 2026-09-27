@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import tech.gulp.lavavisual.config.ConfigStore;
 import tech.gulp.lavavisual.config.HudConfig;
 import tech.gulp.lavavisual.hud.HudRenderer;
@@ -52,7 +52,7 @@ public final class LavaVisualClient implements ClientModInitializer {
         }
         save();
     }
-    private static Identifier id(String path) { return Identifier.fromNamespaceAndPath("lavavisual", path); }
+    private static ResourceLocation id(String path) { return ResourceLocation.fromNamespaceAndPath("lavavisual", path); }
 
     @Override public void onInitializeClient() {
         save();

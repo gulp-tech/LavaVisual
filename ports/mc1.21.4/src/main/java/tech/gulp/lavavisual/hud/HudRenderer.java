@@ -9,7 +9,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -300,7 +300,7 @@ public final class HudRenderer {
             UiDraw.round(g, x, y, 20, 20, 4, 0xF21D2027);
             ItemStack stack = player == null ? ItemStack.EMPTY : player.getItemBySlot(ARMOR[i]);
             if (stack.isEmpty()) {
-                g.blitSprite(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath("minecraft", ARMOR_SPRITES[i]), x + 2, y + 2, 16, 16, 0x66FFFFFF);
+                g.blitSprite(RenderPipelines.GUI_TEXTURED, ResourceLocation.fromNamespaceAndPath("minecraft", ARMOR_SPRITES[i]), x + 2, y + 2, 16, 16, 0x66FFFFFF);
                 UiFont.centered(g, font, "—", x + 10, y + 22, 0xFF5D6472, Face.SMALL);
                 continue;
             }
@@ -496,7 +496,7 @@ public final class HudRenderer {
                 UiDraw.roundV(g, sx, sy, 19, 19, 4, UiDraw.alpha(UiDraw.mix(PANEL, 0xFFFFFF, 0.05), w.opacity * fade), UiDraw.alpha(PANEL, w.opacity * fade));
                 ItemStack stack = gear[i];
                 if (stack.isEmpty()) {
-                    if (i < 4) g.blitSprite(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath("minecraft", ARMOR_SPRITES[i]), sx + 2, sy + 2, 15, 15, UiDraw.alpha(0xFFFFFF, 0.3 * fade));
+                    if (i < 4) g.blitSprite(RenderPipelines.GUI_TEXTURED, ResourceLocation.fromNamespaceAndPath("minecraft", ARMOR_SPRITES[i]), sx + 2, sy + 2, 15, 15, UiDraw.alpha(0xFFFFFF, 0.3 * fade));
                     continue;
                 }
                 g.renderItem(stack, sx + 2, sy + 1);

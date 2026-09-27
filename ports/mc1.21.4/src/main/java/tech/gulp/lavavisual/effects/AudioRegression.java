@@ -5,7 +5,7 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.sounds.WeighedSoundEvents;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import tech.gulp.lavavisual.LavaVisual;
 import tech.gulp.lavavisual.LavaVisualClient;
@@ -14,7 +14,7 @@ import tech.gulp.lavavisual.LavaVisualClient;
 public final class AudioRegression {
     private AudioRegression() { }
     private static SimpleSoundInstance fresh(String path) {
-        return new SimpleSoundInstance(Identifier.fromNamespaceAndPath("minecraft", path), SoundSource.PLAYERS,
+        return new SimpleSoundInstance(ResourceLocation.fromNamespaceAndPath("minecraft", path), SoundSource.PLAYERS,
                 .8f, 1.2f, SoundInstance.createUnseededRandom(), false, 0,
                 SoundInstance.Attenuation.LINEAR, 12.5, 64, -7.25, false);
     }
@@ -61,7 +61,7 @@ public final class AudioRegression {
             }
             var unrelated = fresh("block.stone.break");
             check(CustomAudio.replace(unrelated, manager) == unrelated && unrelated.getSound() == null, "unrelated sound untouched");
-            var missing = new SimpleSoundInstance(Identifier.fromNamespaceAndPath("minecraft", "entity.player.attack.strong"),
+            var missing = new SimpleSoundInstance(ResourceLocation.fromNamespaceAndPath("minecraft", "entity.player.attack.strong"),
                     SoundSource.PLAYERS, 1, 1, SoundInstance.createUnseededRandom(), false, 0,
                     SoundInstance.Attenuation.LINEAR, 0, 0, 0, false) {
                 @Override public WeighedSoundEvents resolve(SoundManager ignored) { return null; }

@@ -8,7 +8,7 @@ import tech.gulp.lavavisual.LavaVisualClient;
 
 /** Snapshot of the current vanilla crosshair hit; the last visible target lingers for the configured hold time. */
 public record TargetSnapshot(String name, float health, float maximum, int armor, double distance,
-                             net.minecraft.resources.Identifier skin, LivingEntity entity, long captured) {
+                             net.minecraft.resources.ResourceLocation skin, LivingEntity entity, long captured) {
     public static TargetSnapshot current;
     /** Visual-only aim range: the vanilla crosshair reaches entities only within the attack range (3 blocks). */
     private static final double RANGE = 8;

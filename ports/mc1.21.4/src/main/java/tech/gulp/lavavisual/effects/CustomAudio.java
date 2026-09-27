@@ -3,7 +3,7 @@ package tech.gulp.lavavisual.effects;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import tech.gulp.lavavisual.LavaVisualClient;
 import tech.gulp.lavavisual.config.HudConfig;
@@ -78,10 +78,10 @@ public final class CustomAudio {
         prewarm();
     }
     /** Library sound id for the vanilla pipeline (a user file falls back to the event's default when it is missing). */
-    public static Identifier sound(int group) {
+    public static ResourceLocation sound(int group) {
         int index = selected(group);
         if (index >= IDS.length) index = FALLBACK[Math.clamp(group, 0, 3)];
-        return Identifier.fromNamespaceAndPath("lavavisual", IDS[Math.clamp(index, 0, IDS.length - 1)]);
+        return ResourceLocation.fromNamespaceAndPath("lavavisual", IDS[Math.clamp(index, 0, IDS.length - 1)]);
     }
     /** Decodes the chosen user sounds in the background, so the first hit plays them without a hitch. */
     public static void prewarm() {

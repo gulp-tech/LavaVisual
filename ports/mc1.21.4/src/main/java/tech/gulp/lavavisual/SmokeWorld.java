@@ -225,7 +225,7 @@ final class SmokeWorld {
                 boolean named = tech.gulp.lavavisual.effects.CustomAudio.name(2, tech.gulp.lavavisual.effects.CustomAudio.selected(2)).contains("Тотем тест");
                 tech.gulp.lavavisual.effects.CustomAudio.preview(2);
                 boolean preview = tech.gulp.lavavisual.audio.LavaAudio.lastStarted();
-                var vanilla = new net.minecraft.client.resources.sounds.SimpleSoundInstance(net.minecraft.resources.Identifier.fromNamespaceAndPath("minecraft", "item.totem.use"),
+                var vanilla = new net.minecraft.client.resources.sounds.SimpleSoundInstance(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("minecraft", "item.totem.use"),
                         net.minecraft.sounds.SoundSource.PLAYERS, 1, 1, net.minecraft.client.resources.sounds.SoundInstance.createUnseededRandom(), false, 0,
                         net.minecraft.client.resources.sounds.SoundInstance.Attenuation.LINEAR, player.getX(), player.getY(), player.getZ(), false);
                 var replaced = tech.gulp.lavavisual.effects.CustomAudio.replace(vanilla, mc.getSoundManager());

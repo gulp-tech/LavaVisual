@@ -9,7 +9,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -28,7 +28,7 @@ public final class Minimap {
     private Minimap() { }
     public static final int SIZE = 128, HALF = 64, RECENTER = 16;
     public static final int[] VIEW = {48, 64, 96};
-    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath("lavavisual", "minimap");
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("lavavisual", "minimap");
     private static final int UNKNOWN = Integer.MIN_VALUE;
     private static final int[] PIXELS = new int[SIZE * SIZE], HEIGHTS = new int[SIZE * SIZE];
     private static final int[] SCRATCH_P = new int[SIZE * SIZE], SCRATCH_H = new int[SIZE * SIZE];
@@ -215,9 +215,9 @@ public final class Minimap {
             UiFont.centered(g, font, text, bw / 2, m + size + 4, 0xFFC9CED8, UiFont.Face.SMALL);
         }
     }
-    private static final Identifier FRAME = Identifier.fromNamespaceAndPath("lavavisual", "minimap_frame"),
-            RING = Identifier.fromNamespaceAndPath("lavavisual", "minimap_ring"),
-            RING2 = Identifier.fromNamespaceAndPath("lavavisual", "minimap_ring2");
+    private static final ResourceLocation FRAME = ResourceLocation.fromNamespaceAndPath("lavavisual", "minimap_frame"),
+            RING = ResourceLocation.fromNamespaceAndPath("lavavisual", "minimap_ring"),
+            RING2 = ResourceLocation.fromNamespaceAndPath("lavavisual", "minimap_ring2");
     private static DynamicTexture frameTexture, ringTexture, ring2Texture;
     private static int frameW, frameH, builds;
     private static long frameKey = Long.MIN_VALUE, frameBuilt;
@@ -326,7 +326,7 @@ public final class Minimap {
         int b = (int) Math.round(((src & 255) * as + (dst & 255) * ad) / a);
         return (int) Math.round(a * 255) << 24 | r << 16 | gg << 8 | b;
     }
-    private static final Identifier ARROW = Identifier.fromNamespaceAndPath("lavavisual", "minimap_arrow");
+    private static final ResourceLocation ARROW = ResourceLocation.fromNamespaceAndPath("lavavisual", "minimap_arrow");
     private static final double[][] ARROW_SHAPE = {{0, -6.6}, {4.9, 5.2}, {0, 2.5}, {-4.9, 5.2}};
     private static DynamicTexture arrowTexture;
     private static int arrowSize;

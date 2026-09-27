@@ -5,7 +5,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Bundled OFL/ISC fonts for LavaVisual only; the global Minecraft font is never replaced.
@@ -34,7 +34,7 @@ public final class UiFont {
         int h = Math.clamp(half, 2, 16), f = face.ordinal() <= Face.HEADING.ordinal() ? family : MENU;
         FontDescription description = FACES[f][face.ordinal()][h];
         if (description == null) FACES[f][face.ordinal()][h] = description = new FontDescription.Resource(
-                Identifier.fromNamespaceAndPath("lavavisual", PREFIX[f] + face.key + (h / 2) + (h % 2 == 0 ? "" : "_5")));
+                ResourceLocation.fromNamespaceAndPath("lavavisual", PREFIX[f] + face.key + (h / 2) + (h % 2 == 0 ? "" : "_5")));
         return description;
     }
     public static int guiScale() { return Math.max(1, Minecraft.getInstance().getWindow().getGuiScale()); }

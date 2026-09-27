@@ -82,7 +82,7 @@ public final class WorldCosmetics {
     private static Vec3 groundPosition = Vec3.ZERO;
     public static final RenderType GLOW = RenderType.create("lavavisual_cosmetic_glow",
             RenderSetup.builder(RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-                    .withLocation(net.minecraft.resources.Identifier.fromNamespaceAndPath("lavavisual", "pipeline/cosmetic_glow"))
+                    .withLocation(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("lavavisual", "pipeline/cosmetic_glow"))
                     .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
                     .withDepthWrite(false)
                     .withBlend(BlendFunction.TRANSLUCENT)
@@ -90,7 +90,7 @@ public final class WorldCosmetics {
     /** Additive (alpha-weighted) glow: trails look saturated and luminous instead of a flat strip. */
     public static final RenderType GLOW_ADD = RenderType.create("lavavisual_cosmetic_glow_add",
             RenderSetup.builder(RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-                    .withLocation(net.minecraft.resources.Identifier.fromNamespaceAndPath("lavavisual", "pipeline/cosmetic_glow_add"))
+                    .withLocation(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("lavavisual", "pipeline/cosmetic_glow_add"))
                     .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
                     .withDepthWrite(false)
                     .withBlend(BlendFunction.LIGHTNING)
@@ -98,7 +98,7 @@ public final class WorldCosmetics {
     /** Solid hats: depth-tested and depth-writing; back faces are dropped on the CPU (see Hats). */
     public static final RenderType HAT = RenderType.create("lavavisual_hat",
             RenderSetup.builder(RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-                    .withLocation(net.minecraft.resources.Identifier.fromNamespaceAndPath("lavavisual", "pipeline/hat"))
+                    .withLocation(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("lavavisual", "pipeline/hat"))
                     .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
                     .withDepthWrite(true)
                     .withBlend(BlendFunction.TRANSLUCENT)

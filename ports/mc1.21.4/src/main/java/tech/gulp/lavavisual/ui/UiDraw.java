@@ -5,7 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Rounded shapes that stay smooth at every GUI scale. Coordinates are GUI units, but corners are drawn in physical
@@ -22,7 +22,7 @@ public final class UiDraw {
         static final int MAX_R = 72, WIDTH = 1024;
         static final int[] U = new int[MAX_R + 1], V = new int[MAX_R + 1];
         static final int HEIGHT;
-        static final Identifier ID = Identifier.fromNamespaceAndPath("lavavisual", "ui_circles");
+        static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("lavavisual", "ui_circles");
         static DynamicTexture texture;
         static boolean failed;
         static {
@@ -73,7 +73,7 @@ public final class UiDraw {
     /** Soft radial glow (white texels, alpha easing out to the edge), drawn scaled as a single quad. */
     private static final class Glow {
         static final int SIZE = 256;
-        static final Identifier ID = Identifier.fromNamespaceAndPath("lavavisual", "ui_glow");
+        static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("lavavisual", "ui_glow");
         static DynamicTexture texture;
         static boolean failed;
         static boolean ready() {

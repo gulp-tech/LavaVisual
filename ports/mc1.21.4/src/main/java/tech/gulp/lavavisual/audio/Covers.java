@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -20,7 +20,7 @@ import tech.gulp.lavavisual.LavaVisual;
  */
 public final class Covers {
     public static final int SIZE = 64;
-    private static final Identifier ID = Identifier.fromNamespaceAndPath("lavavisual", "music_cover");
+    private static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("lavavisual", "music_cover");
     private static Path loaded;
     private static boolean present;
     private static DynamicTexture texture;
@@ -36,7 +36,7 @@ public final class Covers {
 
     /** Cover of the track, or null while there is none (yet): the file is read and decoded on a background thread,
      *  only the small 64 x 64 upload happens here. */
-    public static Identifier get(Minecraft mc, MusicPlayer.Track track) {
+    public static ResourceLocation get(Minecraft mc, MusicPlayer.Track track) {
         if (track == null) return null;
         if (!track.file().equals(loaded)) {
             loaded = track.file();
