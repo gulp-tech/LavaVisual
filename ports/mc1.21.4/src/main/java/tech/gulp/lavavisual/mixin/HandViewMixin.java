@@ -45,11 +45,12 @@ public abstract class HandViewMixin {
     @WrapMethod(method = "renderArmWithItem")
     private void lava$position(AbstractClientPlayer player, float delta, float pitch, InteractionHand hand,
                                float swing, ItemStack item, float equipped, PoseStack pose,
-                               Submitter collector, int light, Operation<Void> original) {
+                               net.minecraft.client.renderer.MultiBufferSource buffers, int light, Operation<Void> original) {
+        Submitter collector = new Submitter(buffers);
         var config = LavaVisualClient.config();
         boolean styled = SwingStyles.active();
         if (!config.viewModelEnabled && !styled) {
-            original.call(player, delta, pitch, hand, swing, item, equipped, pose, collector, light);
+            original.call(player, delta, pitch, hand, swing, item, equipped, pose, buffers, light);
             return;
         }
         pose.pushPose();
@@ -78,7 +79,7 @@ public abstract class HandViewMixin {
                 pose.translate(-anchorX, -anchorY, .72f);
                 shownSwing = 0;
             }
-            original.call(player, delta, pitch, hand, shownSwing, item, equipped, pose, collector, light);
+            original.call(player, delta, pitch, hand, shownSwing, item, equipped, pose, buffers, light);
         } finally { pose.popPose(); }
     }
 }
