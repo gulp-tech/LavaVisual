@@ -76,21 +76,23 @@ public final class WorldCosmetics {
     private static final ArrayDeque<Integer> CLICKS = new ArrayDeque<>();
     private static boolean grounded, ready;
     private static Vec3 groundPosition = Vec3.ZERO;
-    private static RenderType glowType(String name, RenderStateShard.TransparencyStateShard blend, boolean depthWrite) {
-        return RenderType.create("lavavisual_" + name, DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 1536, false, true,
-                RenderType.CompositeState.builder()
-                        .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
-                        .setTransparencyState(blend)
-                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-                        .setCullState(RenderStateShard.NO_CULL)
-                        .setWriteMaskState(depthWrite ? RenderStateShard.COLOR_DEPTH_WRITE : RenderStateShard.COLOR_WRITE)
-                        .createCompositeState(false));
+    private static RenderType.CompositeState glowState(RenderStateShard.TransparencyStateShard blend, boolean depthWrite) {
+        return RenderType.CompositeState.builder()
+                .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
+                .setTransparencyState(blend)
+                .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                .setCullState(RenderStateShard.NO_CULL)
+                .setWriteMaskState(depthWrite ? RenderStateShard.COLOR_DEPTH_WRITE : RenderStateShard.COLOR_WRITE)
+                .createCompositeState(false);
     }
-    public static final RenderType GLOW = glowType("cosmetic_glow", RenderStateShard.TRANSLUCENT_TRANSPARENCY, false);
+    public static final RenderType GLOW = RenderType.create("lavavisual_cosmetic_glow", DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.QUADS, 1536, false, true, glowState(RenderStateShard.TRANSLUCENT_TRANSPARENCY, false));
     /** Additive (alpha-weighted) glow: trails look saturated and luminous instead of a flat strip. */
-    public static final RenderType GLOW_ADD = glowType("cosmetic_glow_add", RenderStateShard.LIGHTNING_TRANSPARENCY, false);
+    public static final RenderType GLOW_ADD = RenderType.create("lavavisual_cosmetic_glow_add", DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.QUADS, 1536, false, true, glowState(RenderStateShard.LIGHTNING_TRANSPARENCY, false));
     /** Solid hats: depth-tested and depth-writing; back faces are dropped on the CPU (see Hats). */
-    public static final RenderType HAT = glowType("hat", RenderStateShard.TRANSLUCENT_TRANSPARENCY, true);
+    public static final RenderType HAT = RenderType.create("lavavisual_hat", DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.QUADS, 1536, false, true, glowState(RenderStateShard.TRANSLUCENT_TRANSPARENCY, true));
     private WorldCosmetics() { }
     public static void register() {
         net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {

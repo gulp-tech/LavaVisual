@@ -205,8 +205,8 @@ public final class Minimap {
         }
         float yaw = player == null ? 180 : Mth.lerp(partial, player.yRotO, player.getYRot());
         g.pose().pushPose();
-        g.pose().translate((float) cx, (float) cy);
-        g.pose().rotate((float) Math.toRadians(yaw - 180));
+        g.pose().translate((float) cx, (float) cy, 0f);
+        g.pose().mulPose(com.mojang.math.Axis.ZP.rotation((float) Math.toRadians(yaw - 180)));
         arrow(mc, g);
         g.pose().popPose();
         if (c.mapCoords) {
@@ -239,7 +239,7 @@ public final class Minimap {
     public static double clockMillis() { return clockFrames == 0 ? 0 : clockSum / 1e6 / clockFrames; }
     public static long clockFrames() { return clockFrames; }
     private static double pixels(GuiGraphics g) {
-        var p = g.pose();
+        var p = g.pose().last().pose();
         return UiFont.guiScale() * Math.sqrt(Math.abs(p.m00() * p.m11() - p.m01() * p.m10()));
     }
     /**
@@ -256,9 +256,9 @@ public final class Minimap {
         long now = System.nanoTime();
         if (key != frameKey && (frameTexture == null || now - frameBuilt > 250_000_000L)) {
             if (frameTexture == null || frameW != pw || frameH != ph) {
-                frameTexture = new DynamicTexture(() -> "lavavisual minimap frame", pw, ph, true);
-                ringTexture = new DynamicTexture(() -> "lavavisual minimap ring", pw, ph, true);
-                ring2Texture = new DynamicTexture(() -> "lavavisual minimap ring 2", pw, ph, true);
+                frameTexture = new DynamicTexture(("lavavisual minimap frame", pw, ph, true);
+                ringTexture = new DynamicTexture(("lavavisual minimap ring", pw, ph, true);
+                ring2Texture = new DynamicTexture(("lavavisual minimap ring 2", pw, ph, true);
                 var textures = mc.getTextureManager();
                 textures.register(FRAME, frameTexture); // replaces (and closes) the previous ones
                 textures.register(RING, ringTexture);
@@ -335,7 +335,7 @@ public final class Minimap {
         int pw = (int) Math.round(16 * s), ph = (int) Math.round(18 * s);
         if (pw < 4 || pw > 512) return;
         if (arrowTexture == null || arrowSize != pw) {
-            arrowTexture = new DynamicTexture(() -> "lavavisual minimap arrow", pw, ph, true);
+            arrowTexture = new DynamicTexture(("lavavisual minimap arrow", pw, ph, true);
             mc.getTextureManager().register(ARROW, arrowTexture);
             arrowSize = pw;
             NativeImage image = arrowTexture.getPixels();

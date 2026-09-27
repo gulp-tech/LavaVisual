@@ -126,11 +126,11 @@ public final class HudRenderer {
             g.pose().pushPose();
             try {
                 g.pose().translate(x, y, 0f);
-                g.pose().scale((float) scale(w));
+                g.pose().scale((float) scale(w), (float) scale(w), 1f);
                 if (scaleAnim != 1) {
-                    g.pose().translate(bw / 2f, bh / 2f, 0f);
-                    g.pose().scale((float) scaleAnim);
-                    g.pose().translate(-bw / 2f, -bh / 2f, 0f);
+                    g.pose().translate(bw / 2f, bh / 2f, 0f, 0f);
+                    g.pose().scale((float) scaleAnim, (float) scaleAnim, 1f);
+                    g.pose().translate(-bw / 2f, -bh / 2f, 0f, 0f);
                 }
                 if (edit && id.equals(selected)) g.renderOutline(-3, -3, bw + 6, bh + 6, UiDraw.alpha(accent, 0.9));
                 switch (id) {
@@ -209,8 +209,8 @@ public final class HudRenderer {
         UiDraw.circle(g, cx, cy, r * 0.4 - 2, 0xFF000000 | UiDraw.mix(accent, accent2, 0.6));
         UiDraw.circle(g, cx, cy, Math.max(1.5, r * 0.07), 0xFF0B0C10);
         g.pose().pushPose();
-        g.pose().translate((float) cx, (float) cy);
-        g.pose().rotate((float) Math.toRadians(angle));
+        g.pose().translate((float) cx, (float) cy, 0f);
+        g.pose().mulPose(com.mojang.math.Axis.ZP.rotation((float) Math.toRadians(angle)));
         g.fill((int) Math.round(r * 0.45), -1, (int) Math.round(r - 3), 0, 0x55FFFFFF);
         g.fill(-(int) Math.round(r - 3), 0, -(int) Math.round(r * 0.45), 1, 0x30FFFFFF);
         g.fill(-1, -(int) Math.round(r * 0.36), 0, -(int) Math.round(r * 0.14), 0xCCFFFFFF);
@@ -392,8 +392,11 @@ public final class HudRenderer {
      * absolute screen coordinates here and drawn with an identity pose.
      */
     private static boolean entityAvatar(GuiGraphics g, LivingEntity entity, int x, int y, int size) {
-        Vector2f a = g.pose().transformPosition(new Vector2f(x, y));
-        Vector2f b = g.pose().transformPosition(new Vector2f(x + size, y + size));
+        var matrix = g.pose().last().pose();
+        var a3 = matrix.transformPosition(new org.joml.Vector3f(x, y, 0));
+        var b3 = matrix.transformPosition(new org.joml.Vector3f(x + size, y + size, 0));
+        Vector2f a = new Vector2f(a3.x, a3.y);
+        Vector2f b = new Vector2f(b3.x, b3.y);
         int x0 = Math.round(Math.min(a.x, b.x)), y0 = Math.round(Math.min(a.y, b.y));
         int x1 = Math.round(Math.max(a.x, b.x)), y1 = Math.round(Math.max(a.y, b.y));
         int box = Math.min(x1 - x0, y1 - y0);
@@ -403,7 +406,7 @@ public final class HudRenderer {
         float cx = (x0 + x1) / 2f, cy = (y0 + y1) / 2f;
         g.pose().pushPose();
         try {
-            g.pose().identity();
+            g.pose().setIdentity();
             InventoryScreen.renderEntityInInventoryFollowsMouse(g, x0, y0, x1, y1, scale, 0.0625f, cx + 18, cy - 6, entity);
             return true;
         } catch (RuntimeException error) {
@@ -415,7 +418,7 @@ public final class HudRenderer {
         int bw = 180, ph = 56;
         Font font = mc.font;
         if (target == null) target = new TargetSnapshot("Предпросмотр", 16, 20, 10, 3.2,
-                mc.player == null ? null : mc.player.getSkin().body().texturePath(), null, 0);
+                mc.player == null ? null : mc.player.getSkin().texture(), null, 0);
         UiDraw.roundH(g, -3, -3, bw + 6, ph + 6, 9, UiDraw.alpha(accent, 0.08 * fade), UiDraw.alpha(accent2, 0.08 * fade));
         UiDraw.roundH(g, -2, -2, bw + 4, ph + 4, 8, UiDraw.alpha(accent, 0.12 * fade), UiDraw.alpha(accent2, 0.12 * fade));
         if (c.shadows) UiDraw.round(g, 1, 2, bw, ph, 6, UiDraw.alpha(0, w.opacity * 0.25 * fade));
@@ -525,8 +528,8 @@ public final class HudRenderer {
         int color = UiDraw.alpha(c.color("crosshair"), c.crosshairOpacity);
         g.pose().pushPose();
         try {
-            g.pose().translate(g.guiWidth() / 2f, g.guiHeight() / 2f);
-            g.pose().scale((float) c.crosshairScale);
+            g.pose().translate(g.guiWidth() / 2f, g.guiHeight() / 2f, 0f);
+            g.pose().scale((float) c.crosshairScale, (float) c.crosshairScale, 1f);
             if (c.crosshairShape == 1) g.fill(-1, -1, 1, 1, color);
             else if (c.crosshairShape == 2) {
                 g.fill(-6, 0, -2, 1, color); g.fill(3, 0, 7, 1, color);

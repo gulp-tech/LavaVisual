@@ -97,7 +97,7 @@ public final class Binds {
     private static boolean debugHeld(Minecraft mc) {
         KeyMapping modifier = KeyMapping.get("key.debug.modifier");
         if (modifier != null && modifier.isDown()) return true;
-        try { return InputConstants.isKeyDown(mc.getWindow(), GLFW.GLFW_KEY_F3); } catch (RuntimeException e) { return false; }
+        try { return InputConstants.isKeyDown(mc.getWindow().getWindow(), GLFW.GLFW_KEY_F3); } catch (RuntimeException e) { return false; }
     }
     /** Runs a bind's action exactly as its key would (CI uses it for the music keys). */
     public static void press(Action action, Minecraft mc) { run(action, mc); }

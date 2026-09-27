@@ -31,7 +31,7 @@ final class SmokeWorld {
         stage = 0;
         ticks = 0;
         mc.setScreen(null);
-        CreateWorldScreen.openFresh(mc, () -> mc.setScreen(null));
+        CreateWorldScreen.openFresh(mc, null);
     }
 
     static void tick(Minecraft mc) {

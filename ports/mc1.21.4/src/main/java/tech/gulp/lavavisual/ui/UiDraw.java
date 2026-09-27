@@ -37,7 +37,7 @@ public final class UiDraw {
             if (texture != null) return true;
             if (failed) return false;
             try {
-                DynamicTexture created = new DynamicTexture(() -> "lavavisual ui circles", WIDTH, HEIGHT, true);
+                DynamicTexture created = new DynamicTexture(("lavavisual ui circles", WIDTH, HEIGHT, true);
                 NativeImage image = created.getPixels();
                 if (image == null) { failed = true; return false; }
                 for (int r = 1; r <= MAX_R; r++) {
@@ -79,7 +79,7 @@ public final class UiDraw {
             if (texture != null) return true;
             if (failed) return false;
             try {
-                DynamicTexture created = new DynamicTexture(() -> "lavavisual ui glow", SIZE, SIZE, true);
+                DynamicTexture created = new DynamicTexture(("lavavisual ui glow", SIZE, SIZE, true);
                 NativeImage image = created.getPixels();
                 if (image == null) { failed = true; return false; }
                 for (int j = 0; j < SIZE; j++) for (int i = 0; i < SIZE; i++) {
@@ -133,7 +133,7 @@ public final class UiDraw {
         int r = Math.min((int) Math.round(Math.min(radius, Math.min(w, h) / 2.0) * s), Math.min(pw, ph) / 2);
         g.pose().pushPose();
         try {
-            g.pose().scale((float) (1 / s));
+            g.pose().scale((float) (1 / s), (float) (1 / s), 1f);
             if (r <= 0) {
                 if (top == bottom) g.fill(x0, y0, x1, y1, top); else g.fillGradient(x0, y0, x1, y1, top, bottom);
             } else if (r <= Circles.MAX_R && Circles.ready()) {
@@ -196,7 +196,7 @@ public final class UiDraw {
         int pr = Math.max(1, (int) Math.round(r * s)), px = (int) Math.round(cx * s) - pr, py = (int) Math.round(cy * s) - pr;
         g.pose().pushPose();
         try {
-            g.pose().scale((float) (1 / s));
+            g.pose().scale((float) (1 / s), (float) (1 / s), 1f);
             if (pr <= Circles.MAX_R && Circles.ready())
                 g.blit(net.minecraft.client.renderer.RenderType::guiTextured, Circles.ID, px, py, Circles.U[pr], Circles.V[pr], 2 * pr, 2 * pr, 2 * pr, 2 * pr, Circles.WIDTH, Circles.HEIGHT, color);
             else rows(g, px, py, 2 * pr, 2 * pr, pr, color, color);
@@ -224,8 +224,8 @@ public final class UiDraw {
         if (left == right) { round(g, x, y, w, h, radius, left); return; }
         g.pose().pushPose();
         try {
-            g.pose().translate(x, y + h, 0f);
-            g.pose().rotate((float) (-Math.PI / 2));
+            g.pose().translate(x, y + h, 0f, 0f);
+            g.pose().mulPose(com.mojang.math.Axis.ZP.rotation((float) (-Math.PI / 2)));
             roundV(g, 0, 0, h, w, radius, left, right);
         } finally { g.pose().popPose(); }
     }

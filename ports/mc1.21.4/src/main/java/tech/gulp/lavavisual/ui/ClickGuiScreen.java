@@ -302,7 +302,7 @@ public final class ClickGuiScreen extends Screen {
         int canvasW = (int) (width / renderScale), canvasH = (int) (height / renderScale);
         g.fill(0, 0, width, height, UiDraw.alpha(0x06090F, c.menuDim * enter));
         g.pose().pushPose();
-        g.pose().scale((float) renderScale);
+        g.pose().scale((float) renderScale, (float) renderScale, 1f);
         int ac = accent(), ac2 = accent2();
         g.fillGradient(0, 0, canvasW, canvasH / 3, UiDraw.alpha(0x05070B, 0.28 * enter), 0x00000000);
         g.fillGradient(0, canvasH * 2 / 3, canvasW, canvasH, 0x00000000, UiDraw.alpha(0x05070B, 0.38 * enter));
@@ -315,9 +315,9 @@ public final class ClickGuiScreen extends Screen {
         if (enter < 1) {
             // Entrance: a short scale-in around the panel centre; exactly 1 afterwards, so text stays pixel-exact.
             float grow = (float) (0.965 + 0.035 * enter);
-            g.pose().translate(left + panelW / 2f, top + panelH / 2f, 0f);
-            g.pose().scale(grow);
-            g.pose().translate(-(left + panelW / 2f), -(top + panelH / 2f));
+            g.pose().translate(left + panelW / 2f, top + panelH / 2f, 0f, 0f);
+            g.pose().scale(grow, grow, 1f);
+            g.pose().translate(-(left + panelW / 2f), -(top + panelH / 2f), 0f);
         }
         if (c.shadows) {
             UiDraw.shadow(g, left, top, panelW, panelH, 10, 7, 3, 0.5 * enter);

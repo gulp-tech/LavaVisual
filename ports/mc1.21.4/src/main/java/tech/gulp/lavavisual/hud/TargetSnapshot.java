@@ -44,7 +44,7 @@ public record TargetSnapshot(String name, float health, float maximum, int armor
             if (distance <= RANGE && client.player.hasLineOfSight(living)) {
                 fresh = new TargetSnapshot(living.getName().getString(), living.getHealth(), living.getMaxHealth(),
                         living.getArmorValue(), distance,
-                        living instanceof net.minecraft.client.player.AbstractClientPlayer clientPlayer ? clientPlayer.getSkin().body().texturePath() : null,
+                        living instanceof net.minecraft.client.player.AbstractClientPlayer clientPlayer ? clientPlayer.getSkin().texture() : null,
                         living, tick);
             }
         }

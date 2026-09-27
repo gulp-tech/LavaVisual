@@ -36,9 +36,9 @@ public final class UiFont {
                 ResourceLocation.fromNamespaceAndPath("lavavisual", PREFIX[f] + face.key + (h / 2) + (h % 2 == 0 ? "" : "_5"));
         return description;
     }
-    public static int guiScale() { return Math.max(1, Minecraft.getInstance().getWindow().getGuiScale()); }
+    public static int guiScale() { return Math.max(1, (int) Minecraft.getInstance().getWindow().getGuiScale()); }
     private static double pose(GuiGraphics g) {
-        var m = g.pose();
+        var m = g.pose().last().pose();
         return Math.sqrt(Math.abs(m.m00() * m.m11() - m.m01() * m.m10()));
     }
     /** Physical pixels per GUI unit at the current pose, rounded to a whole number. */
@@ -96,7 +96,7 @@ public final class UiFont {
     /** One component whose glyphs fade from {@code left} to {@code right} (RGB); drawn in a single text call. */
     public static Component gradient(String value, Face face, int scale, int left, int right) {
         String shown = value == null ? "" : value;
-        FontDescription description = covered(shown) ? face(face, scale) : null;
+        ResourceLocation description = covered(shown) ? face(face, scale) : null;
         int count = Math.max(1, shown.codePointCount(0, shown.length())), index = 0;
         net.minecraft.network.chat.MutableComponent out = Component.literal("");
         for (int i = 0; i < shown.length(); ) {
