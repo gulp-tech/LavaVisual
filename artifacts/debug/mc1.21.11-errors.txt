@@ -1,401 +1,545 @@
 > Configure project :
 > Task :compileJava
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:7: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: package net.minecraft.client.gui
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:8: error: package net.minecraft.client.renderer.state.level does not exist
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:25: error: cannot find symbol
     public static List<Beam> extract(Minecraft mc, CameraRenderState camera, float partial) {
   symbol:   class CameraRenderState
   location: class WaypointOverlay
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:69: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class WaypointOverlay
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:80: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class WaypointOverlay
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:91: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class WaypointOverlay
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/Minimap.java:7: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: package net.minecraft.client.gui
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/Minimap.java:161: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class Minimap
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/Minimap.java:242: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class Minimap
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/Minimap.java:252: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class Minimap
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/Minimap.java:334: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class Minimap
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:9: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: package net.minecraft.client.gui
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:5: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: package net.minecraft.client.gui
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:93: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:97: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:161: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:204: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:222: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:234: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:266: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:293: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:360: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:395: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:415: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:513: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:524: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:41: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:46: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:48: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:55: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:65: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:111: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:114: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:120: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:121: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:122: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:147: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:152: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:154: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiFont
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:156: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiFont
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/input/Binds.java:5: error: package net.fabricmc.fabric.api.client.keymapping.v1 does not exist
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:3: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: package net.minecraft.client.gui
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiButtons.java:6: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: package net.minecraft.client.gui
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:47: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class HudEditorScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:51: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class HudEditorScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:109: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class HudEditorScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiButtons.java:15: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiButtons
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:5: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: package net.minecraft.client.gui
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:102: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiDraw
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:109: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiDraw
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:114: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiDraw
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:121: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiDraw
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:128: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiDraw
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:148: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiDraw
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:165: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiDraw
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:170: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiDraw
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:194: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiDraw
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:223: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiDraw
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:234: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiDraw
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:240: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class UiDraw
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/Logo.java:3: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: package net.minecraft.client.gui
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/Logo.java:19: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class Logo
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:6: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: package net.minecraft.client.gui
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:95: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class WaypointScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:99: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class WaypointScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:140: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class WaypointScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:8: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: package net.minecraft.client.gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:3: error: cannot find symbol
+  symbol:   class PrimitiveTopology
+  location: package com.mojang.blaze3d
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:5: error: cannot find symbol
+  symbol:   class ColorTargetState
+  location: package com.mojang.blaze3d.pipeline
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:6: error: cannot find symbol
+  symbol:   class DepthStencilState
+  location: package com.mojang.blaze3d.pipeline
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:16: error: package net.fabricmc.fabric.api.client.rendering.v1.level does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:17: error: package net.fabricmc.fabric.api.client.rendering.v1.level does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:18: error: package net.fabricmc.fabric.api.client.rendering.v1.level does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:260: error: package net.minecraft.client.renderer.state.level does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:359: error: cannot find symbol
+  symbol:   class LevelRenderContext
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/TimeChanger.java:5: error: package net.minecraft.world.clock does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/TimeChanger.java:18: error: cannot find symbol
+    public static long apply(Holder<WorldClock> clock, long original) {
+  symbol:   class WorldClock
+  location: class TimeChanger
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/TimeChanger.java:28: error: cannot find symbol
+    private static boolean same(Holder<WorldClock> a, Holder<WorldClock> b) {
+  symbol:   class WorldClock
+  location: class TimeChanger
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/TimeChanger.java:28: error: cannot find symbol
+    private static boolean same(Holder<WorldClock> a, Holder<WorldClock> b) {
+  symbol:   class WorldClock
+  location: class TimeChanger
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:7: error: package net.fabricmc.fabric.api.client.rendering.v1.level does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:8: error: package net.fabricmc.fabric.api.client.rendering.v1.level does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:9: error: package net.fabricmc.fabric.api.client.rendering.v1.level does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:172: error: cannot find symbol
+  symbol:   class LevelRenderContext
+  location: class AirParticles
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/ItemEntityRendererMixin.java:7: error: package net.minecraft.client.renderer.state.level does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/ItemEntityRendererMixin.java:22: error: cannot find symbol
+  symbol:   class CameraRenderState
+  location: class ItemEntityRendererMixin
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/LevelRendererMixin.java:7: error: package net.minecraft.client.renderer.state.level does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/LevelRendererMixin.java:8: error: package net.minecraft.client.renderer.state.level does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/LevelRendererMixin.java:22: error: cannot find symbol
+  symbol:   class LevelRenderState
+  location: class LevelRendererMixin
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/LevelRendererMixin.java:24: error: cannot find symbol
+  symbol:   class CameraRenderState
+  location: class LevelRendererMixin
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/ClientClockManagerMixin.java:4: error: cannot find symbol
+  symbol:   class ClientClockManager
+  location: package net.minecraft.client
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/ClientClockManagerMixin.java:6: error: package net.minecraft.world.clock does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/ClientClockManagerMixin.java:14: error: cannot find symbol
+    private long lava$time(long original, Holder<WorldClock> clock) { return TimeChanger.apply(clock, original); }
+  symbol:   class WorldClock
+  location: class ClientClockManagerMixin
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/ClientClockManagerMixin.java:11: error: cannot find symbol
+  symbol: class ClientClockManager
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:33: error: cannot find symbol
+  symbol:   method setScreen(<null>)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:34: error: cannot find symbol
+        CreateWorldScreen.openFresh(mc, () -> mc.gui.setScreen(null));
+  symbol:   method setScreen(<null>)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:41: error: cannot find symbol
+  symbol:   method screen()
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:64: error: cannot find symbol
+  symbol:   method screen()
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:118: error: cannot find symbol
+  symbol:   method setScreen(HandEditorScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:123: error: cannot find symbol
+  symbol:   method setScreen(<null>)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:165: error: cannot find symbol
+  symbol:   method setScreen(WingsEditorScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:168: error: cannot find symbol
+  symbol:   method screen()
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:169: error: cannot find symbol
+  symbol:   method screen()
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:173: error: cannot find symbol
+  symbol:   method setScreen(<null>)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:300: error: cannot find symbol
+  symbol:   method setScreen(MusicScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:308: error: cannot find symbol
+  symbol:   method setScreen(<null>)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:355: error: cannot find symbol
+  symbol:   method setScreen(MusicScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:357: error: cannot find symbol
+  symbol:   method screen()
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:361: error: cannot find symbol
+  symbol:   method screen()
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:377: error: cannot find symbol
+  symbol:   method setScreen(<null>)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:393: error: cannot find symbol
+  symbol:   method defaultClock()
+  location: class DimensionType
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:394: error: cannot find symbol
+            long shown = clock.map(h -> mc.level.clockManager().getTotalTicks(h)).orElse(-1L);
+  symbol:   method clockManager()
+  location: variable level of type ClientLevel
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:70: error: cannot find symbol
+  symbol:   method text(Font,Component,int,int,int,boolean)
+  location: variable g of type GuiGraphics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:104: error: cannot find symbol
+  symbol:   method screen()
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:136: error: cannot find symbol
+  symbol:   method outline(int,int,int,int,int)
+  location: variable g of type GuiGraphics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:242: error: cannot find symbol
+  symbol:   method item(ItemStack,int,int)
+  location: variable g of type GuiGraphics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:307: error: cannot find symbol
+  symbol:   method item(ItemStack,int,int)
+  location: variable g of type GuiGraphics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:408: error: cannot find symbol
+  symbol:   method extractEntityInInventoryFollowsMouse(GuiGraphics,int,int,int,int,int,float,float,float,LivingEntity)
+  location: class InventoryScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:502: error: cannot find symbol
+  symbol:   method item(ItemStack,int,int)
+  location: variable g of type GuiGraphics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/TargetSnapshot.java:35: error: cannot find symbol
+  symbol:   method screen()
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/input/Binds.java:53: error: cannot find symbol
+  symbol:   variable KeyMappingHelper
+  location: class Binds
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/input/Binds.java:93: error: cannot find symbol
+  symbol:   method screen()
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/input/Binds.java:107: error: cannot find symbol
+            case MENU -> mc.gui.setScreen(ClickGuiScreen.restore());
+  symbol:   method setScreen(ClickGuiScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/input/Binds.java:109: error: cannot find symbol
+            case WAYPOINT_ADD -> { if (mc.player != null) mc.gui.setScreen(new tech.gulp.lavavisual.ui.WaypointScreen(null, null)); }
+  symbol:   method setScreen(WaypointScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/input/Binds.java:110: error: cannot find symbol
+            case WAYPOINTS -> mc.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MAP));
+  symbol:   method setScreen(ClickGuiScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/input/Binds.java:125: error: cannot find symbol
+            case MUSIC -> { mc.gui.setScreen(new tech.gulp.lavavisual.ui.MusicScreen(null)); return; }
+  symbol:   method setScreen(MusicScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:47: error: method does not override or implement a method from a supertype
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:48: error: cannot find symbol
+  symbol: method extractBackground(GuiGraphics,int,int,float)
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:51: error: method does not override or implement a method from a supertype
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:105: error: cannot find symbol
+  symbol: method extractRenderState(GuiGraphics,int,int,float)
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:202: error: cannot find symbol
+  symbol:   method setScreen(Screen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:95: error: method does not override or implement a method from a supertype
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:96: error: cannot find symbol
+  symbol: method extractBackground(GuiGraphics,int,int,float)
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:99: error: method does not override or implement a method from a supertype
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:137: error: cannot find symbol
+  symbol: method extractRenderState(GuiGraphics,int,int,float)
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:155: error: cannot find symbol
+  symbol:   method setScreen(Screen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:60: error: method does not override or implement a method from a supertype
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:60: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
+  symbol:   method extractPanorama(GuiGraphics,float)
   location: class LavaTitleScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:81: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class LavaTitleScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:157: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class LavaTitleScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:171: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class LavaTitleScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:8: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: package net.minecraft.client.gui
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:50: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class WingsEditorScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:56: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class WingsEditorScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:126: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class WingsEditorScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:134: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class WingsEditorScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:150: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class WingsEditorScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:161: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class WingsEditorScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:12: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: package net.minecraft.client.gui
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:128: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:129: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:134: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:159: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:160: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:171: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:176: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:177: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:202: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:203: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:204: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:214: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:220: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:235: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:236: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:268: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:286: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:409: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:437: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:463: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:513: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:64: error: cannot find symbol
+        list.add(new Item(Icons.USER, "Одиночная игра", () -> minecraft.gui.setScreen(new SelectWorldScreen(this))));
+  symbol:   method setScreen(SelectWorldScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:65: error: cannot find symbol
+        list.add(new Item(Icons.SERVER, "Сетевая игра", () -> minecraft.gui.setScreen(new JoinMultiplayerScreen(this))));
+  symbol:   method setScreen(JoinMultiplayerScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:66: error: cannot find symbol
+        list.add(new Item(Icons.SPARKLES, "LavaVisual", () -> minecraft.gui.setScreen(new ClickGuiScreen())));
+  symbol:   method setScreen(ClickGuiScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:67: error: constructor OptionsScreen in class OptionsScreen cannot be applied to given types;
+        list.add(new Item(Icons.SETTINGS, "Настройки", () -> minecraft.gui.setScreen(new OptionsScreen(this, minecraft.options, false))));
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:75: error: cannot find symbol
+  symbol:   method setScreen(Screen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:81: error: method does not override or implement a method from a supertype
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:143: error: cannot find symbol
+        corner(g, Icons.EARTH, "Язык", width - 34, 10, () -> minecraft.gui.setScreen(new LanguageSelectScreen(this, minecraft.options, minecraft.getLanguageManager())), ac, ac2, enter);
+  symbol:   method setScreen(LanguageSelectScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:147: error: cannot find symbol
+  symbol:   method setScreen(TitleScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:50: error: method does not override or implement a method from a supertype
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:51: error: cannot find symbol
+  symbol: method extractBackground(GuiGraphics,int,int,float)
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:56: error: method does not override or implement a method from a supertype
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:123: error: cannot find symbol
+  symbol: method extractRenderState(GuiGraphics,int,int,float)
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:194: error: cannot find symbol
+  symbol:   method setScreen(Screen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:286: error: method does not override or implement a method from a supertype
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:589: error: cannot find symbol
+        button(g, Icons.MOVE, "Редактор расположения", () -> minecraft.gui.setScreen(new HudEditorScreen(this)));
+  symbol:   method setScreen(HudEditorScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:661: error: cannot find symbol
+        action(g, Icons.PENCIL, "Редактор шляпы", bodyX, cursor, half, () -> minecraft.gui.setScreen(new HatEditorScreen(this)));
+  symbol:   method setScreen(HatEditorScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:662: error: cannot find symbol
+        action(g, Icons.PENCIL, "Редактор крыльев", bodyX + half + 8, cursor, half, () -> minecraft.gui.setScreen(new WingsEditorScreen(this)));
+  symbol:   method setScreen(WingsEditorScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:686: error: cannot find symbol
+        button(g, Icons.PENCIL, "Редактировать в игре", () -> minecraft.gui.setScreen(new HandEditorScreen(this)));
+  symbol:   method setScreen(HandEditorScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:786: error: cannot find symbol
+                () -> minecraft.gui.setScreen(new MusicScreen(this)));
+  symbol:   method setScreen(MusicScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:945: error: cannot find symbol
+            button(g, Icons.MOVE, "Переместить на экране", () -> minecraft.gui.setScreen(new HudEditorScreen(this, selected)));
+  symbol:   method setScreen(HudEditorScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:958: error: cannot find symbol
+        button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new HatEditorScreen(this)));
+  symbol:   method setScreen(HatEditorScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:977: error: cannot find symbol
+        button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new WingsEditorScreen(this)));
+  symbol:   method setScreen(WingsEditorScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1101: error: cannot find symbol
+        button(g, Icons.PLUS, "Добавить метку · клавиша " + Binds.keyName(Binds.Action.WAYPOINT_ADD), () -> minecraft.gui.setScreen(new WaypointScreen(this, null)));
+  symbol:   method setScreen(WaypointScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1118: error: cannot find symbol
+            iconButton(g, Icons.PENCIL, bx + bw + 4, y + 7, () -> minecraft.gui.setScreen(new WaypointScreen(this, p)));
+  symbol:   method setScreen(WaypointScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HandEditorScreen.java:50: error: method does not override or implement a method from a supertype
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HandEditorScreen.java:83: error: cannot find symbol
+  symbol: method extractRenderState(GuiGraphics,int,int,float)
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HandEditorScreen.java:108: error: cannot find symbol
+  symbol:   method setScreen(Screen)
+  location: variable gui of type Gui
 > Task :compileJava FAILED
 FAILURE: Build failed with an exception.
 * What went wrong:
 > Compilation failed; see the compiler output below.
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:7: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: package net.minecraft.client.gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:67: error: constructor OptionsScreen in class OptionsScreen cannot be applied to given types;
+          list.add(new Item(Icons.SETTINGS, "Настройки", () -> minecraft.gui.setScreen(new OptionsScreen(this, minecraft.options, false))));
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:48: error: cannot find symbol
+    symbol: method extractBackground(GuiGraphics,int,int,float)
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:105: error: cannot find symbol
+    symbol: method extractRenderState(GuiGraphics,int,int,float)
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:96: error: cannot find symbol
+    symbol: method extractBackground(GuiGraphics,int,int,float)
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:137: error: cannot find symbol
+    symbol: method extractRenderState(GuiGraphics,int,int,float)
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:51: error: cannot find symbol
+    symbol: method extractBackground(GuiGraphics,int,int,float)
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:123: error: cannot find symbol
+    symbol: method extractRenderState(GuiGraphics,int,int,float)
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HandEditorScreen.java:83: error: cannot find symbol
+    symbol: method extractRenderState(GuiGraphics,int,int,float)
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:25: error: cannot find symbol
       public static List<Beam> extract(Minecraft mc, CameraRenderState camera, float partial) {
     symbol:   class CameraRenderState
     location: class WaypointOverlay
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:69: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class WaypointOverlay
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:80: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class WaypointOverlay
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:91: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class WaypointOverlay
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/Minimap.java:7: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: package net.minecraft.client.gui
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/Minimap.java:161: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class Minimap
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/Minimap.java:242: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class Minimap
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/Minimap.java:252: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class Minimap
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/Minimap.java:334: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class Minimap
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:9: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: package net.minecraft.client.gui
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:5: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: package net.minecraft.client.gui
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:93: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:97: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:161: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:204: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:222: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:234: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:266: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:293: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:360: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:395: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:415: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:513: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:524: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:41: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class UiFont
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:46: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class UiFont
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:48: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class UiFont
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:55: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class UiFont
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:65: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class UiFont
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:111: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class UiFont
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:114: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class UiFont
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:3: error: cannot find symbol
+    symbol:   class PrimitiveTopology
+    location: package com.mojang.blaze3d
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:5: error: cannot find symbol
+    symbol:   class ColorTargetState
+    location: package com.mojang.blaze3d.pipeline
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:6: error: cannot find symbol
+    symbol:   class DepthStencilState
+    location: package com.mojang.blaze3d.pipeline
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:359: error: cannot find symbol
+    symbol:   class LevelRenderContext
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/TimeChanger.java:18: error: cannot find symbol
+      public static long apply(Holder<WorldClock> clock, long original) {
+    symbol:   class WorldClock
+    location: class TimeChanger
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/TimeChanger.java:28: error: cannot find symbol
+      private static boolean same(Holder<WorldClock> a, Holder<WorldClock> b) {
+    symbol:   class WorldClock
+    location: class TimeChanger
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/TimeChanger.java:28: error: cannot find symbol
+      private static boolean same(Holder<WorldClock> a, Holder<WorldClock> b) {
+    symbol:   class WorldClock
+    location: class TimeChanger
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:172: error: cannot find symbol
+    symbol:   class LevelRenderContext
+    location: class AirParticles
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/ItemEntityRendererMixin.java:22: error: cannot find symbol
+    symbol:   class CameraRenderState
+    location: class ItemEntityRendererMixin
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/LevelRendererMixin.java:22: error: cannot find symbol
+    symbol:   class LevelRenderState
+    location: class LevelRendererMixin
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/LevelRendererMixin.java:24: error: cannot find symbol
+    symbol:   class CameraRenderState
+    location: class LevelRendererMixin
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/ClientClockManagerMixin.java:4: error: cannot find symbol
+    symbol:   class ClientClockManager
+    location: package net.minecraft.client
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/ClientClockManagerMixin.java:14: error: cannot find symbol
+      private long lava$time(long original, Holder<WorldClock> clock) { return TimeChanger.apply(clock, original); }
+    symbol:   class WorldClock
+    location: class ClientClockManagerMixin
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/input/Binds.java:53: error: cannot find symbol
+    symbol:   variable KeyMappingHelper
+    location: class Binds
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:47: error: method does not override or implement a method from a supertype
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:51: error: method does not override or implement a method from a supertype
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:95: error: method does not override or implement a method from a supertype
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:99: error: method does not override or implement a method from a supertype
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:60: error: method does not override or implement a method from a supertype
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:81: error: method does not override or implement a method from a supertype
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:50: error: method does not override or implement a method from a supertype
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:56: error: method does not override or implement a method from a supertype
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:286: error: method does not override or implement a method from a supertype
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HandEditorScreen.java:50: error: method does not override or implement a method from a supertype
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/ClientClockManagerMixin.java:11: error: cannot find symbol
+    symbol: class ClientClockManager
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:33: error: cannot find symbol
+    symbol:   method setScreen(<null>)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:34: error: cannot find symbol
+          CreateWorldScreen.openFresh(mc, () -> mc.gui.setScreen(null));
+    symbol:   method setScreen(<null>)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:41: error: cannot find symbol
+    symbol:   method screen()
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:64: error: cannot find symbol
+    symbol:   method screen()
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:118: error: cannot find symbol
+    symbol:   method setScreen(HandEditorScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:123: error: cannot find symbol
+    symbol:   method setScreen(<null>)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:165: error: cannot find symbol
+    symbol:   method setScreen(WingsEditorScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:168: error: cannot find symbol
+    symbol:   method screen()
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:169: error: cannot find symbol
+    symbol:   method screen()
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:173: error: cannot find symbol
+    symbol:   method setScreen(<null>)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:300: error: cannot find symbol
+    symbol:   method setScreen(MusicScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:308: error: cannot find symbol
+    symbol:   method setScreen(<null>)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:355: error: cannot find symbol
+    symbol:   method setScreen(MusicScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:357: error: cannot find symbol
+    symbol:   method screen()
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:361: error: cannot find symbol
+    symbol:   method screen()
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:377: error: cannot find symbol
+    symbol:   method setScreen(<null>)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:393: error: cannot find symbol
+    symbol:   method defaultClock()
+    location: class DimensionType
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:394: error: cannot find symbol
+              long shown = clock.map(h -> mc.level.clockManager().getTotalTicks(h)).orElse(-1L);
+    symbol:   method clockManager()
+    location: variable level of type ClientLevel
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:70: error: cannot find symbol
+    symbol:   method text(Font,Component,int,int,int,boolean)
+    location: variable g of type GuiGraphics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:104: error: cannot find symbol
+    symbol:   method screen()
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:136: error: cannot find symbol
+    symbol:   method outline(int,int,int,int,int)
+    location: variable g of type GuiGraphics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:242: error: cannot find symbol
+    symbol:   method item(ItemStack,int,int)
+    location: variable g of type GuiGraphics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:307: error: cannot find symbol
+    symbol:   method item(ItemStack,int,int)
+    location: variable g of type GuiGraphics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:408: error: cannot find symbol
+    symbol:   method extractEntityInInventoryFollowsMouse(GuiGraphics,int,int,int,int,int,float,float,float,LivingEntity)
+    location: class InventoryScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:502: error: cannot find symbol
+    symbol:   method item(ItemStack,int,int)
+    location: variable g of type GuiGraphics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/TargetSnapshot.java:35: error: cannot find symbol
+    symbol:   method screen()
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/input/Binds.java:93: error: cannot find symbol
+    symbol:   method screen()
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/input/Binds.java:107: error: cannot find symbol
+              case MENU -> mc.gui.setScreen(ClickGuiScreen.restore());
+    symbol:   method setScreen(ClickGuiScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/input/Binds.java:109: error: cannot find symbol
+              case WAYPOINT_ADD -> { if (mc.player != null) mc.gui.setScreen(new tech.gulp.lavavisual.ui.WaypointScreen(null, null)); }
+    symbol:   method setScreen(WaypointScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/input/Binds.java:110: error: cannot find symbol
+              case WAYPOINTS -> mc.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MAP));
+    symbol:   method setScreen(ClickGuiScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/input/Binds.java:125: error: cannot find symbol
+              case MUSIC -> { mc.gui.setScreen(new tech.gulp.lavavisual.ui.MusicScreen(null)); return; }
+    symbol:   method setScreen(MusicScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:202: error: cannot find symbol
+    symbol:   method setScreen(Screen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:155: error: cannot find symbol
+    symbol:   method setScreen(Screen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:60: error: cannot find symbol
+    symbol:   method extractPanorama(GuiGraphics,float)
+    location: class LavaTitleScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:64: error: cannot find symbol
+          list.add(new Item(Icons.USER, "Одиночная игра", () -> minecraft.gui.setScreen(new SelectWorldScreen(this))));
+    symbol:   method setScreen(SelectWorldScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:65: error: cannot find symbol
+          list.add(new Item(Icons.SERVER, "Сетевая игра", () -> minecraft.gui.setScreen(new JoinMultiplayerScreen(this))));
+    symbol:   method setScreen(JoinMultiplayerScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:66: error: cannot find symbol
+          list.add(new Item(Icons.SPARKLES, "LavaVisual", () -> minecraft.gui.setScreen(new ClickGuiScreen())));
+    symbol:   method setScreen(ClickGuiScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:75: error: cannot find symbol
+    symbol:   method setScreen(Screen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:143: error: cannot find symbol
+          corner(g, Icons.EARTH, "Язык", width - 34, 10, () -> minecraft.gui.setScreen(new LanguageSelectScreen(this, minecraft.options, minecraft.getLanguageManager())), ac, ac2, enter);
+    symbol:   method setScreen(LanguageSelectScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:147: error: cannot find symbol
+    symbol:   method setScreen(TitleScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:194: error: cannot find symbol
+    symbol:   method setScreen(Screen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:589: error: cannot find symbol
+          button(g, Icons.MOVE, "Редактор расположения", () -> minecraft.gui.setScreen(new HudEditorScreen(this)));
+    symbol:   method setScreen(HudEditorScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:661: error: cannot find symbol
+          action(g, Icons.PENCIL, "Редактор шляпы", bodyX, cursor, half, () -> minecraft.gui.setScreen(new HatEditorScreen(this)));
+    symbol:   method setScreen(HatEditorScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:662: error: cannot find symbol
+          action(g, Icons.PENCIL, "Редактор крыльев", bodyX + half + 8, cursor, half, () -> minecraft.gui.setScreen(new WingsEditorScreen(this)));
+    symbol:   method setScreen(WingsEditorScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:686: error: cannot find symbol
+          button(g, Icons.PENCIL, "Редактировать в игре", () -> minecraft.gui.setScreen(new HandEditorScreen(this)));
+    symbol:   method setScreen(HandEditorScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:786: error: cannot find symbol
+                  () -> minecraft.gui.setScreen(new MusicScreen(this)));
+    symbol:   method setScreen(MusicScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:945: error: cannot find symbol
+              button(g, Icons.MOVE, "Переместить на экране", () -> minecraft.gui.setScreen(new HudEditorScreen(this, selected)));
+    symbol:   method setScreen(HudEditorScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:958: error: cannot find symbol
+          button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new HatEditorScreen(this)));
+    symbol:   method setScreen(HatEditorScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:977: error: cannot find symbol
+          button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new WingsEditorScreen(this)));
+    symbol:   method setScreen(WingsEditorScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1101: error: cannot find symbol
+          button(g, Icons.PLUS, "Добавить метку · клавиша " + Binds.keyName(Binds.Action.WAYPOINT_ADD), () -> minecraft.gui.setScreen(new WaypointScreen(this, null)));
+    symbol:   method setScreen(WaypointScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1118: error: cannot find symbol
+              iconButton(g, Icons.PENCIL, bx + bw + 4, y + 7, () -> minecraft.gui.setScreen(new WaypointScreen(this, p)));
+    symbol:   method setScreen(WaypointScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/HandEditorScreen.java:108: error: cannot find symbol
+    symbol:   method setScreen(Screen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:8: error: package net.minecraft.client.renderer.state.level does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/input/Binds.java:5: error: package net.fabricmc.fabric.api.client.keymapping.v1 does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:16: error: package net.fabricmc.fabric.api.client.rendering.v1.level does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:17: error: package net.fabricmc.fabric.api.client.rendering.v1.level does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:18: error: package net.fabricmc.fabric.api.client.rendering.v1.level does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:260: error: package net.minecraft.client.renderer.state.level does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/TimeChanger.java:5: error: package net.minecraft.world.clock does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:7: error: package net.fabricmc.fabric.api.client.rendering.v1.level does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:8: error: package net.fabricmc.fabric.api.client.rendering.v1.level does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:9: error: package net.fabricmc.fabric.api.client.rendering.v1.level does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/ItemEntityRendererMixin.java:7: error: package net.minecraft.client.renderer.state.level does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/LevelRendererMixin.java:7: error: package net.minecraft.client.renderer.state.level does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/LevelRendererMixin.java:8: error: package net.minecraft.client.renderer.state.level does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/mixin/ClientClockManagerMixin.java:6: error: package net.minecraft.world.clock does not exist
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
 200
