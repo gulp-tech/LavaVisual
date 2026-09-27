@@ -6,8 +6,8 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.input.MouseButtonEvent;
+import tech.gulp.lavavisual.compat.KeyEvent;
+import tech.gulp.lavavisual.compat.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 import tech.gulp.lavavisual.LavaVisualClient;
@@ -142,15 +142,17 @@ public final class WaypointScreen extends Screen {
         UiDraw.round(g, x, y, w, 18, 6, focused ? 0xFF2A2E37 : 0xFF1E2128);
         if (focused) UiDraw.roundH(g, x + 6, y + 17, w - 12, 1, 0, accent, accent2);
     }
-    @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+    @Override public boolean mouseClicked(double lavaX, double lavaY, int lavaButton) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
         if (event.button() == 0 && buttons.click(event.x(), event.y())) return true;
         if (event.button() == 0) for (Swatch s : swatches)
             if (event.x() >= s.x && event.x() < s.x + s.w && event.y() >= s.y && event.y() < s.y + 14) { color = s.color; return true; }
-        return super.mouseClicked(event, doubleClick);
+        return super.mouseClicked(event.x(), event.y(), event.button());
     }
-    @Override public boolean keyPressed(KeyEvent event) {
+    @Override public boolean keyPressed(int lavaKey, int lavaScancode, int lavaModifiers) {
+        KeyEvent event = new KeyEvent(lavaKey, lavaScancode, lavaModifiers);
         if (event.key() == GLFW.GLFW_KEY_ENTER || event.key() == GLFW.GLFW_KEY_KP_ENTER) { save(); return true; }
-        return super.keyPressed(event);
+        return super.keyPressed(event.key(), event.scancode(), event.modifiers());
     }
     @Override public void onClose() { minecraft.setScreen(parent); }
 }

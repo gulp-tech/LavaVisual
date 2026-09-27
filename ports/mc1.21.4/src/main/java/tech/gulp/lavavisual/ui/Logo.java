@@ -1,7 +1,6 @@
 package tech.gulp.lavavisual.ui;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -26,7 +25,7 @@ public final class Logo {
             UiFont.snap(g, x, y);
             g.pose().translate(x, y);
             g.pose().scale(2f / h);
-            g.blit(RenderPipelines.GUI_TEXTURED, ids[i], 0, 0, 0, 0, tw, th, tw, th, tw, th, color);
+            g.blit(net.minecraft.client.renderer.RenderType::guiTextured, ids[i], 0, 0, 0, 0, tw, th, tw, th, tw, th, color);
         } finally { g.pose().popMatrix(); }
     }
 }

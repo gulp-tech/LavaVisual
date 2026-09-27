@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import tech.gulp.lavavisual.compat.Submitter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
@@ -45,7 +45,7 @@ public abstract class HandViewMixin {
     @WrapMethod(method = "renderArmWithItem")
     private void lava$position(AbstractClientPlayer player, float delta, float pitch, InteractionHand hand,
                                float swing, ItemStack item, float equipped, PoseStack pose,
-                               SubmitNodeCollector collector, int light, Operation<Void> original) {
+                               Submitter collector, int light, Operation<Void> original) {
         var config = LavaVisualClient.config();
         boolean styled = SwingStyles.active();
         if (!config.viewModelEnabled && !styled) {

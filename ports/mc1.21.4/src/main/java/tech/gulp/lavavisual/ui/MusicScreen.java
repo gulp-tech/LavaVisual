@@ -5,9 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.RenderPipelines;
+import tech.gulp.lavavisual.compat.KeyEvent;
+import tech.gulp.lavavisual.compat.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 import tech.gulp.lavavisual.LavaVisualClient;
@@ -66,7 +65,7 @@ public final class MusicScreen extends Screen {
         var cover = Covers.get(minecraft, track);
         if (cover != null) {
             UiDraw.round(g, cx - 1, cy - 1, cs + 2, cs + 2, 8, 0x70000000);
-            g.blit(RenderPipelines.GUI_TEXTURED, cover, cx, cy, 0f, 0f, cs, cs, Covers.SIZE, Covers.SIZE, Covers.SIZE, Covers.SIZE, 0xFFFFFFFF);
+            g.blit(net.minecraft.client.renderer.RenderType::guiTextured, cover, cx, cy, 0f, 0f, cs, cs, Covers.SIZE, Covers.SIZE, Covers.SIZE, Covers.SIZE, 0xFFFFFFFF);
         } else HudRenderer.disc(g, cx + cs / 2.0, cy + cs / 2.0, cs / 2.0, angle, ac, ac2);
 
         int ix = cx + cs + 14, iw = px + pw - 14 - ix;
@@ -174,7 +173,8 @@ public final class MusicScreen extends Screen {
         LavaVisualClient.config().musicVolume = Math.clamp((mouseX - volX) / volW, 0, 1);
     }
 
-    @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+    @Override public boolean mouseClicked(double lavaX, double lavaY, int lavaButton) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
         if (event.button() == 0 && onListBar(event.x(), event.y())) {
             // Scrollbar: drag the thumb from where it was grabbed, or jump to a point of the track.
             listGrab = event.y() >= listBarY && event.y() < listBarY + listBarH ? event.y() - listBarY : listBarH / 2.0;
@@ -188,7 +188,7 @@ public final class MusicScreen extends Screen {
             return true;
         }
         if (event.button() == 0 && click(event.x(), event.y())) return true;
-        return super.mouseClicked(event, doubleClick);
+        return super.mouseClicked(event.x(), event.y(), event.button());
     }
     private boolean listPress, listDragged, listBar;
     private int listBarY, listBarH, listMax;
@@ -214,7 +214,8 @@ public final class MusicScreen extends Screen {
             if (x >= hit.x() && x < hit.x() + hit.w() && y >= hit.y() && y < hit.y() + hit.h()) { hit.action().run(); return true; }
         return false;
     }
-    @Override public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+    @Override public boolean mouseDragged(double lavaX, double lavaY, int lavaButton, double dx, double dy) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
         if (listBar) { dragListBar(event.y()); return true; }
         if (listPress) {
             if (Math.abs(event.y() - pressY) > 4) listDragged = true;
@@ -223,9 +224,10 @@ public final class MusicScreen extends Screen {
         }
         if (seeking) { seekTo(event.x()); return true; }
         if (volumeDrag) { volumeTo(event.x()); return true; }
-        return super.mouseDragged(event, dx, dy);
+        return super.mouseDragged(event.x(), event.y(), event.button(), dx, dy);
     }
-    @Override public boolean mouseReleased(MouseButtonEvent event) {
+    @Override public boolean mouseReleased(double lavaX, double lavaY, int lavaButton) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
         if (listBar) { listBar = false; return true; }
         if (listPress) {
             listPress = false;
@@ -234,7 +236,7 @@ public final class MusicScreen extends Screen {
         }
         if (seeking) { seeking = false; MusicPlayer.seek(seekPreview); return true; }
         if (volumeDrag) { volumeDrag = false; LavaVisualClient.save(); return true; }
-        return super.mouseReleased(event);
+        return super.mouseReleased(event.x(), event.y(), event.button());
     }
     @Override public boolean mouseScrolled(double x, double y, double horizontal, double vertical) {
         if (x >= listX && x < listX + listW && y >= listY && y < listY + listH) { scroll -= (int) Math.round(vertical * ROW); return true; }
@@ -245,7 +247,8 @@ public final class MusicScreen extends Screen {
         }
         return super.mouseScrolled(x, y, horizontal, vertical);
     }
-    @Override public boolean keyPressed(KeyEvent event) {
+    @Override public boolean keyPressed(int lavaKey, int lavaScancode, int lavaModifiers) {
+        KeyEvent event = new KeyEvent(lavaKey, lavaScancode, lavaModifiers);
         var c = LavaVisualClient.config();
         switch (event.key()) {
             case GLFW.GLFW_KEY_SPACE -> MusicPlayer.toggle();
@@ -258,7 +261,7 @@ public final class MusicScreen extends Screen {
             default -> {
                 var open = Binds.mapping(Binds.Action.MUSIC);
                 if (open != null && !open.isUnbound() && open.matches(event)) { onClose(); return true; }
-                return super.keyPressed(event);
+                return super.keyPressed(event.key(), event.scancode(), event.modifiers());
             }
         }
         return true;

@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -171,7 +170,7 @@ public final class HudRenderer {
         if (cover != null) {
             UiDraw.round(g, cx - 1, cy - 1, cs + 2, cs + 2, 6, 0x70000000);
             int n = tech.gulp.lavavisual.audio.Covers.SIZE;
-            g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, cover, cx, cy, 0f, 0f, cs, cs, n, n, n, n, 0xFFFFFFFF);
+            g.blit(net.minecraft.client.renderer.RenderType::guiTextured, cover, cx, cy, 0f, 0f, cs, cs, n, n, n, n, 0xFFFFFFFF);
         } else disc(g, cx + cs / 2.0, cy + cs / 2.0, cs / 2.0, discAngle, accent, accent2);
         int tx = cx + cs + 8, tw = bw - tx - 8;
         net.minecraft.client.gui.Font font = mc.font;
@@ -300,7 +299,7 @@ public final class HudRenderer {
             UiDraw.round(g, x, y, 20, 20, 4, 0xF21D2027);
             ItemStack stack = player == null ? ItemStack.EMPTY : player.getItemBySlot(ARMOR[i]);
             if (stack.isEmpty()) {
-                g.blitSprite(RenderPipelines.GUI_TEXTURED, ResourceLocation.fromNamespaceAndPath("minecraft", ARMOR_SPRITES[i]), x + 2, y + 2, 16, 16, 0x66FFFFFF);
+                g.blitSprite(net.minecraft.client.renderer.RenderType::guiTextured, ResourceLocation.fromNamespaceAndPath("minecraft", ARMOR_SPRITES[i]), x + 2, y + 2, 16, 16, 0x66FFFFFF);
                 UiFont.centered(g, font, "—", x + 10, y + 22, 0xFF5D6472, Face.SMALL);
                 continue;
             }
@@ -428,8 +427,8 @@ public final class HudRenderer {
         int white = UiDraw.alpha(0xFFFFFF, fade);
         LivingEntity living = target.entity();
         if (target.skin() != null) {
-            g.blit(RenderPipelines.GUI_TEXTURED, target.skin(), 10, 10, 8, 8, 32, 32, 8, 8, 64, 64, white);
-            g.blit(RenderPipelines.GUI_TEXTURED, target.skin(), 10, 10, 40, 8, 32, 32, 8, 8, 64, 64, white);
+            g.blit(net.minecraft.client.renderer.RenderType::guiTextured, target.skin(), 10, 10, 8, 8, 32, 32, 8, 8, 64, 64, white);
+            g.blit(net.minecraft.client.renderer.RenderType::guiTextured, target.skin(), 10, 10, 40, 8, 32, 32, 8, 8, 64, 64, white);
         } else if (!(living != null && !living.isRemoved() && fade > 0.6 && entityAvatar(g, living, 9, 9, 34))) {
             UiDraw.round(g, 14, 14, 24, 24, 12, UiDraw.alpha(accent, 0.16 * fade));
             UiFont.icon(g, font, living == null ? Icons.USER : Icons.GHOST, 21, 21, UiDraw.alpha(accent, fade));
@@ -496,7 +495,7 @@ public final class HudRenderer {
                 UiDraw.roundV(g, sx, sy, 19, 19, 4, UiDraw.alpha(UiDraw.mix(PANEL, 0xFFFFFF, 0.05), w.opacity * fade), UiDraw.alpha(PANEL, w.opacity * fade));
                 ItemStack stack = gear[i];
                 if (stack.isEmpty()) {
-                    if (i < 4) g.blitSprite(RenderPipelines.GUI_TEXTURED, ResourceLocation.fromNamespaceAndPath("minecraft", ARMOR_SPRITES[i]), sx + 2, sy + 2, 15, 15, UiDraw.alpha(0xFFFFFF, 0.3 * fade));
+                    if (i < 4) g.blitSprite(net.minecraft.client.renderer.RenderType::guiTextured, ResourceLocation.fromNamespaceAndPath("minecraft", ARMOR_SPRITES[i]), sx + 2, sy + 2, 15, 15, UiDraw.alpha(0xFFFFFF, 0.3 * fade));
                     continue;
                 }
                 g.renderItem(stack, sx + 2, sy + 1);

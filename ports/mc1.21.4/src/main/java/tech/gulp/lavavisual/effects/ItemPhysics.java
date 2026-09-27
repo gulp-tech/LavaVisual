@@ -3,7 +3,7 @@ package tech.gulp.lavavisual.effects;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.HashMap;
 import java.util.Map;
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import tech.gulp.lavavisual.compat.Submitter;
 import net.minecraft.client.renderer.entity.ItemEntityRenderer;
 import net.minecraft.client.renderer.entity.state.ItemEntityRenderState;
 import net.minecraft.util.RandomSource;
@@ -36,7 +36,7 @@ public final class ItemPhysics {
     public static void capture(ItemEntity entity, ItemEntityRenderState state) {
         ((Extra) (Object) state).lava$physics(entity.getId(), entity.onGround(), entity.isInWater());
     }
-    public static boolean submit(ItemEntityRenderState s, PoseStack pose, SubmitNodeCollector collector) {
+    public static boolean submit(ItemEntityRenderState s, PoseStack pose, Submitter collector) {
         var c = LavaVisualClient.config();
         if (!c.itemPhysics || s.item.isEmpty()) return false;
         Extra extra = (Extra) (Object) s;

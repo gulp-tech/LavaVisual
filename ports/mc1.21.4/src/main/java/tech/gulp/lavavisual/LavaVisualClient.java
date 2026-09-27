@@ -2,8 +2,7 @@ package tech.gulp.lavavisual;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -176,12 +175,12 @@ public final class LavaVisualClient implements ClientModInitializer {
                 STATE.coordinates = "X " + pos.getX() + "  Y " + pos.getY() + "  Z " + pos.getZ();
             }
         });
-        HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, id("widgets"), (g, delta) -> { HudRenderer.partial = delta.getGameTimeDeltaPartialTick(false); HudRenderer.draw(g, false, null); });
-        HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, original -> (g, delta) -> {
+        HudRenderCallback.EVENT.register((g, delta) -> {
+            HudRenderer.partial = delta.getGameTimeDeltaPartialTick(false);
+            HudRenderer.draw(g, false, null);
             Minecraft client = Minecraft.getInstance();
-            if (!config.crosshairEnabled || client.player == null || client.player.isSpectator()
-                    || !client.options.getCameraType().isFirstPerson()) original.render(g, delta);
-            else HudRenderer.crosshair(g);
+            if (config.crosshairEnabled && client.player != null && !client.player.isSpectator()
+                    && client.options.getCameraType().isFirstPerson()) HudRenderer.crosshair(g);
         });
     }
 }

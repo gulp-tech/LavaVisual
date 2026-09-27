@@ -11,9 +11,9 @@ import java.util.Set;
 import java.util.function.DoubleConsumer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.input.MouseButtonEvent;
+import tech.gulp.lavavisual.compat.CharacterEvent;
+import tech.gulp.lavavisual.compat.KeyEvent;
+import tech.gulp.lavavisual.compat.MouseButtonEvent;
 import com.mojang.blaze3d.platform.InputConstants;
 import org.lwjgl.glfw.GLFW;
 import tech.gulp.lavavisual.config.ColorMath;
@@ -1288,7 +1288,8 @@ public final class ClickGuiScreen extends Screen {
         sliders.add(new Slider(x, y + 8, w, 0, 1, setter));
         cursor += 28;
     }
-    @Override public boolean keyPressed(KeyEvent event) {
+    @Override public boolean keyPressed(int lavaKey, int lavaScancode, int lavaModifiers) {
+        KeyEvent event = new KeyEvent(lavaKey, lavaScancode, lavaModifiers);
         if (capturing != null) {
             if (event.key() == GLFW.GLFW_KEY_ESCAPE) capturing = null;
             else if (event.key() == GLFW.GLFW_KEY_BACKSPACE || event.key() == GLFW.GLFW_KEY_DELETE) { Binds.set(capturing, InputConstants.UNKNOWN, minecraft); capturing = null; }
@@ -1316,10 +1317,11 @@ public final class ClickGuiScreen extends Screen {
         }
         var menuKey = Binds.mapping(Binds.Action.MENU);
         if (menuKey != null && !menuKey.isUnbound() && menuKey.matches(event) && dragging == null) { onClose(); return true; }
-        return super.keyPressed(event);
+        return super.keyPressed(event.key(), event.scancode(), event.modifiers());
     }
     /** Typing anywhere in the menu starts a search. */
-    @Override public boolean charTyped(CharacterEvent event) {
+    @Override public boolean charTyped(char lavaChar, int lavaModifiers) {
+        CharacterEvent event = new CharacterEvent(lavaChar, lavaModifiers);
         if (capturing != null) return true;
         int cp = event.codepoint();
         if (Character.isISOControl(cp) || !Character.isDefined(cp)) return false;
@@ -1344,12 +1346,13 @@ public final class ClickGuiScreen extends Screen {
     }
     /** Opens the menu with a search already typed (UI smoke test). */
     public ClickGuiScreen withSearch(String text) { setQuery(text); searchFocused = true; return this; }
-    @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+    @Override public boolean mouseClicked(double lavaX, double lavaY, int lavaButton) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
         if (capturing != null) {
             if (event.button() >= 2) { Binds.set(capturing, InputConstants.Type.MOUSE.getOrCreate(event.button()), minecraft); capturing = null; return true; }
             if (event.button() == 1) { capturing = null; return true; }
         }
-        if (event.button() != 0) return super.mouseClicked(event, doubleClick);
+        if (event.button() != 0) return super.mouseClicked(event.x(), event.y(), event.button());
         double ux = event.x() / renderScale, uy = event.y() / renderScale;
         if (onBar(ux, uy)) {
             // On the thumb: drag it from where it was grabbed; on the track: jump there and keep dragging.
@@ -1378,7 +1381,7 @@ public final class ClickGuiScreen extends Screen {
             if (doubleClick) { c.menuX = 0.5; c.menuY = 0.5; changed(); return true; }
             moving = true; grabX = ux - left; grabY = uy - top; return true;
         }
-        return super.mouseClicked(event, doubleClick);
+        return super.mouseClicked(event.x(), event.y(), event.button());
     }
     /** Header strip (without the close button) and the logo block move the menu; double-click centres it. */
     private boolean grabZone(int x, int y) {
@@ -1396,7 +1399,8 @@ public final class ClickGuiScreen extends Screen {
         double span = Math.max(1, clipBottom - clipTop - barH);
         scroll = Math.clamp((uy - barGrab - clipTop) / span * barMax, 0, barMax);
     }
-    @Override public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+    @Override public boolean mouseDragged(double lavaX, double lavaY, int lavaButton, double dx, double dy) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
         if (barDragging) { dragBar(event.y() / renderScale); return true; }
         if (touching) {
             double uy = event.y() / renderScale;
@@ -1411,10 +1415,11 @@ public final class ClickGuiScreen extends Screen {
             c.menuY = freeH > 0 ? Math.clamp(ny / freeH, 0, 1) : 0.5;
             return true;
         }
-        if (dragging == null) return super.mouseDragged(event, dx, dy);
+        if (dragging == null) return super.mouseDragged(event.x(), event.y(), event.button(), dx, dy);
         dragging.set((event.x() / renderScale)); return true;
     }
-    @Override public boolean mouseReleased(MouseButtonEvent event) {
+    @Override public boolean mouseReleased(double lavaX, double lavaY, int lavaButton) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
         if (barDragging) { barDragging = false; return true; }
         if (touching) {
             touching = false;
@@ -1425,7 +1430,7 @@ public final class ClickGuiScreen extends Screen {
         }
         if (moving) { moving = false; changed(); return true; }
         if (dragging != null) { dragging = null; changed(); return true; }
-        return super.mouseReleased(event);
+        return super.mouseReleased(event.x(), event.y(), event.button());
     }
     @Override public boolean mouseScrolled(double x, double y, double horizontal, double vertical) {
         x /= renderScale; y /= renderScale;

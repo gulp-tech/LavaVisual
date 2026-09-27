@@ -8,8 +8,8 @@ import java.util.function.IntUnaryOperator;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.input.MouseButtonEvent;
+import tech.gulp.lavavisual.compat.KeyEvent;
+import tech.gulp.lavavisual.compat.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import tech.gulp.lavavisual.LavaVisualClient;
 import tech.gulp.lavavisual.effects.Hats;
@@ -163,24 +163,28 @@ public final class HatEditorScreen extends Screen {
         UiFont.text(g, font, title, x + (w - tw) / 2, cursor + 6, primary ? 0xFFFFFFFF : 0xFFE8EAF0, tw + 2, face);
         hits.add(new Hit(x, cursor, w, 20, action));
     }
-    @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+    @Override public boolean mouseClicked(double lavaX, double lavaY, int lavaButton) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
         if (event.button() == 0) {
             for (Bar bar : bars) if (event.x() >= bar.x - 4 && event.x() <= bar.x + bar.w + 4 && event.y() >= bar.y && event.y() < bar.y + 16) {
                 dragging = bar; bar.set(event.x()); return true;
             }
             for (Hit hit : hits) if (over((int) event.x(), (int) event.y(), hit.x, hit.y, hit.w, hit.h)) { hit.action.run(); LavaVisualClient.save(); return true; }
         }
-        return super.mouseClicked(event, doubleClick);
+        return super.mouseClicked(event.x(), event.y(), event.button());
     }
-    @Override public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
-        if (dragging == null) return super.mouseDragged(event, dx, dy);
+    @Override public boolean mouseDragged(double lavaX, double lavaY, int lavaButton, double dx, double dy) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
+        if (dragging == null) return super.mouseDragged(event.x(), event.y(), event.button(), dx, dy);
         dragging.set(event.x()); return true;
     }
-    @Override public boolean mouseReleased(MouseButtonEvent event) {
+    @Override public boolean mouseReleased(double lavaX, double lavaY, int lavaButton) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
         if (dragging != null) { dragging = null; LavaVisualClient.save(); return true; }
-        return super.mouseReleased(event);
+        return super.mouseReleased(event.x(), event.y(), event.button());
     }
-    @Override public boolean keyPressed(KeyEvent event) { return super.keyPressed(event); }
+    @Override public boolean keyPressed(int lavaKey, int lavaScancode, int lavaModifiers) {
+        KeyEvent event = new KeyEvent(lavaKey, lavaScancode, lavaModifiers); return super.keyPressed(event.key(), event.scancode(), event.modifiers()); }
     @Override public void onClose() { minecraft.setScreen(parent); }
     @Override public boolean isPauseScreen() { return false; }
 }

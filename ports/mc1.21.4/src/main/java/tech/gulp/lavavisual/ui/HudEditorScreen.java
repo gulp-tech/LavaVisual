@@ -2,8 +2,8 @@ package tech.gulp.lavavisual.ui;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.input.MouseButtonEvent;
+import tech.gulp.lavavisual.compat.KeyEvent;
+import tech.gulp.lavavisual.compat.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 import tech.gulp.lavavisual.LavaVisualClient;
@@ -128,8 +128,9 @@ public final class HudEditorScreen extends Screen {
         LavaVisualClient.save();
     }
 
-    @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (event.button() != 0) return super.mouseClicked(event, doubleClick);
+    @Override public boolean mouseClicked(double lavaX, double lavaY, int lavaButton) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
+        if (event.button() != 0) return super.mouseClicked(event.x(), event.y(), event.button());
         if (buttons.click(event.x(), event.y())) return true;
         if (onHandle(selected, event.x(), event.y())) {
             resizing = true; startScale = HudRenderer.scale(widget(selected));
@@ -145,10 +146,11 @@ public final class HudEditorScreen extends Screen {
             return true;
         }
         selected = null;
-        return super.mouseClicked(event, doubleClick);
+        return super.mouseClicked(event.x(), event.y(), event.button());
     }
-    @Override public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
-        if (selected == null) return super.mouseDragged(event, dx, dy);
+    @Override public boolean mouseDragged(double lavaX, double lavaY, int lavaButton, double dx, double dy) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
+        if (selected == null) return super.mouseDragged(event.x(), event.y(), event.button(), dx, dy);
         var widget = widget(selected);
         if (resizing) {
             double span = (event.x() - anchorX) + (event.y() - anchorY);
@@ -160,7 +162,7 @@ public final class HudEditorScreen extends Screen {
             }
             return true;
         }
-        if (!moving) return super.mouseDragged(event, dx, dy);
+        if (!moving) return super.mouseDragged(event.x(), event.y(), event.button(), dx, dy);
         int w = ww(selected), h = wh(selected);
         double x = event.x() - offsetX, y = event.y() - offsetY;
         // Snap to the screen centre and edges.
@@ -172,9 +174,10 @@ public final class HudEditorScreen extends Screen {
         widget.y = HudConfig.clamp(y / Math.max(1, height - h));
         return true;
     }
-    @Override public boolean mouseReleased(MouseButtonEvent event) {
+    @Override public boolean mouseReleased(double lavaX, double lavaY, int lavaButton) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
         if (moving || resizing) { moving = resizing = false; guideX = guideY = false; LavaVisualClient.save(); return true; }
-        return super.mouseReleased(event);
+        return super.mouseReleased(event.x(), event.y(), event.button());
     }
     @Override public boolean mouseScrolled(double x, double y, double horizontal, double vertical) {
         String id = widgetAt(x, y);
@@ -185,7 +188,8 @@ public final class HudEditorScreen extends Screen {
         setScale(id, HudRenderer.scale(widget(id)) + Math.signum(vertical) * step);
         return true;
     }
-    @Override public boolean keyPressed(KeyEvent event) {
+    @Override public boolean keyPressed(int lavaKey, int lavaScancode, int lavaModifiers) {
+        KeyEvent event = new KeyEvent(lavaKey, lavaScancode, lavaModifiers);
         if (selected != null) {
             int dx = event.key() == GLFW.GLFW_KEY_LEFT ? -1 : event.key() == GLFW.GLFW_KEY_RIGHT ? 1 : 0;
             int dy = event.key() == GLFW.GLFW_KEY_UP ? -1 : event.key() == GLFW.GLFW_KEY_DOWN ? 1 : 0;
@@ -197,7 +201,7 @@ public final class HudEditorScreen extends Screen {
                 return true;
             }
         }
-        return super.keyPressed(event);
+        return super.keyPressed(event.key(), event.scancode(), event.modifiers());
     }
     @Override public void onClose() { LavaVisualClient.save(); minecraft.setScreen(parent); }
     @Override public boolean isPauseScreen() { return false; }

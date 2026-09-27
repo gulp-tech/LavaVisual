@@ -5,7 +5,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import tech.gulp.lavavisual.compat.Frames;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -22,7 +22,7 @@ public final class WaypointOverlay {
     private static volatile List<Label> labels = List.of();
 
     /** Runs during level extraction; returns beams for the cosmetics pass and stores labels for the HUD. */
-    public static List<Beam> extract(Minecraft mc, CameraRenderState camera, float partial) {
+    public static List<Beam> extract(Minecraft mc, Frames.CameraState camera, float partial) {
         var c = LavaVisualClient.config();
         if (mc.level == null || mc.player == null || camera == null || camera.pos == null || (!c.waypointBeams && !c.waypointLabels)) { labels = List.of(); return List.of(); }
         List<Waypoints.Point> points = Waypoints.here(mc);

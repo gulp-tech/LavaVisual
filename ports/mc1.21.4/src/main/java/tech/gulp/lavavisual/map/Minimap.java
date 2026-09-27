@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -184,7 +183,7 @@ public final class Minimap {
         if (live) {
             float u = (float) (px - originX - view / 2), v = (float) (pz - originZ - view / 2);
             g.enableScissor(m, m, m + size, m + size);
-            g.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, m, m, u, v, size, size, (int) view, (int) view, SIZE, SIZE, 0xFFFFFFFF);
+            g.blit(net.minecraft.client.renderer.RenderType::guiTextured, TEXTURE, m, m, u, v, size, size, (int) view, (int) view, SIZE, SIZE, 0xFFFFFFFF);
             g.disableScissor();
         } else if (!edit) UiFont.centered(g, font, "загрузка", m + size / 2, m + size / 2 - 4, 0xFF8C93A1, UiFont.Face.SMALL);
         // Window shape, inner shadow, glow and ring come from cached white / black textures tinted when drawn, so
@@ -276,9 +275,9 @@ public final class Minimap {
             frameBuilt = now;
             builds++;
         }
-        g.blit(RenderPipelines.GUI_TEXTURED, FRAME, 0, 0, 0f, 0f, bw, bh, frameW, frameH, frameW, frameH, 0xFF000000 | bg);
-        g.blit(RenderPipelines.GUI_TEXTURED, RING, 0, 0, 0f, 0f, bw, bh, frameW, frameH, frameW, frameH, 0xFF000000 | accent);
-        g.blit(RenderPipelines.GUI_TEXTURED, RING2, 0, 0, 0f, 0f, bw, bh, frameW, frameH, frameW, frameH, 0xFF000000 | accent2);
+        g.blit(net.minecraft.client.renderer.RenderType::guiTextured, FRAME, 0, 0, 0f, 0f, bw, bh, frameW, frameH, frameW, frameH, 0xFF000000 | bg);
+        g.blit(net.minecraft.client.renderer.RenderType::guiTextured, RING, 0, 0, 0f, 0f, bw, bh, frameW, frameH, frameW, frameH, 0xFF000000 | accent);
+        g.blit(net.minecraft.client.renderer.RenderType::guiTextured, RING2, 0, 0, 0f, 0f, bw, bh, frameW, frameH, frameW, frameH, 0xFF000000 | accent2);
     }
     private static void paintFrame(NativeImage base, NativeImage ring, NativeImage ring2, int pw, int ph, double s, int m, int size, boolean round) {
         double cx = m + size / 2.0, cy = m + size / 2.0, r = size / 2.0, corner = 6;
@@ -354,7 +353,7 @@ public final class Minimap {
             }
             arrowTexture.upload();
         }
-        g.blit(RenderPipelines.GUI_TEXTURED, ARROW, -8, -10, 0f, 0f, 16, 18, pw, ph, pw, ph, 0xFFFFFFFF);
+        g.blit(net.minecraft.client.renderer.RenderType::guiTextured, ARROW, -8, -10, 0f, 0f, 16, 18, pw, ph, pw, ph, 0xFFFFFFFF);
     }
     private static boolean insideArrow(double x, double y) {
         boolean in = false;

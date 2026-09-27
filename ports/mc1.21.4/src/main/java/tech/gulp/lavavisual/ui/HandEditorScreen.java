@@ -2,7 +2,7 @@ package tech.gulp.lavavisual.ui;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.input.MouseButtonEvent;
+import tech.gulp.lavavisual.compat.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import tech.gulp.lavavisual.LavaVisualClient;
 import tech.gulp.lavavisual.config.HudConfig;
@@ -82,21 +82,24 @@ public final class HandEditorScreen extends Screen {
         });
         super.render(g, mx, my, delta);
     }
-    @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+    @Override public boolean mouseClicked(double lavaX, double lavaY, int lavaButton) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
         if (event.button() == 0 && buttons.click(event.x(), event.y())) return true;
         if (event.button() == 0) {
             int i = slider(event.x(), event.y());
             if (i >= 0) { drag = i; apply(i, event.x()); return true; }
         }
-        return super.mouseClicked(event, doubleClick);
+        return super.mouseClicked(event.x(), event.y(), event.button());
     }
-    @Override public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
-        if (drag < 0) return super.mouseDragged(event, dx, dy);
+    @Override public boolean mouseDragged(double lavaX, double lavaY, int lavaButton, double dx, double dy) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
+        if (drag < 0) return super.mouseDragged(event.x(), event.y(), event.button(), dx, dy);
         apply(drag, event.x()); return true;
     }
-    @Override public boolean mouseReleased(MouseButtonEvent event) {
+    @Override public boolean mouseReleased(double lavaX, double lavaY, int lavaButton) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
         if (drag >= 0) { drag = -1; LavaVisualClient.save(); return true; }
-        return super.mouseReleased(event);
+        return super.mouseReleased(event.x(), event.y(), event.button());
     }
     @Override public boolean mouseScrolled(double x, double y, double horizontal, double vertical) {
         int i = slider(x, y);

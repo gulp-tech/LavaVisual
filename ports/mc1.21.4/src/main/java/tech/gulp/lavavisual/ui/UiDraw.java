@@ -3,7 +3,6 @@ package tech.gulp.lavavisual.ui;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 
@@ -102,7 +101,7 @@ public final class UiDraw {
     public static void glowDisc(GuiGraphics g, double cx, double cy, double r, int color) {
         if (r <= 0 || (color >>> 24) == 0 || !Glow.ready()) return;
         int x = (int) Math.round(cx - r), y = (int) Math.round(cy - r), d = Math.max(1, (int) Math.round(2 * r));
-        g.blit(RenderPipelines.GUI_TEXTURED, Glow.ID, x, y, 0, 0, d, d, Glow.SIZE, Glow.SIZE, Glow.SIZE, Glow.SIZE, color);
+        g.blit(net.minecraft.client.renderer.RenderType::guiTextured, Glow.ID, x, y, 0, 0, d, d, Glow.SIZE, Glow.SIZE, Glow.SIZE, Glow.SIZE, color);
     }
 
     /** Physical pixels per local unit at the current pose. */
@@ -163,7 +162,7 @@ public final class UiDraw {
     }
 
     private static void blit(GuiGraphics g, int x, int y, int u, int v, int size, int color) {
-        g.blit(RenderPipelines.GUI_TEXTURED, Circles.ID, x, y, u, v, size, size, size, size, Circles.WIDTH, Circles.HEIGHT, color);
+        g.blit(net.minecraft.client.renderer.RenderType::guiTextured, Circles.ID, x, y, u, v, size, size, size, size, Circles.WIDTH, Circles.HEIGHT, color);
     }
 
     /** Per-row anti-aliased corners (large radii or when the atlas is unavailable). */
@@ -199,7 +198,7 @@ public final class UiDraw {
         try {
             g.pose().scale((float) (1 / s));
             if (pr <= Circles.MAX_R && Circles.ready())
-                g.blit(RenderPipelines.GUI_TEXTURED, Circles.ID, px, py, Circles.U[pr], Circles.V[pr], 2 * pr, 2 * pr, 2 * pr, 2 * pr, Circles.WIDTH, Circles.HEIGHT, color);
+                g.blit(net.minecraft.client.renderer.RenderType::guiTextured, Circles.ID, px, py, Circles.U[pr], Circles.V[pr], 2 * pr, 2 * pr, 2 * pr, 2 * pr, Circles.WIDTH, Circles.HEIGHT, color);
             else rows(g, px, py, 2 * pr, 2 * pr, pr, color, color);
         } finally { g.pose().popMatrix(); }
     }

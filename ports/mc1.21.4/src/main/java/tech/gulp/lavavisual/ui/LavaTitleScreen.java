@@ -12,7 +12,7 @@ import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.options.LanguageSelectScreen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
-import net.minecraft.client.input.MouseButtonEvent;
+import tech.gulp.lavavisual.compat.MouseButtonEvent;
 import tech.gulp.lavavisual.Edition;
 import tech.gulp.lavavisual.LavaVisual;
 import tech.gulp.lavavisual.LavaVisualClient;
@@ -188,7 +188,8 @@ public final class LavaTitleScreen extends Screen {
         return next;
     }
 
-    @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+    @Override public boolean mouseClicked(double lavaX, double lavaY, int lavaButton) {
+        MouseButtonEvent event = new MouseButtonEvent(lavaX, lavaY, lavaButton);
         if (event.button() == 0) {
             for (int i = hits.size() - 1; i >= 0; i--) {
                 Hit hit = hits.get(i);
@@ -199,6 +200,6 @@ public final class LavaTitleScreen extends Screen {
                 }
             }
         }
-        return super.mouseClicked(event, doubleClick);
+        return super.mouseClicked(event.x(), event.y(), event.button());
     }
 }

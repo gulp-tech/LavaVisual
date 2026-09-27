@@ -3,9 +3,9 @@ package tech.gulp.lavavisual.effects;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.Random;
-import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
+import tech.gulp.lavavisual.compat.RenderStateDataKey;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -45,12 +45,13 @@ public final class AirParticles {
     private AirParticles() { }
 
     public static void register() {
-        WorldRenderEvents.END_EXTRACTION.register(context -> {
+        WorldRenderEvents.AFTER_ENTITIES.register(context -> {
+            tech.gulp.lavavisual.compat.Frames.begin(context);
             var c = LavaVisualClient.config();
             var mc = Minecraft.getInstance();
-            if (!c.ambientEnabled || count == 0 || mc.player == null) { context.worldState().setData(DATA, null); return; }
+            if (!c.ambientEnabled || count == 0 || mc.player == null) { tech.gulp.lavavisual.compat.Frames.set(DATA, null); return; }
             float partial = context.tickCounter().getGameTimeDeltaPartialTick(false);
-            Vec3 camera = context.worldState().cameraRenderState.pos;
+            Vec3 camera = tech.gulp.lavavisual.compat.Frames.camera().pos;
             float[] data = new float[count * STRIDE];
             int n = 0;
             float time = tick + partial;
@@ -73,10 +74,10 @@ public final class AirParticles {
                 data[o + 5] = SEED[i];
                 n++;
             }
-            context.worldState().setData(DATA, n == 0 ? null : new Frame(data, n, style, c.color("ambient") & 0xFFFFFF,
+            tech.gulp.lavavisual.compat.Frames.set(DATA, n == 0 ? null : new Frame(data, n, style, c.color("ambient") & 0xFFFFFF,
                     c.color2("ambient") & 0xFFFFFF, (float) c.ambientSize, time));
         });
-        WorldRenderEvents.BEFORE_TRANSLUCENT.register(AirParticles::render);
+        WorldRenderEvents.BEFORE_DEBUG_RENDER.register(AirParticles::render);
     }
 
     public static void clear() { count = 0; tick = 0; }
@@ -169,13 +170,13 @@ public final class AirParticles {
     }
 
     private static void render(WorldRenderContext context) {
-        Frame frame = context.worldState().getData(DATA);
+        Frame frame = tech.gulp.lavavisual.compat.Frames.get(DATA);
         if (frame == null) return;
-        Quaternionf orientation = new Quaternionf(context.worldState().cameraRenderState.orientation);
+        Quaternionf orientation = new Quaternionf(tech.gulp.lavavisual.compat.Frames.camera().orientation);
         Vector3f r = new Vector3f(1, 0, 0).rotate(orientation), u = new Vector3f(0, 1, 0).rotate(orientation);
         context.matrices().pushPose();
         try {
-            context.commandQueue().submitCustomGeometry(context.matrices(), WorldCosmetics.GLOW, (pose, out) -> {
+            new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), WorldCosmetics.GLOW, (pose, out) -> {
                 float[] d = frame.data;
                 for (int n = 0; n < frame.n; n++) {
                     int o = n * STRIDE;
