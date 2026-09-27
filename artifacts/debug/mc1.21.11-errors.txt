@@ -1,0 +1,9 @@
+> Configure project :
+FAILURE: Build failed with an exception.
+* What went wrong:
+> Failed to setup Minecraft, java.io.IOException: Failed to process jar when running jar processor: fabric-loom:access-widener - Expected official namespace for access widener entry, found: intermediary in mod: fabric-biome-api-v1
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+0
