@@ -2751,6 +2751,97 @@ public class net.minecraft.client.Camera {
   public float getPartialTickTime();
   static {};
 }
+=== net.minecraft.client.renderer.GameRenderer
+Compiled from "GameRenderer.java"
+public class net.minecraft.client.renderer.GameRenderer implements java.lang.AutoCloseable {
+  private static final net.minecraft.resources.ResourceLocation BLUR_POST_CHAIN_ID;
+  public static final int MAX_BLUR_RADIUS;
+  private static final org.slf4j.Logger LOGGER;
+  private static final boolean DEPTH_BUFFER_DEBUG;
+  public static final float PROJECTION_Z_NEAR;
+  private static final float GUI_Z_NEAR;
+  private final net.minecraft.client.Minecraft minecraft;
+  private final net.minecraft.server.packs.resources.ResourceManager resourceManager;
+  private final net.minecraft.util.RandomSource random;
+  private float renderDistance;
+  public final net.minecraft.client.renderer.ItemInHandRenderer itemInHandRenderer;
+  private final net.minecraft.client.renderer.RenderBuffers renderBuffers;
+  private int confusionAnimationTick;
+  private float fovModifier;
+  private float oldFovModifier;
+  private float darkenWorldAmount;
+  private float darkenWorldAmountO;
+  private boolean renderHand;
+  private boolean renderBlockOutline;
+  private long lastScreenshotAttempt;
+  private boolean hasWorldScreenshot;
+  private long lastActiveTime;
+  private final net.minecraft.client.renderer.LightTexture lightTexture;
+  private final net.minecraft.client.renderer.texture.OverlayTexture overlayTexture;
+  private boolean panoramicMode;
+  private float zoom;
+  private float zoomX;
+  private float zoomY;
+  public static final int ITEM_ACTIVATION_ANIMATION_LENGTH;
+  private net.minecraft.world.item.ItemStack itemActivationItem;
+  private int itemActivationTicks;
+  private float itemActivationOffX;
+  private float itemActivationOffY;
+  private final com.mojang.blaze3d.resource.CrossFrameResourcePool resourcePool;
+  private net.minecraft.resources.ResourceLocation postEffectId;
+  private boolean effectActive;
+  private final net.minecraft.client.Camera mainCamera;
+  public net.minecraft.client.renderer.GameRenderer(net.minecraft.client.Minecraft, net.minecraft.client.renderer.ItemInHandRenderer, net.minecraft.server.packs.resources.ResourceManager, net.minecraft.client.renderer.RenderBuffers);
+  public void close();
+  public void setRenderHand(boolean);
+  public void setRenderBlockOutline(boolean);
+  public void setPanoramicMode(boolean);
+  public boolean isPanoramicMode();
+  public void clearPostEffect();
+  public void togglePostEffect();
+  public void checkEntityPostEffect(net.minecraft.world.entity.Entity);
+  private void setPostEffect(net.minecraft.resources.ResourceLocation);
+  public void processBlurEffect();
+  public void preloadUiShader(net.minecraft.server.packs.resources.ResourceProvider);
+  public void tick();
+  public net.minecraft.resources.ResourceLocation currentPostEffect();
+  public void resize(int, int);
+  public void pick(float);
+  private net.minecraft.world.phys.HitResult pick(net.minecraft.world.entity.Entity, double, double, float);
+  private static net.minecraft.world.phys.HitResult filterHitResult(net.minecraft.world.phys.HitResult, net.minecraft.world.phys.Vec3, double);
+  private void tickFov();
+  private float getFov(net.minecraft.client.Camera, float, boolean);
+  private void bobHurt(com.mojang.blaze3d.vertex.PoseStack, float);
+  private void bobView(com.mojang.blaze3d.vertex.PoseStack, float);
+  public void renderZoomed(float, float, float);
+  private void renderItemInHand(net.minecraft.client.Camera, float, org.joml.Matrix4f);
+  public org.joml.Matrix4f getProjectionMatrix(float);
+  public float getDepthFar();
+  public static float getNightVisionScale(net.minecraft.world.entity.LivingEntity, float);
+  public void render(net.minecraft.client.DeltaTracker, boolean);
+  private void tryTakeScreenshotIfNeeded();
+  private void takeAutoScreenshot(java.nio.file.Path);
+  private boolean shouldRenderBlockOutline();
+  public void renderLevel(net.minecraft.client.DeltaTracker);
+  public void resetData();
+  public void displayItemActivation(net.minecraft.world.item.ItemStack);
+  private void renderItemActivationAnimation(net.minecraft.client.gui.GuiGraphics, float);
+  public net.minecraft.client.Minecraft getMinecraft();
+  public float getDarkenWorldAmount(float);
+  public float getRenderDistance();
+  public net.minecraft.client.Camera getMainCamera();
+  public net.minecraft.client.renderer.LightTexture lightTexture();
+  public net.minecraft.client.renderer.texture.OverlayTexture overlayTexture();
+  private void method_64055(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.MultiBufferSource);
+  private static void method_3181(com.mojang.blaze3d.platform.NativeImage, java.nio.file.Path);
+  private void method_37474(java.nio.file.Path);
+  private java.lang.String method_37103() throws java.lang.Exception;
+  private java.lang.String method_3173() throws java.lang.Exception;
+  private java.lang.String method_3191(int, int) throws java.lang.Exception;
+  private java.lang.String method_3205() throws java.lang.Exception;
+  private java.lang.String method_18655() throws java.lang.Exception;
+  static {};
+}
 === net.minecraft.client.MouseHandler
 Compiled from "MouseHandler.java"
 public class net.minecraft.client.MouseHandler {
