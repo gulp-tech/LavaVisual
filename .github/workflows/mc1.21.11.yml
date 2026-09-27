@@ -53,6 +53,36 @@ jobs:
           git add -f artifacts/debug
           git commit -q -m 'Build log [skip ci]' || exit 0
           git push -q origin "HEAD:$GITHUB_REF_NAME" || true
+      - name: Install virtual display
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri libasound2t64 libflite1 imagemagick
+
+      - name: Check that the client starts
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: python3 tools/client_smoke.py ports/mc1.21.11
+
+      - name: Keep the client log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-log-1-21-11
+          path: |
+            ports/mc1.21.11/build/client-smoke.log
+            ports/mc1.21.11/run/logs/latest.log
+          if-no-files-found: ignore
+
+      - name: Keep the client log in the repository when it fails
+        if: failure() && github.event_name == 'push'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch -q origin "$GITHUB_REF_NAME" && git reset -q --mixed "origin/$GITHUB_REF_NAME"
+          mkdir -p artifacts/debug
+          tail -c 200000 ports/mc1.21.11/build/client-smoke.log > artifacts/debug/mc1.21.11-client.log || true
+          git add -f artifacts/debug
+          git commit -q -m 'Client log [skip ci]' || exit 0
+          git push -q origin "HEAD:$GITHUB_REF_NAME" || true
+
       - name: Publish tested build
         if: github.event_name == 'push'
         run: |
