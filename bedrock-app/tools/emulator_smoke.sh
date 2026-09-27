@@ -31,8 +31,12 @@ shot 2-badge 3
 
 # Tapping the badge, the way a player opens the menu.
 adb shell dumpsys window windows | grep -i lavavisual | head -10 || true
-adb shell input tap 33 183
-sleep 3
+for y in 183 161 200 172; do
+  adb shell input tap 33 "$y"
+  sleep 2
+  adb logcat -d -s LavaVisual:I | grep -q 'badge tapped' && break
+done
+adb logcat -d -s LavaVisual:I | tail -20
 if ! adb logcat -d -s LavaVisual:I | grep -q 'menu opened'; then
   echo 'the tap did not open the menu, trying the intent'
   adb shell am start -n $PKG/.MainActivity --ez menu true
