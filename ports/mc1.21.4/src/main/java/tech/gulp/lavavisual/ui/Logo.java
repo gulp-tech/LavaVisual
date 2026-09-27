@@ -24,7 +24,7 @@ public final class Logo {
         try {
             UiFont.snap(g, x, y);
             g.pose().translate(x, y, 0f);
-            g.pose().scale(2f / h);
+            g.pose().scale(2f / h, 2f / h, 1f);
             g.blit(net.minecraft.client.renderer.RenderType::guiTextured, ids[i], 0, 0, 0, 0, tw, th, tw, th, tw, th, color);
         } finally { g.pose().popPose(); }
     }

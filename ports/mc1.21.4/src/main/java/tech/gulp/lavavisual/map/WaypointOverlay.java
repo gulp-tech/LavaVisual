@@ -44,7 +44,7 @@ public final class WaypointOverlay {
             if (length > 512) { ax *= 512 / length; ay *= 512 / length; az *= 512 / length; }
             // View rotation from the camera orientation (valid during extraction); projection from the frame when it is a real perspective matrix.
             Vector3f view = new Vector3f((float) ax, (float) ay, (float) az);
-            if (inverse != null) view.mulPose(com.mojang.math.Axis.ZP.rotation(inverse));
+            if (inverse != null) view.rotate(inverse);
             else continue;
             boolean front = view.z < -0.01f;
             float nx, ny;

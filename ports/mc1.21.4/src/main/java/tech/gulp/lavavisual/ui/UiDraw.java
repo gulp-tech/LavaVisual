@@ -106,7 +106,7 @@ public final class UiDraw {
 
     /** Physical pixels per local unit at the current pose. */
     private static double pixels(GuiGraphics g) {
-        var m = g.pose();
+        var m = g.pose().last().pose();
         return UiFont.guiScale() * Math.sqrt(Math.abs(m.m00() * m.m11() - m.m01() * m.m10()));
     }
 
@@ -224,7 +224,7 @@ public final class UiDraw {
         if (left == right) { round(g, x, y, w, h, radius, left); return; }
         g.pose().pushPose();
         try {
-            g.pose().translate(x, y + h, 0f, 0f);
+            g.pose().translate(x, y + h, 0f);
             g.pose().mulPose(com.mojang.math.Axis.ZP.rotation((float) (-Math.PI / 2)));
             roundV(g, 0, 0, h, w, radius, left, right);
         } finally { g.pose().popPose(); }

@@ -60,7 +60,7 @@ public final class LavaVisualClient implements ClientModInitializer {
         tech.gulp.lavavisual.effects.Hats.preload();
         tech.gulp.lavavisual.effects.CustomSounds.init();
         tech.gulp.lavavisual.effects.AirParticles.register();
-        var category = KeyMapping.Category.register(id("hud"));
+        var category = "key.categories.lavavisual";
         tech.gulp.lavavisual.input.Binds.register(category);
         // Pause menu button: on phones (touch) there is no Right Shift, so the menu has to be reachable by a tap.
         net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {

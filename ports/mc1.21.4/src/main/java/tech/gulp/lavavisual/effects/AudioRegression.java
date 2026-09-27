@@ -45,7 +45,7 @@ public final class AudioRegression {
                     check(original.getSound() == null, "must start unresolved: " + path);
                     var replacement = CustomAudio.replace(original, manager);
                     int group = path.endsWith("crit") ? 1 : path.equals("item.totem.use") ? 2 : 0;
-                    check(replacement != original && replacement.getIdentifier().equals(CustomAudio.sound(group)), "replacement: " + path);
+                    check(replacement != original && replacement.getLocation().equals(CustomAudio.sound(group)), "replacement: " + path);
                     check(original.getSound() != null, "original must resolve before volume/pitch are read");
                     check(replacement.resolve(manager) != null && replacement.getSound() != null, "custom asset resolves");
                     check(Float.isFinite(replacement.getVolume()) && Float.isFinite(replacement.getPitch()), "finite audio parameters");

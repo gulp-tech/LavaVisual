@@ -102,7 +102,7 @@ public final class CustomAudio {
         return options == null ? 1 : options.getSoundSourceVolume(net.minecraft.sounds.SoundSource.MASTER) * options.getSoundSourceVolume(source);
     }
     private static SoundInstance silent(SoundInstance original) {
-        return new SimpleSoundInstance(original.getIdentifier(), original.getSource(), 0f, 1f, SoundInstance.createUnseededRandom(),
+        return new SimpleSoundInstance(original.getLocation(), original.getSource(), 0f, 1f, SoundInstance.createUnseededRandom(),
                 false, 0, SoundInstance.Attenuation.NONE, original.getX(), original.getY(), original.getZ(), original.isRelative());
     }
     private static double volume(int group) {
@@ -110,9 +110,9 @@ public final class CustomAudio {
         return switch (group) { case 0 -> c.hitVolume; case 1 -> c.critVolume; case 2 -> c.totemVolume; default -> c.killVolume; };
     }
     public static SoundInstance replace(SoundInstance original, net.minecraft.client.sounds.SoundManager manager) {
-        if (!original.getIdentifier().getNamespace().equals("minecraft")) return original;
+        if (!original.getLocation().getNamespace().equals("minecraft")) return original;
         var c = LavaVisualClient.config();
-        int group = switch (original.getIdentifier().getPath()) {
+        int group = switch (original.getLocation().getPath()) {
             case "entity.player.attack.strong", "entity.player.attack.weak", "entity.player.attack.sweep", "entity.player.attack.knockback",
                  "entity.player.attack.nodamage" -> c.hitSoundEnabled ? 0 : -1;
             // Without a separate crit sound a crit plays your hit sound (vanilla plays only the crit sound on crits).
@@ -122,7 +122,7 @@ public final class CustomAudio {
         };
         if (group < 0) {
             // Your hit sound replaces vanilla completely: the target's hurt sound right after your own hit is muted.
-            String path = original.getIdentifier().getPath();
+            String path = original.getLocation().getPath();
             if (c.hitSoundEnabled && c.muteVanillaHits && path.startsWith("entity.") && path.endsWith(".hurt")
                     && WorldCosmetics.recentHitNear(original.getX(), original.getY(), original.getZ()))
                 return silent(original);

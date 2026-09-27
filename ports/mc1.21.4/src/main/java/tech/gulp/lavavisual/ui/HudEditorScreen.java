@@ -141,7 +141,7 @@ public final class HudEditorScreen extends Screen {
         String id = widgetAt(event.x(), event.y());
         if (id != null) {
             selected = id;
-            if (doubleClick) { setScale(id, 1); return true; }
+            if (false) { setScale(id, 1); return true; }
             moving = true; offsetX = event.x() - wx(id); offsetY = event.y() - wy(id);
             return true;
         }

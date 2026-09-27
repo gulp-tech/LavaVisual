@@ -171,6 +171,6 @@ public final class CustomSounds {
             tech.gulp.lavavisual.input.Binds.Toast.show("Путь скопирован · Проводник → Расположения → лаунчер → .minecraft/LavaVisual");
             return;
         }
-        net.minecraft.util.Util.getPlatform().openPath(folder);
+        net.minecraft.Util.getPlatform().openPath(folder);
     }
 }

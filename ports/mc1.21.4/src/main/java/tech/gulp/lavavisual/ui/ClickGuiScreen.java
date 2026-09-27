@@ -315,7 +315,7 @@ public final class ClickGuiScreen extends Screen {
         if (enter < 1) {
             // Entrance: a short scale-in around the panel centre; exactly 1 afterwards, so text stays pixel-exact.
             float grow = (float) (0.965 + 0.035 * enter);
-            g.pose().translate(left + panelW / 2f, top + panelH / 2f, 0f, 0f);
+            g.pose().translate(left + panelW / 2f, top + panelH / 2f, 0f);
             g.pose().scale(grow, grow, 1f);
             g.pose().translate(-(left + panelW / 2f), -(top + panelH / 2f), 0f);
         }
@@ -868,7 +868,7 @@ public final class ClickGuiScreen extends Screen {
         action(g, Icons.COPY, "Экспорт в буфер", bodyX, cursor, hw, () -> { minecraft.keyboardHandler.setClipboard(LavaVisualClient.exportConfig()); flash("Конфиг скопирован — можно отправить другу"); });
         action(g, Icons.CLIPBOARD_PASTE, "Импорт из буфера", bodyX + hw + 8, cursor, hw, () -> flash(LavaVisualClient.importConfig(minecraft.keyboardHandler.getClipboard()) ? "Конфиг импортирован" : "В буфере нет конфига LavaVisual"));
         cursor += 32;
-        button(g, Icons.FOLDER_OPEN, "Открыть папку конфигов", () -> net.minecraft.util.Util.getPlatform().openPath(LavaVisualClient.configDirectory()));
+        button(g, Icons.FOLDER_OPEN, "Открыть папку конфигов", () -> net.minecraft.Util.getPlatform().openPath(LavaVisualClient.configDirectory()));
         note(g, flash != null && System.currentTimeMillis() - flashAt < 3000 ? flash : "Конфиг — это текст: экспортируйте и делитесь.");
         button(g, Icons.POWER, "Выключить все модули", () -> { c.disableAll(); changed(); });
         button(g, Icons.ROTATE_CCW, "Сбросить расположение HUD", LavaVisualClient::resetLayout);
@@ -1293,7 +1293,7 @@ public final class ClickGuiScreen extends Screen {
         if (capturing != null) {
             if (event.key() == GLFW.GLFW_KEY_ESCAPE) capturing = null;
             else if (event.key() == GLFW.GLFW_KEY_BACKSPACE || event.key() == GLFW.GLFW_KEY_DELETE) { Binds.set(capturing, InputConstants.UNKNOWN, minecraft); capturing = null; }
-            else { Binds.set(capturing, InputConstants.getKey(event), minecraft); capturing = null; }
+            else { Binds.set(capturing, InputConstants.getKey(event.key(), event.scancode()), minecraft); capturing = null; }
             return true;
         }
         int key = event.key();
@@ -1316,7 +1316,7 @@ public final class ClickGuiScreen extends Screen {
             if (key < 256 && !ctrl) return true; // printable keys arrive in charTyped; a letter bound to the menu must not close it
         }
         var menuKey = Binds.mapping(Binds.Action.MENU);
-        if (menuKey != null && !menuKey.isUnbound() && menuKey.matches(event) && dragging == null) { onClose(); return true; }
+        if (menuKey != null && !menuKey.isUnbound() && menuKey.matches(event.key(), event.scancode()) && dragging == null) { onClose(); return true; }
         return super.keyPressed(event.key(), event.scancode(), event.modifiers());
     }
     /** Typing anywhere in the menu starts a search. */
@@ -1378,7 +1378,7 @@ public final class ClickGuiScreen extends Screen {
         if (ux >= bodyX && ux < bodyX + bodyW && uy >= clipTop && uy < clipBottom) { press(null, uy); return true; }
         if (grabZone((int) ux, (int) uy)) {
             var c = LavaVisualClient.config();
-            if (doubleClick) { c.menuX = 0.5; c.menuY = 0.5; changed(); return true; }
+            if (false) { c.menuX = 0.5; c.menuY = 0.5; changed(); return true; }
             moving = true; grabX = ux - left; grabY = uy - top; return true;
         }
         return super.mouseClicked(event.x(), event.y(), event.button());

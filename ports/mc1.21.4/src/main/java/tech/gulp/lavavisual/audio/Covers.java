@@ -67,7 +67,7 @@ public final class Covers {
             if (image != null && file.equals(loaded)) {
                 try {
                     // Registering under the same id replaces (and closes) the previous cover.
-                    texture = new DynamicTexture(() -> "lavavisual music cover", image);
+                    texture = new DynamicTexture(image);
                     mc.getTextureManager().register(ID, texture);
                     texture.upload();
                     present = true;

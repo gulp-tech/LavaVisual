@@ -260,7 +260,7 @@ public final class MusicScreen extends Screen {
             case GLFW.GLFW_KEY_P, GLFW.GLFW_KEY_PAGE_UP -> MusicPlayer.previous();
             default -> {
                 var open = Binds.mapping(Binds.Action.MUSIC);
-                if (open != null && !open.isUnbound() && open.matches(event)) { onClose(); return true; }
+                if (open != null && !open.isUnbound() && open.matches(event.key(), event.scancode())) { onClose(); return true; }
                 return super.keyPressed(event.key(), event.scancode(), event.modifiers());
             }
         }

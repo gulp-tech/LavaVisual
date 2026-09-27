@@ -128,9 +128,9 @@ public final class HudRenderer {
                 g.pose().translate(x, y, 0f);
                 g.pose().scale((float) scale(w), (float) scale(w), 1f);
                 if (scaleAnim != 1) {
-                    g.pose().translate(bw / 2f, bh / 2f, 0f, 0f);
+                    g.pose().translate(bw / 2f, bh / 2f, 0f);
                     g.pose().scale((float) scaleAnim, (float) scaleAnim, 1f);
-                    g.pose().translate(-bw / 2f, -bh / 2f, 0f, 0f);
+                    g.pose().translate(-bw / 2f, -bh / 2f, 0f);
                 }
                 if (edit && id.equals(selected)) g.renderOutline(-3, -3, bw + 6, bh + 6, UiDraw.alpha(accent, 0.9));
                 switch (id) {

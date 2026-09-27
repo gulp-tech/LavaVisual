@@ -105,13 +105,13 @@ public final class LavaTitleScreen extends Screen {
         // Soft glow behind the logo: many faint discs read as a smooth radial gradient, without a visible edge.
         UiDraw.glowDisc(g, left + logoW, top + logoH + lift, 150, UiDraw.alpha(UiDraw.mix(ac, ac2, 0.3), 0.2 * enter));
         g.pose().pushPose();
-        g.pose().translate(left, top + lift, 0f, 0f);
+        g.pose().translate(left, top + lift, 0f);
         g.pose().scale(2f, 2f, 1f);
         Logo.draw(g, false, 0, 0, UiDraw.alpha(0xFFFFFF, Math.max(0.05, enter)));
         g.pose().popPose();
         int nameX = left + logoW * 2 + 12, nameY = top + lift + logoH - 16;
         g.pose().pushPose();
-        g.pose().translate(nameX, nameY, 0f, 0f);
+        g.pose().translate(nameX, nameY, 0f);
         g.pose().scale(2f, 2f, 1f);
         UiFont.gradient(g, font, "LavaVisual", 0, 0, UiDraw.mix(ac, 0xFFFFFF, 0.12), UiDraw.mix(ac2, 0xFFFFFF, 0.12), enter, UiFont.Face.BOLD);
         g.pose().popPose();
