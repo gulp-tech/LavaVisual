@@ -1,11 +1,9 @@
 package tech.gulp.lavavisual.effects;
 
-import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.pipeline.BlendFunction;
-import com.mojang.blaze3d.pipeline.ColorTargetState;
-import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.ArrayDeque;
@@ -85,28 +83,25 @@ public final class WorldCosmetics {
     public static final RenderType GLOW = RenderType.create("lavavisual_cosmetic_glow",
             RenderSetup.builder(RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
                     .withLocation(net.minecraft.resources.Identifier.fromNamespaceAndPath("lavavisual", "pipeline/cosmetic_glow"))
-                    .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
-                    .withPrimitiveTopology(PrimitiveTopology.QUADS)
-                    .withDepthStencilState(new DepthStencilState(DepthStencilState.DEFAULT.depthTest(), false))
-                    .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+                    .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+                    .withDepthWrite(false)
+                    .withBlend(BlendFunction.TRANSLUCENT)
                     .withCull(false).build())).sortOnUpload().createRenderSetup());
     /** Additive (alpha-weighted) glow: trails look saturated and luminous instead of a flat strip. */
     public static final RenderType GLOW_ADD = RenderType.create("lavavisual_cosmetic_glow_add",
             RenderSetup.builder(RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
                     .withLocation(net.minecraft.resources.Identifier.fromNamespaceAndPath("lavavisual", "pipeline/cosmetic_glow_add"))
-                    .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
-                    .withPrimitiveTopology(PrimitiveTopology.QUADS)
-                    .withDepthStencilState(new DepthStencilState(DepthStencilState.DEFAULT.depthTest(), false))
-                    .withColorTargetState(new ColorTargetState(BlendFunction.LIGHTNING))
+                    .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+                    .withDepthWrite(false)
+                    .withBlend(BlendFunction.LIGHTNING)
                     .withCull(false).build())).sortOnUpload().createRenderSetup());
     /** Solid hats: depth-tested and depth-writing; back faces are dropped on the CPU (see Hats). */
     public static final RenderType HAT = RenderType.create("lavavisual_hat",
             RenderSetup.builder(RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
                     .withLocation(net.minecraft.resources.Identifier.fromNamespaceAndPath("lavavisual", "pipeline/hat"))
-                    .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
-                    .withPrimitiveTopology(PrimitiveTopology.QUADS)
-                    .withDepthStencilState(new DepthStencilState(DepthStencilState.DEFAULT.depthTest(), true))
-                    .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+                    .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+                    .withDepthWrite(true)
+                    .withBlend(BlendFunction.TRANSLUCENT)
                     .withCull(false).build())).sortOnUpload().createRenderSetup());
     private WorldCosmetics() { }
     public static void register() {

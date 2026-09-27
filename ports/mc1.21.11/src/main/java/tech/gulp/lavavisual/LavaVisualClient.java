@@ -66,7 +66,7 @@ public final class LavaVisualClient implements ClientModInitializer {
         // Pause menu button: on phones (touch) there is no Right Shift, so the menu has to be reachable by a tap.
         net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
             if (!(screen instanceof net.minecraft.client.gui.screens.PauseScreen)) return;
-            var widgets = net.fabricmc.fabric.api.client.screen.v1.Screens.getWidgets(screen);
+            var widgets = net.fabricmc.fabric.api.client.screen.v1.Screens.getButtons(screen);
             if (widgets.isEmpty()) return; // F3 + Esc: paused without the menu
             widgets.add(net.minecraft.client.gui.components.Button.builder(tech.gulp.lavavisual.ui.UiFont.component("LavaVisual"),
                     button -> client.setScreen(new ClickGuiScreen())).bounds(6, 6, 96, 20).build());
