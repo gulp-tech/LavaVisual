@@ -42,7 +42,7 @@ public abstract class HandViewMixin {
         if (mainHandItem.getItem() == player.getMainHandItem().getItem()) mainHandHeight = Math.min(1f, oMainHandHeight + 0.4f);
     }
 
-    @WrapMethod(method = "submitArmWithItem")
+    @WrapMethod(method = "renderArmWithItem")
     private void lava$position(AbstractClientPlayer player, float delta, float pitch, InteractionHand hand,
                                float swing, ItemStack item, float equipped, PoseStack pose,
                                SubmitNodeCollector collector, int light, Operation<Void> original) {
