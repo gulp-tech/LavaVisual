@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 /** The menu behind the LV badge: every setting of the client, in sections. */
 class MenuView extends FrameLayout {
-    private static final String[] TABS = {"Аксессуары", "HUD", "Значок", "Инструкция"};
+    private static final String[] TABS = {"Стиль", "HUD", "Значок", "Помощь"};
 
     private final Cfg cfg;
     private final OverlayService overlay;
@@ -104,6 +104,7 @@ class MenuView extends FrameLayout {
     }
 
     private void drawContent() {
+        android.util.Log.i("LavaVisual", "menu tab " + tab);
         content.removeAllViews();
         int accent = cfg.accent();
         switch (tab) {

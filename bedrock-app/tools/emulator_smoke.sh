@@ -49,11 +49,12 @@ adb logcat -d -s LavaVisual:I | grep -q 'menu opened' || { echo 'the menu did no
 size=$(adb shell wm size | tr -d '\r' | awk '{print $3}')
 width=${size%x*}
 height=${size#*x}
-tab_y=$(python3 -c "print(int($height * 0.19))")
+tab_y=$(python3 -c "print(int($height * 0.238))")
 for index in 1 2 3; do
-  x=$(python3 -c "print(int($width * (0.145 + 0.235 * $index)))")
+  x=$(python3 -c "print(int($width * (0.185 + 0.209 * $index)))")
   adb shell input tap "$x" "$tab_y"
   shot "4-menu-tab$index" 2
+  adb logcat -d -s LavaVisual:I | grep -q "menu tab $index" || { echo "tab $index did not open"; exit 1; }
 done
 
 adb shell input keyevent KEYCODE_BACK
