@@ -1,0 +1,103 @@
+name: Build LavaVisual (Minecraft 1.21.4)
+on:
+  push:
+    paths: ['ports/mc1.21.4/**', '.github/workflows/mc1.21.4.yml']
+  workflow_dispatch:
+concurrency:
+  group: lavavisual-1-21-4-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v5
+      - name: Dump the API of this Minecraft version
+        run: |
+          ports/mc1.21.4/gradlew -p ports/mc1.21.4 classpathFile --no-daemon
+          cp=$(cat ports/mc1.21.4/build/compile-classpath.txt)
+          mkdir -p artifacts/debug
+          : > artifacts/debug/api-1.21.4.txt
+          python3 -c "import sys,zipfile,re;pat=re.compile(r'(renderer/state|renderer/entity/state|entity/player|entity/layers|rendering/v1|renderer/rendertype|blaze3d/pipeline|blaze3d/[A-Z]|client/gui/GuiGraphics|RenderPipelines|SubmitNodeCollector)');print(chr(10).join(sorted({n[:-6].replace('/','.') for j in sys.argv[1].split(':') if j.endswith('.jar') for n in (zipfile.ZipFile(j).namelist() if True else []) if n.endswith('.class') and pat.search(n) and '\$' not in n})))" "$cp" > artifacts/debug/classes-1.21.4.txt || true
+          for c in $(cat artifacts/debug/classes-1.21.4.txt) 'com.mojang.blaze3d.pipeline.RenderPipeline$Builder' 'net.minecraft.client.renderer.RenderPipelines' 'net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder' 'net.fabricmc.fabric.api.client.screen.v1.Screens' 'net.minecraft.client.gui.screens.inventory.InventoryScreen'; do
+            echo "=== $c" >> artifacts/debug/api-1.21.4.txt
+            javap -classpath "$cp" -p "$c" >> artifacts/debug/api-1.21.4.txt 2>&1 || true
+          done
+          wc -l artifacts/debug/api-1.21.4.txt artifacts/debug/classes-1.21.4.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch -q origin "$GITHUB_REF_NAME" && git stash -q -u && git reset -q --hard "origin/$GITHUB_REF_NAME" && git stash pop -q || true
+          git add -f artifacts/debug && git commit -q -m 'API dump [skip ci]' && git push -q origin "HEAD:$GITHUB_REF_NAME" || true
+
+      - name: Build
+        run: |
+          set -o pipefail
+          ports/mc1.21.4/gradlew -p ports/mc1.21.4 build --no-daemon 2>&1 | tee build.log
+
+      - name: Keep the errors when the build fails
+        if: failure() && github.event_name == 'push'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch -q origin "$GITHUB_REF_NAME" && git reset -q --mixed "origin/$GITHUB_REF_NAME"
+          mkdir -p artifacts/debug
+          grep -E "error:|error;|cannot find symbol|symbol:|location:|^e: |FAILURE|What went wrong|> " build.log | head -1500 > artifacts/debug/mc1.21.4-errors.txt || true
+          grep -cE "error:" build.log >> artifacts/debug/mc1.21.4-errors.txt || true
+          git add -f artifacts/debug
+          git commit -q -m 'Build log [skip ci]' || exit 0
+          git push -q origin "HEAD:$GITHUB_REF_NAME" || true
+      - name: Install virtual display
+        run: sudo apt-get update -qq && sudo apt-get install -y xvfb libgl1-mesa-dri libasound2t64 libflite1 imagemagick
+
+      - name: Check that the client starts
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: python3 tools/client_smoke.py ports/mc1.21.4
+
+      - name: Keep the client log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-log-1-21-4
+          path: |
+            ports/mc1.21.4/build/client-smoke.log
+            ports/mc1.21.4/run/logs/latest.log
+          if-no-files-found: ignore
+
+      - name: Keep the client log in the repository when it fails
+        if: failure() && github.event_name == 'push'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch -q origin "$GITHUB_REF_NAME" && git reset -q --mixed "origin/$GITHUB_REF_NAME"
+          mkdir -p artifacts/debug
+          tail -c 200000 ports/mc1.21.4/build/client-smoke.log > artifacts/debug/mc1.21.4-client.log || true
+          git add -f artifacts/debug
+          git commit -q -m 'Client log [skip ci]' || exit 0
+          git push -q origin "HEAD:$GITHUB_REF_NAME" || true
+
+      - name: Publish tested build
+        if: github.event_name == 'push'
+        run: |
+          version=$(grep '^mod_version=' ports/mc1.21.4/gradle.properties | cut -d= -f2)
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3 4 5; do
+            git fetch -q origin "$GITHUB_REF_NAME" && git reset -q --hard "origin/$GITHUB_REF_NAME"
+            mkdir -p artifacts
+            cp "ports/mc1.21.4/build/libs/lavavisual-${version}.jar" artifacts/
+            (cd artifacts && sha256sum *.jar > SHA256SUMS)
+            git add artifacts
+            git diff --cached --quiet && exit 0
+            git commit -q -m 'Publish tested 1.21.4 build [skip ci]'
+            git push -q origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep $((attempt * 5))
+          done
+          exit 1

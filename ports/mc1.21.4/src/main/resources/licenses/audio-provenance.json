@@ -1,0 +1,224 @@
+[
+  {
+    "file": "hit_soft.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "source": "https://github.com/iwenzhou/kenney/blob/master/Audio (295 files)/RPG sounds (50 sounds)/knifeSlice.ogg",
+    "source_sha256": "4cd96dc630bed9840c15f1dd2306da2cc56a4da26a5d3f1a03c5a7265ac5e54f",
+    "conversion": "FFmpeg libvorbis -ac 1 -ar 44100 -q:a 5",
+    "distributed_sha256": "21878f489c719c93d022a4be118f3fb6d00e157fca3670355a965dc596573b81"
+  },
+  {
+    "file": "hit_heavy.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "source": "https://github.com/iwenzhou/kenney/blob/master/Audio (295 files)/RPG sounds (50 sounds)/chop.ogg",
+    "source_sha256": "d00c2b3c9fff07e376145c8c8c45c90e5084ec192f6ce0387db233f7b86f1486",
+    "conversion": "FFmpeg libvorbis -ac 1 -ar 44100 -q:a 5",
+    "distributed_sha256": "3c2a61d2d37665cdda0355c69c36336bb5ac04fba761ffe1a7bbda0cc2eb45a4"
+  },
+  {
+    "file": "crit_metal.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "source": "https://github.com/iwenzhou/kenney/blob/master/Audio (295 files)/RPG sounds (50 sounds)/metalPot1.ogg",
+    "source_sha256": "159def979e8e386c2c539f5e99cc30a080eb2dcb6c911fa2e4ccc0785b2522fd",
+    "conversion": "FFmpeg libvorbis -ac 1 -ar 44100 -q:a 5",
+    "distributed_sha256": "814ce24e606fa28ba6fec385fbd4ef83566abe1eaa7482444a066dc0539bafba"
+  },
+  {
+    "file": "crit_arcade.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "source": "https://github.com/iwenzhou/kenney/blob/master/Audio (295 files)/Digital sounds (60 sounds)/laser1.ogg",
+    "source_sha256": "57f0ca591846e341b2e89af3321959f8e820626e510b2130274c824a133a5f97",
+    "conversion": "FFmpeg libvorbis -ac 1 -ar 44100 -q:a 5",
+    "distributed_sha256": "2d9e3d72dc3a37c2f0b37e5f1c5cdbc5807fe3cdff97d9f1eeb9da186702bd15"
+  },
+  {
+    "file": "totem_chime.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "source": "https://github.com/iwenzhou/kenney/blob/master/Audio (295 files)/Jingle sounds (85 sounds)/jingles_HIT/jingles_HIT00.ogg",
+    "source_sha256": "e23d8c9e971a4e34484bc834a3ec1d560811ec6f5edd5efa2c61e583c18c504a",
+    "conversion": "FFmpeg libvorbis -ac 1 -ar 44100 -q:a 5",
+    "distributed_sha256": "47c9fa23bfbfef9272d8cadd6674a96a5891811ff33098878412b76c609a37a7"
+  },
+  {
+    "file": "totem_arcade.ogg",
+    "author": "Kenney",
+    "license": "CC0-1.0",
+    "source": "https://github.com/iwenzhou/kenney/blob/master/Audio (295 files)/Digital sounds (60 sounds)/powerUp7.ogg",
+    "source_sha256": "fa15881860c806d4d865acb202f703adc7522de2d181ed163422dd0b0dbfd664",
+    "conversion": "FFmpeg libvorbis -ac 1 -ar 44100 -q:a 5",
+    "distributed_sha256": "8c6beae4907024f920443508863e17cb927a108f69cd1d94f48af470c6d6d727"
+  },
+  {
+    "file": "lib/bass.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "a1be3283a2e90f57ba1dcec394a2365ed12017275601b02c2f129b17e9e91cce"
+  },
+  {
+    "file": "lib/bell.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "e07c1e90ca2354cf769dae520c08a0d0057bd4c831505bd2988eae5cd4bac156"
+  },
+  {
+    "file": "lib/bubble.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "c9cbbb0e7770d7354dee8d6b2c5e0ddcf4a75714ebc5cd5657b6f13810b2045c"
+  },
+  {
+    "file": "lib/click.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "b074b622db71dbbe488f8740c359a9437b072336268b156c5f2d3f98bdc85dc4"
+  },
+  {
+    "file": "lib/coin.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "06ed8b166148c46c13144a0bea2b501837fd41da684ff600cec485c997cf5a66"
+  },
+  {
+    "file": "lib/crystal.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "4e74943cd2d23b7acfa374991af06ba210627a4b1c9af2724b1877720a1bde12"
+  },
+  {
+    "file": "lib/double.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "633744aa975e0cac30dd69e175640e36e705a709da9d6cd83b3c25f5ae753f44"
+  },
+  {
+    "file": "lib/drop.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "867818fec5273717c07d5f5feb5e17ae55dcf2bfe363632cf6261b424c9857b5"
+  },
+  {
+    "file": "lib/fanfare.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "37330fa52f38b88c41823a801e375709e7b2a5ad5e7b3c34ca179a1733ae2a98"
+  },
+  {
+    "file": "lib/glass.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "f1e5917e3957937dd7d3fbd9c8c46914a8c3c59b3882ab8321d72c0dddf4d082"
+  },
+  {
+    "file": "lib/laser.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "ab5bddc8f57f014bd21fe88f52fd467f149543c62b82ffc7aed08a55349af241"
+  },
+  {
+    "file": "lib/magic.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "84cfa3f2e85d5a55ad4c0b2e0ebc4890a2c2c70c7f18f768e8261039226db1e7"
+  },
+  {
+    "file": "lib/metal.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "bc818f31446f2e765ea3a184051f22e9667a2a7fb05339c7c257c0a69f542e8a"
+  },
+  {
+    "file": "lib/punch.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "a6f5122b142b9a301eef6e4769b29984cf8d234152dee0ea09a15ce92099de16"
+  },
+  {
+    "file": "lib/retro.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "35c0a040908c6625930a1a960464f0174720242e2296f868fdf48e29569f91a8"
+  },
+  {
+    "file": "lib/snap.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "e89f765652dd05de1f8ccb84b4b446b334ffc7a106a18dd9460b2ce63722d374"
+  },
+  {
+    "file": "lib/sparkle.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "fa7469d00728410174524c2aa18a9620178076cfe9811d46152ff2ea55031a31"
+  },
+  {
+    "file": "lib/thunder.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "f0a36fcaf1ffb1cd075063b74180cd280dc2521a03c6938eb65005e878a27be9"
+  },
+  {
+    "file": "lib/tick.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "fc1d725839fcefb037aafca883a1d6bdcbf6c053f2d7c10e21dfd1cacfcb6877"
+  },
+  {
+    "file": "lib/wood.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "38ac328aec5537e44372a9c05ff88a3904a58e37de61786547a213cdbd0f6de6"
+  },
+  {
+    "file": "lib/zap.ogg",
+    "author": "LavaVisual (gulp-tech)",
+    "license": "MIT",
+    "source": "tools/make_sounds.py (numpy synthesis, no samples)",
+    "conversion": "libsndfile Ogg Vorbis, mono 44100 Hz",
+    "distributed_sha256": "600d7a6f4269e2552f442409c7000df33ec65e40eb74e7e272198aa27050b75c"
+  }
+]

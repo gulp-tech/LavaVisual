@@ -1,0 +1,7 @@
+{
+  "required": true,
+  "package": "tech.gulp.lavavisual.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": ["HandViewMixin", "SoundManagerMixin", "MouseHandlerMixin", "OptionsMixin", "LevelRendererMixin", "ScreenEffectRendererMixin", "CameraMixin", "ClientLevelTimeMixin", "ItemEntityRendererMixin", "ItemEntityRenderStateMixin", "GuiScreenMixin", "MinecraftTitleMixin", "EntityRendererMixin", "PongMixin"],
+  "injectors": {"defaultRequire": 1}
+}

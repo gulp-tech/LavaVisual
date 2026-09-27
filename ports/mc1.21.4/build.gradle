@@ -1,0 +1,52 @@
+plugins {
+    id 'net.fabricmc.fabric-loom-remap' version '1.17.21'
+}
+version = project.mod_version
+group = 'tech.gulp'
+base { archivesName = 'lavavisual' }
+repositories { mavenCentral() }
+// Pure-Java audio decoders copied into the mod jar (no nested jars): JavaMP3 (MIT) and Concentus Opus (BSD).
+configurations {
+    bundle
+    implementation.extendsFrom(bundle)
+}
+dependencies {
+    bundle 'fr.delthas:javamp3:1.0.1'
+    bundle 'io.github.jaredmdobson:concentus:1.0.2'
+}
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') { expand version: project.version }
+}
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    withSourcesJar()
+}
+tasks.withType(JavaCompile).configureEach { options.release = 21; options.encoding = 'UTF-8' }
+test { useJUnitPlatform() }
+loom {
+    runs {
+        // Larger dev window for the CI screenshots (the release JAR is unaffected).
+        client { programArgs '--width', '1280', '--height', '960' }
+    }
+}
+jar {
+    from('LICENSE')
+    from({ configurations.bundle.collect { zipTree(it) } }) { exclude 'META-INF/**', 'module-info.class' }
+}
+
+// Writes the compile classpath so CI can dump the real API of this Minecraft version with javap.
+tasks.register('classpathFile') {
+    def out = layout.buildDirectory.file('compile-classpath.txt')
+    outputs.file(out)
+    def cp = sourceSets.main.compileClasspath
+    doLast { out.get().asFile.text = cp.asPath }
+}
