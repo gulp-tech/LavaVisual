@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+}
+
+group = 'tech.gulp.lavavisual'
+base.archivesName = 'LavaVisual-Bedrock'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://repo.opencollab.dev/main/' }
+    maven { url 'https://libraries.minecraft.net/' }
+    maven { url 'https://repo.papermc.io/repository/maven-public/' }
+}
+
+dependencies {
+    // Everything comes from Geyser at runtime; nothing is bundled.
+    compileOnly "org.geysermc.geyser:api:${geyser_version}"
+    compileOnly "org.geysermc.geyser:core:${geyser_version}"
+    compileOnly "org.geysermc.mcprotocollib:protocol:${mcprotocollib_version}"
+
+    testImplementation "org.geysermc.geyser:api:${geyser_version}"
+    testImplementation 'com.google.code.gson:gson:2.11.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(21) }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 21
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('extension.yml') { expand(version: project.version) }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging { events 'failed'; exceptionFormat 'full'; showStandardStreams = true }
+}

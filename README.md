@@ -1,4 +1,4 @@
-# LavaVisual Beta 1.0.3 — Minecraft 26.2
+# LavaVisual Beta 1.0.4 — Minecraft 26.2
 
 <img src="ports/mc26.2/src/main/resources/assets/lavavisual/icon.png" width="96" alt="LV">
 
@@ -7,11 +7,15 @@
 
 | | Скачать | Что внутри |
 | --- | --- | --- |
-| **Мод** | [lavavisual-1.0.3-beta-mc26.2.jar](artifacts/lavavisual-1.0.3-beta-mc26.2.jar) | только LavaVisual, в папку `mods` |
-| **Клиент** | [LavaVisual-Client-1.0.3-beta-mc26.2.mrpack](artifacts/LavaVisual-Client-1.0.3-beta-mc26.2.mrpack) | готовая сборка для Modrinth App, Prism Launcher, ATLauncher |
-| **Клиент (архив)** | [LavaVisual-Client-1.0.3-beta-mc26.2.zip](artifacts/LavaVisual-Client-1.0.3-beta-mc26.2.zip) | папки `mods` и `config` для TLauncher, телефонов и ручной установки |
+| **Мод** | [lavavisual-1.0.4-beta-mc26.2.jar](artifacts/lavavisual-1.0.4-beta-mc26.2.jar) | только LavaVisual, в папку `mods` |
+| **Клиент** | [LavaVisual-Client-1.0.4-beta-mc26.2.mrpack](artifacts/LavaVisual-Client-1.0.4-beta-mc26.2.mrpack) | готовая сборка для Modrinth App, Prism Launcher, ATLauncher |
+| **Клиент (архив)** | [LavaVisual-Client-1.0.4-beta-mc26.2.zip](artifacts/LavaVisual-Client-1.0.4-beta-mc26.2.zip) | папки `mods` и `config` для TLauncher, телефонов и ручной установки |
 
 Контрольные суммы — в [SHA256SUMS](artifacts/SHA256SUMS).
+
+**Bedrock:** игроки Bedrock видят аксессуары LavaVisual-игроков (очки, наушники, шарф), если на сервере стоит
+расширение для Geyser — [LavaVisual-Bedrock-1.0.0.jar](artifacts/bedrock/LavaVisual-Bedrock-1.0.0.jar), подробности в
+[bedrock/README.md](bedrock/README.md).
 
 ![Главное меню](artifacts/ui-1.0-title.png)
 ![Меню](artifacts/ui-1.0-cosmetics.png)

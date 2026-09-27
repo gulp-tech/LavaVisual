@@ -1,0 +1,49 @@
+name: Build LavaVisual Bedrock (Geyser extension)
+on:
+  push:
+    paths: ['bedrock/**', '.github/workflows/bedrock.yml']
+  workflow_dispatch:
+concurrency:
+  group: lavavisual-bedrock-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v5
+      - name: Accessory geometry is up to date and stays outside the skin
+        run: |
+          python3 bedrock/tools/make_bedrock.py
+          git diff --exit-code -- bedrock/geyser-extension/src/main/resources/lavavisual
+      - name: Build the extension and run its tests
+        run: bedrock/geyser-extension/gradlew -p bedrock/geyser-extension build --no-daemon
+      - name: Load it in the latest Geyser Standalone
+        run: python3 bedrock/tools/geyser_smoke.py bedrock/geyser-extension/build/libs/LavaVisual-Bedrock-$(grep '^version=' bedrock/geyser-extension/gradle.properties | cut -d= -f2).jar
+      - name: Publish tested extension
+        if: github.event_name == 'push'
+        run: |
+          version=$(grep '^version=' bedrock/geyser-extension/gradle.properties | cut -d= -f2)
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3 4 5; do
+            git fetch -q origin "$GITHUB_REF_NAME" && git reset -q --hard "origin/$GITHUB_REF_NAME"
+            mkdir -p artifacts/bedrock
+            rm -f artifacts/bedrock/LavaVisual-Bedrock-*.jar
+            cp "bedrock/geyser-extension/build/libs/LavaVisual-Bedrock-${version}.jar" artifacts/bedrock/
+            (cd artifacts/bedrock && sha256sum *.jar > SHA256SUMS)
+            printf 'Source: %s\nBuild: https://github.com/%s/actions/runs/%s\nGeyser extension, tested with the latest Geyser Standalone\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" > artifacts/bedrock/BUILD.txt
+            git add artifacts/bedrock
+            git diff --cached --quiet && exit 0
+            git commit -q -m 'Publish tested Bedrock extension [skip ci]'
+            git push -q origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep $((attempt * 5))
+          done
+          exit 1

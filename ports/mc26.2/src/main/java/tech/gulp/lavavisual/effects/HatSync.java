@@ -188,7 +188,7 @@ public final class HatSync {
             UUID id = player.getUUID();
             Long seen = NEARBY.put(id, now);
             if (seen == null || now - seen > NEW_PLAYER_MEMORY) { pendingAny = true; MARKED_SEEN.remove(id); }
-            if (Badge.marked(player) && MARKED_SEEN.add(id)) pendingMarked = true;
+            if ((Badge.marked(player) || bedrock(id)) && MARKED_SEEN.add(id)) pendingMarked = true;
         }
         if (NEARBY.size() > 256) {
             NEARBY.values().removeIf(seen -> now - seen > NEW_PLAYER_MEMORY);
@@ -203,6 +203,10 @@ public final class HatSync {
         }
         return true;
     }
+
+    /** Bedrock players joining through Geyser with Floodgate (ids 00000000-0000-0000-...). The LavaVisual Geyser
+     *  extension shows them our accessories, so they hear the frames as soon as a LavaVisual player would. */
+    private static boolean bedrock(UUID id) { return id.getMostSignificantBits() == 0; }
 
     // ------------------------------------------------------------------------------------------------ receiver
 

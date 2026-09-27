@@ -1,0 +1,6 @@
+id: lavavisual
+name: LavaVisual
+main: tech.gulp.lavavisual.bedrock.LavaVisualBedrock
+api: 2.11.0
+version: ${version}
+authors: [gulp-tech]
