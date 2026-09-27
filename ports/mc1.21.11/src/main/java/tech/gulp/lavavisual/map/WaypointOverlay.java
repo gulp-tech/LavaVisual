@@ -33,7 +33,6 @@ public final class WaypointOverlay {
         Quaternionf inverse = camera.orientation == null ? null : new Quaternionf(camera.orientation).conjugate();
         double tanHalf = Math.tan(Math.toRadians(mc.options.fov().get()) / 2);
         float aspect = (float) mc.getWindow().getWidth() / Math.max(1, mc.getWindow().getHeight());
-        boolean perspective = camera.projectionMatrix != null && Math.abs(camera.projectionMatrix.m23() + 1) < 0.2f;
         for (Waypoints.Point p : points) {
             if (!p.visible) continue;
             double wx = p.x + 0.5, wy = p.y, wz = p.z + 0.5;
@@ -46,16 +45,10 @@ public final class WaypointOverlay {
             // View rotation from the camera orientation (valid during extraction); projection from the frame when it is a real perspective matrix.
             Vector3f view = new Vector3f((float) ax, (float) ay, (float) az);
             if (inverse != null) view.rotate(inverse);
-            else if (camera.viewRotationMatrix != null) camera.viewRotationMatrix.transformDirection(view);
             else continue;
             boolean front = view.z < -0.01f;
             float nx, ny;
-            if (perspective) {
-                Vector4f clip = new Vector4f(view, 1f);
-                camera.projectionMatrix.transform(clip);
-                float w = Math.max(0.01f, Math.abs(clip.w));
-                nx = clip.x / w; ny = clip.y / w;
-            } else {
+            {
                 float depth = Math.max(0.01f, Math.abs(view.z));
                 nx = (float) (view.x / depth / tanHalf / aspect); ny = (float) (view.y / depth / tanHalf);
             }

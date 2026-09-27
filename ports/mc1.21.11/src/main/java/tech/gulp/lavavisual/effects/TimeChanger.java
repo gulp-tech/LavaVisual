@@ -17,7 +17,7 @@ public final class TimeChanger {
         var c = LavaVisualClient.config();
         if (!c.timeEnabled) return original;
         var level = Minecraft.getInstance().level;
-        if (level == null || !level.dimensionType().natural()) return original;
+        if (level == null || !level.dimensionType().hasSkyLight()) return original;
         long target = Math.floorMod(Math.round(c.timeTicks), 24000L);
         return Math.floorDiv(original, 24000L) * 24000L + target;
     }

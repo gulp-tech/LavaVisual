@@ -180,7 +180,7 @@ public final class LavaVisualClient implements ClientModInitializer {
         HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, original -> (g, delta) -> {
             Minecraft client = Minecraft.getInstance();
             if (!config.crosshairEnabled || client.player == null || client.player.isSpectator()
-                    || !client.options.getCameraType().isFirstPerson()) original.extractRenderState(g, delta);
+                    || !client.options.getCameraType().isFirstPerson()) original.render(g, delta);
             else HudRenderer.crosshair(g);
         });
     }

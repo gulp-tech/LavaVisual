@@ -110,7 +110,7 @@ public final class WorldCosmetics {
                     .withCull(false).build())).sortOnUpload().createRenderSetup());
     private WorldCosmetics() { }
     public static void register() {
-        net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
+        net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
             if (renderer instanceof net.minecraft.client.renderer.entity.player.AvatarRenderer<?> avatar) helper.register(new CosmeticLayer(avatar));
         });
         AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {

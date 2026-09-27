@@ -133,7 +133,7 @@ public final class HudRenderer {
                     g.pose().scale((float) scaleAnim);
                     g.pose().translate(-bw / 2f, -bh / 2f);
                 }
-                if (edit && id.equals(selected)) g.outline(-3, -3, bw + 6, bh + 6, UiDraw.alpha(accent, 0.9));
+                if (edit && id.equals(selected)) g.renderOutline(-3, -3, bw + 6, bh + 6, UiDraw.alpha(accent, 0.9));
                 switch (id) {
                     case "target" -> target(g, mc, c, w, target, fade, accent, accent2, dt);
                     case "keys" -> keys(g, mc, c, w, accent, accent2, dt);
@@ -239,7 +239,7 @@ public final class HudRenderer {
         String value;
         if (id.equals("totems")) {
             // Item components are bound only inside a world; the title-screen editor shows an icon instead.
-            if (mc.level != null) g.item(new ItemStack(Items.TOTEM_OF_UNDYING), 7, 7);
+            if (mc.level != null) g.renderItem(new ItemStack(Items.TOTEM_OF_UNDYING), 7, 7);
             else UiFont.icon(g, font, Icons.HEART_PULSE, 10, 10, UiDraw.alpha(accent, 1));
             value = totems(mc);
         } else {
@@ -304,7 +304,7 @@ public final class HudRenderer {
                 UiFont.centered(g, font, "—", x + 10, y + 22, 0xFF5D6472, Face.SMALL);
                 continue;
             }
-            g.item(stack, x + 2, y + 2);
+            g.renderItem(stack, x + 2, y + 2);
             if (stack.isDamageableItem() && stack.getMaxDamage() > 0) {
                 double ratio = Math.clamp(1 - (double) stack.getDamageValue() / stack.getMaxDamage(), 0, 1);
                 int color = durability(ratio);
@@ -405,7 +405,7 @@ public final class HudRenderer {
         g.pose().pushMatrix();
         try {
             g.pose().identity();
-            InventoryScreen.extractEntityInInventoryFollowsMouse(g, x0, y0, x1, y1, scale, 0.0625f, cx + 18, cy - 6, entity);
+            InventoryScreen.renderEntityInInventoryFollowsMouse(g, x0, y0, x1, y1, scale, 0.0625f, cx + 18, cy - 6, entity);
             return true;
         } catch (RuntimeException error) {
             return false;
@@ -499,7 +499,7 @@ public final class HudRenderer {
                     if (i < 4) g.blitSprite(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath("minecraft", ARMOR_SPRITES[i]), sx + 2, sy + 2, 15, 15, UiDraw.alpha(0xFFFFFF, 0.3 * fade));
                     continue;
                 }
-                g.item(stack, sx + 2, sy + 1);
+                g.renderItem(stack, sx + 2, sy + 1);
                 if (stack.isDamageableItem() && stack.getMaxDamage() > 0) {
                     double left = Math.clamp(1 - (double) stack.getDamageValue() / stack.getMaxDamage(), 0, 1);
                     g.fill(sx + 3, sy + 17, sx + 16, sy + 18, 0xFF2A2D35);
