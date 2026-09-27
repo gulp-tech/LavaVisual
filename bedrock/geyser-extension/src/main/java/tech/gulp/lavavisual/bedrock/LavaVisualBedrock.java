@@ -45,8 +45,15 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.Clie
  * geometry for the accessories (see Accessories).
  */
 public final class LavaVisualBedrock implements Extension {
-    /** DATA_PLAYER_MODE_CUSTOMISATION of Avatar in Java 26.x (entity 0..7, living entity 8..14, main hand 15). */
-    static final int SKIN_PARTS = 16;
+    /**
+     * DATA_PLAYER_MODE_CUSTOMISATION of Avatar: index 16 in Java 26.x, 17 on older servers. Both are read; frames
+     * carry a preamble and a check, so a byte from another field is dropped instead of being decoded as an outfit.
+     */
+    static final int SKIN_PARTS = 16, SKIN_PARTS_OLD = 17;
+    private static final long REPORT_EVERY = 30_000;
+    private final java.util.concurrent.atomic.AtomicLong bits = new java.util.concurrent.atomic.AtomicLong();
+    private final java.util.Set<UUID> reported = java.util.concurrent.ConcurrentHashMap.newKeySet();
+    private long nextReport;
     private final Receiver receiver = new Receiver();
     private final Map<GeyserSession, ClientSession> attached = new ConcurrentHashMap<>();
     /** Per Bedrock player: what each Java player's skin was last sent with (entity id and accessories). */
@@ -121,6 +128,7 @@ public final class LavaVisualBedrock implements Extension {
                     attach(session);
                 }
             }
+            report(now, sessions);
             receiver.tick(now, id -> {
                 for (GeyserSession session : sessions) if (session.getEntityCache().getPlayerEntity(id) != null) return true;
                 return false;
@@ -137,6 +145,9 @@ public final class LavaVisualBedrock implements Extension {
                     Long last = seen.get(id);
                     if (last == null ? outfit == null : last == stamp) continue;
                     seen.put(id, stamp);
+                    if (outfit != null && reported.add(id))
+                        logger().info("LavaVisual: " + name(session, id) + " wears accessories " + outfit.extras()
+                            + " colour " + outfit.extrasColor() + ", sending the skin to " + session.bedrockUsername());
                     session.executeInEventLoop(() -> resend(session, id));
                 }
             }
@@ -144,6 +155,21 @@ public final class LavaVisualBedrock implements Extension {
             failed = true;
             logger().error("LavaVisual Bedrock stopped: this Geyser build is not supported", error);
         }
+    }
+
+    /** A line every 30 seconds while Bedrock players are online, so the console shows whether anything arrives. */
+    private void report(long now, List<GeyserSession> sessions) {
+        if (sessions.isEmpty() || now < nextReport) return;
+        nextReport = now + REPORT_EVERY;
+        logger().info("LavaVisual: " + sessions.size() + " Bedrock player(s), " + bits.get()
+            + " skin-setting update(s) from Java players, " + receiver.dressed().size() + " of them wearing accessories."
+            + (bits.get() == 0 ? " Nothing received yet: a Java player with LavaVisual and accessories switched on has"
+            + " to be visible to a Bedrock player." : ""));
+    }
+
+    private static String name(GeyserSession session, UUID id) {
+        PlayerEntity entity = session.getEntityCache().getPlayerEntity(id);
+        return entity == null ? id.toString() : entity.getUsername();
     }
 
     /** Listens to the Java server's entity data on the Bedrock player's connection (again after a server switch). */
@@ -159,7 +185,7 @@ public final class LavaVisualBedrock implements Extension {
                 if (!(packet instanceof ClientboundSetEntityDataPacket data)) return;
                 ByteEntityMetadata parts = null;
                 for (EntityMetadata<?, ?> entry : data.getMetadata())
-                    if (entry.getId() == SKIN_PARTS && entry instanceof ByteEntityMetadata value) parts = value;
+                    if ((entry.getId() == SKIN_PARTS || entry.getId() == SKIN_PARTS_OLD) && entry instanceof ByteEntityMetadata value) parts = value;
                 if (parts == null) return;
                 long time = now();
                 boolean bit = (parts.getPrimitiveValue() & 0x80) != 0;
@@ -167,7 +193,10 @@ public final class LavaVisualBedrock implements Extension {
                 // After Geyser has translated this packet (it runs on the same loop), so a new player is known.
                 session.executeInEventLoop(() -> {
                     Entity entity = session.getEntityCache().getEntityByJavaId(entityId);
-                    if (entity instanceof PlayerEntity player && player != session.getPlayerEntity()) receiver.observe(player.uuid(), bit, time);
+                    if (entity instanceof PlayerEntity player && player != session.getPlayerEntity()) {
+                        bits.incrementAndGet();
+                        receiver.observe(player.uuid(), bit, time);
+                    }
                 });
             }
         });

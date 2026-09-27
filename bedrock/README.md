@@ -23,7 +23,7 @@
 
 ## Установка
 
-1. Скачайте [LavaVisual-Bedrock-1.0.0.jar](../artifacts/bedrock/LavaVisual-Bedrock-1.0.0.jar).
+1. Скачайте [LavaVisual-Bedrock-1.0.1.jar](../artifacts/bedrock/LavaVisual-Bedrock-1.0.1.jar).
 2. Положите файл в папку `extensions` у Geyser:
 
    | Где стоит Geyser | Папка |
@@ -63,7 +63,7 @@
 ```
 python3 bedrock/tools/make_bedrock.py --preview preview.png   # модели аксессуаров и картинка с ними
 bedrock/geyser-extension/gradlew -p bedrock/geyser-extension build
-python3 bedrock/tools/geyser_smoke.py bedrock/geyser-extension/build/libs/LavaVisual-Bedrock-1.0.0.jar
+python3 bedrock/tools/geyser_smoke.py bedrock/geyser-extension/build/libs/LavaVisual-Bedrock-1.0.1.jar
 ```
 
 - `tools/make_bedrock.py` пишет геометрию и проверяет, что каждый кубик лежит снаружи второго слоя скина.

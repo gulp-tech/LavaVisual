@@ -14,7 +14,7 @@
 Контрольные суммы — в [SHA256SUMS](artifacts/SHA256SUMS).
 
 **Bedrock:** игроки Bedrock видят аксессуары LavaVisual-игроков (очки, наушники, шарф), если на сервере стоит
-расширение для Geyser — [LavaVisual-Bedrock-1.0.0.jar](artifacts/bedrock/LavaVisual-Bedrock-1.0.0.jar), подробности в
+расширение для Geyser — [LavaVisual-Bedrock-1.0.1.jar](artifacts/bedrock/LavaVisual-Bedrock-1.0.1.jar), подробности в
 [bedrock/README.md](bedrock/README.md).
 
 **Скины для Bedrock:** готовый пак с аксессуарами —
