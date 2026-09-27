@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="LavaTheme" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#101116</item>
+        <item name="android:colorAccent">#FF7A2F</item>
+        <item name="android:statusBarColor">#101116</item>
+        <item name="android:navigationBarColor">#101116</item>
+    </style>
+
+    <style name="LavaTransparent" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+</resources>

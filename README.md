@@ -17,6 +17,10 @@
 расширение для Geyser — [LavaVisual-Bedrock-1.0.0.jar](artifacts/bedrock/LavaVisual-Bedrock-1.0.0.jar), подробности в
 [bedrock/README.md](bedrock/README.md).
 
+**Приложение для Bedrock (Android):** значок LV поверх игры с меню визуала, HUD и аксессуарами в виде пака скина —
+[LavaVisual-1.0.0.apk](artifacts/bedrock-app/LavaVisual-1.0.0.apk), инструкция в
+[bedrock-app/README.md](bedrock-app/README.md).
+
 ![Главное меню](artifacts/ui-1.0-title.png)
 ![Меню](artifacts/ui-1.0-cosmetics.png)
 ![Плащ с физикой ткани](artifacts/ui-1.0-world_outfit_back.png)
