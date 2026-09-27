@@ -63,7 +63,9 @@ class AccessoriesTest {
                 int rgb = (painted.skinData()[at] & 255) << 16 | (painted.skinData()[at + 1] & 255) << 8 | painted.skinData()[at + 2] & 255;
                 if (cell >= 0 && cell < palette.length) {
                     assertEquals(palette[cell], rgb, "cell " + cell);
-                    assertEquals(255, painted.skinData()[at + 3] & 255);
+                    // mask 5 = glasses and scarf: the headphone cells 3..6 stay transparent, the rest opaque.
+                    boolean worn = cell < 3 || cell > 6;
+                    assertEquals(worn ? 255 : 0, painted.skinData()[at + 3] & 255, "alpha of cell " + cell);
                 } else {
                     assertEquals(0x070707, rgb, "pixel " + x + "," + y);
                 }
@@ -74,11 +76,29 @@ class AccessoriesTest {
 
     @Test
     void coloursFollowTheMod() {
-        assertEquals(Colors.code(9), Accessories.palette(9)[0]);
-        assertEquals(Colors.companion(Colors.code(9)), Accessories.palette(9)[1]);
+        assertEquals(16, Accessories.CELLS);
+        assertEquals(Colors.code(9), Accessories.palette(9)[0], "the glasses frame");
+        assertEquals(Colors.code(9), Accessories.palette(9)[4], "the headphone strip");
+        assertEquals(Colors.code(9), Accessories.palette(9)[7], "the scarf");
+        assertEquals(Colors.companion(Colors.code(9)), Accessories.palette(9)[8], "the scarf's second tone");
         assertEquals(0xF2F2F2, Accessories.palette(28)[0]);
         Set<Integer> hues = new HashSet<>();
-        for (int k = 6; k < 12; k++) hues.add(Accessories.palette(0)[k]);
-        assertEquals(6, hues.size());
+        for (int k = 10; k < 16; k++) hues.add(Accessories.palette(0)[k]);
+        assertEquals(6, hues.size(), "a rainbow scarf uses six hues");
+        Set<Integer> plain = new HashSet<>();
+        for (int k = 10; k < 16; k++) plain.add(Accessories.palette(9)[k]);
+        assertEquals(2, plain.size(), "an ordinary scarf keeps its two tones");
+    }
+
+    @Test
+    void accessoriesThatAreNotWornArePaintedAway() {
+        byte[] data = new byte[64 * 64 * 4];
+        Skin painted = Accessories.paint(new Skin("x", data), 2, 9);   // headphones only
+        assertNotNull(painted);
+        int[] owner = {1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4};
+        for (int cell = 0; cell < Accessories.CELLS; cell++) {
+            int x = (cell % 4) * 2, y = (cell / 4) * 2, at = (y * 64 + x) * 4;
+            assertEquals(owner[cell] == 2 ? 255 : 0, painted.skinData()[at + 3] & 255, "cell " + cell);
+        }
     }
 }

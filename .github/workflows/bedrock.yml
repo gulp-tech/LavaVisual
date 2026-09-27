@@ -23,10 +23,11 @@ jobs:
         run: |
           python3 bedrock/tools/make_bedrock.py
           git diff --exit-code -- bedrock/geyser-extension/src/main/resources/lavavisual
-      - name: Build the ready-made skin pack and check it
+      - name: Build the server pack and the ready-made skins, and check them
         run: |
           pip install --quiet pillow numpy
           python3 bedrock/tools/make_mcpack.py bedrock/build/LavaVisual-Skins-1.0.0.mcpack
+          python3 bedrock/tools/make_serverpack.py bedrock/build/LavaVisual-Bedrock-Pack-1.0.0.mcpack
 
       - name: Build the extension and run its tests
         run: bedrock/geyser-extension/gradlew -p bedrock/geyser-extension build --no-daemon
@@ -43,7 +44,7 @@ jobs:
             mkdir -p artifacts/bedrock
             rm -f artifacts/bedrock/LavaVisual-Bedrock-*.jar
             cp "bedrock/geyser-extension/build/libs/LavaVisual-Bedrock-${version}.jar" artifacts/bedrock/
-            cp bedrock/build/LavaVisual-Skins-1.0.0.mcpack artifacts/bedrock/
+            cp bedrock/build/LavaVisual-Skins-1.0.0.mcpack bedrock/build/LavaVisual-Bedrock-Pack-1.0.0.mcpack artifacts/bedrock/
             (cd artifacts/bedrock && sha256sum *.jar *.mcpack > SHA256SUMS)
             printf 'Source: %s\nBuild: https://github.com/%s/actions/runs/%s\nGeyser extension, tested with the latest Geyser Standalone\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" > artifacts/bedrock/BUILD.txt
             git add artifacts/bedrock

@@ -22,7 +22,14 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'geyser-extension/src/main/resources/lavavisual/geometry'
 NAMES = {1: 'glasses', 2: 'headphones', 4: 'scarf'}
 # Palette cells (index -> what it holds); the extension paints the same indices (Accessories.java).
-PALETTE = ['main', 'light', 'lens', 'white', 'cushion', 'band', 'hue0', 'hue1', 'hue2', 'hue3', 'hue4', 'hue5', 'dark']
+# One cell per accessory, never shared, so an accessory a player does not wear can be painted fully transparent and
+# its cubes disappear even in the shared geometry of the server pack.
+PALETTE = ['g_main', 'g_lens', 'g_white',
+           'h_band', 'h_main', 'h_cushion', 'h_light',
+           's_main', 's_light', 's_dark',
+           'hue0', 'hue1', 'hue2', 'hue3', 'hue4', 'hue5']
+GROUPS = {1: ('g_main', 'g_lens', 'g_white'), 2: ('h_band', 'h_main', 'h_cushion', 'h_light'),
+          4: ('s_main', 's_light', 's_dark', 'hue0', 'hue1', 'hue2', 'hue3', 'hue4', 'hue5')}
 CELL = {name: i for i, name in enumerate(PALETTE)}
 GAP = 0.1  # px between an accessory and the outer skin layer
 
@@ -53,33 +60,33 @@ def glasses():
     c = []
     for s in (1, -1):
         lo, hi = sorted((s * 0.8, s * 3.1))
-        c.append(cube(lo, hi, 2.75, 4.35, 4.5 + GAP, front0 + 0.1, 'lens'))                  # tinted lens
+        c.append(cube(lo, hi, 2.75, 4.35, 4.5 + GAP, front0 + 0.1, 'g_lens'))                  # tinted lens
         hl0, hl1 = sorted((s * 2.3, s * 2.75))
-        c.append(cube(hl0, hl1, 3.75, 4.15, front0 + 0.1, front0 + 0.14, 'white'))           # glint
+        c.append(cube(hl0, hl1, 3.75, 4.15, front0 + 0.1, front0 + 0.14, 'g_white'))           # glint
         for x0, x1, y0, y1 in ((0.5, 3.4, 4.35, 4.65), (0.5, 3.4, 2.45, 2.75), (0.5, 0.8, 2.75, 4.35), (3.1, 3.4, 2.75, 4.35)):
             a, b = sorted((s * x0, s * x1))
-            c.append(cube(a, b, y0, y1, front0, front1, 'main'))                              # frame
+            c.append(cube(a, b, y0, y1, front0, front1, 'g_main'))                              # frame
         a, b = sorted((s * 3.4, s * (4.5 + GAP + 0.3)))
-        c.append(cube(a, b, 3.95, 4.25, front0, front1, 'main'))                              # hinge round the corner
+        c.append(cube(a, b, 3.95, 4.25, front0, front1, 'g_main'))                              # hinge round the corner
         a, b = sorted((s * (4.5 + GAP), s * (4.5 + GAP + 0.3)))
-        c.append(cube(a, b, 3.95, 4.25, 0.8, front1, 'main'))                                 # temple to the ear
-    c.append(cube(-0.5, 0.5, 3.9, 4.2, front0, front1, 'main'))                               # bridge
+        c.append(cube(a, b, 3.95, 4.25, 0.8, front1, 'g_main'))                                 # temple to the ear
+    c.append(cube(-0.5, 0.5, 3.9, 4.2, front0, front1, 'g_main'))                               # bridge
     return c
 
 
 def headphones():
     top = 8.5 + GAP
     side = 4.5 + GAP
-    c = [cube(-side - 0.7, side + 0.7, top, top + 0.7, -0.55, 0.55, 'band'),                  # band over the head
-         cube(-3.5, 3.5, top + 0.7, top + 0.95, -0.3, 0.3, 'main')]                          # coloured strip on it
-    c += mirrored(side, side + 0.7, 5.3, top + 0.7, -0.55, 0.55, 'band')                      # band down the sides
-    c += mirrored(side + 0.3, side + 1.3, 2.3, 5.5, -1.6, 1.6, 'main')                        # cups
-    c += mirrored(side, side + 0.3, 2.5, 5.3, -1.4, 1.4, 'cushion')                           # cushions
-    c += mirrored(side + 1.3, side + 1.45, 3.0, 4.8, -0.9, 0.9, 'light')                      # glowing rim
+    c = [cube(-side - 0.7, side + 0.7, top, top + 0.7, -0.55, 0.55, 'h_band'),                  # band over the head
+         cube(-3.5, 3.5, top + 0.7, top + 0.95, -0.3, 0.3, 'h_main')]                          # coloured strip on it
+    c += mirrored(side, side + 0.7, 5.3, top + 0.7, -0.55, 0.55, 'h_band')                      # band down the sides
+    c += mirrored(side + 0.3, side + 1.3, 2.3, 5.5, -1.6, 1.6, 'h_main')                        # cups
+    c += mirrored(side, side + 0.3, 2.5, 5.3, -1.4, 1.4, 'h_cushion')                           # cushions
+    c += mirrored(side + 1.3, side + 1.45, 3.0, 4.8, -0.9, 0.9, 'h_light')                      # glowing rim
     return c
 
 
-def scarf(rainbow_cells=('main', 'light')):
+def scarf():
     """Round the top of the torso just under the hat layer, 0.1 px off the jacket; the sides run inside the arms
     (there is no neck between them), the back is thinner."""
     y0, y1 = -2.15, -0.5 - GAP              # under the hat layer's lower edge
@@ -88,15 +95,15 @@ def scarf(rainbow_cells=('main', 'light')):
     c = []
     edges = [-4.9, -2.94, -0.98, 0.98, 2.94, 4.9]
     for i in range(5):
-        c.append(cube(edges[i], edges[i + 1], y0, y1, zf0, zf1, ('main', 'light')[i % 2]))    # front, striped
-        c.append(cube(edges[i], edges[i + 1], y0 + 0.25, y1 - 0.25, zb0, zb1, ('main', 'light')[i % 2]))  # back
-    c += mirrored(4.35, 5.55, y0, y1, zb0, zf1, 'main')                                       # sides, under the arms
+        c.append(cube(edges[i], edges[i + 1], y0, y1, zf0, zf1, ('s_main', 's_light')[i % 2]))    # front, striped
+        c.append(cube(edges[i], edges[i + 1], y0 + 0.25, y1 - 0.25, zb0, zb1, ('s_main', 's_light')[i % 2]))  # back
+    c += mirrored(4.35, 5.55, y0, y1, zb0, zf1, 's_main')                                       # sides, under the arms
     tail = [(-2.6, -0.6), (-4.4, -2.6), (-6.2, -4.4), (-8.2, -6.2)]
     for i, (a, b) in enumerate(tail):
-        c.append(cube(0.9, 2.5, a, b, zf0 + 0.2, zf1 - 0.3, ('light', 'main')[i % 2]))       # tail, striped
-    c.append(cube(0.75, 2.65, -2.6, y1, zf0 + 0.9, zf1 + 0.35, 'dark'))                       # knot
+        c.append(cube(0.9, 2.5, a, b, zf0 + 0.2, zf1 - 0.3, ('s_light', 's_main')[i % 2]))       # tail, striped
+    c.append(cube(0.75, 2.65, -2.6, y1, zf0 + 0.9, zf1 + 0.35, 's_dark'))                       # knot
     for x in (1.0, 1.4, 1.8, 2.2):
-        c.append(cube(x, x + 0.25, -8.9, -8.2, zf0 + 0.8, zf0 + 1.05, 'light'))              # fringe
+        c.append(cube(x, x + 0.25, -8.9, -8.2, zf0 + 0.8, zf0 + 1.05, 's_light'))              # fringe
     return c
 
 
@@ -106,7 +113,7 @@ def rainbow(cubes):
     out = []
     for cb in cubes:
         paint = next(name for name, i in CELL.items() if face_uv(name) == cb['uv'])
-        if paint in ('main', 'light'):
+        if paint in ('s_main', 's_light'):
             x0, x1, y0, y1, z0, z1 = cb['_box']
             cb = cube(x0, x1, y0, y1, z0, z1, f'hue{k % 6}')
             k += 1
@@ -218,23 +225,64 @@ def test_skin():
     fill(40, 16, 56, 32, (196, 146, 110)); fill(32, 48, 48, 64, (196, 146, 110))   # arms
     fill(40, 16, 56, 20, (70, 120, 90)); fill(32, 48, 48, 52, (70, 120, 90))       # sleeves' tops
     fill(0, 16, 16, 32, (50, 60, 110)); fill(16, 48, 32, 64, (50, 60, 110))         # legs
-    for i, rgb in enumerate(palette(0xFF6A2B)):
+    for i, cell in enumerate(palette(0xFF6A2B)):
         x, y = (i % 4) * 2, (i // 4) * 2
-        fill(x, y, x + 2, y + 2, rgb)
+        fill(x, y, x + 2, y + 2, cell[:3], cell[3])
     return img
 
 
-def palette(main):
-    """The colours Accessories.java paints for one accessory colour (companion tone as in the mod)."""
+def palette(main, mask=7, rainbow=False):
+    """
+    The 16 palette cells Accessories.java paints, as RGBA. Cells of accessories the player does not wear are fully
+    transparent, so those cubes vanish even in the shared geometry of the server pack. The stripe cells hue0..hue5
+    carry the rainbow hues for a rainbow scarf and the two ordinary tones otherwise.
+    """
     import colorsys
     r, g, b = (main >> 16 & 255) / 255, (main >> 8 & 255) / 255, (main & 255) / 255
-    h, s, v = colorsys.rgb_to_hsv(r, g, b)
-    light = colorsys.hsv_to_rgb((h + 0.09) % 1, min(1, s * 0.92), min(1, v * 0.9 + 0.1)) if s >= 0.08 else (r, g, b)
+    if rainbow:
+        r, g, b = colorsys.hsv_to_rgb(0.03, 0.72, 1)
+        light = colorsys.hsv_to_rgb(0.19, 0.72, 1)
+    else:
+        h, s, v = colorsys.rgb_to_hsv(r, g, b)
+        light = colorsys.hsv_to_rgb((h + 0.09) % 1, min(1, s * 0.92), min(1, v * 0.9 + 0.1)) if s >= 0.08 else (r, g, b)
     dark = (r * 0.62, g * 0.62, b * 0.62)
-    hues = [colorsys.hsv_to_rgb(k / 6, 0.72, 1) for k in range(6)]
-    cells = [(r, g, b), light, (29 / 255, 30 / 255, 36 / 255), (242 / 255, 244 / 255, 248 / 255), (22 / 255, 22 / 255, 28 / 255),
-             (40 / 255, 42 / 255, 50 / 255)] + hues + [dark]
-    return [tuple(int(round(c * 255)) for c in cell) for cell in cells]
+    hues = [colorsys.hsv_to_rgb(k / 6, 0.72, 1) for k in range(6)] if rainbow else [(r, g, b), light] * 3
+    cells = {
+        'g_main': (r, g, b), 'g_lens': (29 / 255, 30 / 255, 36 / 255), 'g_white': (242 / 255, 244 / 255, 248 / 255),
+        'h_band': (40 / 255, 42 / 255, 50 / 255), 'h_main': (r, g, b), 'h_cushion': (22 / 255, 22 / 255, 28 / 255),
+        'h_light': light,
+        's_main': (r, g, b), 's_light': light, 's_dark': dark,
+    }
+    for k in range(6):
+        cells['hue%d' % k] = hues[k]
+    out = []
+    for name in PALETTE:
+        colour = cells[name]
+        worn = next(bit for bit, group in GROUPS.items() if name in group)
+        alpha = 255 if mask & worn else 0
+        out.append(tuple(int(round(c * 255)) for c in colour) + (alpha,))
+    return out
+
+
+def server_geometry():
+    """
+    The player model itself with all three accessories, for the Bedrock resource pack the server sends. It replaces
+    geometry.humanoid.custom, so every player is drawn with it; the accessory cubes read the palette corner of the
+    skin, which is transparent on ordinary skins, so nothing shows unless LavaVisual painted it.
+    """
+    models = []
+    for slim in (False, True):
+        bones = base_bones(slim)
+        for name, parent, cubes in (('lv_glasses', 'head', glasses()), ('lv_headphones', 'head', headphones()),
+                                    ('lv_scarf', 'body', rainbow(scarf()))):
+            bones.append({'name': name, 'parent': parent, 'pivot': [0.0, 24.0, 0.0],
+                          'cubes': [{k: v for k, v in cb.items() if k != '_box'} for cb in cubes]})
+        models.append({'description': {
+            'identifier': 'geometry.humanoid.customSlim' if slim else 'geometry.humanoid.custom',
+            'texture_width': 64, 'texture_height': 64,
+            'visible_bounds_width': 2, 'visible_bounds_height': 3, 'visible_bounds_offset': [0, 1.5, 0]},
+            'bones': bones})
+    return {'format_version': '1.12.0', 'minecraft:geometry': models}
 
 
 def preview(path):

@@ -117,9 +117,14 @@ class MenuView extends FrameLayout {
                 add(Ui.toggle(getContext(), "Тонкие руки", "Как у скина Alex", cfg.slim(), accent, on -> cfg.put("slim", on)));
                 section("Цвет", "Тот же набор цветов, что и в моде на Java.");
                 add(Ui.palette(getContext(), cfg.colorCode(), accent, code -> cfg.put("colorCode", code)));
-                String skin = cfg.skinUri().isEmpty() ? "Скин не выбран" : "Скин выбран";
-                content.addView(Ui.text(getContext(), skin + " · нужен файл .png 64×64", 12, Ui.DIM, false), Ui.wide(getContext(), 10));
-                add(Ui.button(getContext(), "Выбрать файл скина", accent, false, view -> skinAction("pick")));
+                String skin = cfg.skinUri().isEmpty() || "builtin".equals(cfg.skinUri())
+                        ? "Готовый скин LavaVisual (встроен в приложение)" : "Твой скин выбран";
+                content.addView(Ui.text(getContext(), skin, 12, Ui.DIM, false), Ui.wide(getContext(), 10));
+                add(Ui.button(getContext(), "Свой скин (.png 64×64)", accent, false, view -> skinAction("pick")));
+                content.addView(Ui.button(getContext(), "Вернуть готовый скин", accent, false, view -> {
+                    cfg.skinUri("builtin");
+                    drawContent();
+                }), Ui.wide(getContext(), 8));
                 content.addView(Ui.button(getContext(), "Собрать и открыть пак", accent, true, view -> skinAction("build")), Ui.wide(getContext(), 10));
                 break;
             }

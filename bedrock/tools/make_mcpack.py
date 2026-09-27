@@ -71,9 +71,16 @@ def base_skin(accent):
     fill(16, 48, 32, 64, jeans)            # left leg
     fill(0, 28, 16, 32, shoes); fill(16, 60, 32, 64, shoes)
 
-    for i, rgb in enumerate(make_bedrock.palette(accent)):
+    return img
+
+
+def painted(accent, mask, rainbow):
+    """The base character with the accessory palette in the corner: only the worn accessories are opaque."""
+    img = base_skin(accent).copy()
+    for i, cell in enumerate(make_bedrock.palette(accent, mask, rainbow)):
         x, y = (i % 4) * 2, (i // 4) * 2
-        fill(x, y, x + 2, y + 2, rgb)
+        img[y:y + 2, x:x + 2, :3] = cell[:3]
+        img[y:y + 2, x:x + 2, 3] = cell[3]
     return img
 
 
@@ -112,9 +119,9 @@ def build(path):
             if identifier not in seen:
                 seen.add(identifier)
                 geometries.extend(make_bedrock.geometry(mask, slim, rainbow)["minecraft:geometry"])
-            texture = "skin_%06x_%s.png" % (accent, "slim" if slim else "wide")
+            texture = "skin_%06x_%d%s.png" % (accent, mask, "_r" if rainbow else "")
             if texture not in textures:
-                textures[texture] = png(base_skin(accent))
+                textures[texture] = png(painted(accent, mask, rainbow))
             key = "lv_%d_%s_%s" % (mask, "r" if rainbow else "n", "slim" if slim else "wide")
             key += "_%06x" % accent
             skins.append({

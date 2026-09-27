@@ -6,9 +6,14 @@
 
 Это отдельная часть проекта, от Java-мода её сборка и версии не зависят.
 
-**Если вы просто игрок Bedrock и хотите аксессуары себе — скачайте готовый пак скинов
-[LavaVisual-Skins-1.0.0.mcpack](../artifacts/bedrock/LavaVisual-Skins-1.0.0.mcpack)** (см. раздел «Готовый пак скинов»
-ниже). Расширение ниже нужно только владельцу сервера.
+Чтобы всё работало, на сервер ставятся **две вещи**:
+
+| Файл | Куда | Зачем |
+| --- | --- | --- |
+| [LavaVisual-Bedrock-1.1.0.jar](../artifacts/bedrock/LavaVisual-Bedrock-1.1.0.jar) | папка `extensions` у Geyser | узнаёт, кто из Java-игроков что носит, и красит скины |
+| [LavaVisual-Bedrock-Pack-1.0.0.mcpack](../artifacts/bedrock/LavaVisual-Bedrock-Pack-1.0.0.mcpack) | папка `packs` у Geyser | модель с аксессуарами, которую Geyser сам раздаёт телефонам |
+
+Пак **обязателен**: без него Bedrock рисует обычного человечка и аксессуарам не на чем появиться.
 
 ![Аксессуары на Bedrock-модели](../artifacts/bedrock/preview.png)
 
@@ -23,7 +28,7 @@
 
 ## Установка
 
-1. Скачайте [LavaVisual-Bedrock-1.0.1.jar](../artifacts/bedrock/LavaVisual-Bedrock-1.0.1.jar).
+1. Скачайте [LavaVisual-Bedrock-1.1.0.jar](../artifacts/bedrock/LavaVisual-Bedrock-1.1.0.jar).
 2. Положите файл в папку `extensions` у Geyser:
 
    | Где стоит Geyser | Папка |
@@ -63,7 +68,7 @@
 ```
 python3 bedrock/tools/make_bedrock.py --preview preview.png   # модели аксессуаров и картинка с ними
 bedrock/geyser-extension/gradlew -p bedrock/geyser-extension build
-python3 bedrock/tools/geyser_smoke.py bedrock/geyser-extension/build/libs/LavaVisual-Bedrock-1.0.1.jar
+python3 bedrock/tools/geyser_smoke.py bedrock/geyser-extension/build/libs/LavaVisual-Bedrock-1.1.0.jar
 ```
 
 - `tools/make_bedrock.py` пишет геометрию и проверяет, что каждый кубик лежит снаружи второго слоя скина.
@@ -72,6 +77,26 @@ python3 bedrock/tools/geyser_smoke.py bedrock/geyser-extension/build/libs/LavaVi
   jar в `artifacts/bedrock/`.
 - Код: `geyser-extension/src/main/java/tech/gulp/lavavisual/bedrock/`. Расшифровка кадров повторяет
   `effects/HatSync.java` из Java-мода.
+
+## Пак для сервера (обязательно)
+
+[LavaVisual-Bedrock-Pack-1.0.0.mcpack](../artifacts/bedrock/LavaVisual-Bedrock-Pack-1.0.0.mcpack) кладётся в папку
+`packs` рядом с папкой `extensions` у Geyser:
+
+| Где стоит Geyser | Папка |
+| --- | --- |
+| Paper / Spigot | `plugins/Geyser-Spigot/packs/` |
+| Velocity | `plugins/Geyser-Velocity/packs/` |
+| BungeeCord | `plugins/Geyser-BungeeCord/packs/` |
+| Standalone | `packs/` рядом с jar |
+
+Папку `packs` Geyser создаёт сам при первом запуске. После перезапуска сервера Bedrock-игрок при заходе один раз
+скачает пак (несколько килобайт) — это обычная загрузка ресурс-пака, соглашаться в диалоге не нужно, Geyser
+отправляет его автоматически.
+
+Что делает пак: заменяет модель игрока (`geometry.humanoid.custom` и `customSlim`) на такую же модель плюс очки,
+наушники и шарф. Цвет этих кубиков берётся из угла 8×8 текстуры скина, который у обычных скинов пустой, поэтому
+игроки без LavaVisual выглядят точно так же, как раньше, и ничего лишнего у них не появляется.
 
 ## Готовый пак скинов (.mcpack)
 

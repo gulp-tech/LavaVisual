@@ -24,8 +24,8 @@ final class SkinPack {
 
     /** Reads the skin, paints the palette, writes the pack. Returns the file. */
     static File build(Context context, Cfg cfg) throws IOException {
-        if (cfg.skinUri().isEmpty()) throw new IOException("Сначала выбери файл скина .png");
-        Bitmap source = read(context, Uri.parse(cfg.skinUri()));
+        Bitmap source = cfg.skinUri().isEmpty() || "builtin".equals(cfg.skinUri())
+                ? builtin(context) : read(context, Uri.parse(cfg.skinUri()));
         if (source == null) throw new IOException("Не удалось прочитать картинку");
         Bitmap skin = square(source);
         if (skin == null) throw new IOException("Скин должен быть 64×64 или 64×32 пикселя, а этот "
@@ -33,13 +33,13 @@ final class SkinPack {
 
         int[] pixels = new int[SkinMath.SIZE * SkinMath.SIZE];
         skin.getPixels(pixels, 0, SkinMath.SIZE, 0, 0, SkinMath.SIZE, SkinMath.SIZE);
-        SkinMath.paint(pixels, cfg.colorCode());
+        int mask = cfg.mask();
+        if (mask == 0) throw new IOException("Включи хотя бы один аксессуар");
+        SkinMath.paint(pixels, cfg.colorCode(), mask);
         Bitmap painted = Bitmap.createBitmap(pixels, SkinMath.SIZE, SkinMath.SIZE, Bitmap.Config.ARGB_8888);
         ByteArrayOutputStream png = new ByteArrayOutputStream();
         painted.compress(Bitmap.CompressFormat.PNG, 100, png);
 
-        int mask = cfg.mask();
-        if (mask == 0) throw new IOException("Включи хотя бы один аксессуар");
         String name = SkinMath.geometryName(mask, cfg.rainbow(), cfg.slim());
         String geometry = asset(context, "geometry/" + name + ".json");
         byte[] pack = PackWriter.build("LavaVisual", "LavaVisual", png.toByteArray(), geometry,
@@ -50,6 +50,13 @@ final class SkinPack {
             stream.write(pack);
         }
         return out;
+    }
+
+    /** The character that ships with the app, for players who do not want to hunt for a skin file. */
+    private static Bitmap builtin(Context context) throws IOException {
+        try (InputStream in = context.getAssets().open("base_skin.png")) {
+            return BitmapFactory.decodeStream(in);
+        }
     }
 
     private static Bitmap read(Context context, Uri uri) throws IOException {
