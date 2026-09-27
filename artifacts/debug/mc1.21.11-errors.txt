@@ -9,42 +9,9 @@
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:6: error: cannot find symbol
   symbol:   class DepthStencilState
   location: package com.mojang.blaze3d.pipeline
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:36: error: cannot find symbol
-  symbol:   variable projectionMatrix
-  location: variable camera of type CameraRenderState
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:36: error: cannot find symbol
-  symbol:   variable projectionMatrix
-  location: variable camera of type CameraRenderState
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:49: error: cannot find symbol
-  symbol:   variable viewRotationMatrix
-  location: variable camera of type CameraRenderState
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:49: error: cannot find symbol
-  symbol:   variable viewRotationMatrix
-  location: variable camera of type CameraRenderState
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:55: error: cannot find symbol
-  symbol:   variable projectionMatrix
-  location: variable camera of type CameraRenderState
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:136: error: cannot find symbol
-  symbol:   method outline(int,int,int,int,int)
-  location: variable g of type GuiGraphics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:242: error: cannot find symbol
-  symbol:   method item(ItemStack,int,int)
-  location: variable g of type GuiGraphics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:307: error: cannot find symbol
-  symbol:   method item(ItemStack,int,int)
-  location: variable g of type GuiGraphics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:408: error: cannot find symbol
-  symbol:   method extractEntityInInventoryFollowsMouse(GuiGraphics,int,int,int,int,int,float,float,float,LivingEntity)
-  location: class InventoryScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:502: error: cannot find symbol
-  symbol:   method item(ItemStack,int,int)
-  location: variable g of type GuiGraphics
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:69: error: cannot find symbol
   symbol:   method getWidgets(Screen)
   location: class Screens
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:183: error: cannot find symbol
-  symbol:   method extractRenderState(GuiGraphics,DeltaTracker)
-  location: variable original of type HudElement
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
   symbol:   class ColorTargetState
   location: class WorldCosmetics
@@ -84,11 +51,6 @@
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:106: error: cannot find symbol
   symbol:   method withVertexBinding(int,VertexFormat)
   location: class Builder
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:113: error: package net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback does not exist
-        net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/TimeChanger.java:20: error: cannot find symbol
-  symbol:   method natural()
-  location: class DimensionType
 > Task :compileJava FAILED
 FAILURE: Build failed with an exception.
 * What went wrong:
@@ -102,21 +64,6 @@ FAILURE: Build failed with an exception.
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:6: error: cannot find symbol
     symbol:   class DepthStencilState
     location: package com.mojang.blaze3d.pipeline
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:36: error: cannot find symbol
-    symbol:   variable projectionMatrix
-    location: variable camera of type CameraRenderState
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:36: error: cannot find symbol
-    symbol:   variable projectionMatrix
-    location: variable camera of type CameraRenderState
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:49: error: cannot find symbol
-    symbol:   variable viewRotationMatrix
-    location: variable camera of type CameraRenderState
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:49: error: cannot find symbol
-    symbol:   variable viewRotationMatrix
-    location: variable camera of type CameraRenderState
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:55: error: cannot find symbol
-    symbol:   variable projectionMatrix
-    location: variable camera of type CameraRenderState
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
     symbol:   class ColorTargetState
     location: class WorldCosmetics
@@ -147,29 +94,9 @@ FAILURE: Build failed with an exception.
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:90: error: package DepthStencilState does not exist
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: package DepthStencilState does not exist
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:108: error: package DepthStencilState does not exist
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:113: error: package net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback does not exist
-          net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:136: error: cannot find symbol
-    symbol:   method outline(int,int,int,int,int)
-    location: variable g of type GuiGraphics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:242: error: cannot find symbol
-    symbol:   method item(ItemStack,int,int)
-    location: variable g of type GuiGraphics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:307: error: cannot find symbol
-    symbol:   method item(ItemStack,int,int)
-    location: variable g of type GuiGraphics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:408: error: cannot find symbol
-    symbol:   method extractEntityInInventoryFollowsMouse(GuiGraphics,int,int,int,int,int,float,float,float,LivingEntity)
-    location: class InventoryScreen
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:502: error: cannot find symbol
-    symbol:   method item(ItemStack,int,int)
-    location: variable g of type GuiGraphics
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:69: error: cannot find symbol
     symbol:   method getWidgets(Screen)
     location: class Screens
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:183: error: cannot find symbol
-    symbol:   method extractRenderState(GuiGraphics,DeltaTracker)
-    location: variable original of type HudElement
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:88: error: cannot find symbol
     symbol:   method withVertexBinding(int,VertexFormat)
     location: class Builder
@@ -179,9 +106,6 @@ FAILURE: Build failed with an exception.
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:106: error: cannot find symbol
     symbol:   method withVertexBinding(int,VertexFormat)
     location: class Builder
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/TimeChanger.java:20: error: cannot find symbol
-    symbol:   method natural()
-    location: class DimensionType
 > Check your code and dependencies to fix the compilation error(s)
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).
-64
+38
