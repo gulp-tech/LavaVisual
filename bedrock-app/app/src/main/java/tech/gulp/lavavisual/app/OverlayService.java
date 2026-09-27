@@ -121,6 +121,15 @@ public class OverlayService extends Service {
 
     // --- menu ---
 
+    /** The badge and the HUD step aside while the app's own screens are in front. */
+    static void hide(boolean hidden) {
+        OverlayService service = running;
+        if (service == null) return;
+        int state = hidden ? View.GONE : View.VISIBLE;
+        if (service.badge != null && service.menu == null) service.badge.setVisibility(state);
+        if (service.hud != null) service.hud.setVisibility(state);
+    }
+
     void openMenu() {
         if (menu != null) return;
         menu = new MenuView(this, cfg, this);

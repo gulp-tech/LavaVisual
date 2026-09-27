@@ -50,7 +50,13 @@ public class MainActivity extends Activity {
 
     @Override protected void onResume() {
         super.onResume();
+        OverlayService.hide(true);
         build();
+    }
+
+    @Override protected void onPause() {
+        super.onPause();
+        OverlayService.hide(false);
     }
 
     private boolean canOverlay() {

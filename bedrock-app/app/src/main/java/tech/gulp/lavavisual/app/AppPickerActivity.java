@@ -68,6 +68,16 @@ public class AppPickerActivity extends Activity {
         setContentView(scroll);
     }
 
+    @Override protected void onResume() {
+        super.onResume();
+        OverlayService.hide(true);
+    }
+
+    @Override protected void onPause() {
+        super.onPause();
+        OverlayService.hide(false);
+    }
+
     private int rank(String packageName) {
         for (String known : KNOWN) if (known.equals(packageName)) return 0;
         String lower = packageName.toLowerCase();
