@@ -7,6 +7,8 @@ PKG=tech.gulp.lavavisual.app
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SHOTS="$ROOT/build/shots"
 mkdir -p "$SHOTS"
+exec > >(tee "$SHOTS/log.txt") 2>&1
+set -x
 
 shot() { sleep "${2:-3}"; adb exec-out screencap -p > "$SHOTS/$1.png"; echo "shot $1"; }
 
