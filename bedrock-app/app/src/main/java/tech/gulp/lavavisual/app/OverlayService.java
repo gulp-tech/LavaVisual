@@ -209,7 +209,7 @@ public class OverlayService extends Service {
                 }
                 case MotionEvent.ACTION_UP:
                     if (moved) saver.save(layout.x, layout.y);
-                    else if (tap != null && System.currentTimeMillis() - down < 400) tap.run();
+                    else if (tap != null && System.currentTimeMillis() - down < 400) { Log.i("LavaVisual", "badge tapped"); tap.run(); }
                     return true;
                 default:
                     return false;

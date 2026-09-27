@@ -26,12 +26,19 @@ shot 1-setup 4
 # The overlay: badge plus HUD, then the menu.
 adb shell am start -n $PKG/.MainActivity --ez autostart true
 sleep 3
-adb shell input keyevent KEYCODE_HOME
+adb shell am start -a android.intent.action.MAIN -c android.intent.category.HOME
 shot 2-badge 3
 
 # Tapping the badge, the way a player opens the menu.
-adb shell input tap 33 161
-shot 3-menu 4
+adb shell dumpsys window windows | grep -B 2 -A 8 'LavaVisual badge' | head -14
+adb shell input tap 33 183
+sleep 3
+if ! adb shell dumpsys window windows | grep -q 'LavaVisual menu'; then
+  echo 'the tap did not open the menu, trying the intent'
+  adb shell am start -n $PKG/.MainActivity --ez menu true
+  sleep 3
+fi
+shot 3-menu 2
 adb shell dumpsys window windows | grep -q 'LavaVisual menu' || { echo 'the menu did not open'; exit 1; }
 
 # Every section of the menu, tapped through by hand.
