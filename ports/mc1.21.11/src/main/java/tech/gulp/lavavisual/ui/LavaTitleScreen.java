@@ -57,14 +57,14 @@ public final class LavaTitleScreen extends Screen {
     }
     @Override public boolean shouldCloseOnEsc() { return false; }
     @Override public boolean isPauseScreen() { return false; }
-    @Override public void extractBackground(GuiGraphics g, int mouseX, int mouseY, float delta) { extractPanorama(g, delta); }
+    @Override public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) { renderPanorama(g, delta); }
 
     private List<Item> items() {
         List<Item> list = new ArrayList<>();
-        list.add(new Item(Icons.USER, "Одиночная игра", () -> minecraft.gui.setScreen(new SelectWorldScreen(this))));
-        list.add(new Item(Icons.SERVER, "Сетевая игра", () -> minecraft.gui.setScreen(new JoinMultiplayerScreen(this))));
-        list.add(new Item(Icons.SPARKLES, "LavaVisual", () -> minecraft.gui.setScreen(new ClickGuiScreen())));
-        list.add(new Item(Icons.SETTINGS, "Настройки", () -> minecraft.gui.setScreen(new OptionsScreen(this, minecraft.options, false))));
+        list.add(new Item(Icons.USER, "Одиночная игра", () -> minecraft.setScreen(new SelectWorldScreen(this))));
+        list.add(new Item(Icons.SERVER, "Сетевая игра", () -> minecraft.setScreen(new JoinMultiplayerScreen(this))));
+        list.add(new Item(Icons.SPARKLES, "LavaVisual", () -> minecraft.setScreen(new ClickGuiScreen())));
+        list.add(new Item(Icons.SETTINGS, "Настройки", () -> minecraft.setScreen(new OptionsScreen(this, minecraft.options))));
         if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("modmenu")) list.add(new Item(Icons.LAYERS, "Моды", this::openMods));
         list.add(new Item(Icons.POWER, "Выход", () -> minecraft.stop()));
         return list;
@@ -72,13 +72,13 @@ public final class LavaTitleScreen extends Screen {
     private void openMods() {
         try {
             Object screen = Class.forName("com.terraformersmc.modmenu.gui.ModsScreen").getConstructor(Screen.class).newInstance(this);
-            minecraft.gui.setScreen((Screen) screen);
+            minecraft.setScreen((Screen) screen);
         } catch (ReflectiveOperationException | RuntimeException | LinkageError error) {
             LavaVisual.LOGGER.warn("LavaVisual: cannot open the mod list", error);
         }
     }
 
-    @Override public void extractRenderState(GuiGraphics g, int mouseX, int mouseY, float delta) {
+    @Override public void render(GuiGraphics g, int mouseX, int mouseY, float delta) {
         hits.clear();
         mx = mouseX; my = mouseY;
         var c = LavaVisualClient.config();
@@ -140,11 +140,11 @@ public final class LavaTitleScreen extends Screen {
         }
 
         // Top right: language and the way back to the vanilla menu.
-        corner(g, Icons.EARTH, "Язык", width - 34, 10, () -> minecraft.gui.setScreen(new LanguageSelectScreen(this, minecraft.options, minecraft.getLanguageManager())), ac, ac2, enter);
+        corner(g, Icons.EARTH, "Язык", width - 34, 10, () -> minecraft.setScreen(new LanguageSelectScreen(this, minecraft.options, minecraft.getLanguageManager())), ac, ac2, enter);
         corner(g, Icons.LAYOUT_DASHBOARD, "Обычное меню", width - 62, 10, () -> {
             c.customTitle = false;
             LavaVisualClient.save();
-            minecraft.gui.setScreen(new TitleScreen());
+            minecraft.setScreen(new TitleScreen());
         }, ac, ac2, enter);
 
         String version = "LavaVisual " + Edition.label();

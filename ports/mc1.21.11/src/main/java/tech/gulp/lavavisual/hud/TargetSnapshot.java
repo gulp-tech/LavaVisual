@@ -32,7 +32,7 @@ public record TargetSnapshot(String name, float health, float maximum, int armor
         tick++;
         var config = LavaVisualClient.config();
         // Needed by the Target HUD and by Target ESP; either one keeps the snapshot alive.
-        if (!(config.widgets.get("target").visible || config.espEnabled) || client.player == null || client.level == null || client.gui.screen() != null) {
+        if (!(config.widgets.get("target").visible || config.espEnabled) || client.player == null || client.level == null || client.screen != null) {
             current = null; return;
         }
         TargetSnapshot fresh = null;

@@ -42,7 +42,7 @@ public final class MusicScreen extends Screen {
         MusicPlayer.rescan(CustomSounds.musicDir());
     }
 
-    @Override public void extractRenderState(GuiGraphics g, int mx, int my, float delta) {
+    @Override public void render(GuiGraphics g, int mx, int my, float delta) {
         var c = LavaVisualClient.config();
         int ac = c.color("menu"), ac2 = c.color2("menu");
         buttons.clear();
@@ -158,7 +158,7 @@ public final class MusicScreen extends Screen {
         buttons.draw(g, font, Icons.CHECK, "Готово", bx + 2 * (bw + 6), bottom, bw, 20, mx, my, true, this::onClose);
         String hint = "Пробел — пауза · ← → — 10 сек · ↑ ↓ — громкость · клавиша плеера: " + Binds.keyName(Binds.Action.MUSIC);
         UiFont.centered(g, font, hint, width / 2, Math.min(height - 10, py + ph + 4), 0xFF8C95A4, UiFont.Face.SMALL);
-        super.extractRenderState(g, mx, my, delta);
+        super.render(g, mx, my, delta);
     }
     private void round(GuiGraphics g, int mx, int my, int x, int y, int r, String icon, int color, Runnable action) {
         boolean over = Math.hypot(mx - x, my - y) <= r;
@@ -267,6 +267,6 @@ public final class MusicScreen extends Screen {
         int copied = CustomSounds.importFiles(files, CustomSounds.musicDir());
         Binds.Toast.show(copied > 0 ? "Добавлено треков: " + copied : "Нужны файлы " + tech.gulp.lavavisual.audio.AudioInfo.EXTENSIONS);
     }
-    @Override public void onClose() { LavaVisualClient.save(); minecraft.gui.setScreen(parent); }
+    @Override public void onClose() { LavaVisualClient.save(); minecraft.setScreen(parent); }
     @Override public boolean isPauseScreen() { return false; }
 }

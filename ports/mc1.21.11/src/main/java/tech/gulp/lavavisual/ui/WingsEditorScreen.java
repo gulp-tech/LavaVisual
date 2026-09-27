@@ -47,13 +47,13 @@ public final class WingsEditorScreen extends Screen {
         previous = null;
         LavaVisualClient.save();
     }
-    @Override public void extractBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
-        if (minecraft.level == null) super.extractBackground(g, mouseX, mouseY, delta);
+    @Override public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
+        if (minecraft.level == null) super.renderBackground(g, mouseX, mouseY, delta);
     }
     private int accent() { return LavaVisualClient.config().color("menu"); }
     private static boolean over(int mx, int my, int x, int y, int w, int h) { return mx >= x && mx < x + w && my >= y && my < y + h; }
 
-    @Override public void extractRenderState(GuiGraphics g, int mx, int my, float delta) {
+    @Override public void render(GuiGraphics g, int mx, int my, float delta) {
         hits.clear(); bars.clear();
         var c = LavaVisualClient.config();
         boolean compact = height < 290;
@@ -120,7 +120,7 @@ public final class WingsEditorScreen extends Screen {
             c.colors.remove("wings"); c.chroma.remove("wings");
         });
         button(g, mx, my, "Готово", px + 12 + half, half, this::onClose);
-        super.extractRenderState(g, mx, my, delta);
+        super.render(g, mx, my, delta);
     }
     private static double snap(double v) { return Math.abs(v) < 0.012 ? 0 : v; }
     private void panel(GuiGraphics g, int top, int h, String title, String sub) {
@@ -191,6 +191,6 @@ public final class WingsEditorScreen extends Screen {
         if (dragging != null) { dragging = null; LavaVisualClient.save(); return true; }
         return super.mouseReleased(event);
     }
-    @Override public void onClose() { minecraft.gui.setScreen(parent); }
+    @Override public void onClose() { minecraft.setScreen(parent); }
     @Override public boolean isPauseScreen() { return false; }
 }

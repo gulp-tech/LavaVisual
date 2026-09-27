@@ -47,7 +47,7 @@ public final class HandEditorScreen extends Screen {
         return -1;
     }
 
-    @Override public void extractRenderState(GuiGraphics g, int mx, int my, float delta) {
+    @Override public void render(GuiGraphics g, int mx, int my, float delta) {
         var c = LavaVisualClient.config();
         int ac = c.color("menu"), ac2 = c.color2("menu");
         buttons.clear();
@@ -80,7 +80,7 @@ public final class HandEditorScreen extends Screen {
             if (main) c.mainHand = new HudConfig.Hand(); else c.offHand = new HudConfig.Hand();
             LavaVisualClient.save();
         });
-        super.extractRenderState(g, mx, my, delta);
+        super.render(g, mx, my, delta);
     }
     @Override public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         if (event.button() == 0 && buttons.click(event.x(), event.y())) return true;
@@ -105,10 +105,10 @@ public final class HandEditorScreen extends Screen {
         LavaVisualClient.save();
         return true;
     }
-    @Override public void onClose() { LavaVisualClient.save(); minecraft.gui.setScreen(parent); }
+    @Override public void onClose() { LavaVisualClient.save(); minecraft.setScreen(parent); }
     @Override public boolean isPauseScreen() { return false; }
     /** No blur in a world: the real hands must stay sharp while editing. */
-    @Override public void extractBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
-        if (minecraft.level == null) super.extractBackground(g, mouseX, mouseY, delta);
+    @Override public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
+        if (minecraft.level == null) super.renderBackground(g, mouseX, mouseY, delta);
     }
 }

@@ -48,13 +48,13 @@ public final class HatEditorScreen extends Screen {
         previous = null;
         LavaVisualClient.save();
     }
-    @Override public void extractBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
-        if (minecraft.level == null) super.extractBackground(g, mouseX, mouseY, delta);
+    @Override public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
+        if (minecraft.level == null) super.renderBackground(g, mouseX, mouseY, delta);
     }
     private int accent() { return LavaVisualClient.config().color("menu"); }
     private boolean over(int mx, int my, int x, int y, int w, int h) { return mx >= x && mx < x + w && my >= y && my < y + h; }
 
-    @Override public void extractRenderState(GuiGraphics g, int mx, int my, float delta) {
+    @Override public void render(GuiGraphics g, int mx, int my, float delta) {
         hits.clear(); bars.clear();
         var c = LavaVisualClient.config();
         pw = Math.min(196, width - 16); px = 8; py = 8;
@@ -115,7 +115,7 @@ public final class HatEditorScreen extends Screen {
             c.hatTilt = false; c.hatStyle = 0; c.colors.remove("hat"); c.chroma.remove("hat");
         });
         button(g, mx, my, "Готово", px + 12 + half, half, this::onClose);
-        super.extractRenderState(g, mx, my, delta);
+        super.render(g, mx, my, delta);
     }
     private void bar(GuiGraphics g, int mx, int my, String label, double value, double min, double max, DoubleConsumer setter, String format) {
         int x = px + 10, w = pw - 20;
@@ -181,6 +181,6 @@ public final class HatEditorScreen extends Screen {
         return super.mouseReleased(event);
     }
     @Override public boolean keyPressed(KeyEvent event) { return super.keyPressed(event); }
-    @Override public void onClose() { minecraft.gui.setScreen(parent); }
+    @Override public void onClose() { minecraft.setScreen(parent); }
     @Override public boolean isPauseScreen() { return false; }
 }

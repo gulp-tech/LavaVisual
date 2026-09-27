@@ -92,11 +92,11 @@ public final class WaypointScreen extends Screen {
         }
         onClose();
     }
-    @Override public void extractBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
-        if (minecraft.level == null) super.extractBackground(g, mouseX, mouseY, delta);
+    @Override public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
+        if (minecraft.level == null) super.renderBackground(g, mouseX, mouseY, delta);
         else g.fill(0, 0, width, height, 0x66000000);
     }
-    @Override public void extractRenderState(GuiGraphics g, int mx, int my, float delta) {
+    @Override public void render(GuiGraphics g, int mx, int my, float delta) {
         var c = LavaVisualClient.config();
         int accent = c.color("menu");
         UiDraw.round(g, panelX - 2, panelY + 2, panelW + 4, panelH + 4, 12, 0x40000000);
@@ -134,7 +134,7 @@ public final class WaypointScreen extends Screen {
             info = "До метки: " + Waypoints.distance(Math.sqrt(dx * dx + dy * dy + dz * dz)) + " · Enter — сохранить";
         } else info = "Enter — сохранить, Esc — отмена";
         UiFont.text(g, font, info, panelX + 12, top + 112, error != null ? 0xFFFF7A6B : 0xFF8C93A1, inner, UiFont.Face.SMALL);
-        super.extractRenderState(g, mx, my, delta);
+        super.render(g, mx, my, delta);
     }
     /** Rounded input field behind a borderless EditBox; the focused one gets the theme underline. */
     private static void field(GuiGraphics g, EditBox box, int x, int y, int w, int accent, int accent2) {
@@ -152,5 +152,5 @@ public final class WaypointScreen extends Screen {
         if (event.key() == GLFW.GLFW_KEY_ENTER || event.key() == GLFW.GLFW_KEY_KP_ENTER) { save(); return true; }
         return super.keyPressed(event);
     }
-    @Override public void onClose() { minecraft.gui.setScreen(parent); }
+    @Override public void onClose() { minecraft.setScreen(parent); }
 }

@@ -32,7 +32,7 @@ public abstract class MouseHandlerMixin {
 
     @WrapMethod(method = "onScroll")
     private void lava$wheel(long handle, double x, double y, Operation<Void> original) {
-        if (y != 0 && Minecraft.getInstance().gui.screen() == null && CameraControl.scroll(y)) return;
+        if (y != 0 && Minecraft.getInstance().screen == null && CameraControl.scroll(y)) return;
         if (y != 0 && !lava$accept(y)) return;
         original.call(handle, x, y);
     }
@@ -49,7 +49,7 @@ public abstract class MouseHandlerMixin {
         }
         if (direction == lava$direction) {
             lava$against = 0;
-            if (Math.abs(y) >= 1 && sinceAccepted < 20_000_000L && Minecraft.getInstance().gui.screen() == null) return false;
+            if (Math.abs(y) >= 1 && sinceAccepted < 20_000_000L && Minecraft.getInstance().screen == null) return false;
             lava$accepted = now;
             return true;
         }

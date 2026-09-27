@@ -69,65 +69,65 @@ public final class LavaVisualClient implements ClientModInitializer {
             var widgets = net.fabricmc.fabric.api.client.screen.v1.Screens.getWidgets(screen);
             if (widgets.isEmpty()) return; // F3 + Esc: paused without the menu
             widgets.add(net.minecraft.client.gui.components.Button.builder(tech.gulp.lavavisual.ui.UiFont.component("LavaVisual"),
-                    button -> client.gui.setScreen(new ClickGuiScreen())).bounds(6, 6, 96, 20).build());
+                    button -> client.setScreen(new ClickGuiScreen())).bounds(6, 6, 96, 20).build());
         });
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             // Explicit CI-only switch; never enabled by normal game or server settings.
             if (uiSmoke) {
-                if (smokeTicks < 0 && client.gui.screen() != null) smokeTicks = 0;
+                if (smokeTicks < 0 && client.screen != null) smokeTicks = 0;
                 if (smokeTicks >= 0) {
                     smokeTicks++;
                     // "smoke shot" lines ask tools/client_smoke.py for a screenshot; each screen then stays for 3 s.
-                    if (smokeTicks == 20) client.gui.setScreen(new ClickGuiScreen(1));
-                    if (smokeTicks == 50) client.gui.setScreen(new ClickGuiScreen(2));
-                    if (smokeTicks == 80) client.gui.setScreen(new ClickGuiScreen(0, "target"));
-                    if (smokeTicks == 110) client.gui.setScreen(new ClickGuiScreen(1, "crosshair"));
-                    if (smokeTicks == 140) client.gui.setScreen(new tech.gulp.lavavisual.ui.HudEditorScreen(new ClickGuiScreen()));
+                    if (smokeTicks == 20) client.setScreen(new ClickGuiScreen(1));
+                    if (smokeTicks == 50) client.setScreen(new ClickGuiScreen(2));
+                    if (smokeTicks == 80) client.setScreen(new ClickGuiScreen(0, "target"));
+                    if (smokeTicks == 110) client.setScreen(new ClickGuiScreen(1, "crosshair"));
+                    if (smokeTicks == 140) client.setScreen(new tech.gulp.lavavisual.ui.HudEditorScreen(new ClickGuiScreen()));
                     if (smokeTicks == 170) LavaVisual.LOGGER.info("LavaVisual smoke shot hud");
-                    if (smokeTicks == 230) client.gui.setScreen(new ClickGuiScreen(3));
+                    if (smokeTicks == 230) client.setScreen(new ClickGuiScreen(3));
                     if (smokeTicks == 246) LavaVisual.LOGGER.info("LavaVisual smoke shot sounds");
                     if (smokeTicks == 250) tech.gulp.lavavisual.effects.AudioRegression.run(client);
                     if (smokeTicks == 255) LavaVisual.LOGGER.info(tech.gulp.lavavisual.effects.HatSync.selfTest());
                     if (smokeTicks == 256) LavaVisual.LOGGER.info(tech.gulp.lavavisual.effects.Hats.selfTest());
                     if (smokeTicks == 257) LavaVisual.LOGGER.info(tech.gulp.lavavisual.effects.AccessoryPhysics.selfTest());
-                    if (smokeTicks == 270) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MAP));
+                    if (smokeTicks == 270) client.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MAP));
                     if (smokeTicks == 300) LavaVisual.LOGGER.info("LavaVisual smoke shot map");
-                    if (smokeTicks == 360) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_BINDS));
+                    if (smokeTicks == 360) client.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_BINDS));
                     if (smokeTicks == 390) LavaVisual.LOGGER.info("LavaVisual smoke shot binds");
-                    if (smokeTicks == 450) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COLORS, "color:theme"));
+                    if (smokeTicks == 450) client.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COLORS, "color:theme"));
                     if (smokeTicks == 480) LavaVisual.LOGGER.info("LavaVisual smoke shot colors");
-                    if (smokeTicks == 540) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_WORLD));
-                    if (smokeTicks == 560) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_INTERFACE));
-                    if (smokeTicks == 580) client.gui.setScreen(new tech.gulp.lavavisual.ui.HandEditorScreen(new ClickGuiScreen()));
+                    if (smokeTicks == 540) client.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_WORLD));
+                    if (smokeTicks == 560) client.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_INTERFACE));
+                    if (smokeTicks == 580) client.setScreen(new tech.gulp.lavavisual.ui.HandEditorScreen(new ClickGuiScreen()));
                     if (smokeTicks == 596) config().hatType = 3;
-                    if (smokeTicks == 600) client.gui.setScreen(new tech.gulp.lavavisual.ui.HatEditorScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COSMETICS)));
+                    if (smokeTicks == 600) client.setScreen(new tech.gulp.lavavisual.ui.HatEditorScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COSMETICS)));
                     if (smokeTicks == 630) LavaVisual.LOGGER.info("LavaVisual smoke shot hat");
-                    if (smokeTicks == 640) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COSMETICS, "hat"));
+                    if (smokeTicks == 640) client.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COSMETICS, "hat"));
                     if (smokeTicks == 675) LavaVisual.LOGGER.info("LavaVisual smoke shot hats");
-                    if (smokeTicks == 690) client.gui.setScreen(new tech.gulp.lavavisual.ui.WaypointScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MAP), null));
+                    if (smokeTicks == 690) client.setScreen(new tech.gulp.lavavisual.ui.WaypointScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MAP), null));
                     if (smokeTicks == 720) LavaVisual.LOGGER.info("LavaVisual smoke shot waypoint");
                     if (smokeTicks == 728) config().wingsEnabled = true;
-                    if (smokeTicks == 730) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COSMETICS, "wings"));
+                    if (smokeTicks == 730) client.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COSMETICS, "wings"));
                     if (smokeTicks == 760) LavaVisual.LOGGER.info("LavaVisual smoke shot wings");
                     if (smokeTicks == 770) { config().widgets.get("watermark").visible = true; config().widgets.get("coordinates").visible = true; }
-                    if (smokeTicks == 780) client.gui.setScreen(new ClickGuiScreen());
+                    if (smokeTicks == 780) client.setScreen(new ClickGuiScreen());
                     if (smokeTicks == 820) LavaVisual.LOGGER.info("LavaVisual smoke shot menu");
-                    if (smokeTicks == 830) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COSMETICS));
+                    if (smokeTicks == 830) client.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COSMETICS));
                     if (smokeTicks == 858) LavaVisual.LOGGER.info("LavaVisual smoke shot cosmetics");
                     if (smokeTicks == 866) config().badgeShare = true;
                     if (smokeTicks == 870) LavaVisual.LOGGER.info("LavaVisual badge marker " + (tech.gulp.lavavisual.effects.Badge.marked(tech.gulp.lavavisual.effects.Badge.withBit(client.options.buildPlayerInformation(), true)) ? "on" : "off"));
                     if (smokeTicks == 872) LavaVisual.LOGGER.info(tech.gulp.lavavisual.effects.PlayerTags.selfTest());
                     if (smokeTicks == 875) config().espStyle = 2;
-                    if (smokeTicks == 880) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_EFFECTS));
+                    if (smokeTicks == 880) client.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_EFFECTS));
                     if (smokeTicks == 910) LavaVisual.LOGGER.info("LavaVisual smoke shot effects");
-                    if (smokeTicks == 930) client.gui.setScreen(new ClickGuiScreen().withSearch("удар"));
+                    if (smokeTicks == 930) client.setScreen(new ClickGuiScreen().withSearch("удар"));
                     if (smokeTicks == 960) LavaVisual.LOGGER.info("LavaVisual smoke shot search");
-                    if (smokeTicks == 964) client.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_INTERFACE));
-                    if (smokeTicks == 974) client.gui.setScreen(null);
-                    if (smokeTicks == 978) client.gui.setScreen(ClickGuiScreen.restore());
+                    if (smokeTicks == 964) client.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_INTERFACE));
+                    if (smokeTicks == 974) client.setScreen(null);
+                    if (smokeTicks == 978) client.setScreen(ClickGuiScreen.restore());
                     if (smokeTicks == 980) LavaVisual.LOGGER.info("LavaVisual menu restore page " + ClickGuiScreen.lastPage());
                     if (smokeTicks == 1000) LavaVisual.LOGGER.info("LavaVisual smoke shot restore");
-                    if (smokeTicks == 1002) client.gui.setScreen(new tech.gulp.lavavisual.ui.LavaTitleScreen());
+                    if (smokeTicks == 1002) client.setScreen(new tech.gulp.lavavisual.ui.LavaTitleScreen());
                     if (smokeTicks == 1026) LavaVisual.LOGGER.info("LavaVisual smoke shot title");
                     if (smokeTicks == 1030) LavaVisual.LOGGER.info("LavaVisual title screen replaced=" + tech.gulp.lavavisual.ui.LavaTitleScreen.replaced
                             + " client title: " + Edition.retitle("Minecraft* 26.2 - Singleplayer"));
@@ -144,8 +144,8 @@ public final class LavaVisualClient implements ClientModInitializer {
                 }
             }
             tech.gulp.lavavisual.input.Binds.tick(client);
-            if (client.gui.screen() instanceof net.minecraft.client.gui.screens.TitleScreen && config.customTitle && !client.isDemo())
-                client.gui.setScreen(new tech.gulp.lavavisual.ui.LavaTitleScreen());
+            if (client.screen instanceof net.minecraft.client.gui.screens.TitleScreen && config.customTitle && !client.isDemo())
+                client.setScreen(new tech.gulp.lavavisual.ui.LavaTitleScreen());
             if (previousWorld != client.level) {
                 previousWorld = client.level;
                 STATE.coordinates = "X —   Y —   Z —";

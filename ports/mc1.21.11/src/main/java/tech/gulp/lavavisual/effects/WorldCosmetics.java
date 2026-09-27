@@ -13,9 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -118,7 +117,7 @@ public final class WorldCosmetics {
             Minecraft mc = Minecraft.getInstance();
             var c = LavaVisualClient.config();
             if (c.particlesEnabled && player == mc.player && level == mc.level && !player.isSpectator()
-                    && mc.gui.screen() == null && entity instanceof LivingEntity living && living.isAlive() && !living.isInvisible()
+                    && mc.screen == null && entity instanceof LivingEntity living && living.isAlive() && !living.isInvisible()
                     && mc.hitResult instanceof EntityHitResult aimed && aimed.getEntity() == entity
                     && player.distanceTo(entity) <= 6 && player.hasLineOfSight(entity) && tick - lastHitTick >= 2) {
                 lastHitTick = tick;
@@ -134,7 +133,7 @@ public final class WorldCosmetics {
                 }
             }
             if (c.markerEnabled && player == mc.player && level == mc.level && !player.isSpectator()
-                    && mc.gui.screen() == null && entity instanceof LivingEntity marked && marked.isAlive() && !marked.isInvisible()
+                    && mc.screen == null && entity instanceof LivingEntity marked && marked.isAlive() && !marked.isInvisible()
                     && mc.hitResult instanceof EntityHitResult aimedMark && aimedMark.getEntity() == entity
                     && player.distanceTo(entity) <= 6 && player.hasLineOfSight(entity)) {
                 if (MARKS.size() >= 6) MARKS.removeFirst();
@@ -155,11 +154,11 @@ public final class WorldCosmetics {
             }
             return InteractionResult.PASS;
         });
-        LevelExtractionEvents.END_EXTRACTION.register(context -> {
+        WorldRenderEvents.END_EXTRACTION.register(context -> {
             var c = LavaVisualClient.config();
             var mc = Minecraft.getInstance();
             var self = mc.player;
-            float partial = context.deltaTracker().getGameTimeDeltaPartialTick(false);
+            float partial = context.tickCounter().getGameTimeDeltaPartialTick(false);
             double now0 = tick + partial;
             // Hats sit on the head of the player's own render state (same position, crouch and head angles the model uses
             // this frame), so they never trail the head; no state means first person or the player is not drawn.
@@ -167,12 +166,12 @@ public final class WorldCosmetics {
             // Hats and wings are drawn by CosmeticLayer as part of the player model (same pass, real head/body
             // transforms). Extraction only hides the cape under wings and stores the clock and camera for that layer.
             frameNow = now0;
-            var orientation = context.levelState().cameraRenderState.orientation;
+            var orientation = context.worldState().cameraRenderState.orientation;
             CAMERA_RIGHT.set(1, 0, 0).rotate(orientation);
             CAMERA_UP.set(0, 1, 0).rotate(orientation);
             boolean remoteAny = c.hatOthers && HatSync.any();
             if (self != null && mc.level != null && (c.wingsEnabled || c.capeEnabled || remoteAny)) {
-                for (var state : context.levelState().entityRenderStates) {
+                for (var state : context.worldState().entityRenderStates) {
                     if (state instanceof net.minecraft.client.renderer.entity.state.AvatarRenderState avatar && avatar.showCape
                             && (wearsWings(avatar, self.getId(), remoteAny) || c.capeEnabled && (avatar.id == self.getId() || Dummy.is(avatar.id))
                                 || remoteAny && remoteCape(avatar)))
@@ -181,7 +180,7 @@ public final class WorldCosmetics {
                 long nanos = System.nanoTime();
                 if (WING_CLOCKS.size() > 64) WING_CLOCKS.values().removeIf(clock -> nanos - clock.last > 5_000_000_000L);
             }
-            var waypointBeams = tech.gulp.lavavisual.map.WaypointOverlay.extract(mc, context.levelState().cameraRenderState, partial);
+            var waypointBeams = tech.gulp.lavavisual.map.WaypointOverlay.extract(mc, context.worldState().cameraRenderState, partial);
             Vec3 esp = null;
             float espHeight = 0, espWidth = 0;
             var snapshot = tech.gulp.lavavisual.hud.TargetSnapshot.current;
@@ -191,10 +190,10 @@ public final class WorldCosmetics {
                 espWidth = snapshot.entity().getBbWidth();
             }
             if (RINGS.isEmpty() && SPARKS.isEmpty() && MARKS.isEmpty() && TRAIL.isEmpty() && BEAMS.isEmpty() && hats.isEmpty() && esp == null && waypointBeams.isEmpty()
-                    && ProjectileTrails.active() == 0) { context.levelState().setData(DATA, null); return; }
+                    && ProjectileTrails.active() == 0) { context.worldState().setData(DATA, null); return; }
             int particleColor = c.color("particles") & 0xFFFFFF, ambientColor = c.color("ambient") & 0xFFFFFF, killColor = c.color("kill") & 0xFFFFFF,
                     critColor = c.color("crit") & 0xFFFFFF, trailColor = c.color2("trail") & 0xFFFFFF;
-            double now = tick + context.deltaTracker().getGameTimeDeltaPartialTick(false);
+            double now = tick + context.tickCounter().getGameTimeDeltaPartialTick(false);
             var rings = new ArrayList<RingFrame>(); var sparks = new ArrayList<SparkFrame>();
             if (c.jumpEnabled) for (Ring r : RINGS) {
                 double age = Math.clamp((now - r.born) / 24.0, 0, 1);
@@ -245,10 +244,10 @@ public final class WorldCosmetics {
             int[] colors = {c.color("jump") & 0xFFFFFF, c.color("esp") & 0xFFFFFF, killColor, c.color("trail") & 0xFFFFFF, c.color("marker") & 0xFFFFFF};
             // Second tones: the theme gradient (lava orange to amethyst by default) instead of a lighter shade.
             int[] lights = {c.color2("jump") & 0xFFFFFF, c.color2("esp") & 0xFFFFFF, c.color2("kill") & 0xFFFFFF, c.color2("trail") & 0xFFFFFF, c.color2("marker") & 0xFFFFFF};
-            context.levelState().setData(DATA, new Frame(List.copyOf(rings), List.copyOf(sparks), List.copyOf(markers), colors, lights, List.copyOf(hats), (float) (now * 0.06),
+            context.worldState().setData(DATA, new Frame(List.copyOf(rings), List.copyOf(sparks), List.copyOf(markers), colors, lights, List.copyOf(hats), (float) (now * 0.06),
                     List.copyOf(trail), esp, espHeight, espWidth, c.espStyle, List.copyOf(beams), waypointBeams, ProjectileTrails.frame(partial)));
         });
-        LevelRenderEvents.BEFORE_TRANSLUCENT_TERRAIN.register(WorldCosmetics::render);
+        WorldRenderEvents.BEFORE_TRANSLUCENT.register(WorldCosmetics::render);
     }
     private static int mix(int from, int to, double t) {
         int r = (int) (((from >> 16 & 255) * (1 - t)) + ((to >> 16 & 255) * t));
@@ -257,7 +256,7 @@ public final class WorldCosmetics {
         return 0xFF000000 | r << 16 | g << 8 | b;
     }
     /** Called from LevelRendererMixin at the head of LevelRenderer#render, after sky extraction. */
-    public static void tintSky(net.minecraft.client.renderer.state.level.LevelRenderState state) {
+    public static void tintSky(net.minecraft.client.renderer.state.LevelRenderState state) {
         var c = LavaVisualClient.config();
         if (state == null || !c.skyEnabled || c.skyStrength <= 0) return;
         var level = Minecraft.getInstance().level;
@@ -356,16 +355,16 @@ public final class WorldCosmetics {
         grounded = player.onGround(); ready = true;
         if (grounded) groundPosition = player.position();
     }
-    private static void render(LevelRenderContext context) {
-        Frame frame = context.levelState().getData(DATA);
+    private static void render(WorldRenderContext context) {
+        Frame frame = context.worldState().getData(DATA);
         if (frame == null) return;
-        Vec3 camera = context.levelState().cameraRenderState.pos;
-        Quaternionf orientation = new Quaternionf(context.levelState().cameraRenderState.orientation);
+        Vec3 camera = context.worldState().cameraRenderState.pos;
+        Quaternionf orientation = new Quaternionf(context.worldState().cameraRenderState.orientation);
         Vector3f right = new Vector3f(1, 0, 0).rotate(orientation), up = new Vector3f(0, 1, 0).rotate(orientation);
-        context.poseStack().pushPose();
+        context.matrices().pushPose();
         try {
             // Camera-relative doubles are converted only after subtraction, avoiding far-coordinate jitter.
-            context.submitNodeCollector().submitCustomGeometry(context.poseStack(), GLOW, (pose, out) -> {
+            context.commandQueue().submitCustomGeometry(context.matrices(), GLOW, (pose, out) -> {
                 int jump = frame.colors[0], jumpLight = frame.lights[0];
                 for (RingFrame ring : frame.rings) {
                     Vec3 p = ring.origin.subtract(camera);
@@ -406,25 +405,25 @@ public final class WorldCosmetics {
             });
             // Trail: the saturated body with normal blending (true colours), the halo additively on top.
             if (frame.trail.size() > 1) {
-                context.submitNodeCollector().submitCustomGeometry(context.poseStack(), GLOW,
+                context.commandQueue().submitCustomGeometry(context.matrices(), GLOW,
                         (pose, out) -> trail(pose, out, frame.trail, camera, frame.colors[3], frame.lights[3], right, up, frame.spin, false, bodyLook()));
-                if (LavaVisualClient.config().trailGlow) context.submitNodeCollector().submitCustomGeometry(context.poseStack(), GLOW_ADD,
+                if (LavaVisualClient.config().trailGlow) context.commandQueue().submitCustomGeometry(context.matrices(), GLOW_ADD,
                         (pose, out) -> trail(pose, out, frame.trail, camera, frame.colors[3], frame.lights[3], right, up, frame.spin, true, bodyLook()));
             }
             if (!frame.shots.isEmpty()) {
                 var cfg = LavaVisualClient.config();
                 TrailLook look = new TrailLook(cfg.projStyle, (float) cfg.projWidth, (float) cfg.projBright, (float) (0.26 * cfg.projWidth), true);
-                context.submitNodeCollector().submitCustomGeometry(context.poseStack(), GLOW, (pose, out) -> {
+                context.commandQueue().submitCustomGeometry(context.matrices(), GLOW, (pose, out) -> {
                     for (ShotTrail t : frame.shots) trail(pose, out, t.points(), camera, t.color(), t.light(), right, up, frame.spin, false, look);
                 });
-                if (cfg.projGlow) context.submitNodeCollector().submitCustomGeometry(context.poseStack(), GLOW_ADD, (pose, out) -> {
+                if (cfg.projGlow) context.commandQueue().submitCustomGeometry(context.matrices(), GLOW_ADD, (pose, out) -> {
                     for (ShotTrail t : frame.shots) trail(pose, out, t.points(), camera, t.color(), t.light(), right, up, frame.spin, true, look);
                 });
             }
-            if (!frame.hats.isEmpty()) context.submitNodeCollector().submitCustomGeometry(context.poseStack(), HAT, (pose, out) -> {
+            if (!frame.hats.isEmpty()) context.commandQueue().submitCustomGeometry(context.matrices(), HAT, (pose, out) -> {
                 for (HatFrame h : frame.hats) Hats.draw(pose, out, world(h, camera), h.model(), h.look());
             });
-        } finally { context.poseStack().popPose(); }
+        } finally { context.matrices().popPose(); }
     }
     private static Matrix4f world(HatFrame h, Vec3 camera) {
         // Per-frame matrix: camera-relative translation, head/body rotation, uniform size, hat height stretch.

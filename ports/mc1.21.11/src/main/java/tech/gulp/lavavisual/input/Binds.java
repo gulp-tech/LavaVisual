@@ -90,7 +90,7 @@ public final class Binds {
     public static void tick(Minecraft mc) {
         boolean debug = debugHeld(mc);
         for (var entry : MAPPINGS.entrySet()) {
-            while (entry.getValue().consumeClick()) if (mc.gui.screen() == null && !debug) run(entry.getKey(), mc);
+            while (entry.getValue().consumeClick()) if (mc.screen == null && !debug) run(entry.getKey(), mc);
         }
     }
     /** F3 held: the press belongs to a vanilla debug combo (F3 + B hitboxes, F3 + V version), not to us. */
@@ -104,10 +104,10 @@ public final class Binds {
     private static void run(Action action, Minecraft mc) {
         var c = LavaVisualClient.config();
         switch (action) {
-            case MENU -> mc.gui.setScreen(ClickGuiScreen.restore());
+            case MENU -> mc.setScreen(ClickGuiScreen.restore());
             case DISABLE_ALL -> { c.disableAll(); tech.gulp.lavavisual.effects.PerformanceMode.update(mc); }
-            case WAYPOINT_ADD -> { if (mc.player != null) mc.gui.setScreen(new tech.gulp.lavavisual.ui.WaypointScreen(null, null)); }
-            case WAYPOINTS -> mc.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MAP));
+            case WAYPOINT_ADD -> { if (mc.player != null) mc.setScreen(new tech.gulp.lavavisual.ui.WaypointScreen(null, null)); }
+            case WAYPOINTS -> mc.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MAP));
             case MINIMAP -> { var w = c.widgets.get("minimap"); w.visible = !w.visible; }
             case MINIMAP_ZOOM -> c.mapZoom = (c.mapZoom + 1) % 3;
             case HUD -> LavaVisualClient.STATE.hudHidden = !LavaVisualClient.STATE.hudHidden;
@@ -122,7 +122,7 @@ public final class Binds {
             case BOOST -> { c.fpsBoost = !c.fpsBoost; tech.gulp.lavavisual.effects.PerformanceMode.update(mc); }
             case DUMMY -> tech.gulp.lavavisual.effects.Dummy.toggle(mc);
             case ZOOM, FREELOOK -> { return; } // held keys, polled by CameraControl
-            case MUSIC -> { mc.gui.setScreen(new tech.gulp.lavavisual.ui.MusicScreen(null)); return; }
+            case MUSIC -> { mc.setScreen(new tech.gulp.lavavisual.ui.MusicScreen(null)); return; }
             case MUSIC_PLAY -> tech.gulp.lavavisual.audio.MusicPlayer.toggle();
             case MUSIC_NEXT -> tech.gulp.lavavisual.audio.MusicPlayer.next(false);
             case MUSIC_PREV -> tech.gulp.lavavisual.audio.MusicPlayer.previous();

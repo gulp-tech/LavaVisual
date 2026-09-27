@@ -44,11 +44,11 @@ public final class HudEditorScreen extends Screen {
     }
     private int percent(String id) { return (int) Math.round(HudRenderer.scale(widget(id)) * 100); }
 
-    @Override public void extractBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
-        if (minecraft.level == null) super.extractBackground(g, mouseX, mouseY, delta);
+    @Override public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
+        if (minecraft.level == null) super.renderBackground(g, mouseX, mouseY, delta);
     }
 
-    @Override public void extractRenderState(GuiGraphics g, int mx, int my, float delta) {
+    @Override public void render(GuiGraphics g, int mx, int my, float delta) {
         var c = LavaVisualClient.config();
         int ac = c.color("menu"), ac2 = c.color2("menu");
         buttons.clear();
@@ -102,7 +102,7 @@ public final class HudEditorScreen extends Screen {
         buttons.draw(g, font, Icons.SCALING, "Размер 100%", bx, by, bw, 20, mx, my, false, () -> { if (selected != null) setScale(selected, 1); });
         bx += bw + gap;
         buttons.draw(g, font, Icons.ROTATE_CCW, "Сбросить всё", bx, by, bw, 20, mx, my, false, LavaVisualClient::resetLayout);
-        super.extractRenderState(g, mx, my, delta);
+        super.render(g, mx, my, delta);
     }
 
     /** Thin rounded frame in a horizontal gradient. */
@@ -199,6 +199,6 @@ public final class HudEditorScreen extends Screen {
         }
         return super.keyPressed(event);
     }
-    @Override public void onClose() { LavaVisualClient.save(); minecraft.gui.setScreen(parent); }
+    @Override public void onClose() { LavaVisualClient.save(); minecraft.setScreen(parent); }
     @Override public boolean isPauseScreen() { return false; }
 }

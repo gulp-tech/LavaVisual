@@ -283,7 +283,7 @@ public final class ClickGuiScreen extends Screen {
         UiDraw.round(g, x + filled - 4, y + 18, 8, 10, 4, 0xFFF2F5FA);
         sliders.add(new Slider(x, y + 14, w, min, max, setter)); cursor += 38;
     }
-    @Override public void extractRenderState(GuiGraphics g, int mouseX, int mouseY, float delta) {
+    @Override public void render(GuiGraphics g, int mouseX, int mouseY, float delta) {
         hits.clear(); sliders.clear();
         long now = System.nanoTime();
         var c = LavaVisualClient.config();
@@ -586,7 +586,7 @@ public final class ClickGuiScreen extends Screen {
             };
             toggle(g, id, HudRenderer.title(id), desc, w.visible, () -> { w.visible = !w.visible; changed(); }, () -> select(id));
         }
-        button(g, Icons.MOVE, "Редактор расположения", () -> minecraft.gui.setScreen(new HudEditorScreen(this)));
+        button(g, Icons.MOVE, "Редактор расположения", () -> minecraft.setScreen(new HudEditorScreen(this)));
         var cfg = LavaVisualClient.config();
         toggle(g, "badge", "Значки LavaVisual", "Логотип LV перед ником игроков, которые делятся значком", cfg.badgeEnabled,
                 () -> { cfg.badgeEnabled = !cfg.badgeEnabled; changed(); }, null);
@@ -658,8 +658,8 @@ public final class ClickGuiScreen extends Screen {
         toggle(g, "outfit", "Аксессуары", "Очки, наушники, шарф — в любом сочетании", !c.extras.isEmpty(),
                 () -> { if (c.extras.isEmpty()) c.extras.add(1); else c.extras.clear(); changed(); }, () -> select("outfit"));
         int half = (bodyW - 8) / 2;
-        action(g, Icons.PENCIL, "Редактор шляпы", bodyX, cursor, half, () -> minecraft.gui.setScreen(new HatEditorScreen(this)));
-        action(g, Icons.PENCIL, "Редактор крыльев", bodyX + half + 8, cursor, half, () -> minecraft.gui.setScreen(new WingsEditorScreen(this)));
+        action(g, Icons.PENCIL, "Редактор шляпы", bodyX, cursor, half, () -> minecraft.setScreen(new HatEditorScreen(this)));
+        action(g, Icons.PENCIL, "Редактор крыльев", bodyX + half + 8, cursor, half, () -> minecraft.setScreen(new WingsEditorScreen(this)));
         cursor += 32;
         section(g, "След");
         toggle(g, "trail", "Trails", "Светящийся след за вами", c.trailEnabled, () -> { c.trailEnabled = !c.trailEnabled; changed(); }, null);
@@ -683,7 +683,7 @@ public final class ClickGuiScreen extends Screen {
         toggle(g, "cooldown", "Без анимации перезарядки", "Оружие не опускается после удара · линия у прицела остаётся", c.noCooldownDip,
                 () -> { c.noCooldownDip = !c.noCooldownDip; changed(); }, null);
         toggle(g, "hands", "Положение рук", "Только вид от первого лица", c.viewModelEnabled, () -> { c.viewModelEnabled = !c.viewModelEnabled; changed(); }, null);
-        button(g, Icons.PENCIL, "Редактировать в игре", () -> minecraft.gui.setScreen(new HandEditorScreen(this)));
+        button(g, Icons.PENCIL, "Редактировать в игре", () -> minecraft.setScreen(new HandEditorScreen(this)));
         var swingNames = tech.gulp.lavavisual.effects.SwingStyles.NAMES;
         button(g, Icons.SWORDS, "Анимация удара: " + swingNames[c.swingStyle], () -> { c.swingStyle = (c.swingStyle + 1) % swingNames.length; changed(); });
         section(g, "Пресеты рук");
@@ -783,7 +783,7 @@ public final class ClickGuiScreen extends Screen {
         var c = LavaVisualClient.config();
         var track = tech.gulp.lavavisual.audio.MusicPlayer.current();
         button(g, Icons.MUSIC, "Открыть плеер · " + tech.gulp.lavavisual.input.Binds.keyName(tech.gulp.lavavisual.input.Binds.Action.MUSIC),
-                () -> minecraft.gui.setScreen(new MusicScreen(this)));
+                () -> minecraft.setScreen(new MusicScreen(this)));
         var tracks = tech.gulp.lavavisual.audio.MusicPlayer.tracks();
         note(g, track == null || !tech.gulp.lavavisual.audio.MusicPlayer.active()
                 ? (tracks.isEmpty() ? "Треков нет — положите музыку в папку music" : "Ничего не играет · треков: " + tracks.size())
@@ -942,7 +942,7 @@ public final class ClickGuiScreen extends Screen {
         else {
             if (selected.equals("target")) slider(g, "Удержание цели · сек", c.targetHold, 0.5, 10, v -> c.targetHold = v, false);
             if (selected.equals("minimap")) mapOptions(g);
-            button(g, Icons.MOVE, "Переместить на экране", () -> minecraft.gui.setScreen(new HudEditorScreen(this, selected)));
+            button(g, Icons.MOVE, "Переместить на экране", () -> minecraft.setScreen(new HudEditorScreen(this, selected)));
         }
         section(g, "Цвет");
         colorRow(g, selected, cross ? "Цвет прицела" : "Цвет модуля");
@@ -955,7 +955,7 @@ public final class ClickGuiScreen extends Screen {
         section(g, "Вид шляпы");
         java.util.function.IntConsumer pickHat = i -> { c.hatType = i + 1; c.hatEnabled = true; changed(); };
         chips(g, Hats.NAMES, c.hatType - 1, pickHat, 4);
-        button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new HatEditorScreen(this)));
+        button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.setScreen(new HatEditorScreen(this)));
         section(g, "Настройка");
         slider(g, "Размер", c.hatSize, 0.5, 1.8, v -> c.hatSize = v, false);
         slider(g, "Высота над головой", c.hatLift, -0.3, 0.6, v -> c.hatLift = v, false);
@@ -974,7 +974,7 @@ public final class ClickGuiScreen extends Screen {
         section(g, "Вид крыльев");
         java.util.function.IntConsumer pickWings = i -> { c.wingsType = i + 1; c.wingsEnabled = true; changed(); };
         chips(g, Hats.WING_NAMES, c.wingsType - 1, pickWings, 5);
-        button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new WingsEditorScreen(this)));
+        button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.setScreen(new WingsEditorScreen(this)));
         section(g, "Настройка");
         slider(g, "Размер", c.wingsSize, 0.5, 1.6, v -> c.wingsSize = v, false);
         slider(g, "Взмахи · 0 = неподвижно", c.wingsFlap, 0, 2, v -> c.wingsFlap = v < 0.05 ? 0 : v, false);
@@ -1098,7 +1098,7 @@ public final class ClickGuiScreen extends Screen {
         section(g, "Метки");
         toggle(g, "beams", "Лучи меток", "Столб света над меткой, сквозь блоки не виден", c.waypointBeams, () -> { c.waypointBeams = !c.waypointBeams; changed(); }, null);
         toggle(g, "labels", "Подписи и стрелки", "Название и расстояние; за экраном — стрелка у края", c.waypointLabels, () -> { c.waypointLabels = !c.waypointLabels; changed(); }, null);
-        button(g, Icons.PLUS, "Добавить метку · клавиша " + Binds.keyName(Binds.Action.WAYPOINT_ADD), () -> minecraft.gui.setScreen(new WaypointScreen(this, null)));
+        button(g, Icons.PLUS, "Добавить метку · клавиша " + Binds.keyName(Binds.Action.WAYPOINT_ADD), () -> minecraft.setScreen(new WaypointScreen(this, null)));
         if (minecraft.level == null) { note(g, "Зайдите в мир, чтобы увидеть свои метки."); return; }
         var list = Waypoints.all(minecraft);
         if (list.isEmpty()) note(g, "Меток пока нет: нажмите «Добавить метку» или " + Binds.keyName(Binds.Action.WAYPOINT_ADD) + " в игре.");
@@ -1115,7 +1115,7 @@ public final class ClickGuiScreen extends Screen {
             text(g, where, bodyX + 12, y + 22, 0xFF838994, bodyW - 12 - bw * 3 - 24, UiFont.Face.SMALL);
             int bx = bodyX + bodyW - (bw + 4) * 3 - 3;
             iconButton(g, p.visible ? Icons.EYE : Icons.EYE_OFF, bx, y + 7, () -> { p.visible = !p.visible; Waypoints.save(); });
-            iconButton(g, Icons.PENCIL, bx + bw + 4, y + 7, () -> minecraft.gui.setScreen(new WaypointScreen(this, p)));
+            iconButton(g, Icons.PENCIL, bx + bw + 4, y + 7, () -> minecraft.setScreen(new WaypointScreen(this, p)));
             boolean armed = confirmDelete == p && System.currentTimeMillis() - confirmAt < 3000;
             if (armed) UiDraw.round(g, bx + (bw + 4) * 2 - 1, y + 6, bw + 2, bw + 2, 7, 0xFFE0524A);
             iconButton(g, Icons.TRASH_2, bx + (bw + 4) * 2, y + 7, () -> {

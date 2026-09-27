@@ -4,9 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.Random;
 import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -46,12 +45,12 @@ public final class AirParticles {
     private AirParticles() { }
 
     public static void register() {
-        LevelExtractionEvents.END_EXTRACTION.register(context -> {
+        WorldRenderEvents.END_EXTRACTION.register(context -> {
             var c = LavaVisualClient.config();
             var mc = Minecraft.getInstance();
-            if (!c.ambientEnabled || count == 0 || mc.player == null) { context.levelState().setData(DATA, null); return; }
-            float partial = context.deltaTracker().getGameTimeDeltaPartialTick(false);
-            Vec3 camera = context.levelState().cameraRenderState.pos;
+            if (!c.ambientEnabled || count == 0 || mc.player == null) { context.worldState().setData(DATA, null); return; }
+            float partial = context.tickCounter().getGameTimeDeltaPartialTick(false);
+            Vec3 camera = context.worldState().cameraRenderState.pos;
             float[] data = new float[count * STRIDE];
             int n = 0;
             float time = tick + partial;
@@ -74,10 +73,10 @@ public final class AirParticles {
                 data[o + 5] = SEED[i];
                 n++;
             }
-            context.levelState().setData(DATA, n == 0 ? null : new Frame(data, n, style, c.color("ambient") & 0xFFFFFF,
+            context.worldState().setData(DATA, n == 0 ? null : new Frame(data, n, style, c.color("ambient") & 0xFFFFFF,
                     c.color2("ambient") & 0xFFFFFF, (float) c.ambientSize, time));
         });
-        LevelRenderEvents.BEFORE_TRANSLUCENT_TERRAIN.register(AirParticles::render);
+        WorldRenderEvents.BEFORE_TRANSLUCENT.register(AirParticles::render);
     }
 
     public static void clear() { count = 0; tick = 0; }
@@ -169,14 +168,14 @@ public final class AirParticles {
         }
     }
 
-    private static void render(LevelRenderContext context) {
-        Frame frame = context.levelState().getData(DATA);
+    private static void render(WorldRenderContext context) {
+        Frame frame = context.worldState().getData(DATA);
         if (frame == null) return;
-        Quaternionf orientation = new Quaternionf(context.levelState().cameraRenderState.orientation);
+        Quaternionf orientation = new Quaternionf(context.worldState().cameraRenderState.orientation);
         Vector3f r = new Vector3f(1, 0, 0).rotate(orientation), u = new Vector3f(0, 1, 0).rotate(orientation);
-        context.poseStack().pushPose();
+        context.matrices().pushPose();
         try {
-            context.submitNodeCollector().submitCustomGeometry(context.poseStack(), WorldCosmetics.GLOW, (pose, out) -> {
+            context.commandQueue().submitCustomGeometry(context.matrices(), WorldCosmetics.GLOW, (pose, out) -> {
                 float[] d = frame.data;
                 for (int n = 0; n < frame.n; n++) {
                     int o = n * STRIDE;
@@ -226,7 +225,7 @@ public final class AirParticles {
                 }
             });
         } finally {
-            context.poseStack().popPose();
+            context.matrices().popPose();
         }
     }
 

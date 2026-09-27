@@ -101,7 +101,7 @@ public final class HudRenderer {
         if (!edit) tech.gulp.lavavisual.map.Minimap.frameClock(now);
         Minecraft mc = Minecraft.getInstance();
         PANEL = c.color("hud_bg") & 0xFFFFFF;
-        if (!edit && (mc.player == null || mc.gui.screen() instanceof tech.gulp.lavavisual.ui.HudEditorScreen)) return;
+        if (!edit && (mc.player == null || mc.screen instanceof tech.gulp.lavavisual.ui.HudEditorScreen)) return;
         if (!edit) {
             toast(g, mc);
             if (LavaVisualClient.STATE.hudHidden) return;

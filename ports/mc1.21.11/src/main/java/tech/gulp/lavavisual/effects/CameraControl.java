@@ -28,7 +28,7 @@ public final class CameraControl {
 
     public static void tick(Minecraft mc) {
         var c = LavaVisualClient.config();
-        boolean world = mc.player != null && mc.level != null, playing = world && mc.gui.screen() == null;
+        boolean world = mc.player != null && mc.level != null, playing = world && mc.screen == null;
         boolean zoomHeld = forcedZoom > 0 || (c.zoomEnabled && playing && Binds.mapping(Binds.Action.ZOOM).isDown());
         if (zoomHeld) target = Math.clamp((forcedZoom > 0 ? forcedZoom : c.zoomLevel) * Math.pow(1.25, wheel), 1.2, 50);
         else { target = 1; wheel = 0; }
