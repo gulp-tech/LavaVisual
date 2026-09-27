@@ -2,7 +2,7 @@ package tech.gulp.lavavisual.input;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import java.util.EnumMap;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
@@ -50,7 +50,7 @@ public final class Binds {
 
     public static void register(KeyMapping.Category category) {
         for (Action action : Action.values())
-            MAPPINGS.put(action, KeyMappingHelper.registerKeyMapping(new KeyMapping("key.lavavisual." + action.id, InputConstants.Type.KEYSYM, action.defaultKey, category)));
+            MAPPINGS.put(action, KeyBindingHelper.registerKeyBinding(new KeyMapping("key.lavavisual." + action.id, InputConstants.Type.KEYSYM, action.defaultKey, category)));
     }
     public static KeyMapping mapping(Action action) { return MAPPINGS.get(action); }
     public static String keyName(Action action) {

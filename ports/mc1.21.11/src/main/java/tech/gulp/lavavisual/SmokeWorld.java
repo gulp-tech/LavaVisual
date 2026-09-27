@@ -30,15 +30,15 @@ final class SmokeWorld {
     static void start(Minecraft mc) {
         stage = 0;
         ticks = 0;
-        mc.gui.setScreen(null);
-        CreateWorldScreen.openFresh(mc, () -> mc.gui.setScreen(null));
+        mc.setScreen(null);
+        CreateWorldScreen.openFresh(mc, () -> mc.setScreen(null));
     }
 
     static void tick(Minecraft mc) {
         if (stage < 0 || stage > 2) return;
         ticks++;
         if (stage == 0) {
-            if (mc.gui.screen() instanceof CreateWorldScreen screen) {
+            if (mc.screen instanceof CreateWorldScreen screen) {
                 var ui = screen.getUiState();
                 ui.setName("LavaSmoke");
                 ui.setAllowCommands(true);
@@ -61,7 +61,7 @@ final class SmokeWorld {
         }
         var player = mc.player;
         if (stage == 1) {
-            if (mc.level != null && player != null && mc.gui.screen() == null) {
+            if (mc.level != null && player != null && mc.screen == null) {
                 stage = 2;
                 ticks = 0;
                 var c = LavaVisualClient.config();
@@ -115,12 +115,12 @@ final class SmokeWorld {
             c.hatEnabled = false; c.wingsEnabled = false;
             mc.options.setCameraType(CameraType.FIRST_PERSON);
             c.viewModelEnabled = false;
-            mc.gui.setScreen(new tech.gulp.lavavisual.ui.HandEditorScreen(null));
+            mc.setScreen(new tech.gulp.lavavisual.ui.HandEditorScreen(null));
             c.mainHand.x = -0.3; c.mainHand.y = 0.12; c.mainHand.yaw = 35; c.mainHand.roll = -20;
             LavaVisual.LOGGER.info(c.viewModelEnabled ? "LavaVisual smoke hand editor ok" : "LavaVisual smoke hand editor failed: view model stayed off");
         }
         if (ticks == HANDS_AT + 30) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hands");
-        if (ticks == HANDS_AT + 40) { mc.gui.setScreen(null); c.mainHand = new tech.gulp.lavavisual.config.HudConfig.Hand(); c.viewModelEnabled = false; }
+        if (ticks == HANDS_AT + 40) { mc.setScreen(null); c.mainHand = new tech.gulp.lavavisual.config.HudConfig.Hand(); c.viewModelEnabled = false; }
         // Saturated crit on the dummy (extra vanilla crit emitters + coloured stars).
         if (ticks == CRIT_AT) {
             tech.gulp.lavavisual.effects.Dummy.spawn(mc);
@@ -162,15 +162,15 @@ final class SmokeWorld {
         // Wings editor: live preview from behind with custom placement.
         if (ticks == WINGS_EDIT_AT) {
             c.wingsEnabled = true; c.wingsType = 1; c.wingsLift = 0.08; c.wingsTilt = 12; c.wingsSpread = 18; c.wingsSpeed = 1.4;
-            mc.gui.setScreen(new tech.gulp.lavavisual.ui.WingsEditorScreen(null));
+            mc.setScreen(new tech.gulp.lavavisual.ui.WingsEditorScreen(null));
         }
         if (ticks == WINGS_EDIT_AT + 16) {
-            boolean ok = mc.gui.screen() instanceof tech.gulp.lavavisual.ui.WingsEditorScreen && mc.options.getCameraType() == CameraType.THIRD_PERSON_BACK;
-            LavaVisual.LOGGER.info(ok ? "LavaVisual smoke wings editor ok" : "LavaVisual smoke wings editor failed: screen=" + mc.gui.screen() + " camera=" + mc.options.getCameraType());
+            boolean ok = mc.screen instanceof tech.gulp.lavavisual.ui.WingsEditorScreen && mc.options.getCameraType() == CameraType.THIRD_PERSON_BACK;
+            LavaVisual.LOGGER.info(ok ? "LavaVisual smoke wings editor ok" : "LavaVisual smoke wings editor failed: screen=" + mc.screen + " camera=" + mc.options.getCameraType());
             LavaVisual.LOGGER.info("LavaVisual smoke shot world_wings_editor");
         }
         if (ticks == WINGS_EDIT_AT + 40) {
-            mc.gui.setScreen(null);
+            mc.setScreen(null);
             c.wingsEnabled = false; c.wingsLift = 0; c.wingsTilt = 0; c.wingsSpread = 0; c.wingsSpeed = 1;
         }
         // Minimap: round window, no letters. Rainbow on the map and on the HUD background is the worst case: the
@@ -297,7 +297,7 @@ final class SmokeWorld {
         if (ticks == MUSIC_AT + 50) {
             var now = tech.gulp.lavavisual.audio.MusicPlayer.current();
             musicPrevious = now != null && now.name().equals("Тестовый трек");
-            mc.gui.setScreen(new tech.gulp.lavavisual.ui.MusicScreen(null));
+            mc.setScreen(new tech.gulp.lavavisual.ui.MusicScreen(null));
         }
         if (ticks == MUSIC_AT + 64) LavaVisual.LOGGER.info("LavaVisual smoke shot world_music_player");
         if (ticks == MUSIC_AT + 70) {
@@ -305,7 +305,7 @@ final class SmokeWorld {
             LavaVisual.LOGGER.info((ok ? "LavaVisual smoke music ok" : "LavaVisual smoke music failed") + ": playing=" + musicPlaying + " paused=" + musicPaused
                     + " stable=" + musicStable + " seek=" + musicSeek + " next=" + musicNext + " previous=" + musicPrevious
                     + String.format(java.util.Locale.ROOT, " positions=%.2f/%.2f/%.2f/%.2f", p1, p2, p3, p4) + " openal=" + tech.gulp.lavavisual.audio.LavaAudio.ready());
-            mc.gui.setScreen(null);
+            mc.setScreen(null);
             tech.gulp.lavavisual.audio.MusicPlayer.stop();
         }
         // Every format by content: MP3 with an ID3 tag and cover, Opus, WAV, and an MP3 renamed to .ogg; seeking,
@@ -352,13 +352,13 @@ final class SmokeWorld {
         if (ticks == FORMATS_AT + 72) {
             renamedOk &= playingAt(0.2);
             formatNotes += String.format(java.util.Locale.ROOT, " renamed %.2f %s;", tech.gulp.lavavisual.audio.MusicPlayer.position(), tech.gulp.lavavisual.audio.MusicPlayer.error());
-            mc.gui.setScreen(new tech.gulp.lavavisual.ui.MusicScreen(null));
+            mc.setScreen(new tech.gulp.lavavisual.ui.MusicScreen(null));
         }
-        if (ticks == FORMATS_AT + 78 && mc.gui.screen() instanceof tech.gulp.lavavisual.ui.MusicScreen screen) {
+        if (ticks == FORMATS_AT + 78 && mc.screen instanceof tech.gulp.lavavisual.ui.MusicScreen screen) {
             boolean hit = screen.click(screen.playX(), screen.playY());
             clickOk = hit && tech.gulp.lavavisual.audio.MusicPlayer.paused();
         }
-        if (ticks == FORMATS_AT + 82 && mc.gui.screen() instanceof tech.gulp.lavavisual.ui.MusicScreen screen) {
+        if (ticks == FORMATS_AT + 82 && mc.screen instanceof tech.gulp.lavavisual.ui.MusicScreen screen) {
             clickOk &= screen.click(screen.playX(), screen.playY()) && tech.gulp.lavavisual.audio.MusicPlayer.playing();
             formatNotes += " button " + screen.playX() + "," + screen.playY() + ";";
         }
@@ -374,7 +374,7 @@ final class SmokeWorld {
             boolean ok = mp3Ok && mp3Seek && opusOk && wavOk && renamedOk && clipsOk && clickOk && bindOk;
             LavaVisual.LOGGER.info((ok ? "LavaVisual smoke formats ok" : "LavaVisual smoke formats failed") + ": mp3=" + mp3Ok + " seek=" + mp3Seek + " opus=" + opusOk
                     + " wav=" + wavOk + " renamed=" + renamedOk + " clips=" + clipsOk + " click=" + clickOk + " bind=" + bindOk + " |" + formatNotes);
-            mc.gui.setScreen(null);
+            mc.setScreen(null);
             tech.gulp.lavavisual.audio.MusicPlayer.stop();
         }
         // Client-side time: midnight on this client only.
@@ -390,9 +390,8 @@ final class SmokeWorld {
             c.timeEnabled = true;
         }
         if (ticks == TIME_AT + 52) {
-            var clock = mc.level.dimensionType().defaultClock();
-            long shown = clock.map(h -> mc.level.clockManager().getTotalTicks(h)).orElse(-1L);
-            boolean ok = clock.isPresent() && Math.floorMod(shown, 24000L) == 18000;
+            long shown = mc.level.getDayTime();
+            boolean ok = Math.floorMod(shown, 24000L) == 18000;
             LavaVisual.LOGGER.info((ok ? "LavaVisual smoke time ok" : "LavaVisual smoke time failed") + ": clock " + shown);
             LavaVisual.LOGGER.info("LavaVisual smoke shot world_time_night");
         }

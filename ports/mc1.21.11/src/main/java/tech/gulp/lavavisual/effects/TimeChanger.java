@@ -1,8 +1,6 @@
 package tech.gulp.lavavisual.effects;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.Holder;
-import net.minecraft.world.clock.WorldClock;
 import tech.gulp.lavavisual.LavaVisualClient;
 
 /**
@@ -15,20 +13,13 @@ public final class TimeChanger {
     public static final String[] PRESETS = {"Рассвет", "Утро", "День", "Закат", "Ночь", "Полночь"};
     public static final int[] PRESET_TICKS = {23200, 1000, 6000, 12400, 14500, 18000};
 
-    public static long apply(Holder<WorldClock> clock, long original) {
+    public static long apply(long original) {
         var c = LavaVisualClient.config();
         if (!c.timeEnabled) return original;
         var level = Minecraft.getInstance().level;
-        if (level == null) return original;
-        var day = level.dimensionType().defaultClock();
-        if (day.isEmpty() || !same(day.get(), clock)) return original;
+        if (level == null || !level.dimensionType().natural()) return original;
         long target = Math.floorMod(Math.round(c.timeTicks), 24000L);
         return Math.floorDiv(original, 24000L) * 24000L + target;
-    }
-    private static boolean same(Holder<WorldClock> a, Holder<WorldClock> b) {
-        if (a == b) return true;
-        var key = a.unwrapKey();
-        return key.isPresent() && key.equals(b.unwrapKey());
     }
     /** 0 ticks = 06:00, 6000 = noon, 18000 = midnight. */
     public static String clock(double ticks) {

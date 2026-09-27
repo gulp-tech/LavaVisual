@@ -67,7 +67,7 @@ public final class UiFont {
         m.pushMatrix();
         try {
             snap(g, x, y);
-            g.text(font, text, x, y, color, false);
+            g.drawString(font, text, x, y, color, false);
         } finally { m.popMatrix(); }
     }
     public static Component component(String value) { return component(value, Face.REGULAR, 2 * guiScale()); }

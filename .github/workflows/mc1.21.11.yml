@@ -19,6 +19,45 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v5
+      - name: Dump the API of this Minecraft version
+        run: |
+          ports/mc1.21.11/gradlew -p ports/mc1.21.11 classpathFile --no-daemon
+          cp=$(cat ports/mc1.21.11/build/compile-classpath.txt)
+          mkdir -p artifacts/debug
+          : > artifacts/debug/api-1.21.11.txt
+          for c in \
+            net.minecraft.client.renderer.entity.state.PlayerRenderState \
+            net.minecraft.client.renderer.entity.state.LivingEntityRenderState \
+            net.minecraft.client.renderer.entity.state.EntityRenderState \
+            net.minecraft.client.renderer.entity.state.ItemEntityRenderState \
+            net.minecraft.client.renderer.entity.ItemEntityRenderer \
+            net.minecraft.client.renderer.entity.player.PlayerRenderer \
+            net.minecraft.client.renderer.entity.layers.RenderLayer \
+            net.minecraft.client.renderer.MultiBufferSource \
+            net.minecraft.client.renderer.RenderType \
+            net.minecraft.client.renderer.RenderType\$CompositeState \
+            net.minecraft.client.renderer.RenderType\$CompositeState\$CompositeStateBuilder \
+            net.minecraft.client.renderer.RenderPipelines \
+            com.mojang.blaze3d.pipeline.RenderPipeline \
+            com.mojang.blaze3d.pipeline.RenderPipeline\$Builder \
+            com.mojang.blaze3d.pipeline.BlendFunction \
+            net.minecraft.client.gui.GuiGraphics \
+            net.minecraft.client.Minecraft \
+            net.minecraft.client.Camera \
+            net.minecraft.client.multiplayer.ClientLevel \
+            net.minecraft.world.level.dimension.DimensionType \
+            net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext \
+            net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents \
+            net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback \
+            net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper ; do
+            echo "=== $c" >> artifacts/debug/api-1.21.11.txt
+            javap -classpath "$cp" -p "$c" >> artifacts/debug/api-1.21.11.txt 2>&1 || true
+          done
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch -q origin "$GITHUB_REF_NAME" && git stash -q -u && git reset -q --hard "origin/$GITHUB_REF_NAME" && git stash pop -q || true
+          git add -f artifacts/debug && git commit -q -m 'API dump [skip ci]' && git push -q origin "HEAD:$GITHUB_REF_NAME" || true
+
       - name: Build
         run: |
           set -o pipefail
