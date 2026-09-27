@@ -18,6 +18,6 @@ public final class CosmeticLayer extends RenderLayer<PlayerRenderState, PlayerMo
 
     @Override
     public void render(PoseStack pose, MultiBufferSource buffers, int light, PlayerRenderState state, float yRot, float xRot) {
-        WorldCosmetics.submitLayer(getParentModel(), pose, new Submitter(buffers), state);
+        WorldCosmetics.submitLayer(getParentModel(), pose, new Submitter(buffers), state, light);
     }
 }

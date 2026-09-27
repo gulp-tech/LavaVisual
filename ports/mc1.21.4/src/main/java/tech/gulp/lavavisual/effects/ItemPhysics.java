@@ -25,6 +25,8 @@ public final class ItemPhysics {
         int lava$id();
         boolean lava$ground();
         boolean lava$water();
+        void lava$flat(boolean flat);
+        boolean lava$flat();
     }
     private static final class State { float pitch, roll, yaw, h = Float.NaN, age = Float.NaN; long seen; }
     private static final Map<Integer, State> STATES = new HashMap<>();
@@ -35,12 +37,15 @@ public final class ItemPhysics {
 
     public static void capture(ItemEntity entity, ItemEntityRenderState state) {
         ((Extra) (Object) state).lava$physics(entity.getId(), entity.onGround(), entity.isInWater());
+        // This version has no model bounding box on the render state: flat sprites are everything that is not a block.
+        ((Extra) (Object) state).lava$flat(!(entity.getItem().getItem() instanceof net.minecraft.world.item.BlockItem));
     }
-    public static boolean submit(ItemEntityRenderState s, PoseStack pose, Submitter collector) {
+    public static boolean submit(ItemEntityRenderState s, PoseStack pose, Submitter collector, int light) {
         var c = LavaVisualClient.config();
         if (!c.itemPhysics || s.item.isEmpty()) return false;
         Extra extra = (Extra) (Object) s;
-        AABB box = s.item.getModelBoundingBox();
+        Extra shape = (Extra) (Object) s;
+        AABB box = shape.lava$flat() ? new AABB(0, 0, 0.46875, 1, 1, 0.53125) : new AABB(0, 0, 0, 1, 1, 1);
         boolean flat = c.itemPhysicsFlat && box.getZsize() < 0.1;
         long now = System.nanoTime();
         State st = STATES.computeIfAbsent(extra.lava$id(), id -> {
@@ -72,7 +77,7 @@ public final class ItemPhysics {
         pose.mulPose(new Quaternionf().rotationY((float) Math.toRadians(st.yaw)).rotateX((float) Math.toRadians(st.pitch)).rotateZ((float) Math.toRadians(st.roll)));
         pose.scale(size, size, size);
         pose.translate(-(box.minX + box.maxX) / 2, -(box.minY + box.maxY) / 2, -(box.minZ + box.maxZ) / 2);
-        ItemEntityRenderer.renderMultipleFromCount(pose, collector.buffers(), s.lightCoords, s, RANDOM);
+        ItemEntityRenderer.renderMultipleFromCount(pose, collector.buffers(), light, s, RANDOM);
         pose.popPose();
         rendered++;
         if (++frames % 900 == 0) STATES.values().removeIf(v -> now - v.seen > 5_000_000_000L);

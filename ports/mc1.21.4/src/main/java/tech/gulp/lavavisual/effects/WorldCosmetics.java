@@ -97,17 +97,19 @@ public final class WorldCosmetics {
     private WorldCosmetics() { }
     public static void register() {
         net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
-            if (renderer instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer<?> avatar) helper.register(new CosmeticLayer(avatar));
+            if (renderer instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer avatar) helper.register(new CosmeticLayer(avatar));
         });
         // The vanilla cape is hidden under our wings or our own cape.
         net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRenderEvents.ALLOW_CAPE_RENDER.register(player -> {
             var c = LavaVisualClient.config();
             var mc = Minecraft.getInstance();
-            boolean self = mc.player != null && player.getId() == mc.player.getId() || Dummy.is(player.getId());
+            boolean self = mc.player != null && player.id == mc.player.getId() || Dummy.is(player.id);
             if (self) return !(c.wingsEnabled || c.capeEnabled);
             if (!c.hatOthers || !HatSync.any()) return true;
-            var remote = HatSync.of(player);
-            var dress = HatSync.outfit(player);
+            var level = mc.level;
+            var entity = level == null ? null : level.getEntity(player.id);
+            var remote = HatSync.of(entity);
+            var dress = HatSync.outfit(entity);
             return !((remote != null && remote.wings() > 0) || (dress != null && dress.cape() > 0));
         });
         AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
@@ -353,10 +355,10 @@ public final class WorldCosmetics {
         Vec3 camera = tech.gulp.lavavisual.compat.Frames.camera().pos;
         Quaternionf orientation = new Quaternionf(tech.gulp.lavavisual.compat.Frames.camera().orientation);
         Vector3f right = new Vector3f(1, 0, 0).rotate(orientation), up = new Vector3f(0, 1, 0).rotate(orientation);
-        context.matrices().pushPose();
+        context.matrixStack().pushPose();
         try {
             // Camera-relative doubles are converted only after subtraction, avoiding far-coordinate jitter.
-            new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW, (pose, out) -> {
+            new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrixStack(), GLOW, (pose, out) -> {
                 int jump = frame.colors[0], jumpLight = frame.lights[0];
                 for (RingFrame ring : frame.rings) {
                     Vec3 p = ring.origin.subtract(camera);
@@ -397,25 +399,25 @@ public final class WorldCosmetics {
             });
             // Trail: the saturated body with normal blending (true colours), the halo additively on top.
             if (frame.trail.size() > 1) {
-                new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW,
+                new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrixStack(), GLOW,
                         (pose, out) -> trail(pose, out, frame.trail, camera, frame.colors[3], frame.lights[3], right, up, frame.spin, false, bodyLook()));
-                if (LavaVisualClient.config().trailGlow) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW_ADD,
+                if (LavaVisualClient.config().trailGlow) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrixStack(), GLOW_ADD,
                         (pose, out) -> trail(pose, out, frame.trail, camera, frame.colors[3], frame.lights[3], right, up, frame.spin, true, bodyLook()));
             }
             if (!frame.shots.isEmpty()) {
                 var cfg = LavaVisualClient.config();
                 TrailLook look = new TrailLook(cfg.projStyle, (float) cfg.projWidth, (float) cfg.projBright, (float) (0.26 * cfg.projWidth), true);
-                new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW, (pose, out) -> {
+                new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrixStack(), GLOW, (pose, out) -> {
                     for (ShotTrail t : frame.shots) trail(pose, out, t.points(), camera, t.color(), t.light(), right, up, frame.spin, false, look);
                 });
-                if (cfg.projGlow) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW_ADD, (pose, out) -> {
+                if (cfg.projGlow) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrixStack(), GLOW_ADD, (pose, out) -> {
                     for (ShotTrail t : frame.shots) trail(pose, out, t.points(), camera, t.color(), t.light(), right, up, frame.spin, true, look);
                 });
             }
-            if (!frame.hats.isEmpty()) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), HAT, (pose, out) -> {
+            if (!frame.hats.isEmpty()) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrixStack(), HAT, (pose, out) -> {
                 for (HatFrame h : frame.hats) Hats.draw(pose, out, world(h, camera), h.model(), h.look());
             });
-        } finally { context.matrices().popPose(); }
+        } finally { context.matrixStack().popPose(); }
     }
     private static Matrix4f world(HatFrame h, Vec3 camera) {
         // Per-frame matrix: camera-relative translation, head/body rotation, uniform size, hat height stretch.
@@ -423,12 +425,12 @@ public final class WorldCosmetics {
                 .mul(new Matrix4f().set(h.rotation())).scale(h.scale(), h.scale() * h.stretch(), h.scale());
     }
     private static boolean hidden(net.minecraft.client.renderer.entity.state.PlayerRenderState s) {
-        return s.isInvisible || s.isSpectator || s.isFallFlying || s.isVisuallySwimming || s.isAutoSpinAttack || s.isUpsideDown
-                || s.hasPose(net.minecraft.world.entity.Pose.SLEEPING);
+        return s.isInvisible || s.isSpectator || s.fallFlyingTimeInTicks > 0 || s.isAutoSpinAttack || s.isUpsideDown
+                || s.hasPose(net.minecraft.world.entity.Pose.SWIMMING) || s.hasPose(net.minecraft.world.entity.Pose.SLEEPING);
     }
     /** World light at the player (block or sky light), so cosmetics darken in caves like the skin does. */
     private static float env(net.minecraft.client.renderer.entity.state.PlayerRenderState s) {
-        int block = s.lightCoords >> 4 & 15, sky = s.lightCoords >> 20 & 15;
+        int block = layerLight >> 4 & 15, sky = layerLight >> 20 & 15;
         return 0.4f + 0.6f * Math.max(block, sky) / 15f;
     }
     /** Another LavaVisual player shares a cape: the vanilla one is hidden under it. */
@@ -447,8 +449,10 @@ public final class WorldCosmetics {
         return remote != null && remote.wings() > 0;
     }
     /** Called by CosmeticLayer for every drawn player model (you, the local dummy, and players who share cosmetics). */
+    private static int layerLight = 0xF000F0;
     public static void submitLayer(net.minecraft.client.model.PlayerModel model, PoseStack pose, tech.gulp.lavavisual.compat.Submitter collector,
-                                   net.minecraft.client.renderer.entity.state.PlayerRenderState s) {
+                                   net.minecraft.client.renderer.entity.state.PlayerRenderState s, int light) {
+        layerLight = light;
         var mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null || hidden(s)) return;
         var c = LavaVisualClient.config();

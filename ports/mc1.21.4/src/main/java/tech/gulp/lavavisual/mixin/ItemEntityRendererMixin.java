@@ -20,6 +20,6 @@ public abstract class ItemEntityRendererMixin {
     @Inject(method = "render(Lnet/minecraft/client/renderer/entity/state/ItemEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             at = @At("HEAD"), cancellable = true)
     private void lava$render(ItemEntityRenderState state, PoseStack pose, MultiBufferSource buffers, int light, CallbackInfo ci) {
-        if (ItemPhysics.submit(state, pose, new Submitter(buffers))) ci.cancel();
+        if (ItemPhysics.submit(state, pose, new Submitter(buffers), light)) ci.cancel();
     }
 }
