@@ -10,7 +10,7 @@ import tech.gulp.lavavisual.effects.CameraControl;
 /** Camera only: zoom scales the field of view; FreeLook replaces the camera angles, never the player's rotation. */
 @Mixin(Camera.class)
 public abstract class CameraMixin {
-    @WrapOperation(method = "alignWithEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation(FF)V"), require = 0)
+    @WrapOperation(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation(FF)V"))
     private void lava$freeLook(Camera camera, float yaw, float pitch, Operation<Void> original) {
         if (CameraControl.freeLook()) {
             CameraControl.hooked = true;
