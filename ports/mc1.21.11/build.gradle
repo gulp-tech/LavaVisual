@@ -1,5 +1,5 @@
 plugins {
-    id 'net.fabricmc.fabric-loom' version '1.17.21'
+    id 'net.fabricmc.fabric-loom-remap' version '1.17.21'
 }
 version = project.mod_version
 group = 'tech.gulp'
@@ -16,6 +16,7 @@ dependencies {
 }
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
