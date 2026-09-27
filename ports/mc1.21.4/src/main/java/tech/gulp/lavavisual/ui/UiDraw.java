@@ -37,7 +37,7 @@ public final class UiDraw {
             if (texture != null) return true;
             if (failed) return false;
             try {
-                DynamicTexture created = new DynamicTexture(("lavavisual ui circles", WIDTH, HEIGHT, true);
+                DynamicTexture created = new DynamicTexture(WIDTH, HEIGHT, true);
                 NativeImage image = created.getPixels();
                 if (image == null) { failed = true; return false; }
                 for (int r = 1; r <= MAX_R; r++) {
@@ -79,7 +79,7 @@ public final class UiDraw {
             if (texture != null) return true;
             if (failed) return false;
             try {
-                DynamicTexture created = new DynamicTexture(("lavavisual ui glow", SIZE, SIZE, true);
+                DynamicTexture created = new DynamicTexture(SIZE, SIZE, true);
                 NativeImage image = created.getPixels();
                 if (image == null) { failed = true; return false; }
                 for (int j = 0; j < SIZE; j++) for (int i = 0; i < SIZE; i++) {

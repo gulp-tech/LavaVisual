@@ -256,9 +256,9 @@ public final class Minimap {
         long now = System.nanoTime();
         if (key != frameKey && (frameTexture == null || now - frameBuilt > 250_000_000L)) {
             if (frameTexture == null || frameW != pw || frameH != ph) {
-                frameTexture = new DynamicTexture(("lavavisual minimap frame", pw, ph, true);
-                ringTexture = new DynamicTexture(("lavavisual minimap ring", pw, ph, true);
-                ring2Texture = new DynamicTexture(("lavavisual minimap ring 2", pw, ph, true);
+                frameTexture = new DynamicTexture(pw, ph, true);
+                ringTexture = new DynamicTexture(pw, ph, true);
+                ring2Texture = new DynamicTexture(pw, ph, true);
                 var textures = mc.getTextureManager();
                 textures.register(FRAME, frameTexture); // replaces (and closes) the previous ones
                 textures.register(RING, ringTexture);
@@ -335,7 +335,7 @@ public final class Minimap {
         int pw = (int) Math.round(16 * s), ph = (int) Math.round(18 * s);
         if (pw < 4 || pw > 512) return;
         if (arrowTexture == null || arrowSize != pw) {
-            arrowTexture = new DynamicTexture(("lavavisual minimap arrow", pw, ph, true);
+            arrowTexture = new DynamicTexture(pw, ph, true);
             mc.getTextureManager().register(ARROW, arrowTexture);
             arrowSize = pw;
             NativeImage image = arrowTexture.getPixels();
