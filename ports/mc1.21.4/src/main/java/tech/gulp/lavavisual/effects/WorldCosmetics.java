@@ -451,8 +451,8 @@ public final class WorldCosmetics {
     /** Called by CosmeticLayer for every drawn player model (you, the local dummy, and players who share cosmetics). */
     private static int layerLight = 0xF000F0;
     public static void submitLayer(net.minecraft.client.model.PlayerModel model, PoseStack pose, tech.gulp.lavavisual.compat.Submitter collector,
-                                   net.minecraft.client.renderer.entity.state.PlayerRenderState s, int light) {
-        layerLight = light;
+                                   net.minecraft.client.renderer.entity.state.PlayerRenderState s, int packedLight) {
+        layerLight = packedLight;
         var mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null || hidden(s)) return;
         var c = LavaVisualClient.config();

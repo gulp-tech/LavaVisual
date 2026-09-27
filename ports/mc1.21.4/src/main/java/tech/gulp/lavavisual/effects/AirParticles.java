@@ -174,9 +174,9 @@ public final class AirParticles {
         if (frame == null) return;
         Quaternionf orientation = new Quaternionf(tech.gulp.lavavisual.compat.Frames.camera().orientation);
         Vector3f r = new Vector3f(1, 0, 0).rotate(orientation), u = new Vector3f(0, 1, 0).rotate(orientation);
-        context.matrices().pushPose();
+        context.matrixStack().pushPose();
         try {
-            new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), WorldCosmetics.GLOW, (pose, out) -> {
+            new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrixStack(), WorldCosmetics.GLOW, (pose, out) -> {
                 float[] d = frame.data;
                 for (int n = 0; n < frame.n; n++) {
                     int o = n * STRIDE;
@@ -226,7 +226,7 @@ public final class AirParticles {
                 }
             });
         } finally {
-            context.matrices().popPose();
+            context.matrixStack().popPose();
         }
     }
 
