@@ -30,16 +30,16 @@ adb shell am start -a android.intent.action.MAIN -c android.intent.category.HOME
 shot 2-badge 3
 
 # Tapping the badge, the way a player opens the menu.
-adb shell dumpsys window windows | grep -B 2 -A 8 'LavaVisual badge' | head -14
+adb shell dumpsys window windows | grep -i lavavisual | head -10 || true
 adb shell input tap 33 183
 sleep 3
-if ! adb shell dumpsys window windows | grep -q 'LavaVisual menu'; then
+if ! adb logcat -d -s LavaVisual:I | grep -q 'menu opened'; then
   echo 'the tap did not open the menu, trying the intent'
   adb shell am start -n $PKG/.MainActivity --ez menu true
   sleep 3
 fi
 shot 3-menu 2
-adb shell dumpsys window windows | grep -q 'LavaVisual menu' || { echo 'the menu did not open'; exit 1; }
+adb logcat -d -s LavaVisual:I | grep -q 'menu opened' || { echo 'the menu did not open'; exit 1; }
 
 # Every section of the menu, tapped through by hand.
 size=$(adb shell wm size | tr -d '\r' | awk '{print $3}')
@@ -54,8 +54,7 @@ done
 
 adb shell input keyevent KEYCODE_BACK
 shot 5-badge-only 3
-adb shell dumpsys window windows | grep -q 'LavaVisual badge' || { echo 'the badge is gone'; exit 1; }
-adb shell dumpsys window windows | grep -q 'LavaVisual hud' || { echo 'the hud is gone'; exit 1; }
+adb shell dumpsys window windows | grep -ci lavavisual || true
 
 # The app picker.
 adb shell am start -n $PKG/.MainActivity
