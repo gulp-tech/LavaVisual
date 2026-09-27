@@ -1,57 +1,9 @@
 > Configure project :
 > Task :compileJava
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:100: error: type PlayerRenderer does not take parameters
-            if (renderer instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer<?> avatar) helper.register(new CosmeticLayer(avatar));
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:106: error: cannot find symbol
-  symbol:   method getId()
-  location: variable player of type PlayerRenderState
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:106: error: cannot find symbol
-  symbol:   method getId()
-  location: variable player of type PlayerRenderState
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:109: error: incompatible types: PlayerRenderState cannot be converted to Entity
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:110: error: incompatible types: PlayerRenderState cannot be converted to Entity
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:356: error: cannot find symbol
-  symbol:   method matrices()
-  location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:359: error: cannot find symbol
-            new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW, (pose, out) -> {
-  symbol:   method matrices()
-  location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:400: error: cannot find symbol
-  symbol:   method matrices()
-  location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:402: error: cannot find symbol
-  symbol:   method matrices()
-  location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:408: error: cannot find symbol
-                new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW, (pose, out) -> {
-  symbol:   method matrices()
-  location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:411: error: cannot find symbol
-                if (cfg.projGlow) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW_ADD, (pose, out) -> {
-  symbol:   method matrices()
-  location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:415: error: cannot find symbol
-            if (!frame.hats.isEmpty()) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), HAT, (pose, out) -> {
-  symbol:   method matrices()
-  location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:418: error: cannot find symbol
-  symbol:   method matrices()
-  location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:431: error: cannot find symbol
-        int block = s.lightCoords >> 4 & 15, sky = s.lightCoords >> 20 & 15;
-  symbol:   variable lightCoords
-  location: variable s of type PlayerRenderState
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:431: error: cannot find symbol
-        int block = s.lightCoords >> 4 & 15, sky = s.lightCoords >> 20 & 15;
-  symbol:   variable lightCoords
-  location: variable s of type PlayerRenderState
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/ItemPhysics.java:43: error: cannot find symbol
-  symbol:   method getModelBoundingBox()
-  location: variable item of type ItemStackRenderState
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/ItemPhysics.java:75: error: cannot find symbol
-  symbol:   variable lightCoords
-  location: variable s of type ItemEntityRenderState
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:480: error: variable light is already defined in method submitLayer(PlayerModel,PoseStack,Submitter,PlayerRenderState,int)
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:484: error: variable light is already defined in method submitLayer(PlayerModel,PoseStack,Submitter,PlayerRenderState,int)
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:491: error: variable light is already defined in method submitLayer(PlayerModel,PoseStack,Submitter,PlayerRenderState,int)
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:496: error: variable light is already defined in method submitLayer(PlayerModel,PoseStack,Submitter,PlayerRenderState,int)
 /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:177: error: cannot find symbol
   symbol:   method matrices()
   location: variable context of type WorldRenderContext
@@ -66,58 +18,6 @@
 FAILURE: Build failed with an exception.
 * What went wrong:
 > Compilation failed; see the compiler output below.
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:100: error: type PlayerRenderer does not take parameters
-              if (renderer instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer<?> avatar) helper.register(new CosmeticLayer(avatar));
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:109: error: incompatible types: PlayerRenderState cannot be converted to Entity
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:110: error: incompatible types: PlayerRenderState cannot be converted to Entity
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:431: error: cannot find symbol
-          int block = s.lightCoords >> 4 & 15, sky = s.lightCoords >> 20 & 15;
-    symbol:   variable lightCoords
-    location: variable s of type PlayerRenderState
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:431: error: cannot find symbol
-          int block = s.lightCoords >> 4 & 15, sky = s.lightCoords >> 20 & 15;
-    symbol:   variable lightCoords
-    location: variable s of type PlayerRenderState
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/ItemPhysics.java:75: error: cannot find symbol
-    symbol:   variable lightCoords
-    location: variable s of type ItemEntityRenderState
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:106: error: cannot find symbol
-    symbol:   method getId()
-    location: variable player of type PlayerRenderState
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:106: error: cannot find symbol
-    symbol:   method getId()
-    location: variable player of type PlayerRenderState
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:356: error: cannot find symbol
-    symbol:   method matrices()
-    location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:359: error: cannot find symbol
-              new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW, (pose, out) -> {
-    symbol:   method matrices()
-    location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:400: error: cannot find symbol
-    symbol:   method matrices()
-    location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:402: error: cannot find symbol
-    symbol:   method matrices()
-    location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:408: error: cannot find symbol
-                  new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW, (pose, out) -> {
-    symbol:   method matrices()
-    location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:411: error: cannot find symbol
-                  if (cfg.projGlow) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), GLOW_ADD, (pose, out) -> {
-    symbol:   method matrices()
-    location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:415: error: cannot find symbol
-              if (!frame.hats.isEmpty()) new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), HAT, (pose, out) -> {
-    symbol:   method matrices()
-    location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:418: error: cannot find symbol
-    symbol:   method matrices()
-    location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/ItemPhysics.java:43: error: cannot find symbol
-    symbol:   method getModelBoundingBox()
-    location: variable item of type ItemStackRenderState
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:177: error: cannot find symbol
     symbol:   method matrices()
     location: variable context of type WorldRenderContext
@@ -128,6 +28,10 @@ FAILURE: Build failed with an exception.
   /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:229: error: cannot find symbol
     symbol:   method matrices()
     location: variable context of type WorldRenderContext
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:480: error: variable light is already defined in method submitLayer(PlayerModel,PoseStack,Submitter,PlayerRenderState,int)
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:484: error: variable light is already defined in method submitLayer(PlayerModel,PoseStack,Submitter,PlayerRenderState,int)
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:491: error: variable light is already defined in method submitLayer(PlayerModel,PoseStack,Submitter,PlayerRenderState,int)
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:496: error: variable light is already defined in method submitLayer(PlayerModel,PoseStack,Submitter,PlayerRenderState,int)
 > Check your code and dependencies to fix the compilation error(s)
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).
-40
+14
