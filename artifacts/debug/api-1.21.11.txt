@@ -3291,3 +3291,234 @@ public class net.minecraft.world.entity.player.StackedItemContents {
 Compiled from "package-info.java"
 interface net.minecraft.world.entity.player.package-info {
 }
+=== com.mojang.blaze3d.pipeline.RenderPipeline$Builder
+Compiled from "RenderPipeline.java"
+public class com.mojang.blaze3d.pipeline.RenderPipeline$Builder implements net.fabricmc.fabric.api.client.rendering.v1.FabricRenderPipeline$Builder {
+  private static int nextPipelineSortKey;
+  private java.util.Optional<net.minecraft.resources.Identifier> location;
+  private java.util.Optional<net.minecraft.resources.Identifier> fragmentShader;
+  private java.util.Optional<net.minecraft.resources.Identifier> vertexShader;
+  private java.util.Optional<net.minecraft.client.renderer.ShaderDefines$Builder> definesBuilder;
+  private java.util.Optional<java.util.List<java.lang.String>> samplers;
+  private java.util.Optional<java.util.List<com.mojang.blaze3d.pipeline.RenderPipeline$UniformDescription>> uniforms;
+  private java.util.Optional<com.mojang.blaze3d.platform.DepthTestFunction> depthTestFunction;
+  private java.util.Optional<com.mojang.blaze3d.platform.PolygonMode> polygonMode;
+  private java.util.Optional<java.lang.Boolean> cull;
+  private java.util.Optional<java.lang.Boolean> writeColor;
+  private java.util.Optional<java.lang.Boolean> writeAlpha;
+  private java.util.Optional<java.lang.Boolean> writeDepth;
+  private java.util.Optional<com.mojang.blaze3d.platform.LogicOp> colorLogic;
+  private java.util.Optional<com.mojang.blaze3d.pipeline.BlendFunction> blendFunction;
+  private java.util.Optional<com.mojang.blaze3d.vertex.VertexFormat> vertexFormat;
+  private java.util.Optional<com.mojang.blaze3d.vertex.VertexFormat$Mode> vertexFormatMode;
+  private float depthBiasScaleFactor;
+  private float depthBiasConstant;
+  com.mojang.blaze3d.pipeline.RenderPipeline$Builder();
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withLocation(java.lang.String);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withLocation(net.minecraft.resources.Identifier);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withFragmentShader(java.lang.String);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withFragmentShader(net.minecraft.resources.Identifier);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withVertexShader(java.lang.String);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withVertexShader(net.minecraft.resources.Identifier);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withShaderDefine(java.lang.String);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withShaderDefine(java.lang.String, int);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withShaderDefine(java.lang.String, float);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withSampler(java.lang.String);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withUniform(java.lang.String, com.mojang.blaze3d.shaders.UniformType);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withUniform(java.lang.String, com.mojang.blaze3d.shaders.UniformType, com.mojang.blaze3d.textures.TextureFormat);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withDepthTestFunction(com.mojang.blaze3d.platform.DepthTestFunction);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withPolygonMode(com.mojang.blaze3d.platform.PolygonMode);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withCull(boolean);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withBlend(com.mojang.blaze3d.pipeline.BlendFunction);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withoutBlend();
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withColorWrite(boolean);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withColorWrite(boolean, boolean);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withDepthWrite(boolean);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withColorLogic(com.mojang.blaze3d.platform.LogicOp);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withVertexFormat(com.mojang.blaze3d.vertex.VertexFormat, com.mojang.blaze3d.vertex.VertexFormat$Mode);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Builder withDepthBias(float, float);
+  void withSnippet(com.mojang.blaze3d.pipeline.RenderPipeline$Snippet);
+  public com.mojang.blaze3d.pipeline.RenderPipeline$Snippet buildSnippet();
+  public com.mojang.blaze3d.pipeline.RenderPipeline build();
+  private void lambda$withSnippet$1(java.util.List);
+  private void lambda$withSnippet$0(java.util.List);
+}
+=== net.minecraft.client.renderer.RenderPipelines
+Compiled from "RenderPipelines.java"
+public class net.minecraft.client.renderer.RenderPipelines {
+  private static final java.util.Map<net.minecraft.resources.Identifier, com.mojang.blaze3d.pipeline.RenderPipeline> PIPELINES_BY_LOCATION;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet MATRICES_PROJECTION_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet FOG_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet GLOBALS_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet MATRICES_FOG_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet MATRICES_FOG_LIGHT_DIR_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet GENERIC_BLOCKS_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet TERRAIN_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet BLOCK_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet ENTITY_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet ENTITY_EMISSIVE_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet BEACON_BEAM_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet TEXT_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet END_PORTAL_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet CLOUDS_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet LINES_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet DEBUG_FILLED_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet PARTICLE_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet WEATHER_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet GUI_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet GUI_TEXTURED_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet GUI_TEXT_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet OUTLINE_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet POST_PROCESSING_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline SOLID_BLOCK;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline SOLID_TERRAIN;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline WIREFRAME;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline CUTOUT_BLOCK;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline CUTOUT_TERRAIN;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline TRANSLUCENT_TERRAIN;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline TRIPWIRE_BLOCK;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline TRIPWIRE_TERRAIN;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline TRANSLUCENT_MOVING_BLOCK;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ARMOR_CUTOUT_NO_CULL;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ARMOR_DECAL_CUTOUT_NO_CULL;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ARMOR_TRANSLUCENT;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ENTITY_SOLID;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ENTITY_SOLID_Z_OFFSET_FORWARD;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ENTITY_CUTOUT;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ENTITY_CUTOUT_NO_CULL;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ENTITY_CUTOUT_NO_CULL_Z_OFFSET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ENTITY_TRANSLUCENT;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ENTITY_TRANSLUCENT_EMISSIVE;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ENTITY_SMOOTH_CUTOUT;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ENTITY_NO_OUTLINE;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline BREEZE_WIND;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ENERGY_SWIRL;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline EYES;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ENTITY_DECAL;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ENTITY_SHADOW;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ITEM_ENTITY_TRANSLUCENT_CULL;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline BEACON_BEAM_OPAQUE;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline BEACON_BEAM_TRANSLUCENT;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline DRAGON_EXPLOSION_ALPHA;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline LEASH;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline WATER_MASK;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline GLINT;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline CRUMBLING;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline TEXT;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline GUI_TEXT;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline TEXT_BACKGROUND;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline TEXT_INTENSITY;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline GUI_TEXT_INTENSITY;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline TEXT_POLYGON_OFFSET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline TEXT_SEE_THROUGH;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline TEXT_BACKGROUND_SEE_THROUGH;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline TEXT_INTENSITY_SEE_THROUGH;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline LIGHTNING;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline DRAGON_RAYS;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline DRAGON_RAYS_DEPTH;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline END_PORTAL;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline END_GATEWAY;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline FLAT_CLOUDS;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline CLOUDS;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline LINES;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline LINES_TRANSLUCENT;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline SECONDARY_BLOCK_OUTLINE;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline DEBUG_POINTS;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline DEBUG_FILLED_BOX;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline DEBUG_QUADS;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline DEBUG_TRIANGLE_FAN;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline WORLD_BORDER;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline OPAQUE_PARTICLE;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline TRANSLUCENT_PARTICLE;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline WEATHER_DEPTH_WRITE;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline WEATHER_NO_DEPTH_WRITE;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline SKY;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline END_SKY;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline SUNRISE_SUNSET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline STARS;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline CELESTIAL;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline GUI;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline GUI_INVERT;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline GUI_TEXT_HIGHLIGHT;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline GUI_TEXTURED;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline GUI_TEXTURED_PREMULTIPLIED_ALPHA;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline BLOCK_SCREEN_EFFECT;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline FIRE_SCREEN_EFFECT;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline GUI_OPAQUE_TEXTURED_BACKGROUND;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline GUI_NAUSEA_OVERLAY;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline VIGNETTE;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline CROSSHAIR;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline MOJANG_LOGO;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ENTITY_OUTLINE_BLIT;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline TRACY_BLIT;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline PANORAMA;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline OUTLINE_CULL;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline OUTLINE_NO_CULL;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline LIGHTMAP;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline$Snippet ANIMATE_SPRITE_SNIPPET;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ANIMATE_SPRITE_BLIT;
+  public static final com.mojang.blaze3d.pipeline.RenderPipeline ANIMATE_SPRITE_INTERPOLATE;
+  public net.minecraft.client.renderer.RenderPipelines();
+  public static com.mojang.blaze3d.pipeline.RenderPipeline register(com.mojang.blaze3d.pipeline.RenderPipeline);
+  public static java.util.List<com.mojang.blaze3d.pipeline.RenderPipeline> getStaticPipelines();
+  static {};
+}
+=== net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder
+Compiled from "RenderSetup.java"
+public class net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder {
+  private final com.mojang.blaze3d.pipeline.RenderPipeline pipeline;
+  private boolean useLightmap;
+  private boolean useOverlay;
+  private net.minecraft.client.renderer.rendertype.LayeringTransform layeringTransform;
+  private net.minecraft.client.renderer.rendertype.OutputTarget outputTarget;
+  private net.minecraft.client.renderer.rendertype.TextureTransform textureTransform;
+  private boolean affectsCrumbling;
+  private boolean sortOnUpload;
+  private int bufferSize;
+  private net.minecraft.client.renderer.rendertype.RenderSetup$OutlineProperty outlineProperty;
+  private final java.util.Map<java.lang.String, net.minecraft.client.renderer.rendertype.RenderSetup$TextureBinding> textures;
+  net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder(com.mojang.blaze3d.pipeline.RenderPipeline);
+  public net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder withTexture(java.lang.String, net.minecraft.resources.Identifier);
+  public net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder withTexture(java.lang.String, net.minecraft.resources.Identifier, java.util.function.Supplier<com.mojang.blaze3d.textures.GpuSampler>);
+  public net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder useLightmap();
+  public net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder useOverlay();
+  public net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder affectsCrumbling();
+  public net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder sortOnUpload();
+  public net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder bufferSize(int);
+  public net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder setLayeringTransform(net.minecraft.client.renderer.rendertype.LayeringTransform);
+  public net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder setOutputTarget(net.minecraft.client.renderer.rendertype.OutputTarget);
+  public net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder setTextureTransform(net.minecraft.client.renderer.rendertype.TextureTransform);
+  public net.minecraft.client.renderer.rendertype.RenderSetup$RenderSetupBuilder setOutline(net.minecraft.client.renderer.rendertype.RenderSetup$OutlineProperty);
+  public net.minecraft.client.renderer.rendertype.RenderSetup createRenderSetup();
+  private static com.mojang.blaze3d.textures.GpuSampler method_76561(java.util.function.Supplier);
+  private static com.mojang.blaze3d.textures.GpuSampler method_76562();
+}
+=== net.fabricmc.fabric.api.client.screen.v1.Screens
+Compiled from "Screens.java"
+public final class net.fabricmc.fabric.api.client.screen.v1.Screens {
+  public static java.util.List<net.minecraft.client.gui.components.AbstractWidget> getButtons(net.minecraft.client.gui.screens.Screen);
+  public static net.minecraft.client.gui.Font getTextRenderer(net.minecraft.client.gui.screens.Screen);
+  public static net.minecraft.client.Minecraft getClient(net.minecraft.client.gui.screens.Screen);
+  private net.fabricmc.fabric.api.client.screen.v1.Screens();
+}
+=== net.minecraft.client.gui.screens.inventory.InventoryScreen
+Compiled from "InventoryScreen.java"
+public class net.minecraft.client.gui.screens.inventory.InventoryScreen extends net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen<net.minecraft.world.inventory.InventoryMenu> {
+  private float xMouse;
+  private float yMouse;
+  private boolean buttonClicked;
+  private final net.minecraft.client.gui.screens.inventory.EffectsInInventory effects;
+  public net.minecraft.client.gui.screens.inventory.InventoryScreen(net.minecraft.world.entity.player.Player);
+  public void containerTick();
+  protected void init();
+  protected net.minecraft.client.gui.navigation.ScreenPosition getRecipeBookButtonPosition();
+  protected void onRecipeBookButtonClick();
+  protected void renderLabels(net.minecraft.client.gui.GuiGraphics, int, int);
+  public void render(net.minecraft.client.gui.GuiGraphics, int, int, float);
+  public boolean showsActiveEffects();
+  protected boolean isBiggerResultSlot();
+  protected void renderBg(net.minecraft.client.gui.GuiGraphics, float, int, int);
+  public static void renderEntityInInventoryFollowsMouse(net.minecraft.client.gui.GuiGraphics, int, int, int, int, int, float, float, float, net.minecraft.world.entity.LivingEntity);
+  private static net.minecraft.client.renderer.entity.state.EntityRenderState extractRenderState(net.minecraft.world.entity.LivingEntity);
+  public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent);
+}
