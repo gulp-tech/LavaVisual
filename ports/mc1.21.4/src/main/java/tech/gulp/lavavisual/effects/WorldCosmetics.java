@@ -1,7 +1,5 @@
 package tech.gulp.lavavisual.effects;
 
-import com.mojang.blaze3d.pipeline.BlendFunction;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -15,7 +13,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -79,29 +76,21 @@ public final class WorldCosmetics {
     private static final ArrayDeque<Integer> CLICKS = new ArrayDeque<>();
     private static boolean grounded, ready;
     private static Vec3 groundPosition = Vec3.ZERO;
-    public static final RenderType GLOW = RenderType.create("lavavisual_cosmetic_glow",
-            RenderSetup.builder(RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-                    .withLocation(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("lavavisual", "pipeline/cosmetic_glow"))
-                    .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
-                    .withDepthWrite(false)
-                    .withBlend(BlendFunction.TRANSLUCENT)
-                    .withCull(false).build())).sortOnUpload().createRenderSetup());
+    private static RenderType glowType(String name, RenderStateShard.TransparencyStateShard blend, boolean depthWrite) {
+        return RenderType.create("lavavisual_" + name, DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 1536, false, true,
+                RenderType.CompositeState.builder()
+                        .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
+                        .setTransparencyState(blend)
+                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                        .setCullState(RenderStateShard.NO_CULL)
+                        .setWriteMaskState(depthWrite ? RenderStateShard.COLOR_DEPTH_WRITE : RenderStateShard.COLOR_WRITE)
+                        .createCompositeState(false));
+    }
+    public static final RenderType GLOW = glowType("cosmetic_glow", RenderStateShard.TRANSLUCENT_TRANSPARENCY, false);
     /** Additive (alpha-weighted) glow: trails look saturated and luminous instead of a flat strip. */
-    public static final RenderType GLOW_ADD = RenderType.create("lavavisual_cosmetic_glow_add",
-            RenderSetup.builder(RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-                    .withLocation(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("lavavisual", "pipeline/cosmetic_glow_add"))
-                    .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
-                    .withDepthWrite(false)
-                    .withBlend(BlendFunction.LIGHTNING)
-                    .withCull(false).build())).sortOnUpload().createRenderSetup());
+    public static final RenderType GLOW_ADD = glowType("cosmetic_glow_add", RenderStateShard.LIGHTNING_TRANSPARENCY, false);
     /** Solid hats: depth-tested and depth-writing; back faces are dropped on the CPU (see Hats). */
-    public static final RenderType HAT = RenderType.create("lavavisual_hat",
-            RenderSetup.builder(RenderPipelines.register(RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-                    .withLocation(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("lavavisual", "pipeline/hat"))
-                    .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
-                    .withDepthWrite(true)
-                    .withBlend(BlendFunction.TRANSLUCENT)
-                    .withCull(false).build())).sortOnUpload().createRenderSetup());
+    public static final RenderType HAT = glowType("hat", RenderStateShard.TRANSLUCENT_TRANSPARENCY, true);
     private WorldCosmetics() { }
     public static void register() {
         net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
@@ -255,13 +244,13 @@ public final class WorldCosmetics {
         int b = (int) (((from & 255) * (1 - t)) + (to & 255) * t);
         return 0xFF000000 | r << 16 | g << 8 | b;
     }
-    /** Called from LevelRendererMixin at the head of LevelRenderer#render, after sky extraction. */
-    public static void tintSky(net.minecraft.client.renderer.state.LevelRenderState state) {
+    /** Called from ClientLevelSkyMixin: the sky colour of the frame is tinted. */
+    public static int tintSky(int original) {
         var c = LavaVisualClient.config();
-        if (state == null || !c.skyEnabled || c.skyStrength <= 0) return;
+        if (!c.skyEnabled || c.skyStrength <= 0) return original;
         var level = Minecraft.getInstance().level;
-        if (level == null || !level.dimensionType().hasSkyLight()) return;
-        state.skyRenderState.skyColor = mix(state.skyRenderState.skyColor, c.skyRgb, c.skyStrength);
+        if (level == null || !level.dimensionType().hasSkyLight()) return original;
+        return mix(original, c.skyRgb, c.skyStrength);
     }
     private static void add(Spark spark) {
         if (SPARKS.size() >= (PerformanceMode.active() ? 48 : 96)) SPARKS.removeFirst();

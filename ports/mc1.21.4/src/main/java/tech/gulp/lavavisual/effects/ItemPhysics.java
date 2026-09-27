@@ -72,7 +72,7 @@ public final class ItemPhysics {
         pose.mulPose(new Quaternionf().rotationY((float) Math.toRadians(st.yaw)).rotateX((float) Math.toRadians(st.pitch)).rotateZ((float) Math.toRadians(st.roll)));
         pose.scale(size, size, size);
         pose.translate(-(box.minX + box.maxX) / 2, -(box.minY + box.maxY) / 2, -(box.minZ + box.maxZ) / 2);
-        ItemEntityRenderer.submitMultipleFromCount(pose, collector, s.lightCoords, s, RANDOM, box);
+        ItemEntityRenderer.renderMultipleFromCount(pose, collector.buffers(), s.lightCoords, s, RANDOM);
         pose.popPose();
         rendered++;
         if (++frames % 900 == 0) STATES.values().removeIf(v -> now - v.seen > 5_000_000_000L);
