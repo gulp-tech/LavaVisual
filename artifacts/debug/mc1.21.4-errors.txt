@@ -1,0 +1,10 @@
+> Configure project :
+FAILURE: Build failed with an exception.
+* What went wrong:
+> Could not resolve all files for configuration ':modImplementation'.
+   > Could not find net.fabricmc.fabric-api:fabric-api:0.119.5+1.21.4.
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+0
