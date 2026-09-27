@@ -1,0 +1,41 @@
+name: Build LavaVisual (Minecraft 1.21.11)
+on:
+  push:
+    paths: ['ports/mc1.21.11/**', '.github/workflows/mc1.21.11.yml']
+  workflow_dispatch:
+concurrency:
+  group: lavavisual-1-21-11-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v5
+      - name: Build
+        run: ports/mc1.21.11/gradlew -p ports/mc1.21.11 build --no-daemon
+      - name: Publish tested build
+        if: github.event_name == 'push'
+        run: |
+          version=$(grep '^mod_version=' ports/mc1.21.11/gradle.properties | cut -d= -f2)
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3 4 5; do
+            git fetch -q origin "$GITHUB_REF_NAME" && git reset -q --hard "origin/$GITHUB_REF_NAME"
+            mkdir -p artifacts
+            cp "ports/mc1.21.11/build/libs/lavavisual-${version}.jar" artifacts/
+            (cd artifacts && sha256sum *.jar > SHA256SUMS)
+            git add artifacts
+            git diff --cached --quiet && exit 0
+            git commit -q -m 'Publish tested 1.21.11 build [skip ci]'
+            git push -q origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep $((attempt * 5))
+          done
+          exit 1
