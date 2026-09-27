@@ -15,7 +15,7 @@ import tech.gulp.lavavisual.LavaVisualClient;
 @Mixin(ScreenEffectRenderer.class)
 public abstract class ScreenEffectRendererMixin {
     @Inject(method = "renderFire", at = @At("HEAD"), cancellable = true)
-    private static void lava$fireStart(PoseStack pose, net.minecraft.client.renderer.MultiBufferSource collector, TextureAtlasSprite sprite, CallbackInfo ci) {
+    private static void lava$fireStart(PoseStack pose, net.minecraft.client.renderer.MultiBufferSource collector, CallbackInfo ci) {
         float size = (float) LavaVisualClient.config().fireHeight;
         if (size >= 0.999f) return;
         if (size <= 0.001f) { ci.cancel(); return; }
@@ -24,7 +24,7 @@ public abstract class ScreenEffectRendererMixin {
         pose.scale(1, size, 1);
     }
     @Inject(method = "renderFire", at = @At("RETURN"))
-    private static void lava$fireEnd(PoseStack pose, net.minecraft.client.renderer.MultiBufferSource collector, TextureAtlasSprite sprite, CallbackInfo ci) {
+    private static void lava$fireEnd(PoseStack pose, net.minecraft.client.renderer.MultiBufferSource collector, CallbackInfo ci) {
         float size = (float) LavaVisualClient.config().fireHeight;
         if (size < 0.999f && size > 0.001f) pose.popPose();
     }
