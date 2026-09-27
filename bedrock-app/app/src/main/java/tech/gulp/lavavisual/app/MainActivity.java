@@ -40,6 +40,7 @@ public class MainActivity extends Activity {
     /** Lets a shortcut, a test or the notification start the overlay straight away. */
     private void handle(Intent intent) {
         if (intent == null) return;
+        if (intent.getBooleanExtra("picker", false)) startActivity(new Intent(this, AppPickerActivity.class));
         if (intent.getBooleanExtra("autostart", false)) start(intent.getBooleanExtra("launch", false));
         if (intent.getBooleanExtra("menu", false)) {
             OverlayService.ask(this, false, true);

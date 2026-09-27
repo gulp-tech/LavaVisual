@@ -17,10 +17,13 @@ adb shell input keyevent KEYCODE_WAKEUP || true
 adb shell wm dismiss-keyguard || true
 adb install -r -g "$ROOT/app/build/outputs/apk/debug/app-debug.apk"
 adb shell appops set $PKG SYSTEM_ALERT_WINDOW allow
+adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS || true
 adb logcat -c
 
 adb shell am start -W -n $PKG/.MainActivity
-shot 1-setup 4
+sleep 3
+adb shell input keyevent KEYCODE_BACK   # any permission dialog
+shot 1-setup 3
 
 # The overlay: badge plus HUD, then the menu.
 adb shell am start -n $PKG/.MainActivity --ez autostart true
@@ -45,7 +48,7 @@ shot 5-badge-only 3
 # The app picker.
 adb shell am start -n $PKG/.MainActivity
 sleep 3
-adb shell am start -n $PKG/.AppPickerActivity
+adb shell am start -n $PKG/.MainActivity --ez picker true
 shot 6-apps 4
 adb shell input keyevent KEYCODE_BACK
 
