@@ -20,7 +20,22 @@ jobs:
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v5
       - name: Build
-        run: ports/mc1.21.11/gradlew -p ports/mc1.21.11 build --no-daemon
+        run: |
+          set -o pipefail
+          ports/mc1.21.11/gradlew -p ports/mc1.21.11 build --no-daemon 2>&1 | tee build.log
+
+      - name: Keep the errors when the build fails
+        if: failure() && github.event_name == 'push'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch -q origin "$GITHUB_REF_NAME" && git reset -q --mixed "origin/$GITHUB_REF_NAME"
+          mkdir -p artifacts/debug
+          grep -E "error:|error;|cannot find symbol|symbol:|location:|^e: |FAILURE|What went wrong|> " build.log | head -400 > artifacts/debug/mc1.21.11-errors.txt || true
+          grep -cE "error:" build.log >> artifacts/debug/mc1.21.11-errors.txt || true
+          git add -f artifacts/debug
+          git commit -q -m 'Build log [skip ci]' || exit 0
+          git push -q origin "HEAD:$GITHUB_REF_NAME" || true
       - name: Publish tested build
         if: github.event_name == 'push'
         run: |
