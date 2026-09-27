@@ -1,10 +1,521 @@
 > Configure project :
+> Task :compileJava
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:8: error: cannot find symbol
+  symbol:   class CameraRenderState
+  location: package net.minecraft.client.renderer.state
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:25: error: cannot find symbol
+    public static List<Beam> extract(Minecraft mc, CameraRenderState camera, float partial) {
+  symbol:   class CameraRenderState
+  location: class WaypointOverlay
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:9: error: cannot find symbol
+  symbol:   class RenderPipelines
+  location: package net.minecraft.client.renderer
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:12: error: cannot find symbol
+  symbol:   class Identifier
+  location: package net.minecraft.resources
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:31: error: cannot find symbol
+  symbol:   class Identifier
+  location: class Minimap
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:218: error: cannot find symbol
+  symbol:   class Identifier
+  location: class Minimap
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:329: error: cannot find symbol
+  symbol:   class Identifier
+  location: class Minimap
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:11: error: cannot find symbol
+  symbol:   class RenderPipelines
+  location: package net.minecraft.client.renderer
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:12: error: cannot find symbol
+  symbol:   class Identifier
+  location: package net.minecraft.resources
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:7: error: cannot find symbol
+  symbol:   class FontDescription
+  location: package net.minecraft.network.chat
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:8: error: cannot find symbol
+  symbol:   class Identifier
+  location: package net.minecraft.resources
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/TargetSnapshot.java:11: error: cannot find symbol
+  symbol:   class Identifier
+  location: package net.minecraft.resources
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:27: error: cannot find symbol
+  symbol:   class FontDescription
+  location: class UiFont
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:33: error: cannot find symbol
+  symbol:   class FontDescription
+  location: class UiFont
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/input/Binds.java:51: error: cannot find symbol
+  symbol:   class Category
+  location: class KeyMapping
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiSound.java:6: error: cannot find symbol
+  symbol:   class Identifier
+  location: package net.minecraft.resources
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiSound.java:12: error: cannot find symbol
+  symbol:   class Identifier
+  location: class UiSound
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:5: error: package net.minecraft.client.input does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:6: error: package net.minecraft.client.input does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:131: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class HudEditorScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:150: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class HudEditorScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:175: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class HudEditorScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:188: error: cannot find symbol
+  symbol:   class KeyEvent
+  location: class HudEditorScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:6: error: cannot find symbol
+  symbol:   class RenderPipelines
+  location: package net.minecraft.client.renderer
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:8: error: cannot find symbol
+  symbol:   class Identifier
+  location: package net.minecraft.resources
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:25: error: cannot find symbol
+  symbol:   class Identifier
+  location: class Circles
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:76: error: cannot find symbol
+  symbol:   class Identifier
+  location: class Glow
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/Logo.java:4: error: cannot find symbol
+  symbol:   class RenderPipelines
+  location: package net.minecraft.client.renderer
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/Logo.java:5: error: cannot find symbol
+  symbol:   class Identifier
+  location: package net.minecraft.resources
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/Logo.java:15: error: cannot find symbol
+  symbol:   class Identifier
+  location: class Logo
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:9: error: package net.minecraft.client.input does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:10: error: package net.minecraft.client.input does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:145: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class WaypointScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:151: error: cannot find symbol
+  symbol:   class KeyEvent
+  location: class WaypointScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:15: error: package net.minecraft.client.input does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:191: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class LavaTitleScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:10: error: package net.minecraft.client.input does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:177: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class WingsEditorScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:186: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class WingsEditorScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:190: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class WingsEditorScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:14: error: package net.minecraft.client.input does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:15: error: package net.minecraft.client.input does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:16: error: package net.minecraft.client.input does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1291: error: cannot find symbol
+  symbol:   class KeyEvent
+  location: class ClickGuiScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1322: error: cannot find symbol
+  symbol:   class CharacterEvent
+  location: class ClickGuiScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1347: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class ClickGuiScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1399: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class ClickGuiScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1417: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class ClickGuiScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HandEditorScreen.java:5: error: package net.minecraft.client.input does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HandEditorScreen.java:85: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class HandEditorScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HandEditorScreen.java:93: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class HandEditorScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HandEditorScreen.java:97: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class HandEditorScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/MusicScreen.java:8: error: package net.minecraft.client.input does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/MusicScreen.java:9: error: package net.minecraft.client.input does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/MusicScreen.java:10: error: cannot find symbol
+  symbol:   class RenderPipelines
+  location: package net.minecraft.client.renderer
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/MusicScreen.java:177: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class MusicScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/MusicScreen.java:217: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class MusicScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/MusicScreen.java:228: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class MusicScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/MusicScreen.java:248: error: cannot find symbol
+  symbol:   class KeyEvent
+  location: class MusicScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HatEditorScreen.java:11: error: package net.minecraft.client.input does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HatEditorScreen.java:12: error: package net.minecraft.client.input does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HatEditorScreen.java:166: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class HatEditorScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HatEditorScreen.java:175: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class HatEditorScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HatEditorScreen.java:179: error: cannot find symbol
+  symbol:   class MouseButtonEvent
+  location: class HatEditorScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HatEditorScreen.java:183: error: cannot find symbol
+  symbol:   class KeyEvent
+  location: class HatEditorScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:5: error: package net.fabricmc.fabric.api.client.rendering.v1.hud does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:6: error: package net.fabricmc.fabric.api.client.rendering.v1.hud does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:10: error: cannot find symbol
+  symbol:   class Identifier
+  location: package net.minecraft.resources
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:55: error: cannot find symbol
+  symbol:   class Identifier
+  location: class LavaVisualClient
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/audio/Covers.java:10: error: cannot find symbol
+  symbol:   class Identifier
+  location: package net.minecraft.resources
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/audio/Covers.java:23: error: cannot find symbol
+  symbol:   class Identifier
+  location: class Covers
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/audio/Covers.java:39: error: cannot find symbol
+  symbol:   class Identifier
+  location: class Covers
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AudioRegression.java:8: error: cannot find symbol
+  symbol:   class Identifier
+  location: package net.minecraft.resources
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:3: error: cannot find symbol
+  symbol:   class BlendFunction
+  location: package com.mojang.blaze3d.pipeline
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:4: error: cannot find symbol
+  symbol:   class RenderPipeline
+  location: package com.mojang.blaze3d.pipeline
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:13: error: cannot find symbol
+  symbol:   class RenderStateDataKey
+  location: package net.fabricmc.fabric.api.client.rendering.v1
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:14: error: package net.fabricmc.fabric.api.client.rendering.v1.world does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:15: error: package net.fabricmc.fabric.api.client.rendering.v1.world does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:18: error: cannot find symbol
+  symbol:   class RenderPipelines
+  location: package net.minecraft.client.renderer
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:19: error: package net.minecraft.client.renderer.rendertype does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:20: error: package net.minecraft.client.renderer.rendertype does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:60: error: cannot find symbol
+    private static final RenderStateDataKey<Frame> DATA = RenderStateDataKey.create(() -> "lavavisual:cosmetics");
+  symbol:   class RenderStateDataKey
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
+  symbol:   class RenderType
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
+  symbol:   class RenderType
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
+  symbol:   class RenderType
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:254: error: cannot find symbol
+  symbol:   class LevelRenderState
+  location: package net.minecraft.client.renderer.state
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:353: error: cannot find symbol
+  symbol:   class WorldRenderContext
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:428: error: cannot find symbol
+  symbol:   class AvatarRenderState
+  location: package net.minecraft.client.renderer.entity.state
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:433: error: cannot find symbol
+  symbol:   class AvatarRenderState
+  location: package net.minecraft.client.renderer.entity.state
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:438: error: cannot find symbol
+  symbol:   class AvatarRenderState
+  location: package net.minecraft.client.renderer.entity.state
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:444: error: cannot find symbol
+  symbol:   class AvatarRenderState
+  location: package net.minecraft.client.renderer.entity.state
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:453: error: package net.minecraft.client.model.player does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:453: error: cannot find symbol
+  symbol:   class SubmitNodeCollector
+  location: package net.minecraft.client.renderer
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:454: error: cannot find symbol
+  symbol:   class AvatarRenderState
+  location: package net.minecraft.client.renderer.entity.state
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:503: error: package net.minecraft.client.model.player does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:503: error: cannot find symbol
+  symbol:   class SubmitNodeCollector
+  location: package net.minecraft.client.renderer
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:504: error: cannot find symbol
+  symbol:   class AvatarRenderState
+  location: package net.minecraft.client.renderer.entity.state
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:524: error: package net.minecraft.client.model.player does not exist
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:524: error: cannot find symbol
+  symbol:   class SubmitNodeCollector
+  location: package net.minecraft.client.renderer
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:525: error: cannot find symbol
+  symbol:   class AvatarRenderState
+  location: package net.minecraft.client.renderer.entity.state
+> Task :compileJava FAILED
 FAILURE: Build failed with an exception.
 * What went wrong:
-> Could not resolve all files for configuration ':modImplementation'.
-   > Could not find net.fabricmc.fabric-api:fabric-api:0.119.5+1.21.4.
-> Run with --stacktrace option to get the stack trace.
-> Run with --info or --debug option to get more log output.
+> Compilation failed; see the compiler output below.
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:8: error: cannot find symbol
+    symbol:   class CameraRenderState
+    location: package net.minecraft.client.renderer.state
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/WaypointOverlay.java:25: error: cannot find symbol
+      public static List<Beam> extract(Minecraft mc, CameraRenderState camera, float partial) {
+    symbol:   class CameraRenderState
+    location: class WaypointOverlay
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:9: error: cannot find symbol
+    symbol:   class RenderPipelines
+    location: package net.minecraft.client.renderer
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:12: error: cannot find symbol
+    symbol:   class Identifier
+    location: package net.minecraft.resources
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:31: error: cannot find symbol
+    symbol:   class Identifier
+    location: class Minimap
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:218: error: cannot find symbol
+    symbol:   class Identifier
+    location: class Minimap
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/map/Minimap.java:329: error: cannot find symbol
+    symbol:   class Identifier
+    location: class Minimap
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:11: error: cannot find symbol
+    symbol:   class RenderPipelines
+    location: package net.minecraft.client.renderer
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:12: error: cannot find symbol
+    symbol:   class Identifier
+    location: package net.minecraft.resources
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:7: error: cannot find symbol
+    symbol:   class FontDescription
+    location: package net.minecraft.network.chat
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:8: error: cannot find symbol
+    symbol:   class Identifier
+    location: package net.minecraft.resources
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/TargetSnapshot.java:11: error: cannot find symbol
+    symbol:   class Identifier
+    location: package net.minecraft.resources
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:27: error: cannot find symbol
+    symbol:   class FontDescription
+    location: class UiFont
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiFont.java:33: error: cannot find symbol
+    symbol:   class FontDescription
+    location: class UiFont
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/input/Binds.java:51: error: cannot find symbol
+    symbol:   class Category
+    location: class KeyMapping
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiSound.java:6: error: cannot find symbol
+    symbol:   class Identifier
+    location: package net.minecraft.resources
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiSound.java:12: error: cannot find symbol
+    symbol:   class Identifier
+    location: class UiSound
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:131: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class HudEditorScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:150: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class HudEditorScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:175: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class HudEditorScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:188: error: cannot find symbol
+    symbol:   class KeyEvent
+    location: class HudEditorScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:6: error: cannot find symbol
+    symbol:   class RenderPipelines
+    location: package net.minecraft.client.renderer
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:8: error: cannot find symbol
+    symbol:   class Identifier
+    location: package net.minecraft.resources
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:25: error: cannot find symbol
+    symbol:   class Identifier
+    location: class Circles
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/UiDraw.java:76: error: cannot find symbol
+    symbol:   class Identifier
+    location: class Glow
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/Logo.java:4: error: cannot find symbol
+    symbol:   class RenderPipelines
+    location: package net.minecraft.client.renderer
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/Logo.java:5: error: cannot find symbol
+    symbol:   class Identifier
+    location: package net.minecraft.resources
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/Logo.java:15: error: cannot find symbol
+    symbol:   class Identifier
+    location: class Logo
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:145: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class WaypointScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:151: error: cannot find symbol
+    symbol:   class KeyEvent
+    location: class WaypointScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:191: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class LavaTitleScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:177: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class WingsEditorScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:186: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class WingsEditorScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:190: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class WingsEditorScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1291: error: cannot find symbol
+    symbol:   class KeyEvent
+    location: class ClickGuiScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1322: error: cannot find symbol
+    symbol:   class CharacterEvent
+    location: class ClickGuiScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1347: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class ClickGuiScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1399: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class ClickGuiScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1417: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class ClickGuiScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HandEditorScreen.java:85: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class HandEditorScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HandEditorScreen.java:93: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class HandEditorScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HandEditorScreen.java:97: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class HandEditorScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/MusicScreen.java:10: error: cannot find symbol
+    symbol:   class RenderPipelines
+    location: package net.minecraft.client.renderer
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/MusicScreen.java:177: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class MusicScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/MusicScreen.java:217: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class MusicScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/MusicScreen.java:228: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class MusicScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/MusicScreen.java:248: error: cannot find symbol
+    symbol:   class KeyEvent
+    location: class MusicScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HatEditorScreen.java:166: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class HatEditorScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HatEditorScreen.java:175: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class HatEditorScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HatEditorScreen.java:179: error: cannot find symbol
+    symbol:   class MouseButtonEvent
+    location: class HatEditorScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HatEditorScreen.java:183: error: cannot find symbol
+    symbol:   class KeyEvent
+    location: class HatEditorScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:10: error: cannot find symbol
+    symbol:   class Identifier
+    location: package net.minecraft.resources
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:55: error: cannot find symbol
+    symbol:   class Identifier
+    location: class LavaVisualClient
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/audio/Covers.java:10: error: cannot find symbol
+    symbol:   class Identifier
+    location: package net.minecraft.resources
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/audio/Covers.java:23: error: cannot find symbol
+    symbol:   class Identifier
+    location: class Covers
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/audio/Covers.java:39: error: cannot find symbol
+    symbol:   class Identifier
+    location: class Covers
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AudioRegression.java:8: error: cannot find symbol
+    symbol:   class Identifier
+    location: package net.minecraft.resources
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:3: error: cannot find symbol
+    symbol:   class BlendFunction
+    location: package com.mojang.blaze3d.pipeline
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:4: error: cannot find symbol
+    symbol:   class RenderPipeline
+    location: package com.mojang.blaze3d.pipeline
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:13: error: cannot find symbol
+    symbol:   class RenderStateDataKey
+    location: package net.fabricmc.fabric.api.client.rendering.v1
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:18: error: cannot find symbol
+    symbol:   class RenderPipelines
+    location: package net.minecraft.client.renderer
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:60: error: cannot find symbol
+      private static final RenderStateDataKey<Frame> DATA = RenderStateDataKey.create(() -> "lavavisual:cosmetics");
+    symbol:   class RenderStateDataKey
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:83: error: cannot find symbol
+    symbol:   class RenderType
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
+    symbol:   class RenderType
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
+    symbol:   class RenderType
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:254: error: cannot find symbol
+    symbol:   class LevelRenderState
+    location: package net.minecraft.client.renderer.state
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:353: error: cannot find symbol
+    symbol:   class WorldRenderContext
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:428: error: cannot find symbol
+    symbol:   class AvatarRenderState
+    location: package net.minecraft.client.renderer.entity.state
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:433: error: cannot find symbol
+    symbol:   class AvatarRenderState
+    location: package net.minecraft.client.renderer.entity.state
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:438: error: cannot find symbol
+    symbol:   class AvatarRenderState
+    location: package net.minecraft.client.renderer.entity.state
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:444: error: cannot find symbol
+    symbol:   class AvatarRenderState
+    location: package net.minecraft.client.renderer.entity.state
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:453: error: cannot find symbol
+    symbol:   class SubmitNodeCollector
+    location: package net.minecraft.client.renderer
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:454: error: cannot find symbol
+    symbol:   class AvatarRenderState
+    location: package net.minecraft.client.renderer.entity.state
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:503: error: cannot find symbol
+    symbol:   class SubmitNodeCollector
+    location: package net.minecraft.client.renderer
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:504: error: cannot find symbol
+    symbol:   class AvatarRenderState
+    location: package net.minecraft.client.renderer.entity.state
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:524: error: cannot find symbol
+    symbol:   class SubmitNodeCollector
+    location: package net.minecraft.client.renderer
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:525: error: cannot find symbol
+    symbol:   class AvatarRenderState
+    location: package net.minecraft.client.renderer.entity.state
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:5: error: package net.minecraft.client.input does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HudEditorScreen.java:6: error: package net.minecraft.client.input does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:9: error: package net.minecraft.client.input does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/WaypointScreen.java:10: error: package net.minecraft.client.input does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:15: error: package net.minecraft.client.input does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/WingsEditorScreen.java:10: error: package net.minecraft.client.input does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:14: error: package net.minecraft.client.input does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:15: error: package net.minecraft.client.input does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:16: error: package net.minecraft.client.input does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HandEditorScreen.java:5: error: package net.minecraft.client.input does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/MusicScreen.java:8: error: package net.minecraft.client.input does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/MusicScreen.java:9: error: package net.minecraft.client.input does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HatEditorScreen.java:11: error: package net.minecraft.client.input does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/HatEditorScreen.java:12: error: package net.minecraft.client.input does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:5: error: package net.fabricmc.fabric.api.client.rendering.v1.hud does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:6: error: package net.fabricmc.fabric.api.client.rendering.v1.hud does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:14: error: package net.fabricmc.fabric.api.client.rendering.v1.world does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:15: error: package net.fabricmc.fabric.api.client.rendering.v1.world does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:19: error: package net.minecraft.client.renderer.rendertype does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:20: error: package net.minecraft.client.renderer.rendertype does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:453: error: package net.minecraft.client.model.player does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:503: error: package net.minecraft.client.model.player does not exist
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:524: error: package net.minecraft.client.model.player does not exist
+> Check your code and dependencies to fix the compilation error(s)
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).
-> Get more help at https://help.gradle.org.
-0
+200
