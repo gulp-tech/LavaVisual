@@ -21,7 +21,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v5
       - name: Dump the API of this Minecraft version
         run: |
-          ports/mc1.21.4/gradlew -p ports/mc1.21.4 classpathFile --no-daemon
+          set -o pipefail
+          ports/mc1.21.4/gradlew -p ports/mc1.21.4 classpathFile --no-daemon 2>&1 | tee build.log
           cp=$(cat ports/mc1.21.4/build/compile-classpath.txt)
           mkdir -p artifacts/debug
           : > artifacts/debug/api-1.21.4.txt
