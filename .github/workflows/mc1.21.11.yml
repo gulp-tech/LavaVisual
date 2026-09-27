@@ -25,34 +25,12 @@ jobs:
           cp=$(cat ports/mc1.21.11/build/compile-classpath.txt)
           mkdir -p artifacts/debug
           : > artifacts/debug/api-1.21.11.txt
-          for c in \
-            net.minecraft.client.renderer.entity.state.PlayerRenderState \
-            net.minecraft.client.renderer.entity.state.LivingEntityRenderState \
-            net.minecraft.client.renderer.entity.state.EntityRenderState \
-            net.minecraft.client.renderer.entity.state.ItemEntityRenderState \
-            net.minecraft.client.renderer.entity.ItemEntityRenderer \
-            net.minecraft.client.renderer.entity.player.PlayerRenderer \
-            net.minecraft.client.renderer.entity.layers.RenderLayer \
-            net.minecraft.client.renderer.MultiBufferSource \
-            net.minecraft.client.renderer.RenderType \
-            net.minecraft.client.renderer.RenderType\$CompositeState \
-            net.minecraft.client.renderer.RenderType\$CompositeState\$CompositeStateBuilder \
-            net.minecraft.client.renderer.RenderPipelines \
-            com.mojang.blaze3d.pipeline.RenderPipeline \
-            com.mojang.blaze3d.pipeline.RenderPipeline\$Builder \
-            com.mojang.blaze3d.pipeline.BlendFunction \
-            net.minecraft.client.gui.GuiGraphics \
-            net.minecraft.client.Minecraft \
-            net.minecraft.client.Camera \
-            net.minecraft.client.multiplayer.ClientLevel \
-            net.minecraft.world.level.dimension.DimensionType \
-            net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext \
-            net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents \
-            net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback \
-            net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper ; do
+          python3 -c "import sys,zipfile,re;pat=re.compile(r'(renderer/state|renderer/entity/state|entity/player|entity/layers|rendering/v1|renderer/rendertype|blaze3d/pipeline|blaze3d/[A-Z]|client/gui/GuiGraphics|RenderPipelines|SubmitNodeCollector)');print('\\n'.join(sorted({n[:-6].replace('/','.') for j in sys.argv[1].split(':') if j.endswith('.jar') for n in (zipfile.ZipFile(j).namelist() if True else []) if n.endswith('.class') and pat.search(n) and '\$' not in n})))" "$cp" > artifacts/debug/classes-1.21.11.txt || true
+          for c in $(cat artifacts/debug/classes-1.21.11.txt); do
             echo "=== $c" >> artifacts/debug/api-1.21.11.txt
             javap -classpath "$cp" -p "$c" >> artifacts/debug/api-1.21.11.txt 2>&1 || true
           done
+          wc -l artifacts/debug/api-1.21.11.txt artifacts/debug/classes-1.21.11.txt
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git fetch -q origin "$GITHUB_REF_NAME" && git stash -q -u && git reset -q --hard "origin/$GITHUB_REF_NAME" && git stash pop -q || true
