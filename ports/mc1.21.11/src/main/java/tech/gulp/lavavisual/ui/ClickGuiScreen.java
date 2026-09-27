@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.DoubleConsumer;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
@@ -125,13 +125,13 @@ public final class ClickGuiScreen extends Screen {
         return switch (sub) { case "crosshair" -> "Прицел"; case "hat" -> "Шляпы"; case "wings" -> "Крылья"; default -> SUBPAGES.getOrDefault(sub, sub); };
     }
     private void hit(int x, int y, int w, int h, Runnable action) { hits.add(new Hit(x, y, w, h, action, clippingHits)); }
-    private void text(GuiGraphicsExtractor g, String value, int x, int y, int color, int width) { UiFont.text(g, font, value, x, y, color, Math.max(1, width)); }
-    private void text(GuiGraphicsExtractor g, String value, int x, int y, int color, int width, UiFont.Face face) { UiFont.text(g, font, value, x, y, color, Math.max(1, width), face); }
+    private void text(GuiGraphics g, String value, int x, int y, int color, int width) { UiFont.text(g, font, value, x, y, color, Math.max(1, width)); }
+    private void text(GuiGraphics g, String value, int x, int y, int color, int width, UiFont.Face face) { UiFont.text(g, font, value, x, y, color, Math.max(1, width), face); }
     private int accent() { return LavaVisualClient.config().color("menu"); }
     private int accent2() { return LavaVisualClient.config().color2("menu"); }
     private static double frac(double v) { return v - Math.floor(v); }
     /** Slow embers rising behind the menu in both theme colours; positions are pure functions of time (no state, no allocation). */
-    private void embers(GuiGraphicsExtractor g, int canvasW, int canvasH, long now, int ac, int ac2, double enter) {
+    private void embers(GuiGraphics g, int canvasW, int canvasH, long now, int ac, int ac2, double enter) {
         double t = now / 1e9, span = canvasH + 24;
         for (int i = 0; i < 34; i++) {
             double r1 = frac(Math.sin(i * 12.9898) * 43758.5453), r2 = frac(Math.sin(i * 78.233) * 24634.6345), r3 = frac(Math.sin(i * 39.425) * 12345.6789);
@@ -156,8 +156,8 @@ public final class ClickGuiScreen extends Screen {
         return 0xFF000000 | r << 16 | g << 8 | v;
     }
     private boolean hover(int x, int y, int w, int h) { return mx >= x && mx < x + w && my >= y && my < y + h && my >= clipTop && my < clipBottom; }
-    private void action(GuiGraphicsExtractor g, String title, int x, int y, int width, Runnable callback) { action(g, null, title, x, y, width, callback); }
-    private void action(GuiGraphicsExtractor g, String icon, String title, int x, int y, int width, Runnable callback) {
+    private void action(GuiGraphics g, String title, int x, int y, int width, Runnable callback) { action(g, null, title, x, y, width, callback); }
+    private void action(GuiGraphics g, String icon, String title, int x, int y, int width, Runnable callback) {
         if (collecting) { index(title, null, y); return; }
         mark(g, title, x, y, width, 24);
         boolean over = hover(x, y, width, 24);
@@ -168,13 +168,13 @@ public final class ClickGuiScreen extends Screen {
         if (icon != null) { UiFont.icon(g, font, icon, x + 8, y + 7, over ? accent() : 0xFFAEB6C4); tx = x + 23; }
         text(g, title, tx, y + 8, 0xFFE8EAF0, width - (tx - x) - 8); hit(x, y, width, 24, callback);
     }
-    private void button(GuiGraphicsExtractor g, String title, Runnable callback) { button(g, null, title, callback); }
+    private void button(GuiGraphics g, String title, Runnable callback) { button(g, null, title, callback); }
     private static final String[] ESP_STYLES = {"Призраки", "Круг", "Кристаллы", "Маркер", "Орбиты"};
     private static final String[] AIR_STYLES = {"Светлячки", "Снег", "Звёзды", "Угольки", "Сердечки"};
     private static final String[] TRAIL_STYLES = {"Лента", "Неон", "Спираль", "Искры", "Комета"};
     /** One-of-N choice as a row of chips; the chosen one is filled with the theme gradient. */
-    private void chips(GuiGraphicsExtractor g, String[] options, int current, java.util.function.IntConsumer pick) { chips(g, options, current, pick, options.length); }
-    private void chips(GuiGraphicsExtractor g, String[] options, int current, java.util.function.IntConsumer pick, int wide) {
+    private void chips(GuiGraphics g, String[] options, int current, java.util.function.IntConsumer pick) { chips(g, options, current, pick, options.length); }
+    private void chips(GuiGraphics g, String[] options, int current, java.util.function.IntConsumer pick, int wide) {
         if (collecting) {
             int rowSize = Math.min(options.length, bodyW >= 380 ? wide : 3);
             for (String option : options) index(option, null, cursor);
@@ -199,9 +199,9 @@ public final class ClickGuiScreen extends Screen {
         }
         cursor += 4;
     }
-    private void button(GuiGraphicsExtractor g, String icon, String title, Runnable callback) { action(g, icon, title, bodyX, cursor, bodyW, callback); cursor += 32; }
-    private void note(GuiGraphicsExtractor g, String title) { if (collecting) { cursor += 22; return; } text(g, title, bodyX + 1, cursor + 2, 0xFF838994, bodyW - 2); cursor += 22; }
-    private void section(GuiGraphicsExtractor g, String title) {
+    private void button(GuiGraphics g, String icon, String title, Runnable callback) { action(g, icon, title, bodyX, cursor, bodyW, callback); cursor += 32; }
+    private void note(GuiGraphics g, String title) { if (collecting) { cursor += 22; return; } text(g, title, bodyX + 1, cursor + 2, 0xFF838994, bodyW - 2); cursor += 22; }
+    private void section(GuiGraphics g, String title) {
         if (collecting) { indexContext = null; index(title, null, cursor); indexSection = indexContext = title; cursor += 28; return; }
         mark(g, title, bodyX, cursor, bodyW, 22);
         int ac = accent(), ac2 = accent2();
@@ -211,13 +211,13 @@ public final class ClickGuiScreen extends Screen {
         cursor += 28;
     }
     /** Small label above a row of chips. */
-    private void caption(GuiGraphicsExtractor g, String title) {
+    private void caption(GuiGraphics g, String title) {
         if (!collecting) text(g, title, bodyX + 1, cursor + 1, 0xFF9AA3B1, bodyW - 2, UiFont.Face.SMALL);
         cursor += 15;
     }
     private final Map<String, Integer> groupHeights = new HashMap<>();
     /** Options of the card above: shown only while it is on, indented on one shared panel. */
-    private void group(GuiGraphicsExtractor g, String key, boolean open, Runnable body) {
+    private void group(GuiGraphics g, String key, boolean open, Runnable body) {
         if (!open) return;
         int x = bodyX, w = bodyW, start = cursor - 3;
         Integer height = groupHeights.get(key);
@@ -232,8 +232,8 @@ public final class ClickGuiScreen extends Screen {
         if (!collecting) groupHeights.put(key, cursor - start);
         cursor += 7;
     }
-    private void tabIcon(GuiGraphicsExtractor g, int i, int x, int y, int color) { UiFont.icon(g, font, TAB_ICONS[i], x, y, color); }
-    private void toggle(GuiGraphicsExtractor g, String key, String title, String description, boolean enabled, Runnable callback, Runnable settings) {
+    private void tabIcon(GuiGraphics g, int i, int x, int y, int color) { UiFont.icon(g, font, TAB_ICONS[i], x, y, color); }
+    private void toggle(GuiGraphics g, String key, String title, String description, boolean enabled, Runnable callback, Runnable settings) {
         if (collecting) { indexContext = indexSection; index(title, description, cursor); indexContext = title; cursor += 56; return; }
         int y = cursor;
         mark(g, title, bodyX, y, bodyW, 48);
@@ -265,7 +265,7 @@ public final class ClickGuiScreen extends Screen {
         }
         cursor += 56;
     }
-    private void slider(GuiGraphicsExtractor g, String label, double value, double min, double max, DoubleConsumer setter, boolean integer) {
+    private void slider(GuiGraphics g, String label, double value, double min, double max, DoubleConsumer setter, boolean integer) {
         if (collecting) { index(label, null, cursor); cursor += 38; return; }
         int y = cursor;
         mark(g, label, bodyX, y, bodyW, 32);
@@ -283,7 +283,7 @@ public final class ClickGuiScreen extends Screen {
         UiDraw.round(g, x + filled - 4, y + 18, 8, 10, 4, 0xFFF2F5FA);
         sliders.add(new Slider(x, y + 14, w, min, max, setter)); cursor += 38;
     }
-    @Override public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
+    @Override public void extractRenderState(GuiGraphics g, int mouseX, int mouseY, float delta) {
         hits.clear(); sliders.clear();
         long now = System.nanoTime();
         var c = LavaVisualClient.config();
@@ -406,7 +406,7 @@ public final class ClickGuiScreen extends Screen {
     }
     private static String norm(String value) { return value.toLowerCase(Locale.ROOT).replace('ё', 'е'); }
     /** Search box in the header: click, Ctrl+F or just start typing. */
-    private void searchField(GuiGraphicsExtractor g, int ac, int ac2) {
+    private void searchField(GuiGraphics g, int ac, int ac2) {
         int x = searchX, y = searchY, w = searchW, h = 22;
         boolean over = mx >= x && mx < x + w && my >= y && my < y + h;
         double focus = motion("search:focus", searchFocused ? 1 : 0);
@@ -434,7 +434,7 @@ public final class ClickGuiScreen extends Screen {
      * Runs every page once with drawing switched off: the row helpers record their titles instead of drawing, so the index
      * always matches the real menu. Direct draws of a page go into an empty scissor; hits and sliders are dropped afterwards.
      */
-    private void buildIndex(GuiGraphicsExtractor g) {
+    private void buildIndex(GuiGraphics g) {
         searchIndex = new ArrayList<>();
         int savedPage = page, savedMx = mx, savedMy = my, hitCount = hits.size(), sliderCount = sliders.size();
         String savedSelected = selected, savedColor = colorOpen;
@@ -460,7 +460,7 @@ public final class ClickGuiScreen extends Screen {
             hits.subList(hitCount, hits.size()).clear(); sliders.subList(sliderCount, sliders.size()).clear();
         }
     }
-    private void collect(GuiGraphicsExtractor g, int target, String sub) {
+    private void collect(GuiGraphics g, int target, String sub) {
         page = target; selected = sub; indexPage = target; indexSub = sub; indexSection = indexContext = null; cursor = clipTop + 3;
         try {
             if (sub != null) settings(g);
@@ -510,7 +510,7 @@ public final class ClickGuiScreen extends Screen {
         for (List<Entry> rank : ranks) out.addAll(rank);
         return out.size() > 40 ? List.copyOf(out.subList(0, 40)) : out;
     }
-    private void searchResults(GuiGraphicsExtractor g) {
+    private void searchResults(GuiGraphics g) {
         String q = query.trim();
         if (!q.equals(resultsFor)) { results = search(q); resultsFor = q; scroll = 0; cursor = clipTop + 3; }
         var c = LavaVisualClient.config();
@@ -561,7 +561,7 @@ public final class ClickGuiScreen extends Screen {
         highlight = e.key(); highlightPage = e.page(); highlightSub = e.sub(); highlightAt = System.currentTimeMillis();
     }
     /** After a jump from the search the found row glows for a moment. */
-    private void mark(GuiGraphicsExtractor g, String title, int x, int y, int w, int h) {
+    private void mark(GuiGraphics g, String title, int x, int y, int w, int h) {
         if (highlight == null || title == null) return;
         long age = System.currentTimeMillis() - highlightAt;
         if (age > 1900) { highlight = null; return; }
@@ -569,7 +569,7 @@ public final class ClickGuiScreen extends Screen {
         double a = (age < 1100 ? 1 : 1 - (age - 1100) / 800.0) * (0.7 + 0.3 * Math.sin(age / 95.0));
         UiDraw.roundH(g, x - 3, y - 3, w + 6, h + 6, 9, UiDraw.alpha(accent(), 0.6 * a), UiDraw.alpha(accent2(), 0.6 * a));
     }
-    private void hud(GuiGraphicsExtractor g) {
+    private void hud(GuiGraphics g) {
         var c = LavaVisualClient.config();
         for (String id : HudConfig.IDS) {
             var w = c.widgets.get(id);
@@ -594,7 +594,7 @@ public final class ClickGuiScreen extends Screen {
                 () -> { cfg.badgeShare = !cfg.badgeShare; changed(); }, null);
         note(g, "По умолчанию выключено: мод ничего не отправляет серверу.");
     }
-    private void effects(GuiGraphicsExtractor g) {
+    private void effects(GuiGraphics g) {
         var c = LavaVisualClient.config();
         section(g, "Цель");
         toggle(g, "esp", "Target ESP", "Подсветка игрока или моба, на которого вы навелись", c.espEnabled, () -> { c.espEnabled = !c.espEnabled; changed(); }, null);
@@ -646,7 +646,7 @@ public final class ClickGuiScreen extends Screen {
         slider(g, "Огонь на экране · %", c.fireHeight * 100, 0, 100, v -> c.fireHeight = v / 100, true);
         note(g, "Эффекты не видны сквозь блоки.");
     }
-    private void cosmetics(GuiGraphicsExtractor g) {
+    private void cosmetics(GuiGraphics g) {
         var c = LavaVisualClient.config();
         section(g, "Образ");
         toggle(g, "hat", "Шляпы", Hats.COUNT + " видов: корона, нимб, цилиндр, кепка…", c.hatEnabled,
@@ -678,7 +678,7 @@ public final class ClickGuiScreen extends Screen {
         note(g, "Манекен видите только вы: на нём ваш скин, броня и вся косметика.");
         othersSection(g);
     }
-    private void hands(GuiGraphicsExtractor g) {
+    private void hands(GuiGraphics g) {
         var c = LavaVisualClient.config();
         toggle(g, "cooldown", "Без анимации перезарядки", "Оружие не опускается после удара · линия у прицела остаётся", c.noCooldownDip,
                 () -> { c.noCooldownDip = !c.noCooldownDip; changed(); }, null);
@@ -706,14 +706,14 @@ public final class ClickGuiScreen extends Screen {
         note(g, "Дальность — от камеры, не дальность удара.");
         button(g, Icons.ROTATE_CCW, "Сбросить обе руки", () -> { c.mainHand = new HudConfig.Hand(); c.offHand = new HudConfig.Hand(); changed(); });
     }
-    private void hand(GuiGraphicsExtractor g, String label, HudConfig.Hand h) {
+    private void hand(GuiGraphics g, String label, HudConfig.Hand h) {
         section(g, label);
         slider(g, "X · вправо / влево", h.x, -1, 1, v -> h.x = v, false);
         slider(g, "Y · выше / ниже", h.y, -1, 1, v -> h.y = v, false);
         slider(g, "Z · дальше от камеры", h.z, -0.5, 1.5, v -> h.z = v, false);
         slider(g, "Размер", h.scale, 0.4, 1.8, v -> h.scale = v, false);
     }
-    private void audio(GuiGraphicsExtractor g) {
+    private void audio(GuiGraphics g) {
         var c = LavaVisualClient.config();
         tech.gulp.lavavisual.effects.CustomSounds.scanIfStale();
         String[] titles = {"Удары", "Криты", "Тотем", "Убийство"};
@@ -779,7 +779,7 @@ public final class ClickGuiScreen extends Screen {
         note(g, "Файлы прямо в папке sounds появятся во всех списках.");
         note(g, "Форматы " + tech.gulp.lavavisual.audio.AudioInfo.EXTENSIONS + ", имя любое. Можно перетащить файлы в окно.");
     }
-    private void music(GuiGraphicsExtractor g) {
+    private void music(GuiGraphics g) {
         var c = LavaVisualClient.config();
         var track = tech.gulp.lavavisual.audio.MusicPlayer.current();
         button(g, Icons.MUSIC, "Открыть плеер · " + tech.gulp.lavavisual.input.Binds.keyName(tech.gulp.lavavisual.input.Binds.Action.MUSIC),
@@ -816,7 +816,7 @@ public final class ClickGuiScreen extends Screen {
         note(g, "Файлы можно перетащить в окно игры. Клавиши плеера — во вкладке «Бинды».");
     }
     /** Where the folder is (inside .minecraft) and a button that copies the full path, for phones and file managers. */
-    private void folderNote(GuiGraphicsExtractor g, java.nio.file.Path folder) {
+    private void folderNote(GuiGraphics g, java.nio.file.Path folder) {
         java.nio.file.Path game = net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir();
         String shown = folder.startsWith(game) ? ".minecraft/" + game.relativize(folder).toString().replace('\\', '/') : folder.toString();
         note(g, "Папка: " + shown);
@@ -829,7 +829,7 @@ public final class ClickGuiScreen extends Screen {
                 music ? tech.gulp.lavavisual.effects.CustomSounds.musicDir() : tech.gulp.lavavisual.effects.CustomSounds.dir());
         tech.gulp.lavavisual.input.Binds.Toast.show(copied > 0 ? "Добавлено: " + copied + (music ? " · музыка" : " · звуки") : "Нужны файлы " + tech.gulp.lavavisual.audio.AudioInfo.EXTENSIONS);
     }
-    private void iconButton(GuiGraphicsExtractor g, String icon, int x, int y, Runnable callback) {
+    private void iconButton(GuiGraphics g, String icon, int x, int y, Runnable callback) {
         boolean over = hover(x, y, 24, 24);
         UiDraw.round(g, x, y, 24, 24, 6, over ? 0xFF30333B : 0xFF24272E);
         UiFont.icon(g, font, icon, x + 7, y + 7, over ? accent() : 0xFFC9D0DA);
@@ -840,7 +840,7 @@ public final class ClickGuiScreen extends Screen {
         changed();
         CustomAudio.preview(group);
     }
-    private void appearance(GuiGraphicsExtractor g) {
+    private void appearance(GuiGraphics g) {
         var c = LavaVisualClient.config();
         toggle(g, "title", "Своё главное меню", "Меню LavaVisual вместо обычного главного меню", c.customTitle, () -> { c.customTitle = !c.customTitle; changed(); }, null);
         toggle(g, "menu_sounds", "Звук кнопок", "Щелчок при нажатии в меню LavaVisual", c.menuSounds, () -> { c.menuSounds = !c.menuSounds; changed(); }, null);
@@ -873,7 +873,7 @@ public final class ClickGuiScreen extends Screen {
         button(g, Icons.POWER, "Выключить все модули", () -> { c.disableAll(); changed(); });
         button(g, Icons.ROTATE_CCW, "Сбросить расположение HUD", LavaVisualClient::resetLayout);
     }
-    private void world(GuiGraphicsExtractor g) {
+    private void world(GuiGraphics g) {
         var c = LavaVisualClient.config();
         toggle(g, "time", "Своё время суток", "День, закат, ночь — только у вас, сервер и другие игроки не затронуты", c.timeEnabled,
                 () -> { c.timeEnabled = !c.timeEnabled; changed(); }, null);
@@ -923,7 +923,7 @@ public final class ClickGuiScreen extends Screen {
         });
         note(g, "Уровень выше — больше FPS. Выключение возвращает прежние настройки.");
     }
-    private void settings(GuiGraphicsExtractor g) {
+    private void settings(GuiGraphics g) {
         var c = LavaVisualClient.config(); boolean cross = selected.equals("crosshair");
         if (selected.equals("hat")) { hatSettings(g); return; }
         if (selected.equals("wings")) { wingsSettings(g); return; }
@@ -949,7 +949,7 @@ public final class ClickGuiScreen extends Screen {
         if (selected.equals("target") || cross) note(g, "Фон всех панелей HUD — во вкладке «Цвета».");
     }
 
-    private void hatSettings(GuiGraphicsExtractor g) {
+    private void hatSettings(GuiGraphics g) {
         var c = LavaVisualClient.config();
         toggle(g, "hat", "Шляпы", "Вид от 3-го лица · по умолчанию стоит ровно", c.hatEnabled, () -> { c.hatEnabled = !c.hatEnabled; changed(); }, null);
         section(g, "Вид шляпы");
@@ -968,7 +968,7 @@ public final class ClickGuiScreen extends Screen {
         section(g, "Цвет");
         colorRow(g, "hat", "Цвет шляпы");
     }
-    private void wingsSettings(GuiGraphicsExtractor g) {
+    private void wingsSettings(GuiGraphics g) {
         var c = LavaVisualClient.config();
         toggle(g, "wings", "Крылья", "Вид от 3-го лица · машут сильнее при ходьбе", c.wingsEnabled, () -> { c.wingsEnabled = !c.wingsEnabled; changed(); }, null);
         section(g, "Вид крыльев");
@@ -985,7 +985,7 @@ public final class ClickGuiScreen extends Screen {
         section(g, "Цвет");
         colorRow(g, "wings", "Цвет крыльев");
     }
-    private void capeSettings(GuiGraphicsExtractor g) {
+    private void capeSettings(GuiGraphics g) {
         var c = LavaVisualClient.config();
         toggle(g, "cape", "Плащ", "Вид от 3-го лица · ткань с физикой", c.capeEnabled, () -> { c.capeEnabled = !c.capeEnabled; changed(); }, null);
         section(g, "Вид плаща");
@@ -1001,7 +1001,7 @@ public final class ClickGuiScreen extends Screen {
         colorRow(g, "cape", "Цвет плаща");
         note(g, "Пока плащ включён, обычный плащ скина скрыт.");
     }
-    private void outfitSettings(GuiGraphicsExtractor g) {
+    private void outfitSettings(GuiGraphics g) {
         var c = LavaVisualClient.config();
         section(g, "Что надеть");
         for (int i = 0; i < Hats.EXTRA_COUNT; i++) {
@@ -1014,7 +1014,7 @@ public final class ClickGuiScreen extends Screen {
         section(g, "Цвет");
         colorRow(g, "outfit", "Цвет аксессуаров");
     }
-    private void projectileSettings(GuiGraphicsExtractor g) {
+    private void projectileSettings(GuiGraphics g) {
         var c = LavaVisualClient.config();
         toggle(g, "projectile", "Следы снарядов", "Рисуются только у вас", c.projTrails, () -> { c.projTrails = !c.projTrails; changed(); }, null);
         toggle(g, "proj_mine", "Только мои", "Выключите, чтобы видеть следы и чужих снарядов", c.projOnlyMine, () -> { c.projOnlyMine = !c.projOnlyMine; changed(); }, null);
@@ -1037,7 +1037,7 @@ public final class ClickGuiScreen extends Screen {
         toggle(g, "proj_item", "Цвет по предмету", "Жемчуг — бирюзовый, зелья — розовые, фейерверк — огненный…", c.projByItem, () -> { c.projByItem = !c.projByItem; changed(); }, null);
         if (!c.projByItem) colorRow(g, "projectile", "Цвет следа");
     }
-    private void itemSettings(GuiGraphicsExtractor g) {
+    private void itemSettings(GuiGraphics g) {
         var c = LavaVisualClient.config();
         toggle(g, "items", "Физика предметов", "Без зависания и вращения на месте", c.itemPhysics, () -> { c.itemPhysics = !c.itemPhysics; changed(); }, null);
         toggle(g, "items_flat", "Плоские предметы лежат", "Мечи, еда, ресурсы ложатся плашмя; блоки стоят", c.itemPhysicsFlat, () -> { c.itemPhysicsFlat = !c.itemPhysicsFlat; changed(); }, null);
@@ -1046,7 +1046,7 @@ public final class ClickGuiScreen extends Screen {
         note(g, "Меняется только то, как предметы нарисованы у вас.");
     }
     /** Chips that switch on and off independently. */
-    private void multiChips(GuiGraphicsExtractor g, String[] options, boolean[] on, java.util.function.IntConsumer flip) {
+    private void multiChips(GuiGraphics g, String[] options, boolean[] on, java.util.function.IntConsumer flip) {
         int perRow = bodyW >= 380 ? 4 : 2, gap = 6, w = (bodyW - gap * (perRow - 1)) / perRow, ac = accent(), ac2 = accent2();
         if (collecting) {
             for (String option : options) index(option, null, cursor);
@@ -1069,7 +1069,7 @@ public final class ClickGuiScreen extends Screen {
         }
         cursor += 4;
     }
-    private void othersSection(GuiGraphicsExtractor g) {
+    private void othersSection(GuiGraphics g) {
         var c = LavaVisualClient.config();
         section(g, "Другие игроки");
         toggle(g, "hat_others", "Косметика других игроков", "Шляпы, крылья, плащи и аксессуары игроков LavaVisual", c.hatOthers,
@@ -1079,7 +1079,7 @@ public final class ClickGuiScreen extends Screen {
         note(g, "Без сервера: вид и цвет передаются через невидимый бит скина, около минуты.");
     }
     /** Arrow selector: ‹ name › with the position underneath; the arrows wrap around. */
-    private void mapOptions(GuiGraphicsExtractor g) {
+    private void mapOptions(GuiGraphics g) {
         var c = LavaVisualClient.config();
         String[] zooms = {"ближе", "обычный", "дальше"};
         int half = (bodyW - 8) / 2;
@@ -1089,7 +1089,7 @@ public final class ClickGuiScreen extends Screen {
         button(g, Icons.CIRCLE_DOT, "Форма карты: " + (c.mapShape == 0 ? "круг" : "квадрат"), () -> { c.mapShape = 1 - c.mapShape; changed(); });
         button(g, Icons.MAP_PINNED, "Метки на карте: " + (c.mapWaypoints ? "вкл" : "выкл"), () -> { c.mapWaypoints = !c.mapWaypoints; changed(); });
     }
-    private void map(GuiGraphicsExtractor g) {
+    private void map(GuiGraphics g) {
         var c = LavaVisualClient.config();
         var w = c.widgets.get("minimap");
         toggle(g, "minimap", "Миникарта", "Только местность — без игроков, мобов и предметов", w.visible, () -> { w.visible = !w.visible; changed(); }, () -> select("minimap"));
@@ -1126,7 +1126,7 @@ public final class ClickGuiScreen extends Screen {
         }
         note(g, flash != null && System.currentTimeMillis() - flashAt < 3000 ? flash : "Метки хранятся отдельно для каждого сервера и мира.");
     }
-    private void binds(GuiGraphicsExtractor g) {
+    private void binds(GuiGraphics g) {
         note(g, "Работают в игре, когда меню закрыто. Нажмите на клавишу справа.");
         int keyW = Math.min(130, bodyW / 3);
         for (Binds.Action action : Binds.Action.values()) {
@@ -1157,7 +1157,7 @@ public final class ClickGuiScreen extends Screen {
         button(g, Icons.ROTATE_CCW, "Сбросить все бинды", () -> { Binds.resetAll(minecraft); capturing = null; });
         note(g, "Те же бинды есть в Настройки → Управление → LavaVisual.");
     }
-    private void colors(GuiGraphicsExtractor g) {
+    private void colors(GuiGraphics g) {
         var c = LavaVisualClient.config();
         section(g, "Тема");
         int tw = (bodyW - 16) / 3;
@@ -1196,7 +1196,7 @@ public final class ClickGuiScreen extends Screen {
         else { c.colors.put(key, rgb & 0xFFFFFF); c.chroma.remove(key); }
     }
     /** One element: swatch, name and state; click to open the picker below. */
-    private void colorRow(GuiGraphicsExtractor g, String key, String title) {
+    private void colorRow(GuiGraphics g, String key, String title) {
         if (collecting) { index(title, "цвет", cursor); cursor += 34; return; }
         var c = LavaVisualClient.config();
         int y = cursor;
@@ -1219,7 +1219,7 @@ public final class ClickGuiScreen extends Screen {
         cursor += 34;
         if (open) picker(g, key);
     }
-    private void picker(GuiGraphicsExtractor g, String key) {
+    private void picker(GuiGraphics g, String key) {
         var c = LavaVisualClient.config();
         boolean theme = key.equals("theme") || key.equals("theme2");
         int rgb = currentRgb(key);
@@ -1275,7 +1275,7 @@ public final class ClickGuiScreen extends Screen {
         cursor += 4;
     }
     /** Slider whose track shows the resulting colours; value in 0..1. */
-    private void gradientBar(GuiGraphicsExtractor g, String label, double value, java.util.function.DoubleUnaryOperator colorAt, DoubleConsumer setter) {
+    private void gradientBar(GuiGraphics g, String label, double value, java.util.function.DoubleUnaryOperator colorAt, DoubleConsumer setter) {
         int y = cursor, x = bodyX + 4, w = bodyW - 8;
         text(g, label, bodyX + 2, y + 1, 0xFFB8C0CD, bodyW - 60, UiFont.Face.SMALL);
         String shown = Math.round(value * 100) + "%";

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
@@ -66,7 +66,7 @@ public final class WaypointOverlay {
     }
     public static void clear() { labels = List.of(); }
 
-    public static void draw(GuiGraphicsExtractor g, Minecraft mc) {
+    public static void draw(GuiGraphics g, Minecraft mc) {
         List<Label> list = labels;
         if (list.isEmpty() || mc.player == null) return;
         Font font = mc.font;
@@ -77,7 +77,7 @@ public final class WaypointOverlay {
             else edge(g, font, label, width, height);
         }
     }
-    private static void pill(GuiGraphicsExtractor g, Font font, Label label, int x, int y) {
+    private static void pill(GuiGraphics g, Font font, Label label, int x, int y) {
         String name = label.name, distance = label.distance;
         int nameW = UiFont.width(g, font, name, UiFont.Face.BOLD), distW = UiFont.width(g, font, distance, UiFont.Face.SMALL);
         int w = 16 + nameW + 6 + distW + 7, h = 15, left = x - w / 2, top = y - h - 5;
@@ -88,7 +88,7 @@ public final class WaypointOverlay {
         for (int i = 0; i < 3; i++) g.fill(x - 3 + i, top + h + i, x + 3 - i, top + h + i + 1, 0xC80E1014);
     }
     /** Off-screen or behind: an arrow on the screen border pointing towards the waypoint. */
-    private static void edge(GuiGraphicsExtractor g, Font font, Label label, int width, int height) {
+    private static void edge(GuiGraphics g, Font font, Label label, int width, int height) {
         double dx = label.ndcX * width / 2.0, dy = -label.ndcY * height / 2.0;
         if (!label.front && Math.abs(dx) < 1 && Math.abs(dy) < 1) dy = 1;
         if (!label.front && Math.abs(dy) < Math.abs(dx) * 0.2) dy = Math.abs(dx) * 0.2;

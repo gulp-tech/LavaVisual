@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.NativeImage;
 import java.util.Arrays;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -158,7 +158,7 @@ public final class Minimap {
     public static int baseHeight() { return LavaVisualClient.config().mapCoords ? 117 : 104; }
 
     /** Draws at the widget origin in widget units. Round window by default (square optional); no letters. */
-    public static void draw(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, float partial, boolean edit) {
+    public static void draw(GuiGraphics g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, float partial, boolean edit) {
         Font font = mc.font;
         int bw = baseWidth(), bh = baseHeight(), m = 4, size = 96;
         int bg = c.color("hud_bg") & 0xFFFFFF;
@@ -239,7 +239,7 @@ public final class Minimap {
     public static void clock(boolean on) { clockOn = on; clockSum = 0; clockFrames = 0; clockLast = 0; }
     public static double clockMillis() { return clockFrames == 0 ? 0 : clockSum / 1e6 / clockFrames; }
     public static long clockFrames() { return clockFrames; }
-    private static double pixels(GuiGraphicsExtractor g) {
+    private static double pixels(GuiGraphics g) {
         var p = g.pose();
         return UiFont.guiScale() * Math.sqrt(Math.abs(p.m00() * p.m11() - p.m01() * p.m10()));
     }
@@ -249,7 +249,7 @@ public final class Minimap {
      * that the two tinted layers reproduce the top-to-bottom gradient exactly. Repainted only when the size or the
      * shape changes (at most four times a second while a HUD animation scales it).
      */
-    private static void frame(Minecraft mc, GuiGraphicsExtractor g, int bw, int bh, int m, int size, boolean round, int bg, int accent, int accent2) {
+    private static void frame(Minecraft mc, GuiGraphics g, int bw, int bh, int m, int size, boolean round, int bg, int accent, int accent2) {
         double s = pixels(g);
         int pw = (int) Math.round(bw * s), ph = (int) Math.round(bh * s);
         if (pw < 8 || ph < 8 || pw > 2048 || ph > 2048) return;
@@ -331,7 +331,7 @@ public final class Minimap {
     private static DynamicTexture arrowTexture;
     private static int arrowSize;
     /** Player arrow: one cached, anti-aliased 16x18 texture (white with a soft dark rim), drawn rotated in one quad. */
-    private static void arrow(Minecraft mc, GuiGraphicsExtractor g) {
+    private static void arrow(Minecraft mc, GuiGraphics g) {
         double s = pixels(g);
         int pw = (int) Math.round(16 * s), ph = (int) Math.round(18 * s);
         if (pw < 4 || pw > 512) return;

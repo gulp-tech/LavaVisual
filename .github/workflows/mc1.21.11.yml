@@ -31,7 +31,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git fetch -q origin "$GITHUB_REF_NAME" && git reset -q --mixed "origin/$GITHUB_REF_NAME"
           mkdir -p artifacts/debug
-          grep -E "error:|error;|cannot find symbol|symbol:|location:|^e: |FAILURE|What went wrong|> " build.log | head -400 > artifacts/debug/mc1.21.11-errors.txt || true
+          grep -E "error:|error;|cannot find symbol|symbol:|location:|^e: |FAILURE|What went wrong|> " build.log | head -1500 > artifacts/debug/mc1.21.11-errors.txt || true
           grep -cE "error:" build.log >> artifacts/debug/mc1.21.11-errors.txt || true
           git add -f artifacts/debug
           git commit -q -m 'Build log [skip ci]' || exit 0

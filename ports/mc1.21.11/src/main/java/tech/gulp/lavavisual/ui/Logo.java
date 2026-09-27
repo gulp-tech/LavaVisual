@@ -1,6 +1,6 @@
 package tech.gulp.lavavisual.ui;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 
@@ -16,7 +16,7 @@ public final class Logo {
     /** Width in GUI units (rounded up) of the menu or HUD logo. */
     public static int width(boolean hud) { return (int) Math.ceil((hud ? LogoSizes.HUD_W[14] : LogoSizes.MENU_W[14]) / 8.0); }
     /** Draws the logo with its top-left corner at (x, y); {@code color} tints and fades it (0xFFFFFFFF = as is). */
-    public static void draw(GuiGraphicsExtractor g, boolean hud, int x, int y, int color) {
+    public static void draw(GuiGraphics g, boolean hud, int x, int y, int color) {
         int h = UiFont.halfScale(g), i = h - 2;
         Identifier[] ids = hud ? HUD : MENU;
         if (ids[i] == null) ids[i] = Identifier.fromNamespaceAndPath("lavavisual", "textures/gui/logo/" + (hud ? "hud_" : "menu_") + (h / 2) + (h % 2 == 0 ? "" : "_5") + ".png");

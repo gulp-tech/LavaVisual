@@ -3,7 +3,7 @@ package tech.gulp.lavavisual.ui;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import tech.gulp.lavavisual.LavaVisualClient;
 
 /** Self-drawn rounded buttons for LavaVisual screens (instead of vanilla widgets): collected while drawing, clicked in mouseClicked. */
@@ -12,7 +12,7 @@ public final class UiButtons {
     private final List<Button> list = new ArrayList<>();
     public void clear() { list.clear(); }
     /** {@code primary} = filled with the theme gradient; {@code icon} may be null. */
-    public void draw(GuiGraphicsExtractor g, Font font, String icon, String label, int x, int y, int w, int h, int mx, int my, boolean primary, Runnable action) {
+    public void draw(GuiGraphics g, Font font, String icon, String label, int x, int y, int w, int h, int mx, int my, boolean primary, Runnable action) {
         var c = LavaVisualClient.config();
         int ac = c.color("menu"), ac2 = c.color2("menu");
         boolean over = mx >= x && mx < x + w && my >= y && my < y + h;

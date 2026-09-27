@@ -3,7 +3,7 @@ package tech.gulp.lavavisual.ui;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -42,7 +42,7 @@ public final class MusicScreen extends Screen {
         MusicPlayer.rescan(CustomSounds.musicDir());
     }
 
-    @Override public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
+    @Override public void extractRenderState(GuiGraphics g, int mx, int my, float delta) {
         var c = LavaVisualClient.config();
         int ac = c.color("menu"), ac2 = c.color2("menu");
         buttons.clear();
@@ -160,7 +160,7 @@ public final class MusicScreen extends Screen {
         UiFont.centered(g, font, hint, width / 2, Math.min(height - 10, py + ph + 4), 0xFF8C95A4, UiFont.Face.SMALL);
         super.extractRenderState(g, mx, my, delta);
     }
-    private void round(GuiGraphicsExtractor g, int mx, int my, int x, int y, int r, String icon, int color, Runnable action) {
+    private void round(GuiGraphics g, int mx, int my, int x, int y, int r, String icon, int color, Runnable action) {
         boolean over = Math.hypot(mx - x, my - y) <= r;
         UiDraw.circle(g, x, y, r, over ? 0xFF30333B : 0xFF23262D);
         UiFont.icon(g, font, icon, x - 5, y - 5, over ? 0xFFFFFFFF : color);

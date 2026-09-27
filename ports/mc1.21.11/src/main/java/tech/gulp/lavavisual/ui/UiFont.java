@@ -2,7 +2,7 @@ package tech.gulp.lavavisual.ui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.resources.Identifier;
@@ -38,21 +38,21 @@ public final class UiFont {
         return description;
     }
     public static int guiScale() { return Math.max(1, Minecraft.getInstance().getWindow().getGuiScale()); }
-    private static double pose(GuiGraphicsExtractor g) {
+    private static double pose(GuiGraphics g) {
         var m = g.pose();
         return Math.sqrt(Math.abs(m.m00() * m.m11() - m.m01() * m.m10()));
     }
     /** Physical pixels per GUI unit at the current pose, rounded to a whole number. */
-    public static int pixelScale(GuiGraphicsExtractor g) { return (int) Math.clamp(Math.round(guiScale() * pose(g)), 1, 8); }
+    public static int pixelScale(GuiGraphics g) { return (int) Math.clamp(Math.round(guiScale() * pose(g)), 1, 8); }
     /** Twice the physical pixels per GUI unit at the current pose (2..16): selects whole and half-step faces. */
-    public static int halfScale(GuiGraphicsExtractor g) { return (int) Math.clamp(Math.round(2 * guiScale() * pose(g)), 2, 16); }
+    public static int halfScale(GuiGraphics g) { return (int) Math.clamp(Math.round(2 * guiScale() * pose(g)), 2, 16); }
     /** A scale that keeps text pixel-exact: a multiple of 1 / (2 x guiScale), i.e. whole or half pixels per unit. */
     public static double crisp(double scale) {
         int gs = guiScale();
         return Math.clamp(Math.round(scale * gs * 2), 2, 16) / (2.0 * gs);
     }
     /** Moves the pose so local (x, y) lands on a whole screen pixel; call between pushMatrix and popMatrix. */
-    static void snap(GuiGraphicsExtractor g, float x, float y) {
+    static void snap(GuiGraphics g, float x, float y) {
         var m = g.pose();
         int gs = guiScale();
         double px = gs * (m.m00() * x + m.m10() * y + m.m20()), py = gs * (m.m01() * x + m.m11() * y + m.m21());
@@ -62,7 +62,7 @@ public final class UiFont {
         m.translate((float) ((m.m11() * ax - m.m10() * ay) / det), (float) ((m.m00() * ay - m.m01() * ax) / det));
     }
     /** Draws with the origin moved to the nearest screen pixel, so glyph texels map 1:1 at half-step scales too. */
-    private static void draw(GuiGraphicsExtractor g, Font font, Component text, int x, int y, int color) {
+    private static void draw(GuiGraphics g, Font font, Component text, int x, int y, int color) {
         var m = g.pose();
         m.pushMatrix();
         try {
@@ -108,18 +108,18 @@ public final class UiFont {
         }
         return out;
     }
-    public static void gradient(GuiGraphicsExtractor g, Font font, String value, int x, int y, int left, int right, double opacity, Face face) {
+    public static void gradient(GuiGraphics g, Font font, String value, int x, int y, int left, int right, double opacity, Face face) {
         draw(g, font, gradient(value, face, halfScale(g), left, right), x, y, UiDraw.alpha(0xFFFFFF, opacity));
     }
-    public static void gradientCentered(GuiGraphicsExtractor g, Font font, String value, int centerX, int y, int left, int right, double opacity, Face face) {
+    public static void gradientCentered(GuiGraphics g, Font font, String value, int centerX, int y, int left, int right, double opacity, Face face) {
         Component text = gradient(value, face, halfScale(g), left, right);
         draw(g, font, text, centerX - font.width(text) / 2, y, UiDraw.alpha(0xFFFFFF, opacity));
     }
     /** Width in GUI units; {@code half} is {@link #halfScale} of the pose the text is drawn in. */
     public static int width(Font font, String value, Face face, int half) { return font.width(component(value, face, half)); }
-    public static int width(GuiGraphicsExtractor g, Font font, String value, Face face) { return width(font, value, face, halfScale(g)); }
-    public static void text(GuiGraphicsExtractor g, Font font, String value, int x, int y, int color, int width) { text(g, font, value, x, y, color, width, Face.REGULAR); }
-    public static void text(GuiGraphicsExtractor g, Font font, String value, int x, int y, int color, int width, Face face) {
+    public static int width(GuiGraphics g, Font font, String value, Face face) { return width(font, value, face, halfScale(g)); }
+    public static void text(GuiGraphics g, Font font, String value, int x, int y, int color, int width) { text(g, font, value, x, y, color, width, Face.REGULAR); }
+    public static void text(GuiGraphics g, Font font, String value, int x, int y, int color, int width, Face face) {
         int scale = halfScale(g);
         draw(g, font, component(fit(font, value == null ? "" : value, face, scale, width), face, scale), x, y, color);
     }
@@ -144,14 +144,14 @@ public final class UiFont {
         FITTED.put(key, shown);
         return shown;
     }
-    public static void centered(GuiGraphicsExtractor g, Font font, String value, int centerX, int y, int color, Face face) {
+    public static void centered(GuiGraphics g, Font font, String value, int centerX, int y, int color, Face face) {
         Component text = component(value, face, halfScale(g));
         draw(g, font, text, centerX - font.width(text) / 2, y, color);
     }
     /** 10 x 10 icon whose box starts at (x, y). */
-    public static void icon(GuiGraphicsExtractor g, Font font, String icon, int x, int y, int color) { draw(g, font, component(icon, Face.ICON, halfScale(g)), x, y, color); }
+    public static void icon(GuiGraphics g, Font font, String icon, int x, int y, int color) { draw(g, font, component(icon, Face.ICON, halfScale(g)), x, y, color); }
     /** 8 x 8 icon whose box starts at (x, y + 1). */
-    public static void iconSmall(GuiGraphicsExtractor g, Font font, String icon, int x, int y, int color) { draw(g, font, component(icon, Face.ICON_SMALL, halfScale(g)), x, y, color); }
+    public static void iconSmall(GuiGraphics g, Font font, String icon, int x, int y, int color) { draw(g, font, component(icon, Face.ICON_SMALL, halfScale(g)), x, y, color); }
     /** 16 x 16 icon whose box starts at (x, y). */
-    public static void iconLarge(GuiGraphicsExtractor g, Font font, String icon, int x, int y, int color) { draw(g, font, component(icon, Face.ICON_LARGE, halfScale(g)), x, y, color); }
+    public static void iconLarge(GuiGraphics g, Font font, String icon, int x, int y, int color) { draw(g, font, component(icon, Face.ICON_LARGE, halfScale(g)), x, y, color); }
 }

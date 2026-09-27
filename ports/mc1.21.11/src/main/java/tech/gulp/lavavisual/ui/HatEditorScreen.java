@@ -6,7 +6,7 @@ import java.util.Locale;
 import java.util.function.DoubleConsumer;
 import java.util.function.IntUnaryOperator;
 import net.minecraft.client.CameraType;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -48,13 +48,13 @@ public final class HatEditorScreen extends Screen {
         previous = null;
         LavaVisualClient.save();
     }
-    @Override public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
+    @Override public void extractBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
         if (minecraft.level == null) super.extractBackground(g, mouseX, mouseY, delta);
     }
     private int accent() { return LavaVisualClient.config().color("menu"); }
     private boolean over(int mx, int my, int x, int y, int w, int h) { return mx >= x && mx < x + w && my >= y && my < y + h; }
 
-    @Override public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
+    @Override public void extractRenderState(GuiGraphics g, int mx, int my, float delta) {
         hits.clear(); bars.clear();
         var c = LavaVisualClient.config();
         pw = Math.min(196, width - 16); px = 8; py = 8;
@@ -117,7 +117,7 @@ public final class HatEditorScreen extends Screen {
         button(g, mx, my, "Готово", px + 12 + half, half, this::onClose);
         super.extractRenderState(g, mx, my, delta);
     }
-    private void bar(GuiGraphicsExtractor g, int mx, int my, String label, double value, double min, double max, DoubleConsumer setter, String format) {
+    private void bar(GuiGraphics g, int mx, int my, String label, double value, double min, double max, DoubleConsumer setter, String format) {
         int x = px + 10, w = pw - 20;
         UiFont.text(g, font, label, x, cursor, 0xFFB8C0CD, w - 36, UiFont.Face.SMALL);
         String shown = String.format(Locale.ROOT, format, value);
@@ -132,7 +132,7 @@ public final class HatEditorScreen extends Screen {
         bars.add(new Bar(x, cursor + 6, w, min, max, setter));
         cursor += row;
     }
-    private void hueBar(GuiGraphicsExtractor g, int mx, int my, double[] hsv, HudConfig c) {
+    private void hueBar(GuiGraphics g, int mx, int my, double[] hsv, HudConfig c) {
         int x = px + 10, w = pw - 20;
         UiFont.text(g, font, "Цвет шляпы · " + ColorMath.hex(c.color("hat")), x, cursor, 0xFFB8C0CD, w, UiFont.Face.SMALL);
         gradient(g, x, cursor + 11, w, 6, t -> ColorMath.hsv(t / 1000.0, 1, 1));
@@ -143,11 +143,11 @@ public final class HatEditorScreen extends Screen {
         cursor += row;
     }
     /** Horizontal gradient from vertical strips; colour(t) gets t in 0..1000. */
-    static void gradient(GuiGraphicsExtractor g, int x, int y, int w, int h, IntUnaryOperator color) {
+    static void gradient(GuiGraphics g, int x, int y, int w, int h, IntUnaryOperator color) {
         int step = 2;
         for (int i = 0; i < w; i += step) g.fill(x + i, y, x + Math.min(w, i + step), y + h, 0xFF000000 | color.applyAsInt((int) (i * 1000L / Math.max(1, w - 1))));
     }
-    private void button(GuiGraphicsExtractor g, int mx, int my, String title, int x, int w, Runnable action) {
+    private void button(GuiGraphics g, int mx, int my, String title, int x, int w, Runnable action) {
         boolean hover = over(mx, my, x, cursor, w, 20), primary = title.equals("Готово");
         var c = LavaVisualClient.config();
         int ac = c.color("menu"), ac2 = c.color2("menu");

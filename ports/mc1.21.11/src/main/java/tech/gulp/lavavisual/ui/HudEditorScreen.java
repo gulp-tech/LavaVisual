@@ -1,6 +1,6 @@
 package tech.gulp.lavavisual.ui;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -44,11 +44,11 @@ public final class HudEditorScreen extends Screen {
     }
     private int percent(String id) { return (int) Math.round(HudRenderer.scale(widget(id)) * 100); }
 
-    @Override public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
+    @Override public void extractBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
         if (minecraft.level == null) super.extractBackground(g, mouseX, mouseY, delta);
     }
 
-    @Override public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
+    @Override public void extractRenderState(GuiGraphics g, int mx, int my, float delta) {
         var c = LavaVisualClient.config();
         int ac = c.color("menu"), ac2 = c.color2("menu");
         buttons.clear();
@@ -106,7 +106,7 @@ public final class HudEditorScreen extends Screen {
     }
 
     /** Thin rounded frame in a horizontal gradient. */
-    private static void frame(GuiGraphicsExtractor g, int x, int y, int w, int h, int left, int right) {
+    private static void frame(GuiGraphics g, int x, int y, int w, int h, int left, int right) {
         UiDraw.roundH(g, x + 4, y, w - 8, 1, 0, left, right);
         UiDraw.roundH(g, x + 4, y + h - 1, w - 8, 1, 0, left, right);
         g.fill(x, y + 4, x + 1, y + h - 4, left);

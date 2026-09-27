@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Locale;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
@@ -90,11 +90,11 @@ public final class HudRenderer {
     private static final double[] KEY_PRESS = new double[7];
 
     /** Draws every HUD element in the chosen HUD font (Montserrat by default); menus keep Inter. */
-    public static void draw(GuiGraphicsExtractor g, boolean edit, String selected) {
+    public static void draw(GuiGraphics g, boolean edit, String selected) {
         int previous = UiFont.use(LavaVisualClient.config().hudFont);
         try { drawAll(g, edit, selected); } finally { UiFont.use(previous); }
     }
-    private static void drawAll(GuiGraphicsExtractor g, boolean edit, String selected) {
+    private static void drawAll(GuiGraphics g, boolean edit, String selected) {
         HudConfig c = LavaVisualClient.config();
         long now = System.nanoTime();
         double dt = Math.min(0.1, (now - lastNs) / 1e9); lastNs = now;
@@ -158,7 +158,7 @@ public final class HudRenderer {
     private static float discAngle;
     private static long discLast;
     /** Music HUD: cover (or a spinning disc), title, artist, progress with times, and the previous / next track. */
-    private static void music(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2) {
+    private static void music(GuiGraphics g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2) {
         int bw = baseWidth("music"), bh = baseHeight("music");
         panel(g, c, 0, 0, bw, bh, 8, w.opacity, accent, accent2);
         var track = tech.gulp.lavavisual.audio.MusicPlayer.current();
@@ -201,7 +201,7 @@ public final class HudRenderer {
         UiFont.iconSmall(g, font, Icons.SKIP_FORWARD, bw - 16, ly, 0xFF7C8594);
     }
     /** Vinyl disc drawn from cached circles; the streaks and the label mark show the rotation. */
-    public static void disc(GuiGraphicsExtractor g, double cx, double cy, double r, float angle, int accent, int accent2) {
+    public static void disc(GuiGraphics g, double cx, double cy, double r, float angle, int accent, int accent2) {
         UiDraw.circle(g, cx, cy, r, 0xFF0E1015);
         UiDraw.circle(g, cx, cy, r - 2.5, 0xFF17191F);
         UiDraw.circle(g, cx, cy, r - 5.5, 0xFF101217);
@@ -219,7 +219,7 @@ public final class HudRenderer {
     }
 
     /** HUD panel: soft two-layer shadow, faint top-lit gradient and a hairline in the element's two colours. */
-    private static void panel(GuiGraphicsExtractor g, HudConfig c, int x, int y, int w, int h, int radius, double opacity, int accent, int accent2) {
+    private static void panel(GuiGraphics g, HudConfig c, int x, int y, int w, int h, int radius, double opacity, int accent, int accent2) {
         if (c.shadows) {
             UiDraw.round(g, x - 1, y + 1, w + 2, h + 2, radius + 1, UiDraw.alpha(0, opacity * 0.12));
             UiDraw.round(g, x, y + 2, w, h, radius, UiDraw.alpha(0, opacity * 0.22));
@@ -231,7 +231,7 @@ public final class HudRenderer {
     private static int durability(double ratio) { return ratio > 0.5 ? 0xFF7ADB6A : ratio > 0.25 ? 0xFFE0C14C : 0xFFE06A4C; }
 
     /** Coordinates, FPS and totem counter: icon badge, small accent title and a bold value. */
-    private static void info(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, String id, int accent, int accent2) {
+    private static void info(GuiGraphics g, Minecraft mc, HudConfig c, HudConfig.Widget w, String id, int accent, int accent2) {
         int bw = 156, bh = 30;
         Font font = mc.font;
         panel(g, c, 0, 0, bw, bh, 6, w.opacity, accent, accent2);
@@ -263,7 +263,7 @@ public final class HudRenderer {
     }
 
     /** Keystrokes: separate keys, accent fill that eases in on press, real CPS under both mouse buttons. */
-    private static void keys(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2, double dt) {
+    private static void keys(GuiGraphics g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2, double dt) {
         var o = mc.options;
         Font font = mc.font;
         boolean[] down = {o.keyUp.isDown(), o.keyLeft.isDown(), o.keyDown.isDown(), o.keyRight.isDown(), o.keyAttack.isDown(), o.keyUse.isDown(), o.keyJump.isDown()};
@@ -290,7 +290,7 @@ public final class HudRenderer {
     }
 
     /** Armor: the actual pieces, durability strip and percent; vanilla slot silhouettes when empty. */
-    private static void armor(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2) {
+    private static void armor(GuiGraphics g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2) {
         int bw = 97, bh = 36;
         Font font = mc.font;
         panel(g, c, 0, 0, bw, bh, 6, w.opacity, accent, accent2);
@@ -357,7 +357,7 @@ public final class HudRenderer {
      * Watermark: one flat line like the watermarks of visual clients (Celestial, Expensive): dark plate, thin accent
      * outline, logo and name, then icon + value segments split by hairlines. No gradients or glow on purpose.
      */
-    private static void watermark(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2) {
+    private static void watermark(GuiGraphics g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2) {
         Font font = mc.font;
         int scale = UiFont.halfScale(g);
         List<Segment> list = segments(mc, accent2);
@@ -392,7 +392,7 @@ public final class HudRenderer {
      * Mob avatar: a live 3D model. Picture-in-picture states ignore the GUI pose, so the box is transformed to
      * absolute screen coordinates here and drawn with an identity pose.
      */
-    private static boolean entityAvatar(GuiGraphicsExtractor g, LivingEntity entity, int x, int y, int size) {
+    private static boolean entityAvatar(GuiGraphics g, LivingEntity entity, int x, int y, int size) {
         Vector2f a = g.pose().transformPosition(new Vector2f(x, y));
         Vector2f b = g.pose().transformPosition(new Vector2f(x + size, y + size));
         int x0 = Math.round(Math.min(a.x, b.x)), y0 = Math.round(Math.min(a.y, b.y));
@@ -412,7 +412,7 @@ public final class HudRenderer {
         } finally { g.pose().popMatrix(); }
     }
 
-    private static void target(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, TargetSnapshot target, double fade, int accent, int accent2, double dt) {
+    private static void target(GuiGraphics g, Minecraft mc, HudConfig c, HudConfig.Widget w, TargetSnapshot target, double fade, int accent, int accent2, double dt) {
         int bw = 180, ph = 56;
         Font font = mc.font;
         if (target == null) target = new TargetSnapshot("Предпросмотр", 16, 20, 10, 3.2,
@@ -510,7 +510,7 @@ public final class HudRenderer {
     }
 
     /** Hotkey confirmation, bottom centre above the hotbar, 1.5 s. */
-    private static void toast(GuiGraphicsExtractor g, Minecraft mc) {
+    private static void toast(GuiGraphics g, Minecraft mc) {
         String text = tech.gulp.lavavisual.input.Binds.Toast.text;
         long age = System.currentTimeMillis() - tech.gulp.lavavisual.input.Binds.Toast.at;
         if (text == null || age > 1500) return;
@@ -521,7 +521,7 @@ public final class HudRenderer {
         UiFont.text(g, mc.font, text, x + 14, y + 5, UiDraw.alpha(TEXT, Math.max(0.05, fade)), tw + 2);
     }
 
-    public static void crosshair(GuiGraphicsExtractor g) {
+    public static void crosshair(GuiGraphics g) {
         HudConfig c = LavaVisualClient.config();
         int color = UiDraw.alpha(c.color("crosshair"), c.crosshairOpacity);
         g.pose().pushMatrix();

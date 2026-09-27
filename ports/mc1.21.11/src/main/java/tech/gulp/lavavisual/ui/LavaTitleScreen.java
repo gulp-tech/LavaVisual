@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
@@ -57,7 +57,7 @@ public final class LavaTitleScreen extends Screen {
     }
     @Override public boolean shouldCloseOnEsc() { return false; }
     @Override public boolean isPauseScreen() { return false; }
-    @Override public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) { extractPanorama(g, delta); }
+    @Override public void extractBackground(GuiGraphics g, int mouseX, int mouseY, float delta) { extractPanorama(g, delta); }
 
     private List<Item> items() {
         List<Item> list = new ArrayList<>();
@@ -78,7 +78,7 @@ public final class LavaTitleScreen extends Screen {
         }
     }
 
-    @Override public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
+    @Override public void extractRenderState(GuiGraphics g, int mouseX, int mouseY, float delta) {
         hits.clear();
         mx = mouseX; my = mouseY;
         var c = LavaVisualClient.config();
@@ -154,7 +154,7 @@ public final class LavaTitleScreen extends Screen {
         UiFont.text(g, font, legal, width - legalW - 8, height - 14, UiDraw.alpha(0x7D8795, enter), legalW + 2, UiFont.Face.SMALL);
     }
 
-    private void corner(GuiGraphicsExtractor g, String icon, String label, int x, int y, Runnable action, int ac, int ac2, double enter) {
+    private void corner(GuiGraphics g, String icon, String label, int x, int y, Runnable action, int ac, int ac2, double enter) {
         boolean over = mx >= x && mx < x + 24 && my >= y && my < y + 24;
         double h = motion("corner" + label, over ? 1 : 0);
         UiDraw.round(g, x, y, 24, 24, 7, UiDraw.alpha(0x1D2028, 0.75 * enter));
@@ -168,7 +168,7 @@ public final class LavaTitleScreen extends Screen {
         hits.add(new Hit(x, y, 24, 24, action));
     }
     /** Slow embers rising in both theme colours; positions are pure functions of time. */
-    private void embers(GuiGraphicsExtractor g, long now, int ac, int ac2, double enter) {
+    private void embers(GuiGraphics g, long now, int ac, int ac2, double enter) {
         double t = now / 1e9, span = height + 24;
         for (int i = 0, n = tech.gulp.lavavisual.Platform.android() ? 22 : 40; i < n; i++) {
             double r1 = frac(Math.sin(i * 12.9898) * 43758.5453), r2 = frac(Math.sin(i * 78.233) * 24634.6345), r3 = frac(Math.sin(i * 39.425) * 12345.6789);

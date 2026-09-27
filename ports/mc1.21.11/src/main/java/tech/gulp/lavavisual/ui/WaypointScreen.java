@@ -3,7 +3,7 @@ package tech.gulp.lavavisual.ui;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
@@ -92,11 +92,11 @@ public final class WaypointScreen extends Screen {
         }
         onClose();
     }
-    @Override public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
+    @Override public void extractBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
         if (minecraft.level == null) super.extractBackground(g, mouseX, mouseY, delta);
         else g.fill(0, 0, width, height, 0x66000000);
     }
-    @Override public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
+    @Override public void extractRenderState(GuiGraphics g, int mx, int my, float delta) {
         var c = LavaVisualClient.config();
         int accent = c.color("menu");
         UiDraw.round(g, panelX - 2, panelY + 2, panelW + 4, panelH + 4, 12, 0x40000000);
@@ -137,7 +137,7 @@ public final class WaypointScreen extends Screen {
         super.extractRenderState(g, mx, my, delta);
     }
     /** Rounded input field behind a borderless EditBox; the focused one gets the theme underline. */
-    private static void field(GuiGraphicsExtractor g, EditBox box, int x, int y, int w, int accent, int accent2) {
+    private static void field(GuiGraphics g, EditBox box, int x, int y, int w, int accent, int accent2) {
         boolean focused = box.isFocused();
         UiDraw.round(g, x, y, w, 18, 6, focused ? 0xFF2A2E37 : 0xFF1E2128);
         if (focused) UiDraw.roundH(g, x + 6, y + 17, w - 12, 1, 0, accent, accent2);

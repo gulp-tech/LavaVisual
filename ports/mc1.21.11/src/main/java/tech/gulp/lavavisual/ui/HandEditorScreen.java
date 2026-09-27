@@ -1,6 +1,6 @@
 package tech.gulp.lavavisual.ui;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -47,7 +47,7 @@ public final class HandEditorScreen extends Screen {
         return -1;
     }
 
-    @Override public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
+    @Override public void extractRenderState(GuiGraphics g, int mx, int my, float delta) {
         var c = LavaVisualClient.config();
         int ac = c.color("menu"), ac2 = c.color2("menu");
         buttons.clear();
@@ -108,7 +108,7 @@ public final class HandEditorScreen extends Screen {
     @Override public void onClose() { LavaVisualClient.save(); minecraft.gui.setScreen(parent); }
     @Override public boolean isPauseScreen() { return false; }
     /** No blur in a world: the real hands must stay sharp while editing. */
-    @Override public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
+    @Override public void extractBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
         if (minecraft.level == null) super.extractBackground(g, mouseX, mouseY, delta);
     }
 }

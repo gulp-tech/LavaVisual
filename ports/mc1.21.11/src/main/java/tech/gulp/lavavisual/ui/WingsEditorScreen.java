@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.DoubleConsumer;
 import net.minecraft.client.CameraType;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import tech.gulp.lavavisual.LavaVisualClient;
@@ -47,13 +47,13 @@ public final class WingsEditorScreen extends Screen {
         previous = null;
         LavaVisualClient.save();
     }
-    @Override public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
+    @Override public void extractBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
         if (minecraft.level == null) super.extractBackground(g, mouseX, mouseY, delta);
     }
     private int accent() { return LavaVisualClient.config().color("menu"); }
     private static boolean over(int mx, int my, int x, int y, int w, int h) { return mx >= x && mx < x + w && my >= y && my < y + h; }
 
-    @Override public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
+    @Override public void extractRenderState(GuiGraphics g, int mx, int my, float delta) {
         hits.clear(); bars.clear();
         var c = LavaVisualClient.config();
         boolean compact = height < 290;
@@ -123,7 +123,7 @@ public final class WingsEditorScreen extends Screen {
         super.extractRenderState(g, mx, my, delta);
     }
     private static double snap(double v) { return Math.abs(v) < 0.012 ? 0 : v; }
-    private void panel(GuiGraphicsExtractor g, int top, int h, String title, String sub) {
+    private void panel(GuiGraphics g, int top, int h, String title, String sub) {
         var c = LavaVisualClient.config();
         UiDraw.round(g, px, top, pw, h, 9, UiDraw.alpha(c.color("menu_bg") & 0xFFFFFF, 0.9));
         UiDraw.round(g, px + 8, top + 8, 18, 18, 6, accent());
@@ -131,7 +131,7 @@ public final class WingsEditorScreen extends Screen {
         UiFont.text(g, font, title, px + 32, top + 9, 0xFFF1F4F8, pw - 40, UiFont.Face.BOLD);
         UiFont.text(g, font, sub, px + 32, top + 20, 0xFF8C93A1, pw - 40, UiFont.Face.SMALL);
     }
-    private void bar(GuiGraphicsExtractor g, String label, double value, double min, double max, DoubleConsumer setter, String format) {
+    private void bar(GuiGraphics g, String label, double value, double min, double max, DoubleConsumer setter, String format) {
         int x = px + 10, w = pw - 20;
         String shown = String.format(Locale.ROOT, format, value);
         int vw = UiFont.width(g, font, shown, UiFont.Face.SMALL);
@@ -147,7 +147,7 @@ public final class WingsEditorScreen extends Screen {
         bars.add(new Bar(x, cursor + 6, w, min, max, setter));
         cursor += row;
     }
-    private void hueBar(GuiGraphicsExtractor g, HudConfig c) {
+    private void hueBar(GuiGraphics g, HudConfig c) {
         int x = px + 10, w = pw - 20;
         double[] hsv = ColorMath.toHsv(c.color("wings") & 0xFFFFFF);
         UiFont.text(g, font, "Цвет крыльев · " + ColorMath.hex(c.color("wings")), x, cursor, 0xFFB8C0CD, w, UiFont.Face.SMALL);
@@ -158,7 +158,7 @@ public final class WingsEditorScreen extends Screen {
         bars.add(new Bar(x, cursor + 6, w, 0, 1, h -> { c.colors.put("wings", ColorMath.hsv(Math.min(0.999, h), s, v)); c.chroma.remove("wings"); }));
         cursor += row;
     }
-    private void button(GuiGraphicsExtractor g, int mx, int my, String title, int x, int w, Runnable action) {
+    private void button(GuiGraphics g, int mx, int my, String title, int x, int w, Runnable action) {
         boolean hover = over(mx, my, x, cursor, w, 20), primary = title.equals("Готово");
         var c = LavaVisualClient.config();
         int ac = c.color("menu"), ac2 = c.color2("menu");
