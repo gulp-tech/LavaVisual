@@ -23,6 +23,7 @@ public final class LavaVisualClient implements ClientModInitializer {
     private long nextSample;
     private Object previousWorld;
     private final boolean uiSmoke = Boolean.getBoolean("lavavisual.uiSmoke");
+    private int menuHold;
     private int smokeTicks = -1;
     private boolean boostChecked;
     public static HudConfig config() { return config; }
@@ -75,17 +76,21 @@ public final class LavaVisualClient implements ClientModInitializer {
             // Explicit CI-only switch; never enabled by normal game or server settings.
             if (uiSmoke) {
                 // Start only once the main menu is really up: the loading screen is still black.
-                // Start only once the main menu is really up: the loading overlay still covers it for a moment.
+                // Start once the main menu is really up, and hold it for three seconds first: the loading overlay
+                // still covers the window for a moment, and the menu itself is what the screenshot must show.
                 if (smokeTicks < 0 && client.getOverlay() == null
                         && (client.screen instanceof tech.gulp.lavavisual.ui.LavaTitleScreen
-                        || client.screen instanceof net.minecraft.client.gui.screens.TitleScreen)) smokeTicks = 0;
+                        || client.screen instanceof net.minecraft.client.gui.screens.TitleScreen)) {
+                    menuHold++;
+                    if (menuHold == 40) LavaVisual.LOGGER.info("LavaVisual smoke shot title");
+                    if (menuHold >= 60) smokeTicks = 0;
+                }
                 if (smokeTicks >= 0) {
                     smokeTicks++;
                     // "smoke shot" lines ask tools/client_smoke.py for a screenshot; each screen then stays for 3 s.
                     // The main menu itself: a screenshot plus a check that our screen really replaced the vanilla one.
-                    if (smokeTicks == 4) LavaVisual.LOGGER.info("LavaVisual smoke shot title");
-                    if (smokeTicks == 14) LavaVisual.LOGGER.info((tech.gulp.lavavisual.ui.LavaTitleScreen.replaced
-                            ? "LavaVisual smoke title ok" : "LavaVisual smoke title failed") + ": screen " + (client.screen == null ? "none" : client.screen.getClass().getSimpleName()));
+                    if (smokeTicks == 2) LavaVisual.LOGGER.info((tech.gulp.lavavisual.ui.LavaTitleScreen.replaced
+                            ? "LavaVisual smoke title ok" : "LavaVisual smoke title failed") + ": menu " + tech.gulp.lavavisual.ui.LavaTitleScreen.class.getSimpleName());
                     if (smokeTicks == 20) client.setScreen(new ClickGuiScreen(1));
                     if (smokeTicks == 50) client.setScreen(new ClickGuiScreen(2));
                     if (smokeTicks == 80) client.setScreen(new ClickGuiScreen(0, "target"));
