@@ -1,0 +1,17 @@
+> Configure project :
+> Task :compileJava
+/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:88: error: cannot find symbol
+  symbol:   method setScreen(TitleScreen)
+  location: variable minecraft of type Minecraft
+> Task :compileJava FAILED
+FAILURE: Build failed with an exception.
+* What went wrong:
+> Compilation failed; see the compiler output below.
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:88: error: cannot find symbol
+    symbol:   method setScreen(TitleScreen)
+    location: variable minecraft of type Minecraft
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+::error title=Build diagnostics::%0ATo honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.5.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.%0ADaemon will be stopped at the end of the build %0A%0A> Configure project :%0AFabric Loom: 1.17.21%0A%0A> Task :compileJava%0A/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:88: error: cannot find symbol%0A            if (minecraft != null) minecraft.setScreen(new TitleScreen());%0A                                            ^%0A  symbol:   method setScreen(TitleScreen)%0A  location: variable minecraft of type Minecraft%0A1 error%0A
+::error title=Build diagnostics::> Task :compileJava FAILED%0Agradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1790596132676.json%0A%0A[Incubating] Problems report is available at: file:///home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/build/reports/problems/problems-report.html%0A%0AFAILURE: Build failed with an exception.%0A%0A* What went wrong:%0AExecution failed for task ':compileJava' (registered by plugin class 'org.gradle.api.plugins.JavaBasePlugin').%0A> Compilation failed; see the compiler output below.%0A  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:88: error: cannot find symbol%0A              if (minecraft != null) minecraft.setScreen(new TitleScreen());%0A                                              ^%0A    symbol:   method setScreen(TitleScreen)%0A    location: variable minecraft of type Minecraft
+::error title=Build diagnostics::  1 error%0A%0A* Try:%0A> Check your code and dependencies to fix the compilation error(s)%0A> Run with --scan to get full insights from a Build Scan (powered by Develocity).%0A%0ABUILD FAILED in 46s%0A1 actionable task: 1 executed
