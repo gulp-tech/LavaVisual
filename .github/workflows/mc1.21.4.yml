@@ -64,6 +64,14 @@ jobs:
           mkdir -p ports/mc1.21.4/run/config
           printf '{"edition": "client"}\n' > ports/mc1.21.4/run/config/lavavisual-client.json
           python3 tools/client_smoke.py ports/mc1.21.4
+      - name: The main menu must not be a black screen
+        run: |
+          shot=ports/mc1.21.4/build/shot-title.png
+          test -f "$shot"
+          mean=$(identify -format '%[fx:mean]' "$shot")
+          echo "main menu brightness: $mean"
+          python3 -c "import sys; v=float(sys.argv[1]); print('menu brightness', v); sys.exit(0 if v > 0.02 else 1)" "$mean"
+          mkdir -p artifacts/debug && cp "$shot" artifacts/debug/menu-1.21.4.png
 
       - name: Keep the client log
         if: always()

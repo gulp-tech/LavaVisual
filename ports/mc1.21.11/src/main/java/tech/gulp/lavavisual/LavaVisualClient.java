@@ -78,6 +78,10 @@ public final class LavaVisualClient implements ClientModInitializer {
                 if (smokeTicks >= 0) {
                     smokeTicks++;
                     // "smoke shot" lines ask tools/client_smoke.py for a screenshot; each screen then stays for 3 s.
+                    // The main menu itself: a screenshot plus a check that our screen really replaced the vanilla one.
+                    if (smokeTicks == 4) LavaVisual.LOGGER.info("LavaVisual smoke shot title");
+                    if (smokeTicks == 14) LavaVisual.LOGGER.info((tech.gulp.lavavisual.ui.LavaTitleScreen.replaced
+                            ? "LavaVisual smoke title ok" : "LavaVisual smoke title failed") + ": screen " + (client.screen == null ? "none" : client.screen.getClass().getSimpleName()));
                     if (smokeTicks == 20) client.setScreen(new ClickGuiScreen(1));
                     if (smokeTicks == 50) client.setScreen(new ClickGuiScreen(2));
                     if (smokeTicks == 80) client.setScreen(new ClickGuiScreen(0, "target"));
