@@ -428,7 +428,7 @@ public final class WorldCosmetics {
                 .mul(new Matrix4f().set(h.rotation())).scale(h.scale(), h.scale() * h.stretch(), h.scale());
     }
     private static boolean hidden(net.minecraft.client.renderer.entity.state.PlayerRenderState s) {
-        return s.isInvisible || s.isSpectator || s.fallFlyingTimeInTicks > 0 || s.isAutoSpinAttack || s.isUpsideDown
+        return s.isInvisible || s.isSpectator || s.fallFlyingTimeInTicks > 4 || s.isAutoSpinAttack || s.isUpsideDown
                 || s.hasPose(net.minecraft.world.entity.Pose.SWIMMING) || s.hasPose(net.minecraft.world.entity.Pose.SLEEPING);
     }
     /** World light at the player (block or sky light), so cosmetics darken in caves like the skin does. */
@@ -458,7 +458,11 @@ public final class WorldCosmetics {
                                    net.minecraft.client.renderer.entity.state.PlayerRenderState s, int packedLight) {
         layerLight = packedLight;
         var mc = Minecraft.getInstance();
-        if (layerCalls++ == 0) tech.gulp.lavavisual.LavaVisual.LOGGER.info("LavaVisual cosmetic layer first call, id " + s.id + ", hidden " + hidden(s));
+        if (mc.player == null) return;
+        if (layerCalls++ % 400 == 0) tech.gulp.lavavisual.LavaVisual.LOGGER.info("LavaVisual cosmetic layer call " + layerCalls + ", id " + s.id
+                + " (self " + mc.player.getId() + ", dummy " + Dummy.is(s.id) + "), hidden " + hidden(s)
+                + ", invisible " + s.isInvisible + ", spectator " + s.isSpectator + ", flying " + s.fallFlyingTimeInTicks + ", spin " + s.isAutoSpinAttack
+                + ", upside " + s.isUpsideDown + ", pose " + s.pose + ", cape " + LavaVisualClient.config().capeEnabled);
         if (mc.player == null || mc.level == null || hidden(s)) return;
         var c = LavaVisualClient.config();
         float seconds = (float) (frameNow / 20.0);
