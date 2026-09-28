@@ -97,10 +97,7 @@ public final class WorldCosmetics {
     private WorldCosmetics() { }
     public static void register() {
         net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
-            if (renderer instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer avatar) {
-                helper.register(new CosmeticLayer(avatar));
-                tech.gulp.lavavisual.LavaVisual.LOGGER.info("LavaVisual cosmetic layer registered for " + type);
-            }
+            if (renderer instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer avatar) helper.register(new CosmeticLayer(avatar));
         });
         // The vanilla cape is hidden under our wings or our own cape.
         net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRenderEvents.ALLOW_CAPE_RENDER.register(player -> {
@@ -453,16 +450,10 @@ public final class WorldCosmetics {
     }
     /** Called by CosmeticLayer for every drawn player model (you, the local dummy, and players who share cosmetics). */
     private static int layerLight = 0xF000F0;
-    private static long layerCalls;
     public static void submitLayer(net.minecraft.client.model.PlayerModel model, PoseStack pose, tech.gulp.lavavisual.compat.Submitter collector,
                                    net.minecraft.client.renderer.entity.state.PlayerRenderState s, int packedLight) {
         layerLight = packedLight;
         var mc = Minecraft.getInstance();
-        if (mc.player == null) return;
-        if (layerCalls++ % 400 == 0) tech.gulp.lavavisual.LavaVisual.LOGGER.info("LavaVisual cosmetic layer call " + layerCalls + ", id " + s.id
-                + " (self " + mc.player.getId() + ", dummy " + Dummy.is(s.id) + "), hidden " + hidden(s)
-                + ", invisible " + s.isInvisible + ", spectator " + s.isSpectator + ", flying " + s.fallFlyingTimeInTicks + ", spin " + s.isAutoSpinAttack
-                + ", upside " + s.isUpsideDown + ", pose " + s.pose + ", cape " + LavaVisualClient.config().capeEnabled);
         if (mc.player == null || mc.level == null || hidden(s)) return;
         var c = LavaVisualClient.config();
         float seconds = (float) (frameNow / 20.0);
