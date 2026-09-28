@@ -74,7 +74,9 @@ public final class LavaVisualClient implements ClientModInitializer {
             // Explicit CI-only switch; never enabled by normal game or server settings.
             if (uiSmoke) {
                 // Start only once the main menu is really up: the loading screen is still black.
-                if (smokeTicks < 0 && (client.screen instanceof tech.gulp.lavavisual.ui.LavaTitleScreen
+                // Start only once the main menu is really up: the loading overlay still covers it for a moment.
+                if (smokeTicks < 0 && client.getOverlay() == null
+                        && (client.screen instanceof tech.gulp.lavavisual.ui.LavaTitleScreen
                         || client.screen instanceof net.minecraft.client.gui.screens.TitleScreen)) smokeTicks = 0;
                 if (smokeTicks >= 0) {
                     smokeTicks++;
