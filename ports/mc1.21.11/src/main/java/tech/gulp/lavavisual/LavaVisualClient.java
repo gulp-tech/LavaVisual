@@ -74,7 +74,9 @@ public final class LavaVisualClient implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             // Explicit CI-only switch; never enabled by normal game or server settings.
             if (uiSmoke) {
-                if (smokeTicks < 0 && client.screen != null) smokeTicks = 0;
+                // Start only once the main menu is really up: the loading screen is still black.
+                if (smokeTicks < 0 && (client.screen instanceof tech.gulp.lavavisual.ui.LavaTitleScreen
+                        || client.screen instanceof net.minecraft.client.gui.screens.TitleScreen)) smokeTicks = 0;
                 if (smokeTicks >= 0) {
                     smokeTicks++;
                     // "smoke shot" lines ask tools/client_smoke.py for a screenshot; each screen then stays for 3 s.
