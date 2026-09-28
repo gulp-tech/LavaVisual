@@ -85,7 +85,7 @@ public final class LavaTitleScreen extends Screen {
             // Never leave a black screen: the vanilla menu comes back and the custom one stays off for this session.
             LavaVisual.LOGGER.warn("LavaVisual: the custom main menu failed, switching back to the vanilla one", error);
             LavaVisualClient.config().customTitle = false;
-            if (minecraft != null) minecraft.setScreen(new TitleScreen());
+            if (minecraft != null) minecraft.gui.setScreen(new TitleScreen());
         }
     }
 
