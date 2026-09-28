@@ -42,7 +42,9 @@ public final class LavaTitleScreen extends Screen {
     public static Screen replace(Screen screen) {
         try {
             Minecraft mc = Minecraft.getInstance();
-            boolean title = screen instanceof TitleScreen || screen == null && mc != null && mc.level == null;
+            // Only the real title screen: a menu built for a null screen during the resource reload has no fonts or
+            // textures yet and stays blank.
+            boolean title = screen instanceof TitleScreen;
             if (!title || mc == null || mc.isDemo() || !LavaVisualClient.config().customTitle) return screen;
             replaced = true;
             return new LavaTitleScreen();
