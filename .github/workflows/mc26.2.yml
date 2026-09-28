@@ -87,12 +87,12 @@ jobs:
         run: |
           git pull --ff-only origin "$GITHUB_REF_NAME"
           mkdir -p artifacts
-          rm -f artifacts/lavavisual-*.jar
+          rm -f artifacts/lavavisual-1.0.4-beta-mc26.2.jar
           cp ports/mc26.2/build/libs/lavavisual-1.0.4-beta-mc26.2.jar artifacts/
           rm -f artifacts/ui-*.png
           test ! -f ports/mc26.2/build/ui-smoke.png || cp ports/mc26.2/build/ui-smoke.png artifacts/ui-1.0.png
           for shot in ports/mc26.2/build/shot-*.png; do if [ -f "$shot" ]; then cp "$shot" "artifacts/ui-1.0-$(basename "$shot" .png | cut -c6-).png"; fi; done
-          rm -f artifacts/LavaVisual-Client-*
+          rm -f artifacts/LavaVisual-Client-*mc26.2*
           api=$(grep '^fabric_version=' ports/mc26.2/gradle.properties | cut -d= -f2)
           api_jar=$(find ~/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-api -name "fabric-api-${api}.jar" 2>/dev/null | head -1)
           python3 tools/make_client.py artifacts/lavavisual-1.0.4-beta-mc26.2.jar artifacts "$api_jar"

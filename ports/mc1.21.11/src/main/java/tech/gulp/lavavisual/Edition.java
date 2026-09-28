@@ -31,4 +31,20 @@ public final class Edition {
     public static String version() {
         return FabricLoader.getInstance().getModContainer("lavavisual").map(m -> m.getMetadata().getVersion().getFriendlyString()).orElse("");
     }
+
+    /** Version of the running game, so the menu always shows the version it is actually installed on. */
+    private static String gameVersion;
+    public static String gameVersion() {
+        if (gameVersion == null) {
+            String found = "";
+            try {
+                found = net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer("minecraft")
+                        .map(mod -> mod.getMetadata().getVersion().getFriendlyString()).orElse("");
+            } catch (RuntimeException | LinkageError error) {
+                found = "";
+            }
+            gameVersion = found;
+        }
+        return gameVersion;
+    }
 }

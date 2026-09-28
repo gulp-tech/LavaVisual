@@ -57,7 +57,9 @@ public final class LavaTitleScreen extends Screen {
     }
     @Override public boolean shouldCloseOnEsc() { return false; }
     @Override public boolean isPauseScreen() { return false; }
-    @Override public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) { renderPanorama(g, delta); }
+    @Override public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
+        try { renderPanorama(g, delta); } catch (RuntimeException | LinkageError error) { g.fill(0, 0, width, height, 0xFF05070C); }
+    }
 
     private List<Item> items() {
         List<Item> list = new ArrayList<>();
@@ -79,6 +81,17 @@ public final class LavaTitleScreen extends Screen {
     }
 
     @Override public void render(GuiGraphics g, int mouseX, int mouseY, float delta) {
+        try {
+            draw(g, mouseX, mouseY, delta);
+        } catch (RuntimeException | LinkageError error) {
+            // Never leave a black screen: the vanilla menu comes back and the custom one stays off for this session.
+            LavaVisual.LOGGER.warn("LavaVisual: the custom main menu failed, switching back to the vanilla one", error);
+            LavaVisualClient.config().customTitle = false;
+            if (minecraft != null) minecraft.setScreen(new TitleScreen());
+        }
+    }
+
+    private void draw(GuiGraphics g, int mouseX, int mouseY, float delta) {
         hits.clear();
         mx = mouseX; my = mouseY;
         var c = LavaVisualClient.config();
@@ -115,7 +128,7 @@ public final class LavaTitleScreen extends Screen {
         g.pose().scale(2f, 2f, 1f);
         UiFont.gradient(g, font, "LavaVisual", 0, 0, UiDraw.mix(ac, 0xFFFFFF, 0.12), UiDraw.mix(ac2, 0xFFFFFF, 0.12), enter, UiFont.Face.BOLD);
         g.pose().popPose();
-        String edition = (Edition.client() ? "Client" : "Мод") + "  ·  Minecraft 26.2";
+        String edition = (Edition.client() ? "Client" : "Мод") + "  ·  Minecraft " + Edition.gameVersion();
         UiFont.text(g, font, edition, nameX + 1, nameY + 24, UiDraw.alpha(0xA3ACBA, enter), width - nameX - 10, UiFont.Face.REGULAR);
 
         // Buttons slide in one after another.

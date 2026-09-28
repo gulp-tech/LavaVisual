@@ -6,7 +6,7 @@
                                              client marker config/lavavisual-client.json.
   LavaVisual-Client-<version>-mc<mc>.zip     the same files as folders (mods/, config/) for TLauncher or a manual install.
 
-Usage: make_client.py <lavavisual jar> <output dir> [fabric-api jar]. Versions come from ports/mc26.2/gradle.properties.
+Usage: make_client.py <lavavisual jar> <output dir> [fabric-api jar] [port dir]. Versions come from <port dir>/gradle.properties.
 """
 import hashlib
 import json
@@ -42,9 +42,9 @@ Fabric API распространяется по лицензии Apache-2.0 (li
 """
 
 
-def properties():
+def properties(port="ports/mc26.2"):
     values = {}
-    for line in (ROOT / "ports/mc26.2/gradle.properties").read_text(encoding="utf-8").splitlines():
+    for line in (ROOT / port / "gradle.properties").read_text(encoding="utf-8").splitlines():
         if "=" in line and not line.startswith("#"):
             key, value = line.split("=", 1)
             values[key.strip()] = value.strip()
@@ -72,7 +72,7 @@ def modrinth_fabric_api(version, mc):
 
 def main():
     jar, out = Path(sys.argv[1]), Path(sys.argv[2])
-    props = properties()
+    props = properties(sys.argv[4] if len(sys.argv) > 4 else "ports/mc26.2")
     mc, loader, api = props["minecraft_version"], props["loader_version"], props["fabric_version"]
     version = props["mod_version"].split("-mc")[0]
     local = Path(sys.argv[3]) if len(sys.argv) > 3 else None

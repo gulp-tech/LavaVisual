@@ -60,7 +60,10 @@ jobs:
       - name: Check that the client starts
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
-        run: python3 tools/client_smoke.py ports/mc1.21.4
+        run: |
+          mkdir -p ports/mc1.21.4/run/config
+          printf '{"edition": "client"}\n' > ports/mc1.21.4/run/config/lavavisual-client.json
+          python3 tools/client_smoke.py ports/mc1.21.4
 
       - name: Keep the client log
         if: always()
@@ -94,7 +97,11 @@ jobs:
             git fetch -q origin "$GITHUB_REF_NAME" && git reset -q --hard "origin/$GITHUB_REF_NAME"
             mkdir -p artifacts
             cp "ports/mc1.21.4/build/libs/lavavisual-${version}.jar" artifacts/
-            (cd artifacts && sha256sum *.jar > SHA256SUMS)
+            rm -f artifacts/LavaVisual-Client-*mc1.21.4.*
+            api=$(grep '^fabric_version=' ports/mc1.21.4/gradle.properties | cut -d= -f2)
+            api_jar=$(find ~/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-api -name "fabric-api-${api}.jar" 2>/dev/null | head -1)
+            python3 tools/make_client.py "artifacts/lavavisual-${version}.jar" artifacts "$api_jar" ports/mc1.21.4
+            (cd artifacts && sha256sum *.jar *.mrpack *.zip > SHA256SUMS)
             git add artifacts
             git diff --cached --quiet && exit 0
             git commit -q -m 'Publish tested 1.21.4 build [skip ci]'
