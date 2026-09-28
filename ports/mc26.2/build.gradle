@@ -41,3 +41,10 @@ jar {
     from('LICENSE')
     from({ configurations.bundle.collect { zipTree(it) } }) { exclude 'META-INF/**', 'module-info.class' }
 }
+
+tasks.register('classpathFile') {
+    def out = layout.buildDirectory.file('compile-classpath.txt')
+    outputs.file(out)
+    def cp = sourceSets.main.compileClasspath
+    doLast { out.get().asFile.text = cp.asPath }
+}

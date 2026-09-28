@@ -21,6 +21,10 @@ jobs:
       - uses: gradle/actions/setup-gradle@v5
       - name: Check that cosmetics stay outside the player model
         run: python3 tools/check_fit.py
+      - name: Check the mixin targets against this version
+        run: |
+          ports/mc26.2/gradlew -p ports/mc26.2 classpathFile --no-daemon
+          python3 tools/check_mixins.py ports/mc26.2 "$(cat ports/mc26.2/build/compile-classpath.txt)"
       - name: Build standalone JAR and run tests
         run: |
           set -o pipefail

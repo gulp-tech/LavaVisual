@@ -32,6 +32,7 @@ jobs:
             javap -classpath "$cp" -p "$c" >> artifacts/debug/api-1.21.11.txt 2>&1 || true
           done
           wc -l artifacts/debug/api-1.21.11.txt artifacts/debug/classes-1.21.11.txt
+          python3 tools/check_mixins.py ports/mc1.21.11 "$cp"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git fetch -q origin "$GITHUB_REF_NAME" && git stash -q -u && git reset -q --hard "origin/$GITHUB_REF_NAME" && git stash pop -q || true
