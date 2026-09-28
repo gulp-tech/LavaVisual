@@ -72,6 +72,9 @@ jobs:
           echo "main menu brightness: $mean"
           python3 -c "import sys; v=float(sys.argv[1]); print('menu brightness', v); sys.exit(0 if v > 0.02 else 1)" "$mean"
           mkdir -p artifacts/debug && cp "$shot" artifacts/debug/menu-1.21.11.png
+          for later in hud hats map; do
+            test ! -f ports/mc1.21.11/build/shot-$later.png || cp ports/mc1.21.11/build/shot-$later.png artifacts/debug/shot-$later-1.21.11.png
+          done
 
       - name: Keep the client log
         if: always()
