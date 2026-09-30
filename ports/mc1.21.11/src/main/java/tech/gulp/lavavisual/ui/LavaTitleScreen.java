@@ -25,6 +25,9 @@ public final class LavaTitleScreen extends Screen {
     /** CI: the title screen was swapped in by the hook (not opened by hand). */
     public static boolean replaced;
     private static boolean logged;
+    /** Wall clock of the last frame this menu drew; the watchdog uses it to escape a frozen or blank menu. */
+    public static volatile long lastRender;
+    private boolean background;
     private final long opened = System.nanoTime();
     private final List<Hit> hits = new ArrayList<>();
     private final Map<String, Double> motions = new HashMap<>();
@@ -60,6 +63,7 @@ public final class LavaTitleScreen extends Screen {
     @Override public boolean shouldCloseOnEsc() { return false; }
     @Override public boolean isPauseScreen() { return false; }
     @Override public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
+        background = true;
         try { renderPanorama(g, delta); } catch (RuntimeException | LinkageError error) { g.fill(0, 0, width, height, 0xFF05070C); }
     }
 
@@ -84,7 +88,11 @@ public final class LavaTitleScreen extends Screen {
 
     @Override public void render(GuiGraphics g, int mouseX, int mouseY, float delta) {
         try {
+            // The background is drawn even if the engine did not call it for us: a menu without it is black.
+            if (!background) renderBackground(g, mouseX, mouseY, delta);
+            background = false;
             draw(g, mouseX, mouseY, delta);
+            lastRender = System.currentTimeMillis();
         } catch (RuntimeException | LinkageError error) {
             // Never leave a black screen: the vanilla menu comes back and the custom one stays off for this session.
             LavaVisual.LOGGER.warn("LavaVisual: the custom main menu failed, switching back to the vanilla one", error);

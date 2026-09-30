@@ -55,6 +55,8 @@ public final class LavaVisualClient implements ClientModInitializer {
     }
     private static Identifier id(String path) { return Identifier.fromNamespaceAndPath("lavavisual", path); }
 
+    private static int blankMenu;
+
     @Override public void onInitializeClient() {
         save();
         tech.gulp.lavavisual.effects.WorldCosmetics.register();
@@ -71,6 +73,21 @@ public final class LavaVisualClient implements ClientModInitializer {
             if (widgets.isEmpty()) return; // F3 + Esc: paused without the menu
             widgets.add(net.minecraft.client.gui.components.Button.builder(tech.gulp.lavavisual.ui.UiFont.component("LavaVisual"),
                     button -> client.setScreen(new ClickGuiScreen())).bounds(6, 6, 96, 20).build());
+        });
+        // Watchdog: whatever goes wrong, the player must never be left looking at a black window.
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client.level != null || client.getOverlay() != null) { blankMenu = 0; return; }
+            var screen = client.screen;
+            boolean ours = screen instanceof tech.gulp.lavavisual.ui.LavaTitleScreen;
+            boolean stalled = ours && tech.gulp.lavavisual.ui.LavaTitleScreen.lastRender != 0
+                    && System.currentTimeMillis() - tech.gulp.lavavisual.ui.LavaTitleScreen.lastRender > 4000;
+            if (screen != null && !stalled) { blankMenu = 0; return; }
+            if (++blankMenu < 60) return; // three seconds of nothing on screen
+            blankMenu = 0;
+            LavaVisual.LOGGER.warn("LavaVisual: no menu was drawn, falling back to the vanilla main menu");
+            config().customTitle = false;
+            save();
+            client.setScreen(new net.minecraft.client.gui.screens.TitleScreen());
         });
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             // Explicit CI-only switch; never enabled by normal game or server settings.
