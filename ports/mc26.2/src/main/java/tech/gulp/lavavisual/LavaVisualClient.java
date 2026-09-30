@@ -75,12 +75,12 @@ public final class LavaVisualClient implements ClientModInitializer {
         });
         // Watchdog: whatever goes wrong, the player must never be left looking at a black window.
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.level != null || client.getOverlay() != null) { blankMenu = 0; return; }
-            var screen = client.screen;
-            boolean ours = screen instanceof tech.gulp.lavavisual.ui.LavaTitleScreen;
-            boolean stalled = ours && tech.gulp.lavavisual.ui.LavaTitleScreen.lastRender != 0
+            var screen = client.gui.screen();
+            // 26.2 keeps no overlay handle here, so only a menu of ours that stopped drawing counts.
+            boolean stalled = screen instanceof tech.gulp.lavavisual.ui.LavaTitleScreen
+                    && tech.gulp.lavavisual.ui.LavaTitleScreen.lastRender != 0
                     && System.currentTimeMillis() - tech.gulp.lavavisual.ui.LavaTitleScreen.lastRender > 4000;
-            if (screen != null && !stalled) { blankMenu = 0; return; }
+            if (client.level != null || !stalled) { blankMenu = 0; return; }
             if (++blankMenu < 60) return; // three seconds of nothing on screen
             blankMenu = 0;
             LavaVisual.LOGGER.warn("LavaVisual: no menu was drawn, falling back to the vanilla main menu");
