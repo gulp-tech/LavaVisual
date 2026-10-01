@@ -1,111 +1,45 @@
 > Configure project :
 > Task :compileJava
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:3: error: cannot find symbol
-  symbol:   class PrimitiveTopology
-  location: package com.mojang.blaze3d
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:5: error: cannot find symbol
-  symbol:   class ColorTargetState
-  location: package com.mojang.blaze3d.pipeline
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:6: error: cannot find symbol
-  symbol:   class DepthStencilState
-  location: package com.mojang.blaze3d.pipeline
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:69: error: cannot find symbol
-  symbol:   method getWidgets(Screen)
-  location: class Screens
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
-  symbol:   class ColorTargetState
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:90: error: cannot find symbol
-  symbol:   class DepthStencilState
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:90: error: package DepthStencilState does not exist
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:89: error: cannot find symbol
-  symbol:   variable PrimitiveTopology
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:88: error: cannot find symbol
-  symbol:   method withVertexBinding(int,VertexFormat)
-  location: class Builder
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:100: error: cannot find symbol
-  symbol:   class ColorTargetState
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
-  symbol:   class DepthStencilState
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: package DepthStencilState does not exist
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:98: error: cannot find symbol
-  symbol:   variable PrimitiveTopology
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:97: error: cannot find symbol
-  symbol:   method withVertexBinding(int,VertexFormat)
-  location: class Builder
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:109: error: cannot find symbol
-  symbol:   class ColorTargetState
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:108: error: cannot find symbol
-  symbol:   class DepthStencilState
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:108: error: package DepthStencilState does not exist
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:107: error: cannot find symbol
-  symbol:   variable PrimitiveTopology
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:106: error: cannot find symbol
-  symbol:   method withVertexBinding(int,VertexFormat)
-  location: class Builder
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1047: error: cannot find symbol
+  symbol:   class GuiGraphicsExtractor
+  location: class ClickGuiScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:42: error: method opened in class MenuRate cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:59: error: method closed in class MenuRate cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:61: error: method opened in class MenuRate cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:101: error: method closed in class MenuRate cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:112: error: method opened in class MenuRate cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:674: error: cannot find symbol
+        action(g, Icons.PENCIL, "Редактор скина · виден только вам", bodyX, cursor, bodyW, () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
+  symbol:   method setScreen(SkinEditorScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1038: error: cannot find symbol
+        button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
+  symbol:   method setScreen(SkinEditorScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:771: error: incompatible types: possible lossy conversion from double to float
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:772: error: incompatible types: possible lossy conversion from double to float
 > Task :compileJava FAILED
 FAILURE: Build failed with an exception.
 * What went wrong:
 > Compilation failed; see the compiler output below.
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:3: error: cannot find symbol
-    symbol:   class PrimitiveTopology
-    location: package com.mojang.blaze3d
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:5: error: cannot find symbol
-    symbol:   class ColorTargetState
-    location: package com.mojang.blaze3d.pipeline
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:6: error: cannot find symbol
-    symbol:   class DepthStencilState
-    location: package com.mojang.blaze3d.pipeline
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:91: error: cannot find symbol
-    symbol:   class ColorTargetState
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:90: error: cannot find symbol
-    symbol:   class DepthStencilState
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:89: error: cannot find symbol
-    symbol:   variable PrimitiveTopology
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:100: error: cannot find symbol
-    symbol:   class ColorTargetState
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: cannot find symbol
-    symbol:   class DepthStencilState
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:98: error: cannot find symbol
-    symbol:   variable PrimitiveTopology
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:109: error: cannot find symbol
-    symbol:   class ColorTargetState
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:108: error: cannot find symbol
-    symbol:   class DepthStencilState
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:107: error: cannot find symbol
-    symbol:   variable PrimitiveTopology
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:90: error: package DepthStencilState does not exist
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:99: error: package DepthStencilState does not exist
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:108: error: package DepthStencilState does not exist
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/LavaVisualClient.java:69: error: cannot find symbol
-    symbol:   method getWidgets(Screen)
-    location: class Screens
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:88: error: cannot find symbol
-    symbol:   method withVertexBinding(int,VertexFormat)
-    location: class Builder
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:97: error: cannot find symbol
-    symbol:   method withVertexBinding(int,VertexFormat)
-    location: class Builder
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:106: error: cannot find symbol
-    symbol:   method withVertexBinding(int,VertexFormat)
-    location: class Builder
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:42: error: method opened in class MenuRate cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:59: error: method closed in class MenuRate cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:61: error: method opened in class MenuRate cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:101: error: method closed in class MenuRate cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:112: error: method opened in class MenuRate cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:771: error: incompatible types: possible lossy conversion from double to float
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:772: error: incompatible types: possible lossy conversion from double to float
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1047: error: cannot find symbol
+    symbol:   class GuiGraphicsExtractor
+    location: class ClickGuiScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:674: error: cannot find symbol
+          action(g, Icons.PENCIL, "Редактор скина · виден только вам", bodyX, cursor, bodyW, () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
+    symbol:   method setScreen(SkinEditorScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1038: error: cannot find symbol
+          button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
+    symbol:   method setScreen(SkinEditorScreen)
+    location: variable gui of type Gui
 > Check your code and dependencies to fix the compilation error(s)
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).
-38
+20
