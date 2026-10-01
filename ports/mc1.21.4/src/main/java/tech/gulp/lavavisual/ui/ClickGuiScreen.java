@@ -671,7 +671,7 @@ public final class ClickGuiScreen extends Screen {
         action(g, Icons.PENCIL, "Редактор шляпы", bodyX, cursor, half, () -> minecraft.setScreen(new HatEditorScreen(this)));
         action(g, Icons.PENCIL, "Редактор крыльев", bodyX + half + 8, cursor, half, () -> minecraft.setScreen(new WingsEditorScreen(this)));
         cursor += 32;
-        action(g, Icons.PENCIL, "Редактор скина · виден только вам", bodyX, cursor, bodyW, () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
+        action(g, Icons.PENCIL, "Редактор скина · виден только вам", bodyX, cursor, bodyW, () -> minecraft.setScreen(new SkinEditorScreen(this)));
         cursor += 32;
         section(g, "След");
         toggle(g, "trail", "Trails", "Светящийся след за вами", c.trailEnabled, () -> { c.trailEnabled = !c.trailEnabled; changed(); }, null);
@@ -1035,7 +1035,7 @@ public final class ClickGuiScreen extends Screen {
         java.util.function.IntConsumer pickSkin = i -> { c.costumeType = i + 1; c.costumeEnabled = true; changed(); };
         chips(g, Hats.COSTUME_NAMES, c.costumeType - 1, pickSkin, 3);
         note(g, Hats.COSTUME_HINTS[Math.clamp(c.costumeType - 1, 0, Hats.COSTUME_COUNT - 1)]);
-        button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
+        button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.setScreen(new SkinEditorScreen(this)));
         section(g, "Настройка");
         slider(g, "Прозрачность", c.costumeOpacity, 0.3, 1, v -> c.costumeOpacity = v, false);
         caption(g, "Узор");
@@ -1044,7 +1044,7 @@ public final class ClickGuiScreen extends Screen {
         colorRow(g, "costume", "Цвет скина");
         note(g, "Скины привязаны к костям игрока: ушки кивают, лапки и колёса идут, хвост машет. Шляпа прячется, пока надет скин.");
     }
-    private void projectileSettings(GuiGraphicsExtractor g) {
+    private void projectileSettings(GuiGraphics g) {
         var c = LavaVisualClient.config();
         toggle(g, "projectile", "Следы снарядов", "Рисуются только у вас", c.projTrails, () -> { c.projTrails = !c.projTrails; changed(); }, null);
         toggle(g, "proj_mine", "Только мои", "Выключите, чтобы видеть следы и чужих снарядов", c.projOnlyMine, () -> { c.projOnlyMine = !c.projOnlyMine; changed(); }, null);
