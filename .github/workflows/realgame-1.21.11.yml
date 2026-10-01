@@ -1,6 +1,8 @@
 name: Real game test (Minecraft 1.21.11)
 # Starts the actual game the player starts: vanilla 1.21.11 + Fabric Loader + the published jar,
 # not the development client. This is the only way to catch problems that only exist after remapping.
+# The published jar is committed by the build workflow with its own token, and such a push never starts
+# another workflow, so this one also runs from the Actions tab (`gh workflow run realgame-1.21.11.yml`).
 on:
   push:
     paths: ['artifacts/lavavisual-*-mc1.21.11.jar', '.github/workflows/realgame-1.21.11.yml', 'tools/real_game.py']
