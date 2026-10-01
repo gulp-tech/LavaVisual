@@ -23,7 +23,7 @@ public abstract class FramerateLimitTrackerMixin {
         if (!tech.gulp.lavavisual.ui.MenuRate.menu()) return;
         Minecraft client = Minecraft.getInstance();
         if (client == null || client.options == null || client.level != null) return;
-        if (getThrottleReason() != FramerateLimitTracker.FramerateThrottleReason.OUT_OF_LEVEL_MENU) return;
+        if (!"OUT_OF_LEVEL_MENU".equals(String.valueOf(getThrottleReason()))) return;
         cir.setReturnValue(client.options.framerateLimit().get());
     }
 }

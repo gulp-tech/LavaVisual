@@ -768,8 +768,8 @@ public final class WorldCosmetics {
         vertex(pose, out, x + rx * bw, y + base, z + rz * bw, UiDraw.alpha(bright, 0));
         vertex(pose, out, x - rx * bw, y + base, z - rz * bw, UiDraw.alpha(bright, 0));
         // Ground rings: always drawn (they scale with distance), so a mark on the horizon still shows its feet.
-        ripple(pose, out, new Vec3(x, y + 0.05, z), 0.35f, Math.min(1.15f, 0.62f + horizontal * 0.002f), bright, color, 0.75f, 0.03f, spin * 2);
-        ripple(pose, out, new Vec3(x, y + 0.05, z), 1.05f, 1.25f, color, bright, 0.22f, 0.0f, -spin * 1.4);
+        ripple(pose, out, new Vec3(x, y + 0.05, z), 0.35f, Math.min(1.15f, 0.62f + (float) horizontal * 0.002f), bright, color, 0.75f, 0.03f, spin * 2f);
+        ripple(pose, out, new Vec3(x, y + 0.05, z), 1.05f, 1.25f, color, bright, 0.22f, 0.0f, -spin * 1.4f);
     }
     /**
      * Trail from the torso, in five styles: ribbon (bright core, soft edges), neon (glowing edge lines), helix (two strands
