@@ -1436,7 +1436,7 @@ def box(lo, hi, color):
     return [(f, color, middle) for f in faces]
 
 
-def render(builder_quads, extra, eye, target, size, glows):
+def render(builder_quads, extra, eye, target, size, glows, zoom=2.4):
     import numpy as np
     ss = 2
     w = h = size * ss
@@ -1444,7 +1444,7 @@ def render(builder_quads, extra, eye, target, size, glows):
     img[:] = (0.137, 0.149, 0.176)
     zbuf = np.full((h, w), np.inf, dtype=np.float32)
     r, u, f = look_at(eye, target)
-    focal = 2.4 * w / 2
+    focal = zoom * w / 2
 
     def project(p):
         d = sub(p, eye)
@@ -1659,12 +1659,11 @@ def costumes():
     c.append({'name': 'Амонг Ас', 'hint': 'Капсула, визор и рюкзак', 'parts': [
         {'group': {'bone': 'body'}, 'parts': [
             # The capsule covers the torso, the arms and the head, so nothing of the player pokes through it.
-            {'sphere': [0, -0.25, 0], 'r': [0.56, 0.87, 0.42], 'seg': 26, 'paint': ['c', 'l'], 'alt': ['l', 'c'], 'mat': 'gloss'},
-            {'torus': [0.565, 0.016], 'y': -0.25, 'seg': 34, 'sides': 6, 'paint': 'm', 'mat': 'satin'},
-            {'sphere': [0, -0.28, -0.42], 'r': [0.28, 0.36, 0.16], 'seg': 16, 'paint': 'd', 'mat': 'satin'},
-            {'group': {'at': [0, 0.26, 0.22]}, 'parts': [
-                {'sphere': [0, 0, 0], 'r': [0.30, 0.17, 0.15], 'seg': 22, 'paint': ['lw', 'w'], 'alt': ['w', 'lw'], 'mat': 'gloss'},
-                {'glowdisc': [0, 0.01, 0.14], 'size': 0.30, 'paint': 'l', 'alpha': 0.22},
+            {'sphere': [0, -0.15, 0], 'r': [0.60, 0.90, 0.46], 'seg': 28, 'paint': ['c', 'l'], 'alt': ['l', 'c'], 'mat': 'gloss'},
+            {'sphere': [0, -0.24, -0.46], 'r': [0.28, 0.36, 0.17], 'seg': 16, 'paint': 'd', 'mat': 'satin'},
+            {'group': {'at': [0, 0.16, 0.34]}, 'parts': [
+                {'sphere': [0, 0, 0], 'r': [0.315, 0.150, 0.125], 'seg': 24, 'paint': ['lw', 'w'], 'alt': ['w', 'lw'], 'mat': 'gloss'},
+                {'glowdisc': [0, 0, 0.11], 'size': 0.34, 'paint': 'l', 'alpha': 0.20},
             ]},
         ]},
     ]})
@@ -1687,22 +1686,19 @@ def costumes():
     chair = [
         # Seat, backrest, armrests and the frame down to the footrests.
         {'poly': [[-0.30, -0.76, -0.30], [0.30, -0.76, -0.30], [0.30, -0.76, 0.22], [-0.30, -0.76, 0.22]], 'paint': 'd', 'mat': 'satin'},
-        {'poly': [[-0.30, -0.72, -0.34], [0.30, -0.72, -0.34], [0.30, -0.16, -0.38], [-0.30, -0.16, -0.38]], 'paint': ['c', 'l'], 'alt': ['l', 'c'], 'mat': 'satin'},
+        {'poly': [[-0.30, -0.72, -0.34], [0.30, -0.72, -0.34], [0.30, -0.04, -0.39], [-0.30, -0.04, -0.39]], 'paint': ['c', 'l'], 'alt': ['l', 'c'], 'mat': 'satin'},
+        {'tube': [[-0.30, -0.04, -0.39], [0.0, 0.0, -0.41], [0.30, -0.04, -0.39]], 'radius': [0.028, 0.028], 'sides': 8, 'paint': 'l', 'mat': 'metal'},
         {'poly': [[-0.28, -0.76, 0.22], [0.28, -0.76, 0.22], [0.28, -0.62, 0.20], [-0.28, -0.62, 0.20]], 'paint': 'k', 'mat': 'fur'},
         wheel(-1), wheel(1),
-        {'sheet': [[[-0.30, -0.70, 0.24, 0.0], [0.0, -0.71, 0.30, 0.2], [0.30, -0.70, 0.24, 0.0]],
-                   [[-0.30, -0.86, 0.26, 0.2], [0.0, -0.87, 0.33, 0.45], [0.30, -0.86, 0.26, 0.2]],
-                   [[-0.28, -1.02, 0.29, 0.45], [0.0, -1.03, 0.37, 0.7], [0.28, -1.02, 0.29, 0.45]],
-                   [[-0.26, -1.18, 0.33, 0.7], [0.0, -1.19, 0.41, 0.9], [0.26, -1.18, 0.33, 0.7]],
-                   [[-0.24, -1.32, 0.38, 1.0], [0.0, -1.33, 0.45, 1.0], [0.24, -1.32, 0.38, 1.0]]],
-         'paint': ['c', 'd'], 'alt': ['d', 'c'], 'mat': 'satin', 'ao': [1.0, 0.8]},
+        {'poly': [[-0.26, -0.70, 0.20], [0.26, -0.70, 0.20], [0.22, -0.94, 0.27], [-0.22, -0.94, 0.27]], 'paint': 'd', 'mat': 'satin'},
+        {'tube': [[-0.26, -0.94, 0.27], [0.0, -0.96, 0.29], [0.26, -0.94, 0.27]], 'radius': [0.020, 0.020], 'sides': 6, 'paint': 'l', 'mat': 'metal'},
     ]
     for side in (-1, 1):
         sx = side * 0.30
         chair += [
             {'tube': [[sx, -0.72, -0.30], [sx, -0.40, -0.34]], 'radius': [0.022, 0.022], 'sides': 6, 'paint': 'l', 'mat': 'metal'},
             {'tube': [[sx, -0.40, -0.34], [sx, -0.34, 0.06]], 'radius': [0.020, 0.020], 'sides': 6, 'paint': 'd', 'mat': 'fur'},
-            {'tube': [[sx, -0.72, 0.10], [sx * 1.07, -1.04, 0.24], [sx * 1.2, -1.30, 0.30]], 'radius': [0.024, 0.022], 'sides': 6, 'paint': 'l', 'mat': 'metal'},
+            {'tube': [[sx, -0.72, 0.10], [sx, -0.86, 0.20], [sx * 0.92, -0.95, 0.26]], 'radius': [0.024, 0.022], 'sides': 6, 'paint': 'l', 'mat': 'metal'},
         ]
     c.append({'name': 'Инвалидное кресло', 'hint': 'Кресло с колёсами; руки толкают, колёса катятся', 'parts': [
         {'group': {'bone': 'body'}, 'parts': chair},
@@ -1732,16 +1728,16 @@ def costumes():
 
     # ------------------------------------------------------------------- Кошка
     cat = [
-        {'group': {'bone': 'head', 'at': [0, 0.42, 0]}, 'parts': [
-            {'group': {'at': [-0.15, 0, -0.02], 'rot': [0, 0, -14], 'mirror': True}, 'parts': [
-                {'prism': [[-0.085, 0.0], [0.085, 0.0], [0.055, 0.135], [0.0, 0.175], [-0.055, 0.135]], 'z': [-0.035, 0.035], 'paint': 'c', 'mat': 'fur'},
-                {'prism': [[-0.045, 0.02], [0.045, 0.02], [0.0, 0.13]], 'z': [-0.012, 0.012], 'paint': 'p', 'mat': 'fur'},
+        {'group': {'bone': 'head', 'at': [0, 0.50, -0.02]}, 'parts': [
+            {'group': {'at': [-0.155, 0, 0], 'rot': [0, 0, -13], 'mirror': True}, 'parts': [
+                {'prism': [[-0.105, 0.0], [0.105, 0.0], [0.07, 0.185], [0.0, 0.26], [-0.07, 0.185]], 'z': [-0.05, 0.05], 'paint': 'c', 'mat': 'fur'},
+                {'prism': [[-0.052, 0.02], [0.052, 0.02], [0.0, 0.185]], 'z': [-0.018, 0.018], 'paint': 'p', 'mat': 'fur'},
             ]},
-            {'torus': [0.255, 0.022], 'y': 0.04, 'seg': 28, 'sides': 6, 'paint': 'c', 'mat': 'fur'},
             {'gem': [0, 0.20, 0.25], 'r': 0.035, 'up': 0.02, 'down': 0.03, 'sides': 6, 'paint': 'g', 'mat': 'metal'},
             {'group': {'mirror': True}, 'parts': [
-                {'glowdisc': [0.10, 0.27, 0.245], 'size': 0.11, 'paint': 'l', 'alpha': 0.4},
-                {'tube': [[0.19, 0.21, 0.12], [0.33, 0.24, 0.16], [0.40, 0.22, 0.08]], 'radius': [0.006, 0.005], 'sides': 4, 'paint': 'w', 'mat': 'fur', 'detail': True},
+                {'glowdisc': [0.10, 0.27, 0.272], 'size': 0.115, 'paint': 'l', 'alpha': 0.45},
+                {'gem': [0.105, 0.27, 0.25], 'r': 0.014, 'up': 0.012, 'down': 0.012, 'sides': 5, 'paint': 'lw', 'mat': 'glow'},
+                {'tube': [[0.19, 0.21, 0.16], [0.33, 0.24, 0.19], [0.41, 0.22, 0.10]], 'radius': [0.009, 0.007], 'sides': 5, 'paint': 'w', 'mat': 'fur', 'detail': True},
             ]},
         ]},
         {'group': {'bone': 'body'}, 'parts': [
@@ -1779,9 +1775,12 @@ def costumes():
     dragon = [
         {'group': {'bone': 'head', 'at': [0, 0, 0]}, 'parts': [
             {'group': {'mirror': True, 'at': [-0.15, 0.30, -0.06], 'rot': [-24, 0, -16]}, 'parts': [
-                {'tube': bezier([0, 0, 0], [0.015, 0.15, -0.05], [0.025, 0.25, -0.12], [0.018, 0.28, -0.20], 6), 'radius': [0.038, 0.006], 'sides': 8, 'paint': ['c', 'l'], 'alt': ['l', 'c'], 'mat': 'metal'},
+                {'tube': bezier([0, 0, 0], [0.02, 0.21, -0.07], [0.035, 0.35, -0.18], [0.045, 0.43, -0.31], 7), 'radius': [0.055, 0.010], 'sides': 9, 'paint': ['c', 'l'], 'alt': ['l', 'c'], 'mat': 'metal'},
             ]},
-            {'prism': [[-0.09, 0.26], [0.09, 0.26], [0.07, 0.10], [0.0, 0.06], [-0.07, 0.10]], 'z': [0.22, 0.36], 'paint': 'm', 'mat': 'satin'},
+            {'group': {'at': [0, 0.30, 0.0]}, 'parts': [
+                {'prism': [[-0.075, 0.0], [0.075, 0.0], [0.05, 0.085], [0.0, 0.115], [-0.05, 0.085]], 'z': [0.24, 0.42], 'paint': 'm', 'mat': 'satin'},
+                {'sphere': [0, 0.03, 0.40], 'r': 0.018, 'seg': 8, 'paint': 'lw', 'mat': 'glow', 'detail': True},
+            ]},
             {'group': {'mirror': True}, 'parts': [
                 {'gem': [0.13, 0.28, 0.21], 'r': 0.034, 'up': 0.012, 'down': 0.012, 'sides': 6, 'paint': 'lw', 'mat': 'glow'},
                 {'glowdisc': [0.13, 0.28, 0.24], 'size': 0.11, 'paint': 'l', 'alpha': 0.5},
@@ -1796,7 +1795,7 @@ def costumes():
                            [[0.02, -0.15, -0.02, 0.0], [0.19, -0.18, -0.07, 0.5], [0.32, -0.25, -0.10, 1.0]],
                            [[0.02, -0.30, -0.02, 0.0], [0.17, -0.37, -0.07, 0.5], [0.27, -0.47, -0.09, 1.0]]],
                  'paint': ['c', 'l'], 'alt': ['l', 'c'], 'mat': 'satin', 'ao': [1.0, 0.75]},
-                {'tube': [[0.0, 0.0, 0.0], [0.17, 0.03, -0.05], [0.30, 0.0, -0.09]], 'radius': [0.026, 0.014], 'sides': 6, 'paint': 'd', 'mat': 'metal'},
+                {'tube': [[0.0, 0.0, 0.0], [0.17, 0.03, -0.05], [0.30, 0.0, -0.09]], 'radius': [0.020, 0.010], 'sides': 6, 'paint': 'd', 'mat': 'metal'},
             ]},
             {'group': {'mirror': True, 'at': [0.0, -0.36, -0.28]}, 'parts': [
                 {'tube': curve3([[0, 0, 0], [0.02, 0.20, -0.22], [0.0, 0.44, -0.30], [-0.03, 0.64, -0.22], [0.0, 0.80, -0.04]], per=3),
@@ -1830,8 +1829,9 @@ def costumes():
                        [[r4(0.315 * math.sin(math.radians(a))), 0.20, r4(0.315 * math.cos(math.radians(a))), v] for a, v in ((-58, 0.0), (0, 0.5), (58, 1.0))],
                        [[r4(0.300 * math.sin(math.radians(a))), 0.27, r4(0.300 * math.cos(math.radians(a))), v] for a, v in ((-58, 0.0), (0, 0.5), (58, 1.0))]],
              'paint': 'lw', 'mat': 'glow'},
-            {'tube': [[0.20, 0.34, -0.10], [0.34, 0.56, -0.18], [0.30, 0.70, -0.24]], 'radius': [0.012, 0.006], 'sides': 5, 'paint': 'l', 'mat': 'metal'},
-            {'glowdisc': [0.30, 0.70, -0.24], 'size': 0.10, 'paint': 'l', 'alpha': 0.6},
+            {'tube': [[0.22, 0.30, -0.06], [0.27, 0.44, -0.10], [0.26, 0.52, -0.12]], 'radius': [0.020, 0.013], 'sides': 6, 'paint': 'l', 'mat': 'metal'},
+            {'sphere': [0.26, 0.53, -0.12], 'r': 0.028, 'seg': 10, 'paint': 'lw', 'mat': 'glow'},
+            {'glowdisc': [0.26, 0.53, -0.12], 'size': 0.12, 'paint': 'l', 'alpha': 0.5},
         ]},
         {'group': {'bone': 'body'}, 'parts': [
             {'sheet': [[[-0.25, -0.06, 0.13, 0.0], [0.0, -0.06, 0.165, 0.0], [0.25, -0.06, 0.13, 0.0]],
@@ -1877,7 +1877,7 @@ def preview_costumes(path, data, main=0xFF6A2B, second=0xB45CFF, cell=340):
              'armR': translate(-5 * p, 22 * p, 0.0), 'armL': translate(5 * p, 22 * p, 0.0),
              'legR': translate(-2 * p, 12 * p, 0.0), 'legL': translate(2 * p, 12 * p, 0.0)}
     items = list(data['costumes'])
-    sheet = Image.new('RGB', (3 * cell, len(items) * (cell + 22)), (35, 38, 45))
+    sheet = Image.new('RGB', (3 * cell, len(items) * (cell + 40)), (35, 38, 45))
     draw = ImageDraw.Draw(sheet)
     try:
         font = ImageFont.truetype(str(ROOT / 'ports/mc26.2/src/main/resources/assets/lavavisual/font/inter-semibold.ttf'), 15)
@@ -1891,11 +1891,13 @@ def preview_costumes(path, data, main=0xFF6A2B, second=0xB45CFF, cell=340):
             b.build(model['parts'])
             quads = [([add(q, eye) for q in cam], colors, n) for cam, colors, n in b.quads]
             glows = [(add(c, eye), sz, col, a) for c, sz, col, a in glow_list(b)]
-            img = render(quads, body, eye, target, cell, glows)
-            x, y = v * cell, index * (cell + 22)
-            sheet.paste(Image.fromarray(img), (x, y + 22))
+            # A wider view than the hats get: ears, horns and the chair back reach well above the head.
+            img = render(quads, body, eye, target, cell, glows, 1.75)
+            x, y = v * cell, index * (cell + 40)
+            sheet.paste(Image.fromarray(img), (x, y + 40))
             if v == 0:
-                draw.text((x + 8, y + 3), f"Скин: {model['name']}  ({len(b.quads)} видимых)", fill=(235, 238, 245), font=font)
+                # The title strip is wide enough for ears and horns, which reach above the head.
+                draw.text((x + 8, y + 8), f"Скин: {model['name']}  ({len(b.quads)} видимых)", fill=(235, 238, 245), font=font)
     sheet.save(path)
 
 
