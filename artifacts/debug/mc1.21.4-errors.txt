@@ -1,37 +1,57 @@
 > Configure project :
 > Task :compileJava
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:480: error: variable light is already defined in method submitLayer(PlayerModel,PoseStack,Submitter,PlayerRenderState,int)
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:484: error: variable light is already defined in method submitLayer(PlayerModel,PoseStack,Submitter,PlayerRenderState,int)
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:491: error: variable light is already defined in method submitLayer(PlayerModel,PoseStack,Submitter,PlayerRenderState,int)
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:496: error: variable light is already defined in method submitLayer(PlayerModel,PoseStack,Submitter,PlayerRenderState,int)
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:177: error: cannot find symbol
-  symbol:   method matrices()
-  location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:179: error: cannot find symbol
-            new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), WorldCosmetics.GLOW, (pose, out) -> {
-  symbol:   method matrices()
-  location: variable context of type WorldRenderContext
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:229: error: cannot find symbol
-  symbol:   method matrices()
-  location: variable context of type WorldRenderContext
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1047: error: cannot find symbol
+  symbol:   class GuiGraphicsExtractor
+  location: class ClickGuiScreen
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/FramerateLimitTrackerMixin.java:19: error: cannot find symbol
+  symbol:   class FramerateThrottleReason
+  location: class FramerateLimitTracker
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:42: error: method opened in class MenuRate cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:59: error: method closed in class MenuRate cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:61: error: method opened in class MenuRate cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:101: error: method closed in class MenuRate cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:112: error: method opened in class MenuRate cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:674: error: cannot find symbol
+        action(g, Icons.PENCIL, "Редактор скина · виден только вам", bodyX, cursor, bodyW, () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
+  symbol:   method setScreen(SkinEditorScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1038: error: cannot find symbol
+        button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
+  symbol:   method setScreen(SkinEditorScreen)
+  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:772: error: incompatible types: possible lossy conversion from double to float
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:773: error: incompatible types: possible lossy conversion from double to float
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/FramerateLimitTrackerMixin.java:26: error: cannot find symbol
+  symbol:   variable FramerateThrottleReason
+  location: class FramerateLimitTracker
 > Task :compileJava FAILED
 FAILURE: Build failed with an exception.
 * What went wrong:
 > Compilation failed; see the compiler output below.
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:177: error: cannot find symbol
-    symbol:   method matrices()
-    location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:179: error: cannot find symbol
-              new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrices(), WorldCosmetics.GLOW, (pose, out) -> {
-    symbol:   method matrices()
-    location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/AirParticles.java:229: error: cannot find symbol
-    symbol:   method matrices()
-    location: variable context of type WorldRenderContext
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:480: error: variable light is already defined in method submitLayer(PlayerModel,PoseStack,Submitter,PlayerRenderState,int)
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:484: error: variable light is already defined in method submitLayer(PlayerModel,PoseStack,Submitter,PlayerRenderState,int)
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:491: error: variable light is already defined in method submitLayer(PlayerModel,PoseStack,Submitter,PlayerRenderState,int)
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:496: error: variable light is already defined in method submitLayer(PlayerModel,PoseStack,Submitter,PlayerRenderState,int)
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:42: error: method opened in class MenuRate cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:59: error: method closed in class MenuRate cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:61: error: method opened in class MenuRate cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:101: error: method closed in class MenuRate cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:112: error: method opened in class MenuRate cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:772: error: incompatible types: possible lossy conversion from double to float
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:773: error: incompatible types: possible lossy conversion from double to float
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1047: error: cannot find symbol
+    symbol:   class GuiGraphicsExtractor
+    location: class ClickGuiScreen
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/FramerateLimitTrackerMixin.java:19: error: cannot find symbol
+    symbol:   class FramerateThrottleReason
+    location: class FramerateLimitTracker
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/FramerateLimitTrackerMixin.java:26: error: cannot find symbol
+    symbol:   variable FramerateThrottleReason
+    location: class FramerateLimitTracker
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:674: error: cannot find symbol
+          action(g, Icons.PENCIL, "Редактор скина · виден только вам", bodyX, cursor, bodyW, () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
+    symbol:   method setScreen(SkinEditorScreen)
+    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1038: error: cannot find symbol
+          button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
+    symbol:   method setScreen(SkinEditorScreen)
+    location: variable gui of type Gui
 > Check your code and dependencies to fix the compilation error(s)
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).
-14
+24
