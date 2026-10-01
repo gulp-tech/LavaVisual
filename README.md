@@ -1,4 +1,4 @@
-# LavaVisual Beta 1.0.4 — Minecraft 26.2
+# LavaVisual 1.0.4 — Minecraft 26.2
 
 <img src="ports/mc26.2/src/main/resources/assets/lavavisual/icon.png" width="96" alt="LV">
 
@@ -7,9 +7,9 @@
 
 | | Скачать | Что внутри |
 | --- | --- | --- |
-| **Мод** | [lavavisual-1.0.4-beta-mc26.2.jar](artifacts/lavavisual-1.0.4-beta-mc26.2.jar) | только LavaVisual, в папку `mods` |
-| **Клиент** | [LavaVisual-Client-1.0.4-beta-mc26.2.mrpack](artifacts/LavaVisual-Client-1.0.4-beta-mc26.2.mrpack) | готовая сборка для Modrinth App, Prism Launcher, ATLauncher |
-| **Клиент (архив)** | [LavaVisual-Client-1.0.4-beta-mc26.2.zip](artifacts/LavaVisual-Client-1.0.4-beta-mc26.2.zip) | папки `mods` и `config` для TLauncher, телефонов и ручной установки |
+| **Мод** | [lavavisual-1.0.4-mc26.2.jar](artifacts/lavavisual-1.0.4-mc26.2.jar) | только LavaVisual, в папку `mods` |
+| **Клиент** | [LavaVisual-Client-1.0.4-mc26.2.mrpack](artifacts/LavaVisual-Client-1.0.4-mc26.2.mrpack) | готовая сборка для Modrinth App, Prism Launcher, ATLauncher |
+| **Клиент (архив)** | [LavaVisual-Client-1.0.4-mc26.2.zip](artifacts/LavaVisual-Client-1.0.4-mc26.2.zip) | папки `mods` и `config` для TLauncher, телефонов и ручной установки |
 
 Контрольные суммы — в [SHA256SUMS](artifacts/SHA256SUMS).
 
@@ -81,6 +81,12 @@ PojavLauncher, MojoLauncher, Amethyst и другие лаунчеры на ос
   заходят в спину.
   Шляпы, крылья, плащи и аксессуары видят другие игроки с LavaVisual — без серверного мода; смена доходит до них
   примерно за 15 секунд. У ников таких игроков — логотип LV.
+- **Скины:** пять цельных образов, привязанных к костям игрока, поэтому они живут вместе с анимациями: **Амонг Ас**
+  (капсула, визор и рюкзак), **инвалидное кресло** (руки толкают подлокотники, колёса катятся ровно по пройденному
+  пути, ноги лежат на подножках), **кошка** (ушки и глаза на голове, лапки на руках и ногах, хвост машет на бегу),
+  **Дракон 4D** (рога, перепончатые крылья, хвост с шипами и когти) и **Неон 4D** (шлем с визором, наплечники, сапоги
+  и голо-плащ в цвете темы). Редактор скина — как у шляпы: образ, узор, цвет, прозрачность, вид спереди и сзади.
+  Скин видите только вы, как следы и эффекты; шляпа на время скина прячется, чтобы не сидеть внутри капсулы.
 - **Эффекты:** Target ESP, Jump Circle, частицы ударов, насыщенные криты, Kill Effect, маркер цели, частицы в воздухе.
 - **Следы снарядов:** жемчуг, стрелы, трезубец, снежки, яйца, зелья, фейерверки и другое — выбор предметов, стиль,
   длина, ширина, цвет. Видно только вам.

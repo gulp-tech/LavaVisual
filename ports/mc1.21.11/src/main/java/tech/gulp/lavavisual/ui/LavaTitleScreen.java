@@ -39,7 +39,7 @@ public final class LavaTitleScreen extends Screen {
     private record Hit(int x, int y, int w, int h, Runnable action) { }
     private record Item(String icon, String label, Runnable action) { }
 
-    public LavaTitleScreen() { super(UiFont.component("LavaVisual")); }
+    public LavaTitleScreen() { super(UiFont.component("LavaVisual")); MenuRate.opened(this); }
 
     /** Swaps the vanilla title screen for this one, unless it is turned off or the game runs as the demo. */
     public static Screen replace(Screen screen) {
@@ -56,7 +56,9 @@ public final class LavaTitleScreen extends Screen {
         }
     }
 
+    @Override public void removed() { MenuRate.closed(this); super.removed(); }
     @Override protected void init() {
+        MenuRate.opened(this);
         items = items();
         if (!logged) { logged = true; LavaVisual.LOGGER.info("LavaVisual title screen ready"); }
     }

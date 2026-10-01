@@ -71,6 +71,15 @@ public final class WorldCosmetics {
     private static final PoseStack.Pose IDENTITY = new PoseStack().last();
     private static final Vector3f CAMERA_RIGHT = new Vector3f(1, 0, 0), CAMERA_UP = new Vector3f(0, 1, 0);
     private static double frameNow;
+    /** Bones a costume group can hang from, in Hats.BONE_NAMES order: body, back, head, right arm, left arm, right leg, left leg. */
+    private static final int SPRITE_BODY = 0, SPRITE_BACK = 1, SPRITE_HEAD = 2, SPRITE_ARM_R = 3, SPRITE_ARM_L = 4, SPRITE_LEG_R = 5, SPRITE_LEG_L = 6, BONE_COUNT = 7;
+    /** Scratch bone transforms. Slots rotate, because the newer versions run the geometry lambdas after the frame. */
+    private static final Matrix4f[][] BONE_POOL = new Matrix4f[24][BONE_COUNT];
+    private static int boneSlot;
+    private static int costumesDrawn;
+    static {
+        for (Matrix4f[] bones : BONE_POOL) for (int i = 0; i < BONE_COUNT; i++) bones[i] = new Matrix4f();
+    }
     private static final ArrayList<Beam> BEAMS = new ArrayList<>();
     private static boolean espVisible;
     private static int lastKillId = -1;
@@ -426,7 +435,9 @@ public final class WorldCosmetics {
                 .mul(new Matrix4f().set(h.rotation())).scale(h.scale(), h.scale() * h.stretch(), h.scale());
     }
     private static boolean hidden(net.minecraft.client.renderer.entity.state.AvatarRenderState s) {
-        return s.isInvisible || s.isSpectator || s.isFallFlying || s.isVisuallySwimming || s.isAutoSpinAttack || s.isUpsideDown
+        // Swimming and elytra are not reasons to hide the cosmetics: the parts follow the model's own pose (a hat
+        // follows the head even when the body is horizontal), so a swimming player keeps the hat, wings and scarf.
+        return s.isInvisible || s.isSpectator || s.isAutoSpinAttack || s.isUpsideDown
                 || s.hasPose(net.minecraft.world.entity.Pose.SLEEPING);
     }
     /** World light at the player (block or sky light), so cosmetics darken in caves like the skin does. */
@@ -458,13 +469,23 @@ public final class WorldCosmetics {
         float seconds = (float) (frameNow / 20.0);
         long nanos = System.nanoTime();
         if (s.id == mc.player.getId() || Dummy.is(s.id)) {
-            if (c.hatEnabled) hat(model, pose, collector, s, c.hatType, Hats.hat(c.hatType), c.color("hat"), c.color2("hat"), c.hatStyle, (float) c.hatOpacity,
+            // A worn skin is a whole look: the hat would sit inside it (the Among Us capsule swallows the head).
+            boolean skin = c.costumeEnabled && Hats.costume(c.costumeType) != null;
+            if (c.hatEnabled && !skin) hat(model, pose, collector, s, c.hatType, Hats.hat(c.hatType), c.color("hat"), c.color2("hat"), c.hatStyle, (float) c.hatOpacity,
                     c.hatSize, c.hatLift, c.hatCone, (float) (Hats.visor(c.hatType) ? 0 : frameNow * 0.06 * c.hatSpin), seconds);
             if (c.wingsEnabled) wings(model, pose, collector, s, Hats.wing(c.wingsType), c.color("wings"), c.color2("wings"), c.wingsStyle,
                     (float) c.wingsOpacity, c.wingsSize, (float) c.wingsFlap, WingFit.of(c), seconds, nanos);
             if (c.capeEnabled) cape(model, pose, collector, s, Hats.cape(c.capeType), c.color("cape"), c.color2("cape"), c.capeStyle, (float) c.capeOpacity, (float) c.capeSway, seconds);
             for (int i = 1; i <= Hats.EXTRA_COUNT; i++)
                 if (c.extras.contains(i)) extra(model, pose, collector, s, i, c.color("outfit"), c.color2("outfit"), c.outfitStyle, seconds);
+            if (skin) {
+                double[] v = velocity(s);
+                // The arms ride the model's own swing (the rings and paws follow the hand): a gait whose amplitude is
+                // the vanilla walk speed, so the pushing hands move only while the player walks.
+                float walk = Math.clamp(s.walkAnimationSpeed, 0, 1);
+                costume(model, pose, collector, s, c.costumeType, c.color("costume"), c.color2("costume"), c.costumeStyle,
+                        (float) c.costumeOpacity, seconds, walk, AccessoryPhysics.rolling(s.id, v[0], v[1], v[2], frameNow));
+            }
             return;
         }
         if (!c.hatOthers || !HatSync.any() || s.distanceToCameraSq >= 48 * 48) return;
@@ -642,6 +663,51 @@ public final class WorldCosmetics {
             return new WingFit((float) c.wingsLift, (float) c.wingsBack, (float) c.wingsTilt, (float) c.wingsSpread, (float) c.wingsSpeed);
         }
     }
+    /**
+     * Full skin on the body's own frame: every group of the model names the bone it hangs from (Hats.BONE_NAMES) and
+     * is placed by that model part, so the geometry walks, swings, turns and crouches with the player instead of
+     * hanging in one place. Seven parts are enough for the whole body (a cat wears a collar on the body, ears on the
+     * head, paws on both arms and both legs and the tail on the back).
+     */
+    private static void costume(net.minecraft.client.model.player.PlayerModel model, PoseStack pose, net.minecraft.client.renderer.SubmitNodeCollector collector, net.minecraft.client.renderer.entity.state.AvatarRenderState s, int type, int color, int light, int style,
+                                float opacity, float seconds, float swing, float motion) {
+        Hats.Model item = Hats.costume(type);
+        if (item == null) return;
+        float k = 1 / 0.9375f;
+        // The sprite frame: the neck (the body part's pivot), flipped into cosmetic space where +y is up and +z the face.
+        Matrix4f sprite = new Matrix4f();
+        pose.pushPose();
+        model.body.translateAndRotate(pose);
+        pose.scale(1, -1, -1);
+        pose.scale(k, k, k);
+        sprite.set(pose.last().pose());
+        pose.popPose();
+        Matrix4f[] bones = BONE_POOL[Math.floorMod(boneSlot++, BONE_POOL.length)];
+        bone(pose, bones, SPRITE_BODY, model.body, sprite, k);
+        bone(pose, bones, SPRITE_BACK, model.body, sprite, k);
+        bone(pose, bones, SPRITE_HEAD, model.head, sprite, k);
+        bone(pose, bones, SPRITE_ARM_R, model.rightArm, sprite, k);
+        bone(pose, bones, SPRITE_ARM_L, model.leftArm, sprite, k);
+        bone(pose, bones, SPRITE_LEG_R, model.rightLeg, sprite, k);
+        bone(pose, bones, SPRITE_LEG_L, model.leftLeg, sprite, k);
+        pose.pushPose();
+        model.body.translateAndRotate(pose);
+        pose.scale(1, -1, -1);
+        pose.scale(k, k, k);
+        submitModel(collector, pose, item, new Hats.Look(color, light, style, opacity, seconds, swing, 1, env(s), 0, null, 0, motion, bones),
+                (float) Math.max(0.2, s.scale));
+        pose.popPose();
+        costumesDrawn++;
+    }
+    /** One bone inside the sprite frame: the model part's own pose for this frame, relative to the body's. */
+    private static void bone(PoseStack pose, Matrix4f[] bones, int slot, net.minecraft.client.model.geom.ModelPart part, Matrix4f sprite, float k) {
+        pose.pushPose();
+        part.translateAndRotate(pose);
+        pose.scale(1, -1, -1);
+        pose.scale(k, k, k);
+        bones[slot].set(sprite).invert().mul(pose.last().pose());
+        pose.popPose();
+    }
     private static void submitModel(net.minecraft.client.renderer.SubmitNodeCollector collector, PoseStack pose, Hats.Model model, Hats.Look look, float worldScale) {
         Vector3f right = new Vector3f(CAMERA_RIGHT), up = new Vector3f(CAMERA_UP);
         // The captured pose already maps model space to camera-relative world space, so it becomes the model matrix.
@@ -679,19 +745,31 @@ public final class WorldCosmetics {
         double x = p.x, z = p.z, y = p.y;
         if (horizontal > 240) { x *= 240 / horizontal; z *= 240 / horizontal; horizontal = 240; }
         if (horizontal < 0.001) return;
-        double width = Math.clamp(horizontal * 0.004, 0.09, 0.9);
+        double width = Math.clamp(horizontal * 0.004, 0.11, 1.05);
         double rx = -z / horizontal, rz = x / horizontal, top = y + 180, light = 0;
-        int bright = brighten(color);
-        for (int layer = 0; layer < 2; layer++) {
-            double w = layer == 0 ? width * 3.2 : width;
-            double bottomAlpha = layer == 0 ? 0.22 : 0.85, pulse = 0.85 + 0.15 * Math.sin(spin * 4);
-            int c0 = layer == 0 ? color : bright;
-            vertex(pose, out, x - rx * w, y, z - rz * w, UiDraw.alpha(c0, bottomAlpha * pulse));
-            vertex(pose, out, x + rx * w, y, z + rz * w, UiDraw.alpha(c0, bottomAlpha * pulse));
+        int bright = brighten(color), soft = UiDraw.mix(color, 0xFFFFFF, 0.35);
+        double pulse = 0.8 + 0.2 * Math.sin(spin * 3.4);
+        // Three layers (wide halo, beam body, bright core) so the column reads both up close and on the horizon.
+        double[] widths = {width * 4.2, width * 1.55, width * 0.55};
+        double[] alphas = {0.14, 0.5, 0.95};
+        int[] layers = {color, color, soft};
+        for (int layer = 0; layer < 3; layer++) {
+            double w = widths[layer], a = alphas[layer] * pulse;
+            int c0 = layers[layer];
+            vertex(pose, out, x - rx * w, y, z - rz * w, UiDraw.alpha(c0, a));
+            vertex(pose, out, x + rx * w, y, z + rz * w, UiDraw.alpha(c0, a));
             vertex(pose, out, x + rx * w, top, z + rz * w, UiDraw.alpha(c0, light));
             vertex(pose, out, x - rx * w, top, z - rz * w, UiDraw.alpha(c0, light));
         }
-        if (horizontal < 64) ripple(pose, out, new Vec3(x, y + 0.05, z), 0.35f, 0.62f, bright, color, 0.7f, 0.05f, spin * 2);
+        // Base beacon: a short, brighter segment at the mark itself, so the eye catches it at ground level.
+        double base = Math.min(6.0, Math.max(2.2, horizontal * 0.03)), bw = width * 2.1;
+        vertex(pose, out, x - rx * bw, y, z - rz * bw, UiDraw.alpha(bright, 0.85 * pulse));
+        vertex(pose, out, x + rx * bw, y, z + rz * bw, UiDraw.alpha(bright, 0.85 * pulse));
+        vertex(pose, out, x + rx * bw, y + base, z + rz * bw, UiDraw.alpha(bright, 0));
+        vertex(pose, out, x - rx * bw, y + base, z - rz * bw, UiDraw.alpha(bright, 0));
+        // Ground rings: always drawn (they scale with distance), so a mark on the horizon still shows its feet.
+        ripple(pose, out, new Vec3(x, y + 0.05, z), 0.35f, Math.min(1.15f, 0.62f + horizontal * 0.002f), bright, color, 0.75f, 0.03f, spin * 2);
+        ripple(pose, out, new Vec3(x, y + 0.05, z), 1.05f, 1.25f, color, bright, 0.22f, 0.0f, -spin * 1.4);
     }
     /**
      * Trail from the torso, in five styles: ribbon (bright core, soft edges), neon (glowing edge lines), helix (two strands

@@ -39,7 +39,7 @@ public final class ClickGuiScreen extends Screen {
     private static final String[] TAB_ICONS = {Icons.LAYOUT_DASHBOARD, Icons.SPARKLES, Icons.HAND, Icons.VOLUME_2, Icons.MUSIC, Icons.MAP, Icons.KEYBOARD, Icons.PALETTE, Icons.EARTH, Icons.SETTINGS, Icons.CROWN};
     private static final int[] PRESETS = {0xFF5A36, 0xFF8A3C, 0xFFC233, 0xE8FF5A, 0x85F56A, 0x2CE08A, 0x36C8FF, 0x4C6BFF, 0xB45CFF, 0xFF5C9A, 0xFFFFFF, 0x9AA3B2};
     /** Settings pages opened from the Effects page (key -> heading). */
-    private static final Map<String, String> SUBPAGES = Map.of("cape", "Плащ", "outfit", "Аксессуары", "projectile", "Следы снарядов", "items", "Физика предметов");
+    private static final Map<String, String> SUBPAGES = Map.of("cape", "Плащ", "outfit", "Аксессуары", "costume", "Скины", "projectile", "Следы снарядов", "items", "Физика предметов");
     private static final Map<String, String> CARD_ICONS = Map.ofEntries(
             Map.entry("target", Icons.TARGET), Map.entry("coordinates", Icons.MAP_PIN), Map.entry("performance", Icons.GAUGE),
             Map.entry("keys", Icons.KEYBOARD), Map.entry("armor", Icons.SHIELD), Map.entry("totems", Icons.HEART_PULSE),
@@ -98,6 +98,7 @@ public final class ClickGuiScreen extends Screen {
         return screen;
     }
     @Override public void removed() {
+        MenuRate.closed(this);
         boolean searching = query != null && !query.isBlank();
         lastPage = page;
         lastSelected = searching ? null : colorOpen != null ? "color:" + colorOpen : selected;
@@ -108,12 +109,19 @@ public final class ClickGuiScreen extends Screen {
     public ClickGuiScreen(int page) { this(page, null); }
     public ClickGuiScreen(int page, String selected) {
         super(UiFont.component("LavaVisual")); this.page = Math.clamp(page, 0, TABS.length - 1); indicator = -1;
+        MenuRate.opened(this);
         if (selected != null && selected.startsWith("color:")) { colorOpen = selected.substring(6); selected = null; }
         this.selected = selected != null && (selected.equals("crosshair") || selected.equals("hat") || selected.equals("wings") || SUBPAGES.containsKey(selected) || HudConfig.IDS.contains(selected)) ? selected : null;
     }
     private String flash;
     private long flashAt;
-    private void flash(String message) { flash = message; flashAt = System.currentTimeMillis(); }
+    void flash(String message) { flash = message; flashAt = System.currentTimeMillis(); }
+    /** Shown when the map page opens and marks exist while their beams and labels are switched off. */
+    private String mapHint() {
+        var c = LavaVisualClient.config();
+        return !c.waypointBeams && !c.waypointLabels && !Waypoints.all(minecraft).isEmpty()
+                ? "Метки есть, но лучи и подписи выключены — включите их ниже, и метку будет видно" : null;
+    }
     private void changed() { LavaVisualClient.save(); }
     private void navigate(int next) {
         page = next; selected = null; colorOpen = null; capturing = null; scroll = 0; dragging = null; hits.clear(); sliders.clear();
@@ -657,9 +665,13 @@ public final class ClickGuiScreen extends Screen {
                 () -> { c.capeEnabled = !c.capeEnabled; changed(); }, () -> select("cape"));
         toggle(g, "outfit", "Аксессуары", "Очки, наушники, шарф — в любом сочетании", !c.extras.isEmpty(),
                 () -> { if (c.extras.isEmpty()) c.extras.add(1); else c.extras.clear(); changed(); }, () -> select("outfit"));
+        toggle(g, "costume", "Скины", Hats.COSTUME_COUNT + " образа: Амонг Ас, инвалидное кресло, кошка и два 4D", c.costumeEnabled,
+                () -> { c.costumeEnabled = !c.costumeEnabled; changed(); }, () -> select("costume"));
         int half = (bodyW - 8) / 2;
         action(g, Icons.PENCIL, "Редактор шляпы", bodyX, cursor, half, () -> minecraft.gui.setScreen(new HatEditorScreen(this)));
         action(g, Icons.PENCIL, "Редактор крыльев", bodyX + half + 8, cursor, half, () -> minecraft.gui.setScreen(new WingsEditorScreen(this)));
+        cursor += 32;
+        action(g, Icons.PENCIL, "Редактор скина · виден только вам", bodyX, cursor, bodyW, () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
         cursor += 32;
         section(g, "След");
         toggle(g, "trail", "Trails", "Светящийся след за вами", c.trailEnabled, () -> { c.trailEnabled = !c.trailEnabled; changed(); }, null);
@@ -929,6 +941,7 @@ public final class ClickGuiScreen extends Screen {
         if (selected.equals("wings")) { wingsSettings(g); return; }
         if (selected.equals("cape")) { capeSettings(g); return; }
         if (selected.equals("outfit")) { outfitSettings(g); return; }
+        if (selected.equals("costume")) { costumeSettings(g); return; }
         if (selected.equals("projectile")) { projectileSettings(g); return; }
         if (selected.equals("items")) { itemSettings(g); return; }
         var w = cross ? null : c.widgets.get(selected);
@@ -1014,6 +1027,23 @@ public final class ClickGuiScreen extends Screen {
         section(g, "Цвет");
         colorRow(g, "outfit", "Цвет аксессуаров");
     }
+    private void costumeSettings(GuiGraphicsExtractor g) {
+        var c = LavaVisualClient.config();
+        toggle(g, "costume", "Скины", "Вид от 3-го лица · скин видите только вы", c.costumeEnabled,
+                () -> { c.costumeEnabled = !c.costumeEnabled; changed(); }, null);
+        section(g, "Вид скина");
+        java.util.function.IntConsumer pickSkin = i -> { c.costumeType = i + 1; c.costumeEnabled = true; changed(); };
+        chips(g, Hats.COSTUME_NAMES, c.costumeType - 1, pickSkin, 3);
+        note(g, Hats.COSTUME_HINTS[Math.clamp(c.costumeType - 1, 0, Hats.COSTUME_COUNT - 1)]);
+        button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
+        section(g, "Настройка");
+        slider(g, "Прозрачность", c.costumeOpacity, 0.3, 1, v -> c.costumeOpacity = v, false);
+        caption(g, "Узор");
+        chips(g, STYLES, c.costumeStyle, i -> { c.costumeStyle = i; changed(); });
+        section(g, "Цвет");
+        colorRow(g, "costume", "Цвет скина");
+        note(g, "Скины привязаны к костям игрока: ушки кивают, лапки и колёса идут, хвост машет. Шляпа прячется, пока надет скин.");
+    }
     private void projectileSettings(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
         toggle(g, "projectile", "Следы снарядов", "Рисуются только у вас", c.projTrails, () -> { c.projTrails = !c.projTrails; changed(); }, null);
@@ -1096,8 +1126,10 @@ public final class ClickGuiScreen extends Screen {
         mapOptions(g);
         note(g, "Карта строится по нескольку строк за тик — FPS не проседает.");
         section(g, "Метки");
-        toggle(g, "beams", "Лучи меток", "Столб света над меткой, сквозь блоки не виден", c.waypointBeams, () -> { c.waypointBeams = !c.waypointBeams; changed(); }, null);
-        toggle(g, "labels", "Подписи и стрелки", "Название и расстояние; за экраном — стрелка у края", c.waypointLabels, () -> { c.waypointLabels = !c.waypointLabels; changed(); }, null);
+        toggle(g, "beams", "Лучи меток", "Столб света над меткой", c.waypointBeams, () -> { c.waypointBeams = !c.waypointBeams; changed(); }, null);
+        toggle(g, "labels", "Подписи и стрелки", "Название, расстояние и стрелка у края экрана — видно и сквозь блоки", c.waypointLabels, () -> { c.waypointLabels = !c.waypointLabels; changed(); }, null);
+        String hint = mapHint();
+        if (hint != null) { note(g, hint); cursor += 6; }
         button(g, Icons.PLUS, "Добавить метку · клавиша " + Binds.keyName(Binds.Action.WAYPOINT_ADD), () -> minecraft.gui.setScreen(new WaypointScreen(this, null)));
         if (minecraft.level == null) { note(g, "Зайдите в мир, чтобы увидеть свои метки."); return; }
         var list = Waypoints.all(minecraft);
@@ -1181,7 +1213,7 @@ public final class ClickGuiScreen extends Screen {
         for (String id : List.of("watermark", "target", "keys", "armor", "coordinates", "performance", "totems", "minimap")) colorRow(g, id, HudRenderer.title(id));
         section(g, "Эффекты");
         String[][] effects = {{"crosshair", "Прицел"}, {"jump", "Jump Circle"}, {"particles", "Hit Particles"}, {"ambient", "Частицы в воздухе"},
-                {"marker", "Маркер удара"}, {"esp", "Target ESP"}, {"kill", "Kill Effect"}, {"hat", "Шляпа"}, {"wings", "Крылья"}, {"trail", "Trails"}, {"cape", "Плащ"}, {"outfit", "Аксессуары"}, {"projectile", "Следы снарядов"}, {"crit", "Насыщенный крит"}, {"waypoint", "Новые метки"}};
+                {"marker", "Маркер удара"}, {"esp", "Target ESP"}, {"kill", "Kill Effect"}, {"hat", "Шляпа"}, {"wings", "Крылья"}, {"trail", "Trails"}, {"cape", "Плащ"}, {"outfit", "Аксессуары"}, {"costume", "Скин"}, {"projectile", "Следы снарядов"}, {"crit", "Насыщенный крит"}, {"waypoint", "Новые метки"}};
         for (String[] e : effects) colorRow(g, e[0], e[1]);
         button(g, Icons.ROTATE_CCW, "Все цвета — как тема", () -> { c.colors.clear(); c.chroma.clear(); hsvCache.clear(); changed(); });
     }

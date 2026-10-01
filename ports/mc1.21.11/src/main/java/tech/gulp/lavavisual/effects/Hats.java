@@ -30,9 +30,14 @@ public final class Hats {
     public static final String[] CAPE_NAMES = {"Классический", "Королевский", "Звёздный", "Пламя", "Рваный", "Лава"};
     public static final String[] EXTRA_NAMES = {"Очки", "Наушники", "Шарф"};
     public static final String[] EXTRA_HINTS = {"Тёмные очки с оправой", "Наушники со светящимися чашками", "Шарф вокруг шеи"};
+    /** Full skins bound to the player's own bones, so they follow every animation (see BONE_NAMES). */
+    public static final String[] COSTUME_NAMES = {"Амонг Ас", "Инвалидное кресло", "Кошка", "Дракон 4D", "Неон 4D"};
+    public static final String[] COSTUME_HINTS = {"Капсула, визор и рюкзак", "Кресло с колёсами; руки толкают, колёса катятся", "Ушки, лапки, хвост и глаза", "Рога, крылья, хвост с шипами и когти", "Шлем с визором, наплечники, сапоги и голо-плащ"};
+    /** Bones a costume group can hang from: the model's own parts, so the geometry walks, swings and turns with them. */
+    public static final String[] BONE_NAMES = {"body", "back", "head", "armR", "armL", "legR", "legL"};
     /** Accessories worn on the head (the others sit on the body). */
     public static final boolean[] EXTRA_HEAD = {true, true, false};
-    public static final int COUNT = NAMES.length, WING_COUNT = WING_NAMES.length, CAPE_COUNT = CAPE_NAMES.length, EXTRA_COUNT = EXTRA_NAMES.length;
+    public static final int COUNT = NAMES.length, WING_COUNT = WING_NAMES.length, CAPE_COUNT = CAPE_NAMES.length, EXTRA_COUNT = EXTRA_NAMES.length, COSTUME_COUNT = COSTUME_NAMES.length;
     private static final int GROUP = 0, REVOLVE = 1, TUBE = 2, TORUS = 3, SPHERE = 4, GEM = 5, PRISM = 6, POLY = 7, STRIP = 8,
             GLOW_RING = 9, GLOW_FLAT = 10, GLOW_DISC = 11, SHEET = 12;
     private static final String[] KEYS = {"c", "l", "m", "d", "dl", "cw", "lw", "w", "k", "g", "p", "gr", "r"};
@@ -48,7 +53,7 @@ public final class Hats {
         float lx = 0.33f, ly = 0.88f, lz = 0.34f, n = (float) Math.sqrt(lx * lx + ly * ly + lz * lz);
         LX = lx / n; LY = ly / n; LZ = lz / n;
     }
-    private static volatile Model[] hats, wings, capes, extras;
+    private static volatile Model[] hats, wings, capes, extras, costumes;
     private static volatile boolean loaded;
     private static final Emitter EMITTER = new Emitter();
     private Hats() { }
@@ -62,15 +67,19 @@ public final class Hats {
      * Colours (RGB), style (0 pattern, 1 solid, 2 gradient), opacity, animation clocks in seconds, wing beat amount,
      * world light 0..1, and the extra opening of each wing around its root (radians, mirrored for the other wing).
      */
-    public record Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread, Deform deform, float lift) {
+    public record Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread, Deform deform, float lift,
+                       float motion, Matrix4f[] bones) {
         public Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env) {
-            this(color, light, style, alpha, time, swingTime, flap, env, 0, null, 0);
+            this(color, light, style, alpha, time, swingTime, flap, env, 0, null, 0, 0, null);
         }
         public Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread) {
-            this(color, light, style, alpha, time, swingTime, flap, env, spread, null, 0);
+            this(color, light, style, alpha, time, swingTime, flap, env, spread, null, 0, 0, null);
         }
         public Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread, Deform deform) {
-            this(color, light, style, alpha, time, swingTime, flap, env, spread, deform, 0);
+            this(color, light, style, alpha, time, swingTime, flap, env, spread, deform, 0, 0, null);
+        }
+        public Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread, Deform deform, float lift) {
+            this(color, light, style, alpha, time, swingTime, flap, env, spread, deform, lift, 0, null);
         }
     }
     /** Optional bend of model-space vertices before the world transform (the cape cloth). */
@@ -94,6 +103,8 @@ public final class Hats {
     public static Model cape(int type) { if (!loaded) load(); return capes == null || capes.length == 0 ? null : capes[Math.floorMod(type - 1, Math.min(CAPE_COUNT, capes.length))]; }
     public static Model extra(int type) { if (!loaded) load(); return extras == null || type < 1 || type > extras.length ? null : extras[type - 1]; }
     public static Model wing(int type) { if (!loaded) load(); return wings == null ? null : wings[Math.floorMod(type - 1, Math.min(WING_COUNT, wings.length))]; }
+    public static Model costume(int type) { if (!loaded) load(); return costumes == null || type < 1 || type > costumes.length ? null : costumes[type - 1]; }
+    public static String costumeName(int type) { return COSTUME_NAMES[Math.floorMod(type - 1, COSTUME_COUNT)]; }
 
     /** Solid pass: depth-tested, depth-writing quads. world maps model space to camera-relative coordinates. */
     public static void draw(PoseStack.Pose pose, VertexConsumer out, Matrix4f world, Model model, Look look) {
@@ -114,10 +125,12 @@ public final class Hats {
             if (wings == null || wings.length < WING_COUNT) return "LavaVisual hats failed: " + (wings == null ? 0 : wings.length) + " wings";
             if (capes == null || capes.length < CAPE_COUNT) return "LavaVisual hats failed: " + (capes == null ? 0 : capes.length) + " capes";
             if (extras == null || extras.length < EXTRA_COUNT) return "LavaVisual hats failed: " + (extras == null ? 0 : extras.length) + " accessories";
+            if (costumes == null || costumes.length < COSTUME_COUNT) return "LavaVisual hats failed: " + (costumes == null ? 0 : costumes.length) + " skins";
             java.util.List<Model> all = new java.util.ArrayList<>(java.util.Arrays.asList(hats).subList(0, COUNT));
             all.addAll(java.util.Arrays.asList(wings).subList(0, WING_COUNT));
             all.addAll(java.util.Arrays.asList(capes).subList(0, CAPE_COUNT));
             all.addAll(java.util.Arrays.asList(extras).subList(0, EXTRA_COUNT));
+            all.addAll(java.util.Arrays.asList(costumes).subList(0, COSTUME_COUNT));
             int total = 0;
             for (int i = 0; i < all.size(); i++) {
                 Model model = all.get(i);
@@ -129,7 +142,7 @@ public final class Hats {
                 if (e.count == 0) return "LavaVisual hats failed: model " + (i + 1) + " is empty";
                 total += e.count;
             }
-            return "LavaVisual hats ready: " + COUNT + " hats, " + WING_COUNT + " wings, " + CAPE_COUNT + " capes, " + EXTRA_COUNT + " accessories, " + total + " visible quads";
+            return "LavaVisual hats ready: " + COUNT + " hats, " + WING_COUNT + " wings, " + CAPE_COUNT + " capes, " + EXTRA_COUNT + " accessories, " + COSTUME_COUNT + " skins, " + total + " visible quads";
         } catch (RuntimeException error) {
             LavaVisual.LOGGER.error("LavaVisual hats self-test", error);
             return "LavaVisual hats failed: " + error;
@@ -146,9 +159,10 @@ public final class Hats {
             wings = root.has("wings") ? models(root.getAsJsonArray("wings")) : new Model[0];
             capes = root.has("capes") ? models(root.getAsJsonArray("capes")) : new Model[0];
             extras = root.has("extras") ? models(root.getAsJsonArray("extras")) : new Model[0];
+            costumes = root.has("costumes") ? models(root.getAsJsonArray("costumes")) : new Model[0];
         } catch (Exception error) {
             LavaVisual.LOGGER.error("LavaVisual: cannot load hat models", error);
-            hats = null; wings = null; capes = null; extras = null;
+            hats = null; wings = null; capes = null; extras = null; costumes = null;
         }
     }
     /** Parses the models on a background thread at start-up, so the first cosmetic on screen does not stall a frame
@@ -172,7 +186,8 @@ public final class Hats {
         float[][][] strip, sheet, sheetNormals;
         float[] fan, ao;
         boolean closed, two, caps = true, lit = true, detail, cycle, altCycle, facets, mirror;
-        int seg = 24, sides = 12, stripes, ridges, repeat = 1, spinAxis = -1;
+        int seg = 24, sides = 12, stripes, ridges, repeat = 1, spinAxis = -1, rollAxis = -1, bone = -1;
+        float rollSpeed;
         float twist, phase, arcFrom = 0, arcTo = 360, r0, r1, power = 1, y, size, alpha = 1, up, down, z0, z1, big, small, radius, spinSpeed;
         float crease = 0.6428f;
         float[] curl, center, radii, at, rot, bob;
@@ -183,6 +198,12 @@ public final class Hats {
         float[][] path;
         Vector3f[] tangent, normal, binormal;
         float[] ringRadius, param;
+    }
+
+    /** Bone index by name; -1 when the name is unknown (the part then hangs from its parent as before). */
+    private static int boneIndex(String name) {
+        for (int i = 0; i < BONE_NAMES.length; i++) if (BONE_NAMES[i].equals(name)) return i;
+        return -1;
     }
 
     private static Part[] parts(JsonArray array) {
@@ -209,6 +230,12 @@ public final class Hats {
                     JsonArray s = swings.get(i).getAsJsonArray();
                     p.swing[i] = new float[]{"xyz".indexOf(s.get(0).getAsString()), (float) Math.toRadians(s.get(1).getAsFloat()), s.get(2).getAsFloat(), s.get(3).getAsFloat()};
                 }
+            }
+            if (g.has("bone")) p.bone = boneIndex(g.get("bone").getAsString());
+            if (g.has("roll")) {
+                JsonArray roll = g.getAsJsonArray("roll");
+                p.rollAxis = "xyz".indexOf(roll.get(0).getAsString());
+                p.rollSpeed = roll.get(1).getAsFloat();
             }
             p.repeat = Math.max(1, integer(g, "repeat", 1));
             p.mirror = bool(g, "mirror", false);
@@ -345,7 +372,8 @@ public final class Hats {
         final Matrix4f world = new Matrix4f(), full = new Matrix4f();
         final Matrix3f normalMatrix = new Matrix3f();
         int c, l, style, count, rim;
-        float alpha, time, swingTime, flap, env, quality, scale, spread, lift;
+        float alpha, time, swingTime, flap, env, quality, scale, spread, lift, motion;
+        Matrix4f[] bones;
         boolean glowPass;
         Deform deform;
         final float[] ys = new float[4];
@@ -360,6 +388,7 @@ public final class Hats {
             this.c = look.color() & 0xFFFFFF; this.l = look.light() & 0xFFFFFF; this.style = Math.floorMod(look.style(), 3);
             this.alpha = Math.clamp(look.alpha(), 0, 1); this.time = look.time(); this.swingTime = look.swingTime(); this.flap = look.flap(); this.spread = look.spread(); this.lift = look.lift(); this.deform = look.deform();
             this.env = Math.clamp(look.env(), 0.2f, 1f); this.glowPass = glowPass; this.scale = scale; this.right = right; this.up = up;
+            this.motion = look.motion(); this.bones = look.bones();
             this.rim = mix(this.l, 0xFFFFFF, 0.5f);
             // Fixed detail level. Deriving it from the live FPS would re-tessellate the mesh whenever the FPS crosses
             // a threshold and make the models jitter; only FPS Boost lowers it.
@@ -397,6 +426,9 @@ public final class Hats {
             for (int k = 0; k < part.repeat; k++) {
                 for (int m = 0; m < (part.mirror ? 2 : 1); m++) {
                     Matrix4f g = new Matrix4f(parent);
+                    // A costume bone: the model's own part transform for this frame, so the group follows the walk,
+                    // the arm swing and the head turn instead of hanging in one place.
+                    if (part.bone >= 0 && bones != null && part.bone < bones.length && bones[part.bone] != null) g.mul(bones[part.bone]);
                     if (part.repeat > 1) g.rotateY((float) (Math.PI * 2 * k / part.repeat));
                     if (m == 1) g.scale(-1, 1, 1);
                     float ax = 0, ay = 0, az = 0;
@@ -405,6 +437,8 @@ public final class Hats {
                     g.translate(ax, ay, az);
                     if (part.rot != null) g.rotateY(rad(part.rot[1])).rotateX(rad(part.rot[0])).rotateZ(rad(part.rot[2]));
                     if (part.spinAxis >= 0) rotate(g, part.spinAxis, part.spinSpeed * time);
+                    // Rolling wheels: the angle is the distance travelled divided by the radius, so they never slip.
+                    if (part.rollAxis >= 0) rotate(g, part.rollAxis, part.rollSpeed * motion);
                     if (part.swing != null) {
                         if (spread != 0) g.rotateY(spread); // wing roots; the mirrored wing opens the other way
                         if (lift != 0) g.rotateZ(lift);

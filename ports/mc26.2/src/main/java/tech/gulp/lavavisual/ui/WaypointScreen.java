@@ -90,6 +90,17 @@ public final class WaypointScreen extends Screen {
         } else if (!Waypoints.add(minecraft, new Waypoints.Point(label, vx, vy, vz, color, Waypoints.dimension(minecraft)))) {
             error = "Не больше " + Waypoints.LIMIT + " меток в одном мире"; return;
         }
+        // A mark that cannot be seen is a mark that does not work: switch the beam and the label on right away
+        // (both are off after the "all modules off" hotkey, which is the usual reason a fresh mark is invisible).
+        var c = LavaVisualClient.config();
+        boolean wasOff = !c.waypointBeams && !c.waypointLabels;
+        if (wasOff) { c.waypointBeams = true; c.waypointLabels = true; }
+        if (!c.mapWaypoints) c.mapWaypoints = true;
+        if (wasOff) LavaVisualClient.save();
+        tech.gulp.lavavisual.input.Binds.Toast.show(wasOff
+                ? "Метка «" + label + "» поставлена: лучи и подписи включены"
+                : "Метка «" + label + "» поставлена");
+        if (parent instanceof ClickGuiScreen gui) gui.flash("Метка «" + label + "» добавлена — видно луч, подпись и точку на карте");
         onClose();
     }
     @Override public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {

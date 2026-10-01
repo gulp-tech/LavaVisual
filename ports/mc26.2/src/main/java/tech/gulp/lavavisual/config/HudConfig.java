@@ -110,6 +110,10 @@ public final class HudConfig {
     /** Cloth physics for the cape (off: the old rigid lean); the custom title screen. */
     public boolean capePhysics = true, customTitle = true, menuSounds = true;
     public List<Integer> extras = new ArrayList<>();
+    /** Full skins (a costume bound to the player's own bones). Like trails and effects they are visible only to you. */
+    public boolean costumeEnabled;
+    public int costumeType = 1, costumeStyle;
+    public double costumeOpacity = 1;
     /** Dropped items: tumble in the air, settle on the ground (flat items lie down). */
     public boolean itemPhysics, itemPhysicsFlat = true;
     public double itemPhysicsSpin = 1, itemPhysicsSize = 1;
@@ -191,6 +195,7 @@ public final class HudConfig {
         markerEnabled = skyEnabled = fpsBoost = critBoost = false;
         hatEnabled = wingsEnabled = trailEnabled = espEnabled = killEffect = false;
         capeEnabled = itemPhysics = projTrails = timeEnabled = false;
+        costumeEnabled = false;
         extras.clear();
         swingStyle = 0;
         noCooldownDip = false;
@@ -260,6 +265,9 @@ public final class HudConfig {
         capeType = capeType < 1 || capeType > tech.gulp.lavavisual.effects.Hats.CAPE_COUNT ? 1 : capeType;
         capeStyle = Math.floorMod(capeStyle, 3); outfitStyle = Math.floorMod(outfitStyle, 3);
         capeOpacity = bounded(capeOpacity, 0.3, 1, 1); capeSway = bounded(capeSway, 0, 2, 1);
+        costumeType = costumeType < 1 || costumeType > tech.gulp.lavavisual.effects.Hats.COSTUME_COUNT ? 1 : costumeType;
+        costumeStyle = Math.floorMod(costumeStyle, 3);
+        costumeOpacity = bounded(costumeOpacity, 0.3, 1, 1);
         if (extras == null) extras = new ArrayList<>();
         extras = new ArrayList<>(extras.stream().filter(i -> i != null && i >= 1 && i <= tech.gulp.lavavisual.effects.Hats.EXTRA_COUNT).distinct().toList());
         itemPhysicsSpin = bounded(itemPhysicsSpin, 0, 3, 1); itemPhysicsSize = bounded(itemPhysicsSize, 0.5, 2, 1);

@@ -57,12 +57,15 @@ jobs:
           if-no-files-found: ignore
       - name: Verify standalone metadata
         run: |
+          version=$(grep '^mod_version=' ports/mc26.2/gradle.properties | cut -d= -f2)
+          JAR="ports/mc26.2/build/libs/lavavisual-${version}.jar"
+          export JAR
           python3 - <<'PY'
-          import json, zipfile
+          import json, os, zipfile
           from pathlib import Path
           log = Path('ports/mc26.2/build/client-smoke.log').read_text(errors='replace')
           assert 'with Fabric Loader 0.19.3' in log, 'Wrong runtime loader version'
-          with zipfile.ZipFile('ports/mc26.2/build/libs/lavavisual-1.0.4-beta-mc26.2.jar') as jar:
+          with zipfile.ZipFile(os.environ['JAR']) as jar:
               m = json.loads(jar.read('fabric.mod.json'))
               assert m['id'] == 'lavavisual'
               assert m['depends']['minecraft'] == '26.2'
@@ -89,30 +92,35 @@ jobs:
               models = json.loads(jar.read('assets/lavavisual/hats.json'))
               assert len(models['hats']) == 14 and len(models['wings']) == 5, (len(models['hats']), len(models.get('wings', [])))
               assert len(models['capes']) == 6 and len(models['extras']) == 3, (len(models.get('capes', [])), len(models.get('extras', [])))
+              assert len(models['costumes']) == 5, len(models.get('costumes', []))
               assert m['mixins'] == ['lavavisual.mixins.json']
               mixins = json.loads(jar.read('lavavisual.mixins.json'))
-              assert set(mixins['client']) == {'HandViewMixin', 'SoundManagerMixin', 'MouseHandlerMixin', 'OptionsMixin', 'LevelRendererMixin', 'ScreenEffectRendererMixin', 'CameraMixin', 'ClientClockManagerMixin', 'ItemEntityRendererMixin', 'ItemEntityRenderStateMixin', 'GuiScreenMixin', 'MinecraftTitleMixin', 'EntityRendererMixin', 'PongMixin'}
+              assert set(mixins['client']) == {'HandViewMixin', 'SoundManagerMixin', 'MouseHandlerMixin', 'OptionsMixin', 'LevelRendererMixin', 'ScreenEffectRendererMixin', 'CameraMixin', 'ClientClockManagerMixin', 'ItemEntityRendererMixin', 'ItemEntityRenderStateMixin', 'GuiScreenMixin', 'MinecraftTitleMixin', 'EntityRendererMixin', 'PongMixin', 'FramerateLimitTrackerMixin'}
               forbidden = ('BoxEsp', 'Tracers', 'Chams', 'LivingEntityRendererMixin', 'LavaRenderLayers')
               assert not any(any(word in path for word in forbidden) for path in jar.namelist())
           PY
+      - name: Resolve the built jar
+        id: jar
+        run: echo "path=$(ls ports/mc26.2/build/libs/*.jar | grep -v sources | head -1)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
-          name: LavaVisual-1.0.4-beta-mc26.2
-          path: ports/mc26.2/build/libs/lavavisual-1.0.4-beta-mc26.2.jar
+          name: LavaVisual-1.0.4-mc26.2
+          path: ${{ steps.jar.outputs.path }}
       - name: Publish tested JAR
         if: github.event_name == 'push'
         run: |
           git pull --ff-only origin "$GITHUB_REF_NAME"
           mkdir -p artifacts
-          rm -f artifacts/lavavisual-1.0.4-beta-mc26.2.jar
-          cp ports/mc26.2/build/libs/lavavisual-1.0.4-beta-mc26.2.jar artifacts/
+          version=$(grep '^mod_version=' ports/mc26.2/gradle.properties | cut -d= -f2)
+          rm -f artifacts/lavavisual-*-mc26.2.jar
+          cp "ports/mc26.2/build/libs/lavavisual-${version}.jar" artifacts/
           rm -f artifacts/ui-*.png
           test ! -f ports/mc26.2/build/ui-smoke.png || cp ports/mc26.2/build/ui-smoke.png artifacts/ui-1.0.png
           for shot in ports/mc26.2/build/shot-*.png; do if [ -f "$shot" ]; then cp "$shot" "artifacts/ui-1.0-$(basename "$shot" .png | cut -c6-).png"; fi; done
           rm -f artifacts/LavaVisual-Client-*mc26.2*
           api=$(grep '^fabric_version=' ports/mc26.2/gradle.properties | cut -d= -f2)
           api_jar=$(find ~/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-api -name "fabric-api-${api}.jar" 2>/dev/null | head -1)
-          python3 tools/make_client.py artifacts/lavavisual-1.0.4-beta-mc26.2.jar artifacts "$api_jar"
+          python3 tools/make_client.py "artifacts/lavavisual-${version}.jar" artifacts "$api_jar" ports/mc26.2
           (cd artifacts && sha256sum *.jar *.mrpack *.zip > SHA256SUMS)
           printf 'Source: %s\nBuild: https://github.com/%s/actions/runs/%s\nMinecraft: 26.2\nTested Fabric Loader: 0.19.3\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" > artifacts/STANDALONE-26.2.txt
           git config user.name 'github-actions[bot]'
