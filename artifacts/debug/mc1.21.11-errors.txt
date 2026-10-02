@@ -1,31 +1,17 @@
 > Configure project :
 > Task :compileJava
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1047: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:674: error: cannot find symbol
-        action(g, Icons.PENCIL, "Редактор скина · виден только вам", bodyX, cursor, bodyW, () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
-  symbol:   method setScreen(SkinEditorScreen)
-  location: variable gui of type Gui
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1038: error: cannot find symbol
-        button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
-  symbol:   method setScreen(SkinEditorScreen)
-  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:458: error: costumesDrawn has private access in WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:463: error: costumesDrawn has private access in WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:464: error: costumesDrawn has private access in WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:466: error: costumesDrawn has private access in WorldCosmetics
 > Task :compileJava FAILED
 FAILURE: Build failed with an exception.
 * What went wrong:
 > Compilation failed; see the compiler output below.
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1047: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class ClickGuiScreen
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:674: error: cannot find symbol
-          action(g, Icons.PENCIL, "Редактор скина · виден только вам", bodyX, cursor, bodyW, () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
-    symbol:   method setScreen(SkinEditorScreen)
-    location: variable gui of type Gui
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1038: error: cannot find symbol
-          button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
-    symbol:   method setScreen(SkinEditorScreen)
-    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:458: error: costumesDrawn has private access in WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:463: error: costumesDrawn has private access in WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:464: error: costumesDrawn has private access in WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:466: error: costumesDrawn has private access in WorldCosmetics
 > Check your code and dependencies to fix the compilation error(s)
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).
-6
+8
