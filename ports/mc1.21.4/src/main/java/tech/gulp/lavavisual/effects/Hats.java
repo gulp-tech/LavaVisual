@@ -41,7 +41,8 @@ public final class Hats {
     public static final int COUNT = NAMES.length, WING_COUNT = WING_NAMES.length, CAPE_COUNT = CAPE_NAMES.length, EXTRA_COUNT = EXTRA_NAMES.length, COSTUME_COUNT = COSTUME_NAMES.length;
     private static final int GROUP = 0, REVOLVE = 1, TUBE = 2, TORUS = 3, SPHERE = 4, GEM = 5, PRISM = 6, POLY = 7, STRIP = 8,
             GLOW_RING = 9, GLOW_FLAT = 10, GLOW_DISC = 11, SHEET = 12;
-    private static final String[] KEYS = {"c", "l", "m", "d", "dl", "cw", "lw", "w", "k", "g", "p", "gr", "r"};
+    private static final String[] KEYS = {"c", "l", "m", "d", "dl", "cw", "lw", "w", "k", "g", "p", "gr", "r",
+            "chrome", "steel", "tire", "glass", "seat"};
     private static final String[] MATS = {"matte", "satin", "gloss", "metal", "gem", "fur", "glow"};
     private static final int GLOW = 6;
     private static final float[] GLOSS = {0.06f, 0.22f, 0.5f, 0.9f, 1.0f, 0f};
@@ -502,7 +503,14 @@ public final class Hats {
                 case 9 -> mix(0xFFCF5A, l, 0.22f);
                 case 10 -> mix(0xFF9FBF, l, 0.3f);
                 case 11 -> mix(0x3CB65A, l, 0.1f);
-                default -> 0xE0303A;
+                case 12 -> 0xE0303A;
+                // Fixed materials of the skins (the same values as tools/make_hats.py): a wheelchair is chrome and
+                // black whatever the theme colour is, and a visor is glass.
+                case 13 -> 0xCED4DC;
+                case 14 -> 0x7C8491;
+                case 15 -> 0x222328;
+                case 16 -> 0x9ED0EC;
+                default -> 0x2A2C32;
             };
         }
         int paint(int[] ids, boolean cycle, float t, float y, int index) {
