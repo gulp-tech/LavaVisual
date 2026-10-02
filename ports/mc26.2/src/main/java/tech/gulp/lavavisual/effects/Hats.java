@@ -32,7 +32,8 @@ public final class Hats {
     public static final String[] EXTRA_HINTS = {"Тёмные очки с оправой", "Наушники со светящимися чашками", "Шарф вокруг шеи"};
     /** Full skins bound to the player's own bones, so they follow every animation (see BONE_NAMES). */
     public static final String[] COSTUME_NAMES = {"Амонг Ас", "Инвалидное кресло"};
-    public static final String[] COSTUME_HINTS = {"Красная капсула, визор и рюкзак", "Кресло с колёсами: руки крутят колёса, ноги стоят на подножках"};
+    public static final String[] COSTUME_HINTS = {"Красная капсула, визор и рюкзак; руки прячутся, ноги стоят",
+            "Хромированная рама, чёрное сиденье; руки толкают колёса, колёса катятся, ноги отдыхают"};
     /** Bones a costume group can hang from: the model's own parts, so the geometry walks, swings and turns with them. */
     public static final String[] BONE_NAMES = {"body", "back", "head", "armR", "armL", "legR", "legL"};
     /** Accessories worn on the head (the others sit on the body). */
@@ -40,7 +41,8 @@ public final class Hats {
     public static final int COUNT = NAMES.length, WING_COUNT = WING_NAMES.length, CAPE_COUNT = CAPE_NAMES.length, EXTRA_COUNT = EXTRA_NAMES.length, COSTUME_COUNT = COSTUME_NAMES.length;
     private static final int GROUP = 0, REVOLVE = 1, TUBE = 2, TORUS = 3, SPHERE = 4, GEM = 5, PRISM = 6, POLY = 7, STRIP = 8,
             GLOW_RING = 9, GLOW_FLAT = 10, GLOW_DISC = 11, SHEET = 12;
-    private static final String[] KEYS = {"c", "l", "m", "d", "dl", "cw", "lw", "w", "k", "g", "p", "gr", "r"};
+    private static final String[] KEYS = {"c", "l", "m", "d", "dl", "cw", "lw", "w", "k", "g", "p", "gr", "r",
+            "chrome", "steel", "tire", "glass", "seat"};
     private static final String[] MATS = {"matte", "satin", "gloss", "metal", "gem", "fur", "glow"};
     private static final int GLOW = 6;
     private static final float[] GLOSS = {0.06f, 0.22f, 0.5f, 0.9f, 1.0f, 0f};
@@ -58,39 +60,31 @@ public final class Hats {
     private static final Emitter EMITTER = new Emitter();
     private Hats() { }
 
-    /**
-     * An opaque loaded model. A skin also carries the colours of its own look (a small palette that replaces the
-     * theme pair), where it sits on the body ('headLift' on top of a taller head, 'backPad' past a backpack or a
-     * backrest), whether it swallows the head (then hats and glasses ride on top of it) and whether the player's own
-     * legs are pinned to a pose ('legPose', a passenger of the chair does not walk in place).
-     */
+    /** An opaque loaded model, plus the fit a costume asks for (see tools/make_hats.py, costumes()). */
     public static final class Model {
         private final Part[] parts;
-        private final int[] palette;
-        private final float headLift, backPad, legPose;
-        private final boolean coversHead;
-        private Model(Part[] parts, int[] palette, float headLift, float backPad, float legPose, boolean coversHead) {
-            this.parts = parts; this.palette = palette; this.headLift = headLift; this.backPad = backPad;
-            this.legPose = legPose; this.coversHead = coversHead;
-        }
+        int tint, still;
+        float seat, back;
+        float[] head;
+        private Model(Part[] parts) { this.parts = parts; }
     }
     /**
      * Colours (RGB), style (0 pattern, 1 solid, 2 gradient), opacity, animation clocks in seconds, wing beat amount,
      * world light 0..1, and the extra opening of each wing around its root (radians, mirrored for the other wing).
      */
     public record Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread, Deform deform, float lift,
-                       float motion, Matrix4f[] bones, int[] palette) {
+                       float motion, Matrix4f[] bones) {
         public Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env) {
-            this(color, light, style, alpha, time, swingTime, flap, env, 0, null, 0, 0, null, null);
+            this(color, light, style, alpha, time, swingTime, flap, env, 0, null, 0, 0, null);
         }
         public Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread) {
-            this(color, light, style, alpha, time, swingTime, flap, env, spread, null, 0, 0, null, null);
+            this(color, light, style, alpha, time, swingTime, flap, env, spread, null, 0, 0, null);
         }
         public Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread, Deform deform) {
-            this(color, light, style, alpha, time, swingTime, flap, env, spread, deform, 0, 0, null, null);
+            this(color, light, style, alpha, time, swingTime, flap, env, spread, deform, 0, 0, null);
         }
         public Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread, Deform deform, float lift) {
-            this(color, light, style, alpha, time, swingTime, flap, env, spread, deform, lift, 0, null, null);
+            this(color, light, style, alpha, time, swingTime, flap, env, spread, deform, lift, 0, null);
         }
     }
     /** Optional bend of model-space vertices before the world transform (the cape cloth). */
@@ -116,16 +110,20 @@ public final class Hats {
     public static Model wing(int type) { if (!loaded) load(); return wings == null ? null : wings[Math.floorMod(type - 1, Math.min(WING_COUNT, wings.length))]; }
     public static Model costume(int type) { if (!loaded) load(); return costumes == null || type < 1 || type > costumes.length ? null : costumes[type - 1]; }
     public static String costumeName(int type) { return COSTUME_NAMES[Math.floorMod(type - 1, COSTUME_COUNT)]; }
-    /** How much taller than the 8 px head a worn skin is (blocks); hats and glasses ride on top of it. */
-    public static float headLift(int type) { Model m = costume(type); return m == null ? 0 : m.headLift; }
-    /** How far a worn skin pushes capes and wings off the back (blocks): a backpack or a backrest. */
-    public static float backPad(int type) { Model m = costume(type); return m == null ? 0 : m.backPad; }
-    /** The pitch the player's own legs are pinned to while the skin is on, or NaN to leave them alone. */
-    public static float legPose(int type) { Model m = costume(type); return m == null ? Float.NaN : m.legPose; }
-    /** The skin's own palette, or null to paint it in the theme colours. */
-    public static int[] palette(int type) { Model m = costume(type); return m == null ? null : m.palette; }
-    /** A skin that swallows the head: hats and glasses would be inside it, so they are left off. */
-    public static boolean coversHead(int type) { Model m = costume(type); return m != null && m.coversHead; }
+    /** Colour a skin wears until the player picks one for it (0 = the theme colour). */
+    public static int costumeTint(int type) { Model m = costume(type); return m == null ? 0 : m.tint; }
+    /** Limbs the skin replaces and the mod must freeze: 1 arms, 2 legs, 3 both. */
+    public static int costumeStill(int type) { Model m = costume(type); return m == null ? 0 : m.still; }
+    /** Seat angle in degrees of a skin the player sits in (0 = the skin stands). */
+    public static float costumeSeat(int type) { Model m = costume(type); return m == null ? 0 : m.seat; }
+    /** How far behind the back a cape or the wings of this skin hang, in blocks. */
+    public static float costumeBack(int type) { Model m = costume(type); return m == null ? 0 : m.back; }
+    /** Lift, scale and forward shift of hats and head accessories on this skin's own head; {0, 1, 0, 0} = untouched. */
+    private static final float[] HEAD_FIT = {0, 1, 0, 0};
+    public static float[] costumeHead(int type) {
+        Model m = costume(type);
+        return m == null || m.head == null || m.head.length < 2 ? HEAD_FIT : m.head;
+    }
 
     /** Solid pass: depth-tested, depth-writing quads. world maps model space to camera-relative coordinates. */
     public static void draw(PoseStack.Pose pose, VertexConsumer out, Matrix4f world, Model model, Look look) {
@@ -197,21 +195,19 @@ public final class Hats {
         Model[] result = new Model[array.size()];
         for (int i = 0; i < array.size(); i++) {
             JsonObject o = array.get(i).getAsJsonObject();
-            result[i] = new Model(parts(o.getAsJsonArray("parts")), palette(o), number(o, "headLift"), number(o, "backPad"),
-                    o.has("legPose") ? o.get("legPose").getAsFloat() : Float.NaN,
-                    o.has("coversHead") && o.get("coversHead").getAsBoolean());
+            Model model = new Model(parts(o.getAsJsonArray("parts")));
+            if (o.has("tint")) model.tint = o.get("tint").getAsInt() & 0xFFFFFF;
+            if (o.has("still")) model.still = o.get("still").getAsInt();
+            if (o.has("seat")) model.seat = o.get("seat").getAsFloat();
+            if (o.has("back")) model.back = o.get("back").getAsFloat();
+            if (o.has("head")) {
+                JsonArray h = o.getAsJsonArray("head");
+                model.head = new float[h.size()];
+                for (int k = 0; k < h.size(); k++) model.head[k] = h.get(k).getAsFloat();
+            }
+            result[i] = model;
         }
         return result;
-    }
-    private static float number(JsonObject o, String name) { return o.has(name) ? o.get(name).getAsFloat() : 0; }
-    /** A skin's own colours: '#rrggbb' per paint key, the missing ones fall back to the theme pair. */
-    private static int[] palette(JsonObject o) {
-        if (!o.has("palette")) return null;
-        int[] colors = new int[KEYS.length];
-        java.util.Arrays.fill(colors, -1);
-        JsonObject map = o.getAsJsonObject("palette");
-        for (String name : map.keySet()) colors[key(name)] = 0xFF000000 | Integer.parseInt(map.get(name).getAsString().substring(1), 16);
-        return colors;
     }
 
     // ------------------------------------------------------------------------------------------------ model
@@ -408,7 +404,6 @@ public final class Hats {
         final Matrix4f world = new Matrix4f(), full = new Matrix4f();
         final Matrix3f normalMatrix = new Matrix3f();
         int c, l, style, count, rim;
-        int[] palette;
         float alpha, time, swingTime, flap, env, quality, scale, spread, lift, motion;
         Matrix4f[] bones;
         boolean glowPass;
@@ -425,7 +420,7 @@ public final class Hats {
             this.c = look.color() & 0xFFFFFF; this.l = look.light() & 0xFFFFFF; this.style = Math.floorMod(look.style(), 3);
             this.alpha = Math.clamp(look.alpha(), 0, 1); this.time = look.time(); this.swingTime = look.swingTime(); this.flap = look.flap(); this.spread = look.spread(); this.lift = look.lift(); this.deform = look.deform();
             this.env = Math.clamp(look.env(), 0.2f, 1f); this.glowPass = glowPass; this.scale = scale; this.right = right; this.up = up;
-            this.motion = look.motion(); this.bones = look.bones(); this.palette = look.palette();
+            this.motion = look.motion(); this.bones = look.bones();
             this.rim = mix(this.l, 0xFFFFFF, 0.5f);
             // Fixed detail level. Deriving it from the live FPS would re-tessellate the mesh whenever the FPS crosses
             // a threshold and make the models jitter; only FPS Boost lowers it.
@@ -490,28 +485,32 @@ public final class Hats {
         }
 
         // colours
-        /** The skin's own tone for a paint key, or the value derived from the theme colours. */
-        int tone(int id, int fallback) { return palette != null && id < palette.length && palette[id] >= 0 ? palette[id] & 0xFFFFFF : fallback; }
         int key(int id, float y) {
-            int base = tone(0, c), light = tone(1, l);
             if (id <= 4) {
-                if (style == 1) return base;
-                if (style == 2) return mix(base, light, y / 0.42f);
+                if (style == 1) return c;
+                if (style == 2) return mix(c, l, y / 0.42f);
             }
             return switch (id) {
-                case 0 -> base;
-                case 1 -> light;
-                case 2 -> tone(2, mix(base, light, 0.55f));
-                case 3 -> tone(3, mix(base, DARK, 0.72f));
-                case 4 -> tone(4, mix(light, DARK, 0.55f));
-                case 5 -> tone(5, mix(base, WHITE, 0.4f));
-                case 6 -> tone(6, mix(light, WHITE, 0.45f));
-                case 7 -> tone(7, WHITE);
-                case 8 -> tone(8, 0x1D1E24);
-                case 9 -> tone(9, mix(0xFFCF5A, light, 0.22f));
-                case 10 -> tone(10, mix(0xFF9FBF, light, 0.3f));
-                case 11 -> tone(11, mix(0x3CB65A, light, 0.1f));
-                default -> tone(12, 0xE0303A);
+                case 0 -> c;
+                case 1 -> l;
+                case 2 -> mix(c, l, 0.55f);
+                case 3 -> mix(c, DARK, 0.72f);
+                case 4 -> mix(l, DARK, 0.55f);
+                case 5 -> mix(c, WHITE, 0.4f);
+                case 6 -> mix(l, WHITE, 0.45f);
+                case 7 -> WHITE;
+                case 8 -> 0x1D1E24;
+                case 9 -> mix(0xFFCF5A, l, 0.22f);
+                case 10 -> mix(0xFF9FBF, l, 0.3f);
+                case 11 -> mix(0x3CB65A, l, 0.1f);
+                case 12 -> 0xE0303A;
+                // Fixed materials of the skins (the same values as tools/make_hats.py): a wheelchair is chrome and
+                // black whatever the theme colour is, and a visor is glass.
+                case 13 -> 0xCED4DC;
+                case 14 -> 0x7C8491;
+                case 15 -> 0x222328;
+                case 16 -> 0x9ED0EC;
+                default -> 0x2A2C32;
             };
         }
         int paint(int[] ids, boolean cycle, float t, float y, int index) {

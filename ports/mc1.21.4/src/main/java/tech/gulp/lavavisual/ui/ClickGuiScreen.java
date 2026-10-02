@@ -665,7 +665,7 @@ public final class ClickGuiScreen extends Screen {
                 () -> { c.capeEnabled = !c.capeEnabled; changed(); }, () -> select("cape"));
         toggle(g, "outfit", "Аксессуары", "Очки, наушники, шарф — в любом сочетании", !c.extras.isEmpty(),
                 () -> { if (c.extras.isEmpty()) c.extras.add(1); else c.extras.clear(); changed(); }, () -> select("outfit"));
-        toggle(g, "costume", "Скины", Hats.COSTUME_COUNT + " образа: Амонг Ас и инвалидное кресло", c.costumeEnabled,
+        toggle(g, "costume", "Скины", Hats.COSTUME_COUNT + " скина: Амонг Ас и инвалидное кресло", c.costumeEnabled,
                 () -> { c.costumeEnabled = !c.costumeEnabled; changed(); }, () -> select("costume"));
         int half = (bodyW - 8) / 2;
         action(g, Icons.PENCIL, "Редактор шляпы", bodyX, cursor, half, () -> minecraft.setScreen(new HatEditorScreen(this)));
@@ -1042,7 +1042,7 @@ public final class ClickGuiScreen extends Screen {
         chips(g, STYLES, c.costumeStyle, i -> { c.costumeStyle = i; changed(); });
         section(g, "Цвет");
         colorRow(g, "costume", "Цвет скина");
-        note(g, "Скины привязаны к костям игрока: ушки кивают, лапки и колёса идут, хвост машет. Шляпа прячется, пока надет скин.");
+        note(g, "Скин привязан к костям игрока: капсула наклоняется с шагом, у кресла руки толкают колёса, а колёса катятся ровно по пройденному пути. У каждого скина свой цвет, пока вы не выберете другой; шляпа и аксессуары сами садятся на голову скина.");
     }
     private void projectileSettings(GuiGraphics g) {
         var c = LavaVisualClient.config();
