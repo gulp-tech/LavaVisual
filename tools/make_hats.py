@@ -34,7 +34,6 @@ tone), m, d (dark tint), dl, cw, lw, w (white), k (black), g (gold), p (pink), g
 alt + pattern (stripes n [twist], ridges k, facets) apply to the "pattern" style only.
 mat: matte, satin (default), gloss, metal, gem, fur, glow (unlit, like lit=false).
 """
-import colorsys
 import json
 import math
 import random
@@ -899,8 +898,10 @@ def rgb(value):
 class Builder:
     """Mirror of effects/Hats.java. world maps model space to camera-relative coordinates (camera at the origin)."""
 
-    def __init__(self, main, second, style=0, time=0.0, quality=1.0, alpha=1.0, world=None, env=1.0, flap=1.0, tempo=1.0, glow=False, motion=0.0, bones=None):
+    def __init__(self, main, second, style=0, time=0.0, quality=1.0, alpha=1.0, world=None, env=1.0, flap=1.0, tempo=1.0, glow=False, motion=0.0, bones=None, palette=None):
         self.c, self.l = rgb(main), rgb(second)
+        # A skin ships the colours of its own look; they replace the theme pair and the fixed tones under it.
+        self.palette = {key: rgb(int(value[1:], 16)) for key, value in (palette or {}).items()}
         self.style, self.time, self.quality, self.alpha = style, time, quality, alpha
         self.world = world or identity()
         self.motion = motion
@@ -913,18 +914,18 @@ class Builder:
 
     def key(self, key, y):
         dark, white = (22, 22, 28), (242, 244, 248)
+        pal = self.palette
+        c, l = pal.get('c', self.c), pal.get('l', self.l)
         if key in ('c', 'l', 'm', 'd', 'dl'):
             if self.style == 1:
-                return self.c
+                return c
             if self.style == 2:
-                return mix(self.c, self.l, y / 0.42)
+                return mix(c, l, y / 0.42)
         return {
-            'c': self.c, 'l': self.l, 'm': mix(self.c, self.l, 0.55), 'd': mix(self.c, dark, 0.72), 'dl': mix(self.l, dark, 0.55),
-            'cw': mix(self.c, white, 0.4), 'lw': mix(self.l, white, 0.45), 'w': white, 'k': (29, 30, 36),
-            'g': mix((255, 207, 90), self.l, 0.22), 'p': mix((255, 159, 191), self.l, 0.3),
-            'gr': mix((60, 182, 90), self.l, 0.1), 'r': (224, 48, 58),
-            'chrome': (206, 212, 220), 'steel': (124, 132, 145), 'tire': (34, 35, 40),
-            'glass': (158, 208, 236), 'seat': (42, 44, 50),
+            'c': c, 'l': l, 'm': pal.get('m', mix(c, l, 0.55)), 'd': pal.get('d', mix(c, dark, 0.72)), 'dl': pal.get('dl', mix(l, dark, 0.55)),
+            'cw': pal.get('cw', mix(c, white, 0.4)), 'lw': pal.get('lw', mix(l, white, 0.45)), 'w': pal.get('w', white), 'k': pal.get('k', (29, 30, 36)),
+            'g': pal.get('g', mix((255, 207, 90), l, 0.22)), 'p': pal.get('p', mix((255, 159, 191), l, 0.3)),
+            'gr': pal.get('gr', mix((60, 182, 90), l, 0.1)), 'r': pal.get('r', (224, 48, 58)),
         }[key]
 
     def paint(self, paint, t, y, index):
@@ -1649,139 +1650,177 @@ def preview_wings(path, data, main=0xFF6A2B, second=0xB45CFF, cell=380):
 def costumes():
     """LavaVisual skins: two whole looks bound to the player's own bones, so they follow every animation.
 
-    Bone space is the player's model space (one unit = 1 px * PX, the same units as the hats and capes); the origin
-    of the body, back and head bones is the neck, the arms start at the shoulders and the legs at the hips:
-      neck 0, hips -0.703, feet -1.406; head 0 .. +0.469; arm pivot y -0.117, hand bottom -0.703; leg pivot -0.703.
-    A skin also says how the accessories move to fit it: 'tint' is the colour it wears until the player picks one,
-    'still' freezes the limbs the skin replaces (1 arms, 2 legs: a wheelchair is pushed with the hands only, the
-    Among Us capsule hides the arms), 'head' [lift, scale, forward, onBody] puts hats and head accessories on the
-    skin's own head, and 'back' pushes capes and wings behind its back.
+    Bone space is the cosmetic space of the hats and capes (one unit = 1 px / 0.9375, one px = 1/16 block), with the
+    origin of the body, back and head bones at the neck: hips -0.80, ground -1.60, head top 0.533, arms start at the
+    shoulders (y -0.125, x +-0.40) and the legs at the hips (x +-0.133). A group may roll with motion, or be posed:
+      'roll': ['x', speed]  turns by speed * distance walked (the wheelchair's wheels never slip);
+      'legPose': angle      the player's own legs are pinned to that pitch, so a passenger does not walk in place.
+    Each skin carries the colours of its own look and its own fit: 'headLift' raises an accessory onto a taller head,
+    'backPad' pushes capes and wings out past a backpack or a backrest.
     """
     c = []
 
     # ---------------------------------------------------------------- Амонг Ас
-    amogus = [
-        {'group': {'bone': 'body', 'swing': [['z', 3.0, 1.0, 0.0]]}, 'parts': [
-            # The capsule swallows the torso, the arms and the head, so the crewmate has no other limbs.
-            {'sphere': [0, -0.17, 0], 'r': [0.63, 0.92, 0.48], 'seg': 30, 'paint': 'c', 'mat': 'satin'},
-            # Dark hem where the body meets the legs (an oval ring, the capsule is not round), and the backpack.
-            {'tube': [[r4(0.328 * math.sin(math.radians(a))), -0.955, r4(0.250 * math.cos(math.radians(a)))] for a in range(0, 360, 20)],
-             'closed': True, 'radius': [0.020, 0.020], 'sides': 6, 'paint': 'd', 'mat': 'satin'},
-            {'sphere': [0, -0.22, -0.50], 'r': [0.30, 0.40, 0.19], 'seg': 18, 'paint': 'd', 'mat': 'satin'},
-            {'sphere': [0, -0.22, -0.44], 'r': [0.26, 0.34, 0.16], 'seg': 16, 'paint': 'm', 'mat': 'satin'},
-            # Visor: a dark gasket, the glass, then the curved highlight of the reference art.
-            {'sphere': [0, 0.15, 0.40], 'r': [0.430, 0.245, 0.110], 'seg': 26, 'paint': 'k', 'mat': 'satin'},
-            {'sphere': [0, 0.15, 0.425], 'r': [0.385, 0.210, 0.105], 'seg': 26, 'paint': 'glass', 'mat': 'gloss'},
-            {'sphere': [-0.135, 0.185, 0.505], 'r': [0.175, 0.052, 0.045], 'seg': 14, 'paint': 'w', 'mat': 'gloss'},
+    # Red crewmate after the reference art: a capsule with straight sides and a dome, a wrapped visor with a
+    # highlight, and a backpack on the back. The capsule swallows the torso, both arms and the head, so only the two
+    # stub legs below it are the player's own and walking looks right.
+    PROFILE = [[0.00, -1.05], [0.36, -1.03], [0.50, -0.95], [0.575, -0.80], [0.60, -0.45], [0.60, 0.10],
+               [0.585, 0.36], [0.53, 0.58], [0.42, 0.72], [0.22, 0.80], [0.00, 0.825]]
+
+    def radius_at(y):
+        """Radius of the capsule at height y: the visor has to lie on that surface, not float off it."""
+        for i in range(len(PROFILE) - 1):
+            y0, r0 = PROFILE[i][1], PROFILE[i][0]
+            y1, r1 = PROFILE[i + 1][1], PROFILE[i + 1][0]
+            if (y0 <= y <= y1) or (y1 <= y <= y0):
+                t = 0.0 if y1 == y0 else (y - y0) / (y1 - y0)
+                return r0 + (r1 - r0) * t
+        return PROFILE[-1][0]
+
+    def band(rows, azim, grow, paint, mat='gloss', alpha=1.0):
+        """Sheet wrapped around the capsule: rows are (y, t), azim are (degrees, t), grow lifts it off the surface."""
+        grid = []
+        for y, t in rows:
+            row = []
+            for a, s in azim:
+                rad = math.radians(a)
+                r = radius_at(y) + grow
+                row.append([r4(r * math.sin(rad)), y, r4(r * math.cos(rad)), s])
+            grid.append(row)
+        return {'sheet': grid, 'paint': paint, 'mat': mat, 'alpha': alpha}
+
+    EYE = [(-52, 0.0), (-30, 0.55), (-10, 0.85), (10, 0.85), (30, 0.55), (52, 0.0)]
+    amogus = [{'group': {'bone': 'body'}, 'parts': [
+        {'revolve': PROFILE, 'seg': 38, 'two': True, 'paint': ['c', 'cw'], 'alt': ['cw', 'c'], 'mat': 'gloss'},
+        # Visor: black frame wrapped on the capsule, blue glass proud of it, a white highlight on the upper left.
+        {'group': {}, 'parts': [
+            band([(0.02, 0.0), (0.06, 0.5), (0.10, 1.0)], EYE, 0.012, 'k'),
+            band([(0.50, 1.0), (0.54, 0.5), (0.58, 0.0)], EYE, 0.012, 'k'),
+            band([(0.11, 0.0), (0.19, 0.45), (0.27, 0.75), (0.35, 0.75), (0.43, 0.45), (0.49, 0.0)], EYE, 0.022, 'g'),
+            band([(0.36, 0.0), (0.42, 0.0)], [(-40, 0.0), (-20, 0.3), (-2, 0.35)], 0.030, 'w'),
+            {'glowdisc': [0, 0.30, 0.50], 'size': 0.42, 'paint': 'g', 'alpha': 0.10},
         ]},
-    ]
+        # Backpack: a rounded pack on the upper back with a chrome vent, like the reference art.
+        {'group': {'at': [0, 0.12, -0.56]}, 'parts': [
+            {'revolve': [[0.0, -0.34], [0.17, -0.32], [0.235, -0.22], [0.25, 0.06], [0.235, 0.24], [0.16, 0.32], [0.0, 0.34]],
+             'seg': 24, 'two': True, 'paint': ['d', 'm'], 'alt': ['m', 'd'], 'mat': 'satin'},
+            {'prism': [[-0.085, -0.02], [0.085, -0.02], [0.085, 0.07], [-0.085, 0.07]], 'z': [-0.26, -0.21], 'paint': 'c', 'mat': 'metal'},
+            {'tube': [[-0.085, 0.025, -0.22], [0.085, 0.025, -0.22]], 'radius': [0.014, 0.014], 'sides': 5, 'paint': 'm', 'mat': 'metal', 'detail': True},
+        ]},
+    ]}]
     for bone in ('legR', 'legL'):
-        # The legs hang half a pixel out of the capsule and end on the ground, like the crewmate's two feet.
         amogus.append({'group': {'bone': bone}, 'parts': [
-            {'tube': [[0, -0.08, 0], [0, -0.42, 0], [0, -0.62, 0]], 'radius': [0.192, 0.180], 'sides': 12, 'paint': 'c', 'mat': 'satin'},
-            {'sphere': [0, -0.665, 0], 'r': [0.180, 0.170, 0.185], 'seg': 14, 'paint': 'd', 'mat': 'satin'},
+            {'tube': [[0, -0.30, 0], [0, -0.60, 0.004], [0, -0.86, 0.008]], 'radius': [0.150, 0.142], 'sides': 14,
+             'paint': ['c', 'cw'], 'alt': ['cw', 'c'], 'mat': 'gloss'},
+            {'sphere': [0, -0.90, 0.06], 'r': [0.152, 0.100, 0.200], 'seg': 16, 'paint': 'c', 'mat': 'gloss'},
         ]})
-    c.append({'name': 'Амонг Ас', 'hint': 'Красная капсула, визор и рюкзак', 'tint': 0xC51111, 'still': 2,
-              'head': [0.24, 1.32, 0.0], 'back': 0.62, 'parts': amogus})
+    c.append({'name': 'Амонг Ас', 'hint': 'Красная капсула, визор и рюкзак', 'headLift': 0.26, 'backPad': 0.62, 'coversHead': True,
+              'palette': {'c': '#C81724', 'l': '#E8554E', 'm': '#A8121C', 'd': '#7E0B11', 'dl': '#6E0A10',
+                          'cw': '#E6645C', 'lw': '#F6A29B', 'w': '#FFFFFF', 'k': '#0E0F16', 'g': '#A9DCE8'},
+              'parts': amogus})
 
     # --------------------------------------------------------- Инвалидное кресло
-    def ring_path(radius, y, sides=30, x=0.0):
-        return [[x, y, r4(radius * math.sin(math.radians(a))), r4(radius * math.cos(math.radians(a)))] for a in range(0, 360, 360 // sides)]
+    # Chrome folding chair after the reference photo: black upholstery with blue-grey panels, black rear wheels with
+    # chrome rims, 16 spokes and push rings, small front casters, armrests, push handles, a calf strap and two
+    # footplates. Everything hangs off the body bone (the chair never walks), the gloved hands ride the arms and grip
+    # the push rings, and 'legPose' puts the passenger's legs forward onto the footplates.
+    GROUND, HIP, SEAT = -1.60, -0.80, -0.78
 
     def wheel(side):
-        """One big wheel: tyre, chrome push rim, eight spokes and the hub. It rolls with the distance walked."""
-        ring = [[0.0, r4(0.34 * math.sin(math.radians(a))), r4(0.34 * math.cos(math.radians(a)))] for a in range(0, 360, 24)]
-        rim = [[side * 0.045, r4(0.285 * math.sin(math.radians(a))), r4(0.285 * math.cos(math.radians(a)))] for a in range(0, 360, 24)]
-        parts = [{'tube': ring, 'closed': True, 'radius': [0.030, 0.030], 'sides': 10, 'paint': 'tire', 'mat': 'matte'},
-                 {'tube': rim, 'closed': True, 'radius': [0.017, 0.017], 'sides': 8, 'paint': 'chrome', 'mat': 'metal'}]
-        for a in range(0, 360, 45):
-            parts.append({'tube': [[side * 0.05, 0, 0], [side * 0.03, r4(0.315 * math.sin(math.radians(a))), r4(0.315 * math.cos(math.radians(a)))]],
-                          'radius': [0.008, 0.007], 'sides': 4, 'paint': 'steel', 'mat': 'metal', 'detail': True})
-        parts.append({'sphere': [side * 0.05, 0, 0], 'r': 0.055, 'seg': 12, 'paint': 'chrome', 'mat': 'metal'})
-        return {'group': {'at': [side * 0.42, -1.06, -0.02], 'roll': ['x', r4(1 / 0.34)]}, 'parts': parts}
+        """Rear wheel: black tyre, chrome rim, 16 spokes and the push ring; rolls 1 / radius per unit walked."""
+        parts = [{'tube': [[0.0, r4(0.460 * math.cos(2 * math.pi * i / 32)), r4(-0.03 + 0.460 * math.sin(2 * math.pi * i / 32))] for i in range(32)],
+                  'closed': True, 'radius': [0.060, 0.060], 'sides': 8, 'paint': 'k', 'mat': 'fur'},
+                 {'tube': [[side * 0.030, r4(0.375 * math.cos(2 * math.pi * i / 32)), r4(-0.03 + 0.375 * math.sin(2 * math.pi * i / 32))] for i in range(32)],
+                  'closed': True, 'radius': [0.026, 0.026], 'sides': 6, 'paint': 'c', 'mat': 'metal'},
+                 {'tube': [[side * -0.085, r4(0.375 * math.cos(2 * math.pi * i / 32)), r4(-0.03 + 0.375 * math.sin(2 * math.pi * i / 32))] for i in range(32)],
+                  'closed': True, 'radius': [0.018, 0.018], 'sides': 5, 'paint': 'c', 'mat': 'metal'},
+                 {'sphere': [side * 0.012, 0.0, -0.03], 'r': [0.045, 0.065, 0.065], 'seg': 14, 'paint': 'c', 'mat': 'metal'},
+                 {'tube': [[side * -0.03, 0.0, -0.03], [side * 0.10, 0.0, -0.03]], 'radius': [0.021, 0.021], 'sides': 6, 'paint': 'm', 'mat': 'metal'}]
+        for i in range(16):
+            a = 2 * math.pi * i / 16
+            parts.append({'tube': [[side * 0.012, 0.0, -0.03], [side * 0.034, r4(0.352 * math.cos(a)), r4(-0.03 + 0.352 * math.sin(a))]],
+                          'radius': [0.010, 0.008], 'sides': 4, 'paint': 'c', 'mat': 'metal', 'detail': True})
+        # The wheel's axle is the group origin, so the roll turns it in place.
+        return {'group': {'at': [side * 0.44, -1.14, 0.0], 'roll': ['x', r4(1 / 0.46)]}, 'parts': parts}
 
     def caster(side):
-        """The small front wheel in its fork."""
-        return {'group': {'at': [side * 0.245, -1.285, 0.31], 'roll': ['x', r4(1 / 0.105)]}, 'parts': [
-            {'tube': ring_path(0.105, 0.0, 16, side * 0.0), 'closed': True, 'radius': [0.024, 0.024], 'sides': 8, 'paint': 'tire', 'mat': 'matte'},
-            {'sphere': [side * 0.02, 0, 0], 'r': 0.036, 'seg': 10, 'paint': 'chrome', 'mat': 'metal'},
-        ]}
+        """Front caster: a small black wheel in a chrome fork under the front edge of the seat."""
+        parts = [{'tube': [[0.0, r4(0.118 * math.cos(2 * math.pi * i / 24)), r4(0.118 * math.sin(2 * math.pi * i / 24))] for i in range(24)],
+                  'closed': True, 'radius': [0.042, 0.042], 'sides': 6, 'paint': 'k', 'mat': 'fur'},
+                 {'sphere': [0, 0, 0], 'r': [0.038, 0.032, 0.032], 'seg': 10, 'paint': 'c', 'mat': 'metal'}]
+        for s in (-1, 1):
+            parts.append({'tube': [[0, 0.12, s * 0.045], [0, 0.30, s * 0.045]], 'radius': [0.016, 0.016], 'sides': 5, 'paint': 'c', 'mat': 'metal'})
+        return {'group': {'at': [side * 0.31, -1.48, 0.44], 'roll': ['x', r4(1 / 0.118)]}, 'parts': parts}
 
     chair = [
-        # Seat, and the chrome frame the seat is bolted to.
-        {'sphere': [0, -0.775, -0.02], 'r': [0.305, 0.055, 0.295], 'seg': 24, 'paint': 'seat', 'mat': 'satin'},
-        {'sphere': [0, -0.815, -0.02], 'r': [0.285, 0.035, 0.275], 'seg': 20, 'paint': 'steel', 'mat': 'metal'},
-        {'tube': [[-0.30, -0.84, -0.28], [0, -0.85, -0.02], [0.30, -0.84, -0.28]], 'radius': [0.022, 0.022], 'sides': 8, 'paint': 'chrome', 'mat': 'metal'},
-        {'tube': [[-0.30, -0.84, 0.22], [0, -0.85, 0.02], [0.30, -0.84, 0.22]], 'radius': [0.022, 0.022], 'sides': 8, 'paint': 'chrome', 'mat': 'metal'},
-        # Backrest: the pad, the blue panel of the reference chair, and the frame around them.
-        {'sphere': [0, -0.36, -0.375], 'r': [0.290, 0.395, 0.055], 'seg': 24, 'paint': 'seat', 'mat': 'satin'},
-        {'sphere': [0, -0.37, -0.335], 'r': [0.250, 0.310, 0.045], 'seg': 22, 'paint': ['c', 'l'], 'mat': 'satin'},
-        {'tube': [[-0.30, 0.02, -0.345], [0, 0.045, -0.355], [0.30, 0.02, -0.345]], 'radius': [0.024, 0.024], 'sides': 8, 'paint': 'chrome', 'mat': 'metal'},
-        # Push handles: chrome posts with black grips, at the height of the shoulders.
-        {'group': {'mirror': True}, 'parts': [
-            {'tube': [[0.295, 0.0, -0.345], [0.285, 0.12, -0.395], [0.285, 0.22, -0.44]], 'radius': [0.021, 0.021], 'sides': 8, 'paint': 'chrome', 'mat': 'metal'},
-            {'tube': [[0.285, 0.20, -0.43], [0.285, 0.28, -0.47]], 'radius': [0.032, 0.032], 'sides': 8, 'paint': 'seat', 'mat': 'matte'},
-        ]},
-        # Armrests: a padded top on chrome brackets.
-        {'group': {'mirror': True}, 'parts': [
-            {'sphere': [0.265, -0.585, -0.10], 'r': [0.060, 0.035, 0.200], 'seg': 18, 'paint': 'seat', 'mat': 'satin'},
-            {'tube': [[0.285, -0.605, -0.26], [0.30, -0.74, -0.28]], 'radius': [0.018, 0.018], 'sides': 6, 'paint': 'chrome', 'mat': 'metal'},
-            {'tube': [[0.285, -0.605, 0.06], [0.30, -0.72, 0.20]], 'radius': [0.016, 0.016], 'sides': 6, 'paint': 'chrome', 'mat': 'metal'},
-        ]},
-        # Folding cross brace under the seat, and the side rails down to the wheels.
-        {'tube': [[-0.29, -0.88, -0.24], [0.27, -1.13, 0.14]], 'radius': [0.018, 0.018], 'sides': 6, 'paint': 'chrome', 'mat': 'metal'},
-        {'tube': [[0.29, -0.88, -0.24], [-0.27, -1.13, 0.14]], 'radius': [0.018, 0.018], 'sides': 6, 'paint': 'chrome', 'mat': 'metal'},
-        {'group': {'mirror': True}, 'parts': [
-            {'tube': [[0.30, -0.84, -0.26], [0.395, -1.02, -0.05], [0.42, -1.06, -0.02]], 'radius': [0.021, 0.021], 'sides': 8, 'paint': 'chrome', 'mat': 'metal'},
-            {'tube': [[0.30, -0.86, 0.22], [0.265, -1.05, 0.28], [0.255, -1.24, 0.30]], 'radius': [0.021, 0.021], 'sides': 8, 'paint': 'chrome', 'mat': 'metal'},
-            {'tube': [[0.255, -1.24, 0.30], [0.255, -1.30, 0.30]], 'radius': [0.017, 0.017], 'sides': 6, 'paint': 'chrome', 'mat': 'metal'},
-            # Leg rest: a hanger off the seat frame down to the plate, which sits under the foot (legs rest forward).
-            {'tube': [[0.295, -0.80, 0.20], [0.275, -0.98, 0.30], [0.265, -1.30, 0.31]], 'radius': [0.020, 0.019], 'sides': 6, 'paint': 'chrome', 'mat': 'metal'},
-            {'sphere': [0.245, -1.345, 0.31], 'r': [0.125, 0.020, 0.190], 'seg': 16, 'paint': 'seat', 'mat': 'satin'},
-            {'tube': [[0.265, -1.30, 0.31], [0.30, -1.25, 0.44]], 'radius': [0.013, 0.013], 'sides': 5, 'paint': 'chrome', 'mat': 'metal', 'detail': True},
-            # Wheel lock next to the tyre.
-            {'tube': [[0.34, -0.90, 0.06], [0.40, -0.99, 0.12]], 'radius': [0.014, 0.014], 'sides': 5, 'paint': 'steel', 'mat': 'metal', 'detail': True},
-            {'sphere': [0.41, -1.00, 0.13], 'r': [0.030, 0.018, 0.045], 'seg': 10, 'paint': 'seat', 'mat': 'matte', 'detail': True},
-        ]},
-        wheel(-1), wheel(1), caster(-1), caster(1),
+        # Seat: black pan with a cushion and the blue-grey front rail.
+        {'prism': [[-0.345, -0.875], [0.345, -0.875], [0.345, -0.780], [-0.345, -0.780]], 'z': [-0.46, 0.30], 'paint': 'k', 'mat': 'satin'},
+        {'prism': [[-0.310, -0.845], [0.310, -0.845], [0.310, -0.788], [-0.310, -0.788]], 'z': [-0.40, 0.26], 'paint': 'm', 'mat': 'satin'},
+        {'prism': [[-0.345, -0.788], [0.345, -0.788], [0.345, -0.765], [-0.345, -0.765]], 'z': [-0.44, 0.28], 'paint': 'g', 'mat': 'satin'},
+        # Backrest: black upholstery up to the shoulder blades, blue-grey insert on the back, chrome rim on top.
+        {'prism': [[-0.310, -0.760], [0.310, -0.760], [0.310, -0.120], [-0.310, -0.120]], 'z': [-0.545, -0.470], 'paint': 'k', 'mat': 'satin'},
+        {'prism': [[-0.270, -0.700], [0.270, -0.700], [0.270, -0.160], [-0.270, -0.160]], 'z': [-0.590, -0.545], 'paint': 'g', 'mat': 'satin'},
+        {'tube': [[-0.310, -0.120, -0.505], [0.310, -0.120, -0.505]], 'radius': [0.022, 0.022], 'sides': 6, 'paint': 'c', 'mat': 'metal'},
+        # Calf strap between the footrest hangers.
+        {'prism': [[-0.290, -1.115], [0.290, -1.115], [0.290, -1.060], [-0.290, -1.060]], 'z': [0.36, 0.420], 'paint': 'k', 'mat': 'satin'},
     ]
-    # Hands on the push rims: the arms hold still, the gloves push with the walk.
+    for side in (-1, 1):
+        x = side * 0.325
+        chair += [
+            # Seat rail and the upright that carries the backrest and the push handle.
+            {'tube': [[x, -0.850, -0.44], [x, -0.850, 0.28]], 'radius': [0.023, 0.023], 'sides': 6, 'paint': 'c', 'mat': 'metal'},
+            {'tube': [[x, -0.850, -0.50], [x, -0.120, -0.50]], 'radius': [0.023, 0.023], 'sides': 6, 'paint': 'c', 'mat': 'metal'},
+            {'tube': [[x, -0.120, -0.50], [x, 0.10, -0.60]], 'radius': [0.021, 0.021], 'sides': 6, 'paint': 'c', 'mat': 'metal'},
+            {'tube': [[x, 0.10, -0.60], [x, 0.22, -0.66]], 'radius': [0.032, 0.030], 'sides': 6, 'paint': 'k', 'mat': 'satin'},
+            # Front upright down to the caster fork.
+            {'tube': [[x, -0.850, 0.24], [side * 0.310, -1.15, 0.36], [side * 0.310, -1.30, 0.44]], 'radius': [0.021, 0.020], 'sides': 6, 'paint': 'c', 'mat': 'metal'},
+            # Armrest: black pad on two chrome posts.
+            {'prism': [[min(side * 0.30, side * 0.47), -0.625], [max(side * 0.30, side * 0.47), -0.625],
+                       [max(side * 0.30, side * 0.47), -0.578], [min(side * 0.30, side * 0.47), -0.578]], 'z': [-0.34, 0.14], 'paint': 'k', 'mat': 'satin'},
+            {'tube': [[side * 0.395, -0.628, 0.08], [side * 0.340, -0.850, 0.08]], 'radius': [0.018, 0.018], 'sides': 6, 'paint': 'c', 'mat': 'metal'},
+            {'tube': [[side * 0.395, -0.628, -0.28], [side * 0.340, -0.850, -0.28]], 'radius': [0.018, 0.018], 'sides': 6, 'paint': 'c', 'mat': 'metal'},
+            # Footrest: hanger from the seat frame down and forward to the plate under the foot.
+            {'tube': [[side * 0.325, -0.870, 0.22], [side * 0.300, -1.02, 0.48], [side * 0.290, -1.02, 0.66]], 'radius': [0.020, 0.018], 'sides': 6, 'paint': 'c', 'mat': 'metal'},
+            {'prism': [[side * 0.035, -1.075], [side * 0.300, -1.075], [side * 0.300, -1.030], [side * 0.035, -1.030]], 'z': [0.42, 0.72], 'paint': 'k', 'mat': 'satin'},
+            {'tube': [[side * 0.035, -1.030, 0.42], [side * 0.300, -1.030, 0.42]], 'radius': [0.014, 0.014], 'sides': 5, 'paint': 'c', 'mat': 'metal'},
+        ]
+    for side in (-1, 1):
+        chair.append({'tube': [[side * 0.310, -1.18, 0.44], [side * 0.320, -0.93, 0.34]], 'radius': [0.022, 0.022], 'sides': 6, 'paint': 'c', 'mat': 'metal'})
+    chair += [
+        {'tube': [[-0.44, -1.14, -0.03], [0.44, -1.14, -0.03]], 'radius': [0.021, 0.021], 'sides': 6, 'paint': 'c', 'mat': 'metal'},
+        {'tube': [[-0.325, -0.95, -0.26], [0.325, -1.20, 0.14]], 'radius': [0.017, 0.017], 'sides': 5, 'paint': 'c', 'mat': 'metal'},
+        {'tube': [[0.325, -0.95, -0.26], [-0.325, -1.20, 0.14]], 'radius': [0.017, 0.017], 'sides': 5, 'paint': 'c', 'mat': 'metal'},
+    ]
+    for side in (-1, 1):
+        chair += [wheel(side)]
+    wheelchair = [{'group': {'bone': 'body'}, 'parts': chair}]
+    # Gloved hands ride the arms, so pushing is the arm swing itself, and they sit on the chrome push rings.
     for bone, side in (('armR', -1), ('armL', 1)):
-        chair.append({'group': {'bone': bone}, 'parts': [
-            {'group': {'at': [side * 0.135, -0.685, -0.01], 'swing': [['x', 16, 1.0, 0.0]]}, 'parts': [
-                {'sphere': [0, 0, 0], 'r': [0.130, 0.150, 0.130], 'seg': 14, 'paint': 'seat', 'mat': 'satin'},
-                {'torus': [0.135, 0.015], 'y': 0.02, 'seg': 16, 'sides': 6, 'paint': ['c', 'l'], 'mat': 'satin'},
-                {'sphere': [side * 0.02, -0.10, 0.06], 'r': 0.045, 'seg': 8, 'paint': 'seat', 'mat': 'satin', 'detail': True},
+        wheelchair.append({'group': {'bone': bone}, 'parts': [
+            {'group': {'at': [side * 0.30, -0.700, -0.02]}, 'parts': [
+                {'tube': [[0, 0.10, 0], [0, -0.06, 0]], 'radius': [0.058, 0.062], 'sides': 10, 'paint': 'k', 'mat': 'satin'},
+                {'sphere': [0, -0.10, 0], 'r': [0.070, 0.078, 0.078], 'seg': 12, 'paint': 'k', 'mat': 'satin'},
+                {'sphere': [side * 0.032, -0.13, 0.02], 'r': 0.022, 'seg': 8, 'paint': 'c', 'mat': 'metal', 'detail': True},
             ]},
         ]})
-    c.append({'name': 'Инвалидное кресло', 'hint': 'Хромированная рама, чёрное сиденье, колёса катятся', 'tint': 0x2F7F96,
-              'still': 3, 'seat': 30, 'head': [0.0, 1.0, 0.0], 'back': 0.30, 'parts': chair})
+    c.append({'name': 'Инвалидное кресло', 'hint': 'Кресло с колёсами: руки крутят колёса, ноги стоят на подножках',
+              'headLift': 0.0, 'backPad': 0.62, 'legPose': 1.309,
+              'palette': {'c': '#CDD4DC', 'l': '#F4F8FC', 'm': '#2B2F36', 'd': '#7E868F', 'dl': '#5E6670',
+                          'cw': '#E8EEF5', 'lw': '#FFFFFF', 'w': '#FFFFFF', 'k': '#141519', 'g': '#4E7285'},
+              'parts': wheelchair})
 
     return c
 
-def model_color(model, main, second):
-    """The colour a skin is drawn in when the player has not chosen one: its own tint, like the mod defaults to."""
-    if 'tint' not in model:
-        return main, second
-    tint = model['tint']
-    r, g, b = tint >> 16 & 255, tint >> 8 & 255, tint & 255
-    h, s, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
-    comp = colorsys.hsv_to_rgb((h + 0.09) % 1, min(1, s * 0.92), min(1, v * 0.9 + 0.1))
-    second_color = int(comp[0] * 255) << 16 | int(comp[1] * 255) << 8 | int(comp[2] * 255)
-    return tint, second_color
-
 
 def preview_costumes(path, data, main=0xFF6A2B, second=0xB45CFF, cell=340):
-    """Skins on the body from three angles, framed by the model's own bounds so nothing is cut off."""
+    """Skins on the body: front three-quarter, side and back views, with the bones in their rest pose."""
     from PIL import Image, ImageDraw, ImageFont
     p = PX
-    body = (box((-4 * p, 24 * p, -4 * p), (4 * p, 32 * p, 4 * p), (200, 152, 118)) + box((-4 * p, 12 * p, -2 * p), (4 * p, 24 * p, 2 * p), (70, 110, 170))
-            + box((4 * p, 12 * p, -2 * p), (8 * p, 24 * p, 2 * p), (200, 152, 118)) + box((-8 * p, 12 * p, -2 * p), (-4 * p, 24 * p, 2 * p), (200, 152, 118))
-            + box((-4 * p, 0, -2 * p), (4 * p, 12 * p, 2 * p), (60, 60, 120)))
-    rest = {'body': translate(0.0, 24 * p, 0.0), 'back': translate(0.0, 24 * p, 0.0), 'head': translate(0.0, 24 * p, 0.0),
-            'armR': translate(-5 * p, 22 * p, 0.0), 'armL': translate(5 * p, 22 * p, 0.0),
-            'legR': translate(-2 * p, 12 * p, 0.0), 'legL': translate(2 * p, 12 * p, 0.0)}
-    directions = [(0.58, 0.30, 0.76), (0.97, 0.16, 0.15), (-0.52, 0.28, -0.81)]
+    torso = (box((-4 * p, 24 * p, -4 * p), (4 * p, 32 * p, 4 * p), (200, 152, 118)) + box((-4 * p, 12 * p, -2 * p), (4 * p, 24 * p, 2 * p), (70, 110, 170))
+             + box((4 * p, 12 * p, -2 * p), (8 * p, 24 * p, 2 * p), (200, 152, 118)) + box((-8 * p, 12 * p, -2 * p), (-4 * p, 24 * p, 2 * p), (200, 152, 118)))
+    bones = {'body': translate(0.0, 24 * p, 0.0), 'back': translate(0.0, 24 * p, 0.0), 'head': translate(0.0, 24 * p, 0.0),
+             'armR': translate(-5 * p, 22 * p, 0.0), 'armL': translate(5 * p, 22 * p, 0.0),
+             'legR': translate(-2 * p, 12 * p, 0.0), 'legL': translate(2 * p, 12 * p, 0.0)}
     items = list(data['costumes'])
     sheet = Image.new('RGB', (3 * cell, len(items) * (cell + 40)), (35, 38, 45))
     draw = ImageDraw.Draw(sheet)
@@ -1790,34 +1829,47 @@ def preview_costumes(path, data, main=0xFF6A2B, second=0xB45CFF, cell=340):
     except OSError:
         font = ImageFont.load_default()
     for index, model in enumerate(items):
-        # The legs of a seated skin are held forward by the mod; the preview shows the same pose.
-        # A seated skin: the mod holds the legs of its rider forward, so the preview does the same.
-        bones = dict(rest)
-        if model.get('seat'):
-            angle = math.radians(-float(model['seat']))
-            for bone in ('legR', 'legL'):
-                bones[bone] = matmul(bones[bone], rot_x(angle))
-        tint, tint2 = model_color(model, main, second)
-        plain = Builder(tint, tint2, time=0.9, world=identity(), motion=0.45, bones=bones)
-        plain.build(model['parts'])
-        points = [q for cam, _, _ in plain.quads for q in cam] + [pt for face, _, _ in body for pt in face]
-        lo = [min(pt[i] for pt in points) for i in range(3)]
-        hi = [max(pt[i] for pt in points) for i in range(3)]
-        center = [(lo[i] + hi[i]) / 2 for i in range(3)]
-        radius = max(hi[i] - lo[i] for i in range(3)) / 2
-        dist = 2.9 * radius
-        zoom = 0.82 * dist / radius  # the widest side lands at ~82 % of the cell
+        # The look is measured first (against the body boxes) and the three cameras frame it from a distance, so a
+        # tall capsule or a chair with a backrest never runs out of the cell.
+        legs = [box((-4 * p, 0, -2 * p), (0, 12 * p, 2 * p), (60, 60, 120)), box((0, 0, -2 * p), (4 * p, 12 * p, 2 * p), (60, 60, 120))]
+        pinned = model.get('legPose')
+        if pinned is not None:
+            # The chair pins the passenger's legs to the footplates: the model's xRot reads as -pin in this frame.
+            turn = rot_x(-pinned)
+            for i, side in enumerate((-1, 1)):
+                pivot = matmul(matmul(translate(side * 2 * p, 12 * p, 0.0), turn), translate(-side * 2 * p, -12 * p, 0.0))
+                legs[i] = [([apply(pivot, q) for q in face], color, middle) for face, color, middle in legs[i]]
+            for side, bone in ((-1, 'legR'), (1, 'legL')):
+                bones[bone] = matmul(translate(side * 2 * p, 12 * p, 0.0), turn)
+        body = torso + legs[0] + legs[1]
+        b0 = Builder(main, second, time=0.9, motion=0.45, bones=bones, palette=model.get('palette'))
+        b0.build(model['parts'])
+        xs, ys, zs = [], [], []
+        for cam, colors, n in list(b0.quads):
+            for q in cam:
+                xs.append(q[0]); ys.append(q[1]); zs.append(q[2])
+        for face, color, middle in body:
+            for q in face:
+                xs.append(q[0]); ys.append(q[1]); zs.append(q[2])
+        center = ((min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2, (min(zs) + max(zs)) / 2)
+        reach = max(max(xs) - min(xs), max(ys) - min(ys), max(zs) - min(zs)) / 2 + 0.12
+        directions = [(0.75, 0.35, 1.0), (1.35, 0.25, 0.1), (-0.75, 0.30, -1.0)]
         for v, direction in enumerate(directions):
-            eye = [center[i] + direction[i] * dist for i in range(3)]
-            world = translate(-eye[0], -eye[1], -eye[2])
-            b = Builder(tint, tint2, time=0.9, world=world, motion=0.45, bones=bones)
+            n = math.sqrt(sum(d * d for d in direction))
+            dist = reach * 3.4
+            eye = tuple(center[i] + direction[i] / n * dist for i in range(3))
+            target = center
+            world = matmul(translate(-eye[0], -eye[1], -eye[2]), identity())
+            b = Builder(main, second, time=0.9, world=world, motion=0.45, bones=bones, palette=model.get('palette'))
             b.build(model['parts'])
             quads = [([add(q, eye) for q in cam], colors, n) for cam, colors, n in b.quads]
             glows = [(add(c, eye), sz, col, a) for c, sz, col, a in glow_list(b)]
-            img = render(quads, body, eye, center, cell, glows, zoom)
+            # A wider view than the hats get: ears, horns and the chair back reach well above the head.
+            img = render(quads, body, eye, target, cell, glows, 1.75)
             x, y = v * cell, index * (cell + 40)
             sheet.paste(Image.fromarray(img), (x, y + 40))
             if v == 0:
+                # The title strip is wide enough for ears and horns, which reach above the head.
                 draw.text((x + 8, y + 8), f"Скин: {model['name']}  ({len(b.quads)} видимых)", fill=(235, 238, 245), font=font)
     sheet.save(path)
 
