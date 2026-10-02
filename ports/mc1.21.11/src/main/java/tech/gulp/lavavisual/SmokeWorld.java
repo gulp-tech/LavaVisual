@@ -16,8 +16,9 @@ final class SmokeWorld {
             DUMMY_AT = HATS_AT + HATS.length * HAT_STEP + 10, HANDS_AT = DUMMY_AT + 70, CRIT_AT = HANDS_AT + 50,
             TRAIL_AT = CRIT_AT + 50, ZOOM_AT = TRAIL_AT + 95, FREE_AT = ZOOM_AT + 40, WINGS_EDIT_AT = FREE_AT + 40,
             MAP_AT = WINGS_EDIT_AT + 45, SOUND_AT = MAP_AT + 110, MUSIC_AT = SOUND_AT + 12, FORMATS_AT = MUSIC_AT + 72, TIME_AT = FORMATS_AT + 104, ITEMS_AT = TIME_AT + 80,
-            PROJ_AT = ITEMS_AT + 70, OUTFIT_AT = PROJ_AT + 50, END_AT = OUTFIT_AT + 94;
+            PROJ_AT = ITEMS_AT + 70, OUTFIT_AT = PROJ_AT + 50, SKIN_AT = OUTFIT_AT + 94, END_AT = SKIN_AT + 86;
     private static float walkLift;
+    private static long amongusQuads, chairQuads;
     private static double p1, p2, p3, p4;
     private static boolean musicPlaying, musicPaused, musicStable, musicSeek, musicNext, musicPrevious;
     private static double hiddenMs, shownMs, timeOnMs;
@@ -449,6 +450,29 @@ final class SmokeWorld {
             LavaVisual.LOGGER.info("LavaVisual smoke shot world_outfit_front");
         }
         if (ticks == OUTFIT_AT + 90) { c.capeEnabled = false; c.extras.clear(); mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }
+        // Skins: the crewmate and the wheelchair, while the player walks, with a pair of glasses on the head so the
+        // accessory fit is judged on the skin and not on the bare player. Screenshots from behind and from the front.
+        if (ticks == SKIN_AT) {
+            c.capeEnabled = false; c.extras.clear(); c.hatEnabled = false; c.wingsEnabled = false;
+            c.costumeEnabled = true; c.costumeType = 1; c.costumeStyle = 0; c.costumeOpacity = 1;
+            tech.gulp.lavavisual.effects.WorldCosmetics.costumesDrawn = 0;
+            mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+        }
+        if (ticks > SKIN_AT && ticks < SKIN_AT + 30) player.setPos(player.getX(), player.getY(), player.getZ() - 0.22);
+        if (ticks == SKIN_AT + 20) LavaVisual.LOGGER.info("LavaVisual smoke shot world_skin_amongus_back");
+        if (ticks == SKIN_AT + 26) amongusQuads = tech.gulp.lavavisual.effects.WorldCosmetics.costumesDrawn;
+        if (ticks == SKIN_AT + 28) { c.costumeType = 2; tech.gulp.lavavisual.effects.WorldCosmetics.costumesDrawn = 0; c.extras = new java.util.ArrayList<>(java.util.List.of(1)); }
+        if (ticks == SKIN_AT + 46) LavaVisual.LOGGER.info("LavaVisual smoke shot world_skin_chair_back");
+        if (ticks == SKIN_AT + 52) chairQuads = tech.gulp.lavavisual.effects.WorldCosmetics.costumesDrawn;
+        if (ticks == SKIN_AT + 54) mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
+        if (ticks == SKIN_AT + 70) LavaVisual.LOGGER.info("LavaVisual smoke shot world_skin_chair_front");
+        if (ticks == SKIN_AT + 74) {
+            boolean ok = amongusQuads > 0 && chairQuads > 0;
+            LavaVisual.LOGGER.info((ok ? "LavaVisual smoke skins ok" : "LavaVisual smoke skins failed")
+                    + ": crewmate " + amongusQuads + ", chair " + chairQuads);
+        }
+        if (ticks == SKIN_AT + 80) { c.costumeEnabled = false; c.extras.clear(); mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }
+
         if (ticks == END_AT) finish(null);
     }
 
