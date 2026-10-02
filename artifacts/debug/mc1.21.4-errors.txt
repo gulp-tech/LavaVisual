@@ -1,37 +1,3 @@
 > Configure project :
-> Task :compileJava
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1047: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
-  location: class ClickGuiScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/FramerateLimitTrackerMixin.java:19: error: cannot find symbol
-  symbol:   class FramerateThrottleReason
-  location: class FramerateLimitTracker
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:674: error: cannot find symbol
-        action(g, Icons.PENCIL, "Редактор скина · виден только вам", bodyX, cursor, bodyW, () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
-  symbol:   method setScreen(SkinEditorScreen)
-  location: variable gui of type Gui
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1038: error: cannot find symbol
-        button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
-  symbol:   method setScreen(SkinEditorScreen)
-  location: variable gui of type Gui
-> Task :compileJava FAILED
-FAILURE: Build failed with an exception.
-* What went wrong:
-> Compilation failed; see the compiler output below.
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1047: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
-    location: class ClickGuiScreen
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/mixin/FramerateLimitTrackerMixin.java:19: error: cannot find symbol
-    symbol:   class FramerateThrottleReason
-    location: class FramerateLimitTracker
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:674: error: cannot find symbol
-          action(g, Icons.PENCIL, "Редактор скина · виден только вам", bodyX, cursor, bodyW, () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
-    symbol:   method setScreen(SkinEditorScreen)
-    location: variable gui of type Gui
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/ui/ClickGuiScreen.java:1038: error: cannot find symbol
-          button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
-    symbol:   method setScreen(SkinEditorScreen)
-    location: variable gui of type Gui
-> Check your code and dependencies to fix the compilation error(s)
-> Run with --scan to get full insights from a Build Scan (powered by Develocity).
-8
+> Task :classpathFile
+0
