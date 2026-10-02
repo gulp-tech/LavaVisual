@@ -1,0 +1,41 @@
+name: Publish release
+
+# Собранные и проверенные файлы из artifacts/ выкладываются как релиз, чтобы у каждой версии была одна страница
+# со скачиванием. Запускается сам после публикации сборки и вручную: Actions -> Publish release -> Run workflow.
+on:
+  push:
+    paths: ['artifacts/**', '.github/workflows/release.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create or refresh the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          MAIN=$(ls artifacts/lavavisual-*-mc26.2.jar 2>/dev/null | head -1 || true)
+          if [ -z "$MAIN" ]; then
+            echo "на этой ветке нет опубликованных сборок — публиковать нечего"
+            exit 0
+          fi
+          VERSION=$(basename "$MAIN" | sed 's/^lavavisual-//; s/-mc26\.2\.jar$//')
+          TAG="v$VERSION"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "релиз $TAG уже есть — обновляю файлы"
+          else
+            gh release create "$TAG" --target "$GITHUB_SHA" --title "LavaVisual $VERSION" --notes-file .github/release-notes.md
+          fi
+          gh release upload "$TAG" --clobber \
+            artifacts/lavavisual-*.jar \
+            artifacts/LavaVisual-Client-*.zip \
+            artifacts/LavaVisual-Client-*.mrpack \
+            artifacts/SHA256SUMS \
+            artifacts/STANDALONE-26.2.txt
+          gh release view "$TAG" --json assets --jq '.assets[] | "\(.name) — \(.size) байт"'
