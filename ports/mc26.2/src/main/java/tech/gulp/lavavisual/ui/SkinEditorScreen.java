@@ -66,7 +66,7 @@ public final class SkinEditorScreen extends Screen {
         UiDraw.round(g, px + 8, py + 8, 18, 18, 6, accent());
         UiFont.icon(g, font, Icons.CROWN, px + 12, py + 12, 0xFF11181A);
         UiFont.text(g, font, "Скин · редактор", px + 32, py + 9, 0xFFF1F4F8, pw - 40, UiFont.Face.BOLD);
-        UiFont.text(g, font, minecraft.level == null ? "зайдите в мир, чтобы видеть скин" : "изменения видны сразу, шляпа скрыта", px + 32, py + 20, 0xFF8C93A1, pw - 40, UiFont.Face.SMALL);
+        UiFont.text(g, font, minecraft.level == null ? "зайдите в мир, чтобы видеть скин" : "изменения видны сразу, шляпа и аксессуары подстроятся", px + 32, py + 20, 0xFF8C93A1, pw - 40, UiFont.Face.SMALL);
         cursor = py + 34;
         // Skin: ‹ name › like every selector in the menu; the arrows wrap around.
         int ty = cursor;

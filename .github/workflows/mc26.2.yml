@@ -92,10 +92,10 @@ jobs:
               models = json.loads(jar.read('assets/lavavisual/hats.json'))
               assert len(models['hats']) == 14 and len(models['wings']) == 5, (len(models['hats']), len(models.get('wings', [])))
               assert len(models['capes']) == 6 and len(models['extras']) == 3, (len(models.get('capes', [])), len(models.get('extras', [])))
-              assert len(models['costumes']) == 5, len(models.get('costumes', []))
+              assert len(models['costumes']) == 2, len(models.get('costumes', []))
               assert m['mixins'] == ['lavavisual.mixins.json']
               mixins = json.loads(jar.read('lavavisual.mixins.json'))
-              assert set(mixins['client']) == {'HandViewMixin', 'SoundManagerMixin', 'MouseHandlerMixin', 'OptionsMixin', 'LevelRendererMixin', 'ScreenEffectRendererMixin', 'CameraMixin', 'ClientClockManagerMixin', 'ItemEntityRendererMixin', 'ItemEntityRenderStateMixin', 'GuiScreenMixin', 'MinecraftTitleMixin', 'EntityRendererMixin', 'PongMixin', 'FramerateLimitTrackerMixin'}
+              assert set(mixins['client']) == {'HandViewMixin', 'SoundManagerMixin', 'MouseHandlerMixin', 'OptionsMixin', 'LevelRendererMixin', 'ScreenEffectRendererMixin', 'CameraMixin', 'ClientClockManagerMixin', 'ItemEntityRendererMixin', 'ItemEntityRenderStateMixin', 'GuiScreenMixin', 'MinecraftTitleMixin', 'EntityRendererMixin', 'PongMixin', 'FramerateLimitTrackerMixin', 'PlayerSkinPoseMixin'}
               forbidden = ('BoxEsp', 'Tracers', 'Chams', 'LivingEntityRendererMixin', 'LavaRenderLayers')
               assert not any(any(word in path for word in forbidden) for path in jar.namelist())
           PY

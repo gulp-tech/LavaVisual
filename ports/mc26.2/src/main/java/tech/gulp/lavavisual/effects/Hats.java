@@ -31,8 +31,9 @@ public final class Hats {
     public static final String[] EXTRA_NAMES = {"Очки", "Наушники", "Шарф"};
     public static final String[] EXTRA_HINTS = {"Тёмные очки с оправой", "Наушники со светящимися чашками", "Шарф вокруг шеи"};
     /** Full skins bound to the player's own bones, so they follow every animation (see BONE_NAMES). */
-    public static final String[] COSTUME_NAMES = {"Амонг Ас", "Инвалидное кресло", "Кошка", "Дракон 4D", "Неон 4D"};
-    public static final String[] COSTUME_HINTS = {"Капсула, визор и рюкзак", "Кресло с колёсами; руки толкают, колёса катятся", "Ушки, лапки, хвост и глаза", "Рога, крылья, хвост с шипами и когти", "Шлем с визором, наплечники, сапоги и голо-плащ"};
+    public static final String[] COSTUME_NAMES = {"Амонг Ас", "Инвалидное кресло"};
+    public static final String[] COSTUME_HINTS = {"Красная капсула, визор и рюкзак; руки прячутся, ноги стоят",
+            "Хромированная рама, чёрное сиденье; руки толкают колёса, колёса катятся, ноги отдыхают"};
     /** Bones a costume group can hang from: the model's own parts, so the geometry walks, swings and turns with them. */
     public static final String[] BONE_NAMES = {"body", "back", "head", "armR", "armL", "legR", "legL"};
     /** Accessories worn on the head (the others sit on the body). */
@@ -58,9 +59,12 @@ public final class Hats {
     private static final Emitter EMITTER = new Emitter();
     private Hats() { }
 
-    /** An opaque loaded model. */
+    /** An opaque loaded model, plus the fit a costume asks for (see tools/make_hats.py, costumes()). */
     public static final class Model {
         private final Part[] parts;
+        int tint, still;
+        float seat, back;
+        float[] head;
         private Model(Part[] parts) { this.parts = parts; }
     }
     /**
@@ -105,6 +109,20 @@ public final class Hats {
     public static Model wing(int type) { if (!loaded) load(); return wings == null ? null : wings[Math.floorMod(type - 1, Math.min(WING_COUNT, wings.length))]; }
     public static Model costume(int type) { if (!loaded) load(); return costumes == null || type < 1 || type > costumes.length ? null : costumes[type - 1]; }
     public static String costumeName(int type) { return COSTUME_NAMES[Math.floorMod(type - 1, COSTUME_COUNT)]; }
+    /** Colour a skin wears until the player picks one for it (0 = the theme colour). */
+    public static int costumeTint(int type) { Model m = costume(type); return m == null ? 0 : m.tint; }
+    /** Limbs the skin replaces and the mod must freeze: 1 arms, 2 legs, 3 both. */
+    public static int costumeStill(int type) { Model m = costume(type); return m == null ? 0 : m.still; }
+    /** Seat angle in degrees of a skin the player sits in (0 = the skin stands). */
+    public static float costumeSeat(int type) { Model m = costume(type); return m == null ? 0 : m.seat; }
+    /** How far behind the back a cape or the wings of this skin hang, in blocks. */
+    public static float costumeBack(int type) { Model m = costume(type); return m == null ? 0 : m.back; }
+    /** Lift, scale and forward shift of hats and head accessories on this skin's own head; {0, 1, 0, 0} = untouched. */
+    private static final float[] HEAD_FIT = {0, 1, 0, 0};
+    public static float[] costumeHead(int type) {
+        Model m = costume(type);
+        return m == null || m.head == null || m.head.length < 2 ? HEAD_FIT : m.head;
+    }
 
     /** Solid pass: depth-tested, depth-writing quads. world maps model space to camera-relative coordinates. */
     public static void draw(PoseStack.Pose pose, VertexConsumer out, Matrix4f world, Model model, Look look) {
@@ -174,7 +192,20 @@ public final class Hats {
     }
     private static Model[] models(JsonArray array) {
         Model[] result = new Model[array.size()];
-        for (int i = 0; i < array.size(); i++) result[i] = new Model(parts(array.get(i).getAsJsonObject().getAsJsonArray("parts")));
+        for (int i = 0; i < array.size(); i++) {
+            JsonObject o = array.get(i).getAsJsonObject();
+            Model model = new Model(parts(o.getAsJsonArray("parts")));
+            if (o.has("tint")) model.tint = o.get("tint").getAsInt() & 0xFFFFFF;
+            if (o.has("still")) model.still = o.get("still").getAsInt();
+            if (o.has("seat")) model.seat = o.get("seat").getAsFloat();
+            if (o.has("back")) model.back = o.get("back").getAsFloat();
+            if (o.has("head")) {
+                JsonArray h = o.getAsJsonArray("head");
+                model.head = new float[h.size()];
+                for (int k = 0; k < h.size(); k++) model.head[k] = h.get(k).getAsFloat();
+            }
+            result[i] = model;
+        }
         return result;
     }
 
