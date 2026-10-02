@@ -79,7 +79,8 @@ public final class WorldCosmetics {
     /** Scratch bone transforms. Slots rotate, because the newer versions run the geometry lambdas after the frame. */
     private static final Matrix4f[][] BONE_POOL = new Matrix4f[24][BONE_COUNT];
     private static int boneSlot;
-    private static int costumesDrawn;
+    /** Skins drawn in the last frame (read by the smoke test to prove a skin really rendered). */
+    public static volatile int costumesDrawn;
     static {
         for (Matrix4f[] bones : BONE_POOL) for (int i = 0; i < BONE_COUNT; i++) bones[i] = new Matrix4f();
     }
