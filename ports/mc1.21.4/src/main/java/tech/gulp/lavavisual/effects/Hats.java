@@ -32,8 +32,8 @@ public final class Hats {
     public static final String[] EXTRA_HINTS = {"Тёмные очки с оправой", "Наушники со светящимися чашками", "Шарф вокруг шеи"};
     /** Full skins bound to the player's own bones, so they follow every animation (see BONE_NAMES). */
     public static final String[] COSTUME_NAMES = {"Амонг Ас", "Инвалидное кресло"};
-    public static final String[] COSTUME_HINTS = {"Красная капсула, визор и рюкзак; руки прячутся, ноги стоят",
-            "Хромированная рама, чёрное сиденье; руки толкают колёса, колёса катятся, ноги отдыхают"};
+    public static final String[] COSTUME_HINTS = {"Красный скафандр, стеклянный визор и рюкзак; руки спрятаны, лапы шагают",
+            "Хромовая рама, колёса катятся по земле; руки на ободах, ноги на подножках"};
     /** Bones a costume group can hang from: the model's own parts, so the geometry walks, swings and turns with them. */
     public static final String[] BONE_NAMES = {"body", "back", "head", "armR", "armL", "legR", "legL"};
     /** Accessories worn on the head (the others sit on the body). */
@@ -63,7 +63,7 @@ public final class Hats {
     /** An opaque loaded model, plus the fit a costume asks for (see tools/make_hats.py, costumes()). */
     public static final class Model {
         private final Part[] parts;
-        int tint, still;
+        int tint, still, hide, arms, hats;
         float seat, back;
         float[] head;
         private Model(Part[] parts) { this.parts = parts; }
@@ -114,6 +114,12 @@ public final class Hats {
     public static int costumeTint(int type) { Model m = costume(type); return m == null ? 0 : m.tint; }
     /** Limbs the skin replaces and the mod must freeze: 1 arms, 2 legs, 3 both. */
     public static int costumeStill(int type) { Model m = costume(type); return m == null ? 0 : m.still; }
+    /** Limbs the skin covers and the mod draws invisible: 1 arms, 2 legs, 3 both. */
+    public static int costumeHide(int type) { Model m = costume(type); return m == null ? 0 : m.hide; }
+    /** How many degrees this skin holds the arms forward from the rest pose (hands onto the push rings). */
+    public static int costumeArms(int type) { Model m = costume(type); return m == null ? 0 : m.arms; }
+    /** 1 when head accessories stay on top of this skin's own head instead of being hidden under it. */
+    public static int costumeHats(int type) { Model m = costume(type); return m == null ? 0 : m.hats; }
     /** Seat angle in degrees of a skin the player sits in (0 = the skin stands). */
     public static float costumeSeat(int type) { Model m = costume(type); return m == null ? 0 : m.seat; }
     /** How far behind the back a cape or the wings of this skin hang, in blocks. */
@@ -198,6 +204,9 @@ public final class Hats {
             Model model = new Model(parts(o.getAsJsonArray("parts")));
             if (o.has("tint")) model.tint = o.get("tint").getAsInt() & 0xFFFFFF;
             if (o.has("still")) model.still = o.get("still").getAsInt();
+            if (o.has("hide")) model.hide = o.get("hide").getAsInt();
+            if (o.has("arms")) model.arms = o.get("arms").getAsInt();
+            if (o.has("hats")) model.hats = o.get("hats").getAsInt();
             if (o.has("seat")) model.seat = o.get("seat").getAsFloat();
             if (o.has("back")) model.back = o.get("back").getAsFloat();
             if (o.has("head")) {

@@ -13,24 +13,42 @@ import tech.gulp.lavavisual.effects.Dummy;
 import tech.gulp.lavavisual.effects.Hats;
 
 /**
- * Seated skins. The wheelchair costume is built around a player who sits in it, so the legs of the player wearing it
- * are held forward (thighs on the seat, feet on the footplates) instead of standing. Everything else about the pose is
- * vanilla; the arms keep their own swing, because pushing the wheels is what the arms of that skin do.
+ * The pose of a worn skin. A skin knows what it replaces: the crewmate covers both arms and both legs with its own
+ * capsule (the mod draws them invisible, so no player skin shows through), while the wheelchair carries its rider's
+ * legs on its footplates (they must not walk) and holds the arms forward from the rest pose, where the gloved hands
+ * then sit exactly on the push rings.
  *
- * The legs live in HumanoidModel, the superclass of the player model, and a shadow field cannot be remapped for an
+ * The limbs live in HumanoidModel, the superclass of the player model, and a shadow field cannot be remapped for an
  * inherited member without a reference map, so the model is reached through the mixin instance instead.
  */
 @Mixin(PlayerModel.class)
 public abstract class PlayerSkinPoseMixin {
     @Inject(method = "setupAnim", at = @At("RETURN"))
-    private void lavavisual$seatedSkin(AvatarRenderState state, CallbackInfo ci) {
+    private void lavavisual$skinPose(AvatarRenderState state, CallbackInfo ci) {
         var c = LavaVisualClient.config();
-        if (!c.costumeEnabled) return;
-        float seat = Hats.costumeSeat(c.costumeType);
-        if (seat <= 0) return;
+        if (!c.costumeEnabled || Hats.costume(c.costumeType) == null) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || (state.id != mc.player.getId() && !Dummy.is(state.id))) return;
         HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
+        int hide = Hats.costumeHide(c.costumeType);
+        if ((hide & 1) != 0) {
+            model.rightArm.visible = false;
+            model.leftArm.visible = false;
+        } else {
+            int arms = Hats.costumeArms(c.costumeType);
+            if (arms != 0) {
+                float angle = (float) Math.toRadians(-arms);
+                model.rightArm.xRot = angle;
+                model.leftArm.xRot = angle;
+            }
+        }
+        if ((hide & 2) != 0) {
+            model.rightLeg.visible = false;
+            model.leftLeg.visible = false;
+            return;
+        }
+        float seat = Hats.costumeSeat(c.costumeType);
+        if (seat <= 0) return;
         float angle = (float) Math.toRadians(-seat);
         model.rightLeg.xRot = angle;
         model.leftLeg.xRot = angle;

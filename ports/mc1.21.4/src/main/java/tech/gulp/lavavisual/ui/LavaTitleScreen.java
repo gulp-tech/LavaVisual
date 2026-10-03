@@ -118,6 +118,7 @@ public final class LavaTitleScreen extends Screen {
         g.fillGradient(0, height / 2, width, height, 0x00000000, UiDraw.alpha(0x05070C, 0.6 * enter));
         g.fillGradient(0, height - 70, width, height, 0x00000000, UiDraw.alpha(UiDraw.mix(ac, ac2, 0.35), 0.1 * enter));
         embers(g, now, ac, ac2, enter);
+        aurora(g, now, ac, ac2, enter);
 
         List<Item> list = items;
         int left = Math.max(22, (int) (width * 0.075)), buttonW = Math.clamp(width / 3, 160, 214), buttonH = 24, gap = 6;
@@ -172,6 +173,8 @@ public final class LavaTitleScreen extends Screen {
             minecraft.setScreen(new TitleScreen());
         }, ac, ac2, enter);
 
+        quick(g, ac, ac2, enter);
+
         String version = "LavaVisual " + Edition.label();
         UiFont.text(g, font, version, 8, height - 14, UiDraw.alpha(0x7D8795, enter), width / 2, UiFont.Face.SMALL);
         String legal = "Copyright Mojang AB. Do not distribute!";
@@ -192,6 +195,50 @@ public final class LavaTitleScreen extends Screen {
         }
         hits.add(new Hit(x, y, 24, 24, action));
     }
+    /**
+     * Two wide aurora curtains sweeping slowly across the panorama in the theme colours: rows of pale bands whose
+     * height follows a sine, drawn from the far edge inwards so they read as soft light rather than stripes.
+     */
+    private void aurora(GuiGraphics g, long now, int ac, int ac2, double enter) {
+        double t = now / 1e9;
+        for (int k = 0; k < 2; k++) {
+            int color = UiDraw.mix(k == 0 ? ac : ac2, 0xFFFFFF, 0.25);
+            double base = height * (0.30 + 0.16 * k), slope = (k == 0 ? 1 : -1) * 0.42;
+            double drift = Math.sin(t * (0.11 + 0.05 * k) + k * 2.1) * height * 0.05;
+            int step = 16;
+            for (int x = 0; x < width; x += step) {
+                double wave = Math.sin(t * 0.35 + x * 0.006 + k * 1.7) * 12;
+                int y = (int) (base + drift + x * slope + wave);
+                int thick = (int) (18 + 10 * Math.sin(t * 0.2 + x * 0.004));
+                double a = (0.05 + 0.035 * Math.sin(t * 0.3 + x * 0.01)) * enter * (1 - Math.abs(x / (double) width - 0.5) * 1.2);
+                if (a <= 0.002) continue;
+                UiDraw.round(g, x, y, step, Math.max(6, thick), thick / 2, UiDraw.alpha(color, a));
+            }
+        }
+    }
+
+    /** Quick access on the right: open the skin or hat editor straight from the menu, with what is worn right now. */
+    private void quick(GuiGraphics g, int ac, int ac2, double enter) {
+        var c = LavaVisualClient.config();
+        String skin = c.costumeEnabled && c.costumeType > 0 ? tech.gulp.lavavisual.effects.Hats.costumeName(c.costumeType) : "не выбран";
+        String hat = c.hatEnabled ? tech.gulp.lavavisual.effects.Hats.name(c.hatType) : "не выбрана";
+        String[][] chips = {{"Скин", skin}, {"Шляпа", hat}};
+        int w = Math.clamp(width / 4, 120, 168), h = 30, x = width - w - 16, y = Math.max(16, height / 2 - h - 6);
+        for (int i = 0; i < chips.length; i++) {
+            int cy = y + i * (h + 8);
+            boolean over = mx >= x && mx < x + w && my >= cy && my < cy + h;
+            double hover = motion("quick" + i, over ? 1 : 0);
+            UiDraw.round(g, x, cy, w, h, 8, UiDraw.alpha(0x14161B, (0.55 + 0.2 * hover) * enter));
+            UiDraw.roundH(g, x, cy, w, h, 8, UiDraw.alpha(ac, 0.10 * enter), UiDraw.alpha(ac2, 0.10 * enter));
+            UiDraw.roundH(g, x, cy, 3, h, 8, UiDraw.alpha(ac, (0.8 + 0.2 * hover) * enter), UiDraw.alpha(ac2, (0.8 + 0.2 * hover) * enter));
+            UiFont.text(g, font, chips[i][0], x + 12, cy + 5, UiDraw.alpha(0x8F98A6, enter), w - 18, UiFont.Face.SMALL);
+            UiFont.text(g, font, chips[i][1], x + 12, cy + 16, UiDraw.alpha(UiDraw.mix(0xE3E7EE, 0xFFFFFF, hover), enter), w - 18, UiFont.Face.BOLD);
+            UiFont.icon(g, font, Icons.CHEVRON_RIGHT, x + w - 16, cy + 11, UiDraw.alpha(0xFFFFFF, 0.5 * hover * enter));
+            Runnable action = i == 0 ? () -> minecraft.gui.setScreen(new SkinEditorScreen(this)) : () -> minecraft.gui.setScreen(new HatEditorScreen(this));
+            hits.add(new Hit(x, cy, w, h, action));
+        }
+    }
+
     /** Slow embers rising in both theme colours; positions are pure functions of time. */
     private void embers(GuiGraphics g, long now, int ac, int ac2, double enter) {
         double t = now / 1e9, span = height + 24;

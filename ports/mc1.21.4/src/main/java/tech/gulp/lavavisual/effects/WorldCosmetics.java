@@ -460,6 +460,17 @@ public final class WorldCosmetics {
         var remote = level == null ? null : HatSync.of(level.getEntity(s.id));
         return remote != null && remote.wings() > 0;
     }
+    /** True while the player is drawn inside the inventory, whose box clips tall cosmetics (see InventoryFitMixin). */
+    public static boolean inInventory() {
+        Minecraft mc = Minecraft.getInstance();
+        return mc != null && mc.screen instanceof net.minecraft.client.gui.screens.inventory.InventoryScreen && anyWorn();
+    }
+    /** True when this client wears anything LavaVisual draws: the inventory then gets extra room for it. */
+    public static boolean anyWorn() {
+        var c = LavaVisualClient.config();
+        return c.costumeEnabled && Hats.costume(c.costumeType) != null || c.hatEnabled || c.wingsEnabled || c.capeEnabled
+                || c.extras != null && !c.extras.isEmpty();
+    }
     /** Worn skin type on this render state (0 = none): skins are local, so only you and the dummy have one. */
     private static int wornSkin(net.minecraft.client.renderer.entity.state.PlayerRenderState s) {
         var c = LavaVisualClient.config();
@@ -486,7 +497,9 @@ public final class WorldCosmetics {
             boolean skinAuto = skinRgb != 0 && !c.customColor("costume") && !(c.chroma != null && c.chroma.contains("costume"));
             int skinColor = skinAuto ? 0xFF000000 | skinRgb : c.color("costume");
             int skinLight = skinAuto ? 0xFF000000 | tech.gulp.lavavisual.config.ColorMath.companion(skinRgb) : c.color2("costume");
-            if (c.hatEnabled && !skin) hat(model, pose, collector, s, c.hatType, Hats.hat(c.hatType), skinAuto ? skinColor : c.color("hat"), skinAuto ? skinLight : c.color2("hat"), c.hatStyle, (float) c.hatOpacity,
+            // A skin that does not cover the head keeps the hat: it rides on the skin's own head at its own colour.
+            boolean skinHat = !skin || Hats.costumeHats(c.costumeType) != 0;
+            if (c.hatEnabled && skinHat) hat(model, pose, collector, s, c.hatType, Hats.hat(c.hatType), skin || !skinAuto ? c.color("hat") : skinColor, skin || !skinAuto ? c.color2("hat") : skinLight, c.hatStyle, (float) c.hatOpacity,
                     c.hatSize, c.hatLift, c.hatCone, (float) (Hats.visor(c.hatType) ? 0 : frameNow * 0.06 * c.hatSpin), seconds);
             if (c.wingsEnabled) wings(model, pose, collector, s, Hats.wing(c.wingsType), skinAuto ? skinColor : c.color("wings"), skinAuto ? skinLight : c.color2("wings"), c.wingsStyle,
                     (float) c.wingsOpacity, c.wingsSize, (float) c.wingsFlap, WingFit.of(c), seconds, nanos);
@@ -543,7 +556,7 @@ public final class WorldCosmetics {
         float fit = Hats.fit(type);
         // On a worn skin the hat sits on the skin's own head, not on the (invisible) player head under it.
         int worn = wornSkin(s);
-        float[] onSkin = worn == 0 ? null : Hats.costumeHead(worn);
+        float[] onSkin = worn == 0 || Hats.costumeHats(worn) == 0 ? null : Hats.costumeHead(worn);
         if (onSkin != null) fit *= onSkin[1];
         double top = (s.headEquipment != null && !s.headEquipment.isEmpty() ? 9.0 : s.showHat ? 8.5 : 8.0) + 0.06;
         pose.pushPose();
@@ -620,7 +633,7 @@ public final class WorldCosmetics {
             boolean helmet = s.headEquipment != null && !s.headEquipment.isEmpty();
             float grow = helmet ? 1.26f : s.showHat ? 1.13f : 1f;
             int onWorn = wornSkin(s);
-            float[] onHead = onWorn == 0 ? null : Hats.costumeHead(onWorn);
+            float[] onHead = onWorn == 0 || Hats.costumeHats(onWorn) == 0 ? null : Hats.costumeHead(onWorn);
             if (onHead != null) grow *= onHead[1];
             pose.translate(0, 4 / 16.0, 0);
             pose.scale(grow, grow, grow);
