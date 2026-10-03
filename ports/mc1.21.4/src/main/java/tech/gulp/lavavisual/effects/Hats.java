@@ -30,10 +30,11 @@ public final class Hats {
     public static final String[] CAPE_NAMES = {"Классический", "Королевский", "Звёздный", "Пламя", "Рваный", "Лава"};
     public static final String[] EXTRA_NAMES = {"Очки", "Наушники", "Шарф"};
     public static final String[] EXTRA_HINTS = {"Тёмные очки с оправой", "Наушники со светящимися чашками", "Шарф вокруг шеи"};
-    /** Full skins bound to the player's own bones, so they follow every animation (see BONE_NAMES). */
-    public static final String[] COSTUME_NAMES = {"Амонг Ас", "Инвалидное кресло"};
-    public static final String[] COSTUME_HINTS = {"Красный скафандр, стеклянный визор и рюкзак; руки спрятаны, лапы шагают",
-            "Хромовая рама, колёса катятся по земле; руки на ободах, ноги на подножках"};
+    /** Full skins bound to the player's own bones, so they follow every animation (see BONE_NAMES).
+     *  The names and hints must stay in step with tools/make_hats.py costumes(); tools/check_costumes.py checks it. */
+    public static final String[] COSTUME_NAMES = {"Горничная", "Инвалидное кресло"};
+    public static final String[] COSTUME_HINTS = {"Тёмное платье, белый фартук с кружевом, чулки и повязка с бантом; платье красится",
+            "Хромовая рама, спицы и обода, руки на ободах, ноги на подножках"};
     /** Bones a costume group can hang from: the model's own parts, so the geometry walks, swings and turns with them. */
     public static final String[] BONE_NAMES = {"body", "back", "head", "armR", "armL", "legR", "legL"};
     /** Accessories worn on the head (the others sit on the body). */
@@ -517,7 +518,7 @@ public final class Hats {
                 case 11 -> mix(0x3CB65A, l, 0.1f);
                 case 12 -> 0xE0303A;
                 // Fixed materials of the skins (the same values as tools/make_hats.py): a wheelchair is chrome and
-                // black whatever the theme colour is, and a visor is glass.
+                // black, a maid is white linen, whatever the theme colour is.
                 case 13 -> 0xCED4DC;
                 case 14 -> 0x7C8491;
                 case 15 -> 0x222328;

@@ -489,9 +489,9 @@ public final class WorldCosmetics {
         float seconds = (float) (frameNow / 20.0);
         long nanos = System.nanoTime();
         if (s.id == mc.player.getId() || Dummy.is(s.id)) {
-            // A worn skin is a whole look: the hat would sit inside it (the Among Us capsule swallows the head).
+            // A worn skin is a whole look: the hat would sit inside it (the maid's headpiece swallows the head).
             boolean skin = c.costumeEnabled && Hats.costume(c.costumeType) != null;
-            // A skin wears its own colours (the red crewmate, the chrome chair) until the player picks one for it.
+            // A skin wears its own colours (the maid's dark dress, the chrome chair) until the player picks one for it.
             int skinRgb = skin ? Hats.costumeTint(c.costumeType) : 0;
             boolean skinAuto = skinRgb != 0 && !c.customColor("costume") && !(c.chroma != null && c.chroma.contains("costume"));
             int skinColor = skinAuto ? 0xFF000000 | skinRgb : c.color("costume");
@@ -727,8 +727,8 @@ public final class WorldCosmetics {
         bone(pose, bones, SPRITE_ARM_L, model.leftArm, sprite, k);
         bone(pose, bones, SPRITE_LEG_R, model.rightLeg, sprite, k);
         bone(pose, bones, SPRITE_LEG_L, model.leftLeg, sprite, k);
-        // A skin that replaces a limb freezes it: the crewmate has no arms of its own, and a wheelchair has no
-        // leg swing. The bones are dropped, so those parts stay in the skin's own rest pose.
+        // A skin that replaces a limb freezes it: the maid's stockings replace the player's legs outright, and the
+        // rider of the chair never walks. The bones are dropped, so those parts stay in the skin's own rest pose.
         int still = Hats.costumeStill(type);
         if ((still & 1) != 0) { bones[SPRITE_ARM_R] = null; bones[SPRITE_ARM_L] = null; }
         if ((still & 2) != 0) { bones[SPRITE_LEG_R] = null; bones[SPRITE_LEG_L] = null; }

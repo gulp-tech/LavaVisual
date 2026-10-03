@@ -8,3 +8,6 @@ run/
 .settings/
 __pycache__/
 *.pyc
+
+# Референсы и черновики: не часть мода
+image-search/

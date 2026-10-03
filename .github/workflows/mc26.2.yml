@@ -1,7 +1,7 @@
 name: Build LavaVisual 26.2 standalone
 on:
   push:
-    paths: ['ports/mc26.2/**', 'tools/client_smoke.py', 'tools/ci_run.sh', 'tools/make_client.py', 'tools/make_hats.py', 'tools/check_fit.py', '.github/workflows/mc26.2.yml']
+    paths: ['ports/mc26.2/**', 'tools/client_smoke.py', 'tools/ci_run.sh', 'tools/make_client.py', 'tools/make_hats.py', 'tools/check_fit.py', 'tools/check_costumes.py', '.github/workflows/mc26.2.yml']
   workflow_dispatch:
 concurrency:
   group: lavavisual-standalone-${{ github.ref }}
@@ -21,6 +21,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v5
       - name: Check that cosmetics stay outside the player model
         run: python3 tools/check_fit.py
+      - name: Check that the skins still cover the body
+        run: python3 tools/check_costumes.py
       - name: Check the mixin targets against this version
         run: |
           ports/mc26.2/gradlew -p ports/mc26.2 classpathFile --no-daemon

@@ -8,7 +8,7 @@ import tech.gulp.lavavisual.effects.WorldCosmetics;
 
 /**
  * The inventory draws the player into a picture-in-picture window exactly the size of the box it is asked for, so a
- * tall cosmetic — a hat, wings, a cape, the crewmate's suit — was cut off at the edge and only half of it showed.
+ * tall cosmetic — a hat, wings, a cape, a full skin — was cut off at the edge and only half of it showed.
  * This is a vanilla quirk, but with cosmetics on it is very visible: the window now gains a small margin and the
  * model is drawn a little smaller while anything of ours is worn, so the whole look is inside. The plain vanilla
  * portrait is untouched.

@@ -13,10 +13,10 @@ import tech.gulp.lavavisual.effects.Dummy;
 import tech.gulp.lavavisual.effects.Hats;
 
 /**
- * The pose of a worn skin. A skin knows what it replaces: the crewmate covers both arms and both legs with its own
- * capsule (the mod draws them invisible, so no player skin shows through), while the wheelchair carries its rider's
- * legs on its footplates (they must not walk) and holds the arms forward from the rest pose, where the gloved hands
- * then sit exactly on the push rings.
+ * The pose of a worn skin. A skin knows what it replaces: the maid's stockings dress the legs to the shoe, so the
+ * mod draws the player's own legs invisible and she never walks out of her shoes, while the wheelchair carries its
+ * rider's legs on its footplates (they must not walk either) and holds the arms forward from the rest pose, where
+ * the gloved hands then sit exactly on the push rings.
  *
  * The limbs live in HumanoidModel, the superclass of the player model, and a shadow field cannot be remapped for an
  * inherited member without a reference map, so the model is reached through the mixin instance instead.
@@ -44,8 +44,8 @@ public abstract class PlayerSkinPoseMixin {
             model.leftArm.visible = false;
         }
         if ((hide & 4) != 0) {
-            // A skin that swallows the whole head (the crewmate's capsule) hides the player's head and the vanilla hat
-            // layer too, so a helmet never pokes out of the suit; LavaVisual's own hat is drawn on the suit instead.
+            // A skin that swallows the whole head hides the player's head and the vanilla hat layer too, so a
+            // helmet never pokes out of the suit; LavaVisual's own hat is drawn on the suit instead.
             model.head.visible = false;
             model.hat.visible = false;
         }
