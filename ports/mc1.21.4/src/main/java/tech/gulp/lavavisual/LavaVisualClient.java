@@ -158,15 +158,7 @@ public final class LavaVisualClient implements ClientModInitializer {
                     if (smokeTicks == 1000) LavaVisual.LOGGER.info("LavaVisual smoke shot restore");
                     if (smokeTicks == 1002) client.setScreen(new tech.gulp.lavavisual.ui.LavaTitleScreen());
                     if (smokeTicks == 1026) LavaVisual.LOGGER.info("LavaVisual smoke shot title");
-                    if (smokeTicks == 1032 && client.player != null) {
-                        // Hat and skin on, the inventory open: the model must show the whole look, not a clipped half.
-                        config.hatEnabled = true;
-                        config.hatType = 9;
-                        config.costumeEnabled = true;
-                        config.costumeType = 1;
-                        client.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(client.player));
-                    }
-                    if (smokeTicks == 1050) LavaVisual.LOGGER.info("LavaVisual smoke shot inventory");
+                    // (The inventory portrait is opened from SmokeWorld: the client ran this before a world existed.)
                     if (smokeTicks == 1030) LavaVisual.LOGGER.info("LavaVisual title screen replaced=" + tech.gulp.lavavisual.ui.LavaTitleScreen.replaced
                             + " client title: " + Edition.retitle("Minecraft* 26.2 - Singleplayer"));
                     if (smokeTicks == 1056) {
