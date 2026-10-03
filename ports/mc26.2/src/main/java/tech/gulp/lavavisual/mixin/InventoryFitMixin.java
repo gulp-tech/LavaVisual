@@ -40,12 +40,12 @@ public abstract class InventoryFitMixin {
 
     /**
      * The scale, on the other hand, goes down: vanilla draws the player at 30 px per block, which fills the box
-     * exactly, so a hat, wings or a backpack always ran out of the window and showed as a cut-off half. At 0.8 of
+     * exactly, so a hat, wings or a backpack always ran out of the window and showed as a cut-off half. At 0.72 of
      * that scale the whole look — skin, hat, wings, cape — fits the box with room to spare, and the plain vanilla
      * portrait is untouched (the box and the scale are only changed while something of ours is worn).
      */
     @ModifyVariable(method = "extractEntityInInventoryFollowsMouse", at = @At("HEAD"), argsOnly = true, ordinal = 4)
     private static int lavavisual$scale(int size) {
-        return WorldCosmetics.inInventory() ? Math.max(12, Math.round(size * 0.8f)) : size;
+        return WorldCosmetics.inInventory() ? Math.max(12, Math.round(size * 0.72f)) : size;
     }
 }
