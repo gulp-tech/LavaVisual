@@ -1,17 +1,3 @@
 > Configure project :
-> Task :compileJava
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:458: error: costumesDrawn has private access in WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:463: error: costumesDrawn has private access in WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:464: error: costumesDrawn has private access in WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:466: error: costumesDrawn has private access in WorldCosmetics
-> Task :compileJava FAILED
-FAILURE: Build failed with an exception.
-* What went wrong:
-> Compilation failed; see the compiler output below.
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:458: error: costumesDrawn has private access in WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:463: error: costumesDrawn has private access in WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:464: error: costumesDrawn has private access in WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/SmokeWorld.java:466: error: costumesDrawn has private access in WorldCosmetics
-> Check your code and dependencies to fix the compilation error(s)
-> Run with --scan to get full insights from a Build Scan (powered by Develocity).
-8
+> Task :classpathFile
+0
