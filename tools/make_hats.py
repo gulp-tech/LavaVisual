@@ -1833,18 +1833,19 @@ def costumes():
     # at GROUND + HUB + RIM, the arm hangs at +-0.293 and the wheel plane is at +-0.395), so the swing of the walk
     # turns into a push.
     for bone, side in (('armR', -1), ('armL', 1)):
+        # The rider's own arm of the skin: a sleeve down the arm and a gloved fist on the push ring. Bone space has the
+        # shoulder at 0 and the hand at -0.703, so the sleeve runs straight down the arm and the glove sits a little
+        # outboard (the push ring is 0.10 from the arm axis) and a touch forward, where the arm leans 12 degrees.
         wheelchair.append({'group': {'bone': bone}, 'parts': [
-            # The rider's glove, drawn by the skin, centred on the player's own arm (bone space: the arm hangs from
-            # x 6 px, the hand at y -0.703) so the cuff closes around the forearm and the fist, leaned 11 degrees
-            # forward by the mixin, lands on the push ring — its plane is 0.325 and the rim passes through the top of
-            # the wheel at -0.753. The cuff is wide enough to cover a chestplate's sleeve as well.
-            {'tube': [[side * 0.286, -0.552, 0.050], [side * 0.293, -0.664, 0.090]], 'radius': [0.126, 0.116],
-             'sides': 12, 'paint': ['c', 'c'], 'mat': 'satin'},
-            {'sphere': [side * 0.296, -0.752, 0.122], 'r': [0.098, 0.104, 0.118], 'seg': 14, 'paint': 'seat', 'mat': 'satin'},
-            {'tube': [[side * 0.296, -0.752, 0.122], [side * 0.302, -0.810, 0.164]], 'radius': [0.066, 0.056],
+            {'tube': [[0, -0.020, 0.000], [side * 0.030, -0.340, 0.050], [side * 0.062, -0.610, 0.100]],
+             'radius': [0.150, 0.128], 'sides': 12, 'paint': ['c', 'c'], 'mat': 'satin'},
+            {'tube': [[side * 0.052, -0.610, 0.100], [side * 0.090, -0.700, 0.120]], 'radius': [0.128, 0.118],
+             'sides': 12, 'paint': 'seat', 'mat': 'satin'},
+            {'sphere': [side * 0.100, -0.756, 0.136], 'r': [0.090, 0.096, 0.108], 'seg': 14, 'paint': 'seat', 'mat': 'satin'},
+            {'tube': [[side * 0.100, -0.756, 0.136], [side * 0.106, -0.812, 0.176]], 'radius': [0.062, 0.052],
              'sides': 10, 'paint': 'seat', 'mat': 'satin'},
-            {'sphere': [side * 0.306, -0.836, 0.200], 'r': [0.048, 0.052, 0.058], 'seg': 12, 'paint': 'steel', 'mat': 'satin', 'detail': True},
-            {'sphere': [side * 0.262, -0.790, 0.086], 'r': [0.038, 0.044, 0.048], 'seg': 10, 'paint': 'steel', 'mat': 'satin', 'detail': True},
+            {'sphere': [side * 0.110, -0.838, 0.212], 'r': [0.046, 0.050, 0.056], 'seg': 12, 'paint': 'steel', 'mat': 'satin', 'detail': True},
+            {'sphere': [side * 0.062, -0.792, 0.096], 'r': [0.036, 0.042, 0.046], 'seg': 10, 'paint': 'steel', 'mat': 'satin', 'detail': True},
         ]})
     c.append({'name': 'Инвалидное кресло', 'hint': 'Хромовая рама, руки толкают обода, ноги на подножках', 'tint': 0x4A7086,
               'hide': 0, 'seat': SEAT, 'arms': 12, 'hats': 1, 'head': [0.0, 1.0, 0.0], 'back': 0.42, 'parts': wheelchair})
