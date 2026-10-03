@@ -22,6 +22,8 @@ public final class MenuTheme {
         return screen instanceof SelectWorldScreen || screen instanceof CreateWorldScreen || screen instanceof JoinMultiplayerScreen;
     }
 
+    private static double frac(double v) { return v - Math.floor(v); }
+
     /** Called once a decorated screen has drawn its widgets. */
     public static void frame(GuiGraphicsExtractor g, Screen screen, int mouseX, int mouseY) {
         if (!styled(screen)) return;
@@ -31,6 +33,17 @@ public final class MenuTheme {
         int w = screen.width, h = screen.height;
         int ac = c.color("menu"), ac2 = c.color2("menu");
         double time = System.nanoTime() / 1e9;
+        // Slow embers rising in both theme colours, the same atmosphere as the title screen; positions are pure
+        // functions of time, so nothing is stored and every frame is identical for the same clock.
+        double span = h + 24;
+        for (int i = 0, n = 20; i < n; i++) {
+            double r1 = frac(Math.sin(i * 12.9898) * 43758.5453), r2 = frac(Math.sin(i * 78.233) * 24634.6345), r3 = frac(Math.sin(i * 39.425) * 12345.6789);
+            double rise = (time * (7 + 15 * r2) + r3 * span) % span, life = rise / span;
+            double x = 24 + r1 * (w - 48), y = h - 8 - rise;
+            int color = UiDraw.mix(ac, ac2, r2);
+            double size = 1.1 + 1.7 * r1, alpha = (0.05 + 0.22 * (1 - life)) * Math.min(1, life * 6);
+            UiDraw.circle(g, x, y, size, UiDraw.alpha(color, alpha));
+        }
         // Top accent: the theme bar, a soft glow above it and a gradient falling into the screen.
         UiDraw.glowDisc(g, w / 2.0, -8, 140, UiDraw.alpha(UiDraw.mix(ac, ac2, 0.4), 0.12));
         UiDraw.roundH(g, 0, 0, w, 3, 0, UiDraw.alpha(ac, 0.95), UiDraw.alpha(ac2, 0.95));
