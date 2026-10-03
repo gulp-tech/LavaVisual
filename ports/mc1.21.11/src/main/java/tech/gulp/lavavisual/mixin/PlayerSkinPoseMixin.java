@@ -31,16 +31,23 @@ public abstract class PlayerSkinPoseMixin {
         if (mc.player == null || (state.id != mc.player.getId() && !Dummy.is(state.id))) return;
         HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
         int hide = Hats.costumeHide(c.costumeType);
+        int arms = Hats.costumeArms(c.costumeType);
+        if (arms != 0) {
+            // The arms keep their own swing (that swing is the push) and only lean a little forward, so the hands of
+            // the skin land on the push rings; the player's own arms are hidden underneath when the skin covers them.
+            float angle = (float) Math.toRadians(-arms);
+            model.rightArm.xRot += angle;
+            model.leftArm.xRot += angle;
+        }
         if ((hide & 1) != 0) {
             model.rightArm.visible = false;
             model.leftArm.visible = false;
-        } else {
-            int arms = Hats.costumeArms(c.costumeType);
-            if (arms != 0) {
-                float angle = (float) Math.toRadians(-arms);
-                model.rightArm.xRot = angle;
-                model.leftArm.xRot = angle;
-            }
+        }
+        if ((hide & 4) != 0) {
+            // A skin that swallows the whole head (the crewmate's capsule) hides the player's head and the vanilla hat
+            // layer too, so a helmet never pokes out of the suit; LavaVisual's own hat is drawn on the suit instead.
+            model.head.visible = false;
+            model.hat.visible = false;
         }
         if ((hide & 2) != 0) {
             model.rightLeg.visible = false;

@@ -6,9 +6,9 @@
 
 | Файл | Кому |
 | --- | --- |
-| `lavavisual-1.0.4-mc<версия>.jar` | мод: закинуть в папку `mods` (Fabric или Quilt, нужен Fabric API) |
-| `LavaVisual-Client-1.0.4-mc<версия>.zip` | готовый клиент целиком, если мод ещё не установлен |
-| `LavaVisual-Client-1.0.4-mc<версия>.mrpack` | установка через Modrinth App, Prism или ATLauncher |
+| `lavavisual-1.0.5-mc<версия>.jar` | мод: закинуть в папку `mods` (Fabric или Quilt, нужен Fabric API) |
+| `LavaVisual-Client-1.0.5-mc<версия>.zip` | готовый клиент целиком, если мод ещё не установлен |
+| `LavaVisual-Client-1.0.5-mc<версия>.mrpack` | установка через Modrinth App, Prism или ATLauncher |
 | `SHA256SUMS` | контрольные суммы всех файлов |
 
 Версия Minecraft указана в имени файла: `mc26.2`, `mc1.21.11`, `mc1.21.4`.

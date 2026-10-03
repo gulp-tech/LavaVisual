@@ -1,4 +1,4 @@
-# LavaVisual 1.0.4 — Minecraft 26.2
+# LavaVisual 1.0.5 — Minecraft 26.2
 
 <img src="ports/mc26.2/src/main/resources/assets/lavavisual/icon.png" width="96" alt="LV">
 
@@ -7,9 +7,9 @@
 
 | | Скачать | Что внутри |
 | --- | --- | --- |
-| **Мод** | [lavavisual-1.0.4-mc26.2.jar](artifacts/lavavisual-1.0.4-mc26.2.jar) | только LavaVisual, в папку `mods` |
-| **Клиент** | [LavaVisual-Client-1.0.4-mc26.2.mrpack](artifacts/LavaVisual-Client-1.0.4-mc26.2.mrpack) | готовая сборка для Modrinth App, Prism Launcher, ATLauncher |
-| **Клиент (архив)** | [LavaVisual-Client-1.0.4-mc26.2.zip](artifacts/LavaVisual-Client-1.0.4-mc26.2.zip) | папки `mods` и `config` для TLauncher, телефонов и ручной установки |
+| **Мод** | [lavavisual-1.0.5-mc26.2.jar](artifacts/lavavisual-1.0.5-mc26.2.jar) | только LavaVisual, в папку `mods` |
+| **Клиент** | [LavaVisual-Client-1.0.5-mc26.2.mrpack](artifacts/LavaVisual-Client-1.0.5-mc26.2.mrpack) | готовая сборка для Modrinth App, Prism Launcher, ATLauncher |
+| **Клиент (архив)** | [LavaVisual-Client-1.0.5-mc26.2.zip](artifacts/LavaVisual-Client-1.0.5-mc26.2.zip) | папки `mods` и `config` для TLauncher, телефонов и ручной установки |
 
 Контрольные суммы — в [SHA256SUMS](artifacts/SHA256SUMS).
 
@@ -81,6 +81,11 @@ PojavLauncher, MojoLauncher, Amethyst и другие лаунчеры на ос
   заходят в спину.
   Шляпы, крылья, плащи и аксессуары видят другие игроки с LavaVisual — без серверного мода; смена доходит до них
   примерно за 15 секунд. У ников таких игроков — логотип LV.
+- **Меню:** главный экран, список серверов, выбор и создание мира оформлены в одном стиле LavaVisual — полосы в
+  цветах темы, бегущий блик по верхней кромке, уголки по краям, тень снизу и знак с версией в углу. Ничего в самих
+  экранах не перерисовывается поверх ванильных кнопок, только рамка вокруг.
+- **Обзор в инвентаре:** модель в инвентаре рисуется чуть меньше и с запасом по краям, поэтому шляпа, крылья, плащ и
+  весь образ скина видно целиком, а не обрезанную половину.
 - **Скины:** два цельных образа, привязанных к костям игрока, поэтому они живут вместе с анимациями:
   **Амонг Ас** — красная капсула с визором и рюкзаком и двумя лапами, руки прячутся внутрь;
   **инвалидное кресло** — хромированная рама, чёрное сиденье и синяя спинка, руки толкают обода, колёса катятся

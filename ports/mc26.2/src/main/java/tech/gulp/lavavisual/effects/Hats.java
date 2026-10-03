@@ -42,7 +42,7 @@ public final class Hats {
     private static final int GROUP = 0, REVOLVE = 1, TUBE = 2, TORUS = 3, SPHERE = 4, GEM = 5, PRISM = 6, POLY = 7, STRIP = 8,
             GLOW_RING = 9, GLOW_FLAT = 10, GLOW_DISC = 11, SHEET = 12;
     private static final String[] KEYS = {"c", "l", "m", "d", "dl", "cw", "lw", "w", "k", "g", "p", "gr", "r",
-            "chrome", "steel", "tire", "glass", "seat"};
+            "chrome", "steel", "tire", "glass", "seat", "trouser", "shoe", "glass2"};
     private static final String[] MATS = {"matte", "satin", "gloss", "metal", "gem", "fur", "glow"};
     private static final int GLOW = 6;
     private static final float[] GLOSS = {0.06f, 0.22f, 0.5f, 0.9f, 1.0f, 0f};
@@ -383,7 +383,10 @@ public final class Hats {
     }
     private static int key(String name) {
         for (int i = 0; i < KEYS.length; i++) if (KEYS[i].equals(name)) return i;
-        throw new IllegalArgumentException("unknown hat paint " + name);
+        // A colour the running build does not know (a skin from a newer file) must never take every model down with
+        // it: the part is painted dark grey and the name is reported once.
+        LavaVisual.LOGGER.warn("LavaVisual hats: unknown paint '{}', drawn dark", name);
+        return 8;
     }
     private static float[] floats(JsonObject o, String name) {
         if (!o.has(name)) return null;
@@ -519,7 +522,10 @@ public final class Hats {
                 case 14 -> 0x7C8491;
                 case 15 -> 0x222328;
                 case 16 -> 0x9ED0EC;
-                default -> 0x2A2C32;
+                case 17 -> 0x2A2C32;
+                case 18 -> 0x2C3042;
+                case 19 -> 0x2E5B8C;
+                default -> 0x18191E;
             };
         }
         int paint(int[] ids, boolean cycle, float t, float y, int index) {
