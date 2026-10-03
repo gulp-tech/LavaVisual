@@ -27,6 +27,9 @@ def resolve(name, source):
 def descriptors(cls, classpath, cache={}):
     if cls not in cache:
         run = subprocess.run(["javap", "-p", "-s", "-classpath", classpath, cls], capture_output=True, text=True)
+        if run.returncode != 0:
+            # The reason matters: usually the class is simply not on this version's classpath.
+            print(f"javap failed for {cls} (exit {run.returncode}): {(run.stderr or run.stdout).strip()[:400]}", flush=True)
         pairs = set()
         name = None
         for line in run.stdout.splitlines():

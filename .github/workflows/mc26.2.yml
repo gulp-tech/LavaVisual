@@ -24,7 +24,7 @@ jobs:
       - name: Check the mixin targets against this version
         run: |
           ports/mc26.2/gradlew -p ports/mc26.2 classpathFile --no-daemon
-          python3 tools/check_mixins.py ports/mc26.2 "$(cat ports/mc26.2/build/compile-classpath.txt)"
+          python3 tools/check_mixins.py ports/mc26.2 "$(cat ports/mc26.2/build/compile-classpath.txt)" 2>&1 | tee -a build.log
       - name: Build standalone JAR and run tests
         run: |
           set -o pipefail
@@ -36,7 +36,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git fetch -q origin "$GITHUB_REF_NAME" && git reset -q --mixed "origin/$GITHUB_REF_NAME"
           mkdir -p artifacts/debug
-          grep -E "error:|error;|cannot find symbol|symbol:|location:|^e: |FAILURE|What went wrong|> " build.log | head -600 > artifacts/debug/mc26.2-errors.txt || true
+          grep -E "error:|error;|cannot find symbol|symbol:|location:|^e: |FAILURE|What went wrong|MIXIN PROBLEM|javap failed|mixin descriptors|> " build.log | head -600 > artifacts/debug/mc26.2-errors.txt || true
           git add -f artifacts/debug
           git commit -q -m 'Build log [skip ci]' || exit 0
           git push -q origin "HEAD:$GITHUB_REF_NAME" || true

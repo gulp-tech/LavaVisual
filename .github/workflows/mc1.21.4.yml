@@ -32,7 +32,7 @@ jobs:
             javap -classpath "$cp" -p "$c" >> artifacts/debug/api-1.21.4.txt 2>&1 || true
           done
           wc -l artifacts/debug/api-1.21.4.txt artifacts/debug/classes-1.21.4.txt
-          python3 tools/check_mixins.py ports/mc1.21.4 "$cp"
+          python3 tools/check_mixins.py ports/mc1.21.4 "$cp" 2>&1 | tee -a build.log
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git fetch -q origin "$GITHUB_REF_NAME" && git stash -q -u && git reset -q --hard "origin/$GITHUB_REF_NAME" && git stash pop -q || true
@@ -50,7 +50,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git fetch -q origin "$GITHUB_REF_NAME" && git reset -q --mixed "origin/$GITHUB_REF_NAME"
           mkdir -p artifacts/debug
-          grep -E "error:|error;|cannot find symbol|symbol:|location:|^e: |FAILURE|What went wrong|> " build.log | head -1500 > artifacts/debug/mc1.21.4-errors.txt || true
+          grep -E "error:|error;|cannot find symbol|symbol:|location:|^e: |FAILURE|What went wrong|MIXIN PROBLEM|javap failed|mixin descriptors|> " build.log | head -1500 > artifacts/debug/mc1.21.4-errors.txt || true
           grep -cE "error:" build.log >> artifacts/debug/mc1.21.4-errors.txt || true
           git add -f artifacts/debug
           git commit -q -m 'Build log [skip ci]' || exit 0
