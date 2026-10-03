@@ -16,7 +16,7 @@ final class SmokeWorld {
             DUMMY_AT = HATS_AT + HATS.length * HAT_STEP + 10, HANDS_AT = DUMMY_AT + 70, CRIT_AT = HANDS_AT + 50,
             TRAIL_AT = CRIT_AT + 50, ZOOM_AT = TRAIL_AT + 95, FREE_AT = ZOOM_AT + 40, WINGS_EDIT_AT = FREE_AT + 40,
             MAP_AT = WINGS_EDIT_AT + 45, SOUND_AT = MAP_AT + 110, MUSIC_AT = SOUND_AT + 12, FORMATS_AT = MUSIC_AT + 72, TIME_AT = FORMATS_AT + 104, ITEMS_AT = TIME_AT + 80,
-            PROJ_AT = ITEMS_AT + 70, OUTFIT_AT = PROJ_AT + 50, SKIN_AT = OUTFIT_AT + 94, END_AT = SKIN_AT + 86;
+            PROJ_AT = ITEMS_AT + 70, OUTFIT_AT = PROJ_AT + 50, SKIN_AT = OUTFIT_AT + 94, END_AT = SKIN_AT + 196;
     private static float walkLift;
     private static long amongusQuads, chairQuads;
     private static double p1, p2, p3, p4;
@@ -472,6 +472,14 @@ final class SmokeWorld {
                     + ": crewmate " + amongusQuads + ", chair " + chairQuads);
         }
         if (ticks == SKIN_AT + 80) { c.costumeEnabled = false; c.extras.clear(); mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }
+
+        // The decorated vanilla menus: the world list and the server list with the LavaVisual frame, kept as shots so
+        // the layout can be reviewed (the screens are opened right after the skins are done with).
+        if (ticks == SKIN_AT + 96) mc.setScreen(new net.minecraft.client.gui.screens.worldselection.SelectWorldScreen(null));
+        if (ticks == SKIN_AT + 126) LavaVisual.LOGGER.info("LavaVisual smoke shot world_worlds");
+        if (ticks == SKIN_AT + 136) mc.setScreen(new net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen(null));
+        if (ticks == SKIN_AT + 166) LavaVisual.LOGGER.info("LavaVisual smoke shot world_servers");
+        if (ticks == SKIN_AT + 176) mc.setScreen(null);
 
         if (ticks == END_AT) finish(null);
     }
