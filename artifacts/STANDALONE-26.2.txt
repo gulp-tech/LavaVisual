@@ -1,4 +1,4 @@
-Source: 0d564b5562978901f59fac1647b38b40062b6412
-Build: https://github.com/gulp-tech/LavaVisual/actions/runs/37124564851
+Source: 5848919ec9a877b7e95124a9af9460fe54ff5501
+Build: https://github.com/gulp-tech/LavaVisual/actions/runs/37125092305
 Minecraft: 26.2
 Tested Fabric Loader: 0.19.3
