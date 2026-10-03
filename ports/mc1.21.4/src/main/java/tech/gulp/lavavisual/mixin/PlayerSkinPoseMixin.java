@@ -2,8 +2,8 @@ package tech.gulp.lavavisual.mixin;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.player.PlayerModel;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,7 +24,7 @@ import tech.gulp.lavavisual.effects.Hats;
 @Mixin(PlayerModel.class)
 public abstract class PlayerSkinPoseMixin {
     @Inject(method = "setupAnim", at = @At("RETURN"))
-    private void lavavisual$skinPose(AvatarRenderState state, CallbackInfo ci) {
+    private void lavavisual$skinPose(PlayerRenderState state, CallbackInfo ci) {
         var c = LavaVisualClient.config();
         if (!c.costumeEnabled || Hats.costume(c.costumeType) == null) return;
         Minecraft mc = Minecraft.getInstance();
