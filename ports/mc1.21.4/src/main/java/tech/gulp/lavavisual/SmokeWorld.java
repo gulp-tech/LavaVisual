@@ -8,7 +8,8 @@ import net.minecraft.world.Difficulty;
 /**
  * CI only (-Dlavavisual.uiSmoke=true): creates a flat peaceful world after the menu smoke and asks
  * tools/client_smoke.py for third-person screenshots of every wing model (back and front) and several hats, so the
- * cosmetics are judged in the real game renderer instead of the Python preview.
+ * cosmetics are judged in the real game renderer instead of the Python preview: the skins on the player, the
+ * portrait window of the inventory with the propeller hat, and the decorated world and server lists.
  */
 final class SmokeWorld {
     private static final int[] HATS = {1, 3, 5, 13, 14};

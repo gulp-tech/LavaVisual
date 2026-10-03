@@ -3,7 +3,7 @@ name: Real game test (Minecraft 1.21.11)
 # not the development client. This is the only way to catch problems that only exist after remapping.
 # The published jar is committed by the build workflow with its own token, and such a push never starts
 # another workflow, so this one also runs from the Actions tab (`gh workflow run realgame-1.21.11.yml`).
-# It runs on every published 1.21.11 jar (перезапуск для проверки кресла), and a fresh release is validated by touching this file: the run then
+# It runs on every published 1.21.11 jar (перезапуск: скины 1.0.5 и оформление меню), and a fresh release is validated by touching this file: the run then
 # picks up the newest jar in artifacts/ and plays it for real. This run is the last gate before the release page.
 on:
   push:
