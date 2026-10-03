@@ -1,3 +1,6 @@
 > Configure project :
 > Task :classpathFile
+javap failed for net.minecraft.client.model.player.PlayerModel (exit 1): Error: class not found: net.minecraft.client.model.player.PlayerModel
+mixin descriptors checked: 2
+MIXIN PROBLEM: PlayerSkinPoseMixin.java: javap found nothing for net.minecraft.client.model.player.PlayerModel
 0
