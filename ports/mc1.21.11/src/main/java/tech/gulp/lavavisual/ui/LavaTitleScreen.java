@@ -234,7 +234,7 @@ public final class LavaTitleScreen extends Screen {
             UiFont.text(g, font, chips[i][0], x + 12, cy + 5, UiDraw.alpha(0x8F98A6, enter), w - 18, UiFont.Face.SMALL);
             UiFont.text(g, font, chips[i][1], x + 12, cy + 16, UiDraw.alpha(UiDraw.mix(0xE3E7EE, 0xFFFFFF, hover), enter), w - 18, UiFont.Face.BOLD);
             UiFont.icon(g, font, Icons.CHEVRON_RIGHT, x + w - 16, cy + 11, UiDraw.alpha(0xFFFFFF, 0.5 * hover * enter));
-            Runnable action = i == 0 ? () -> minecraft.gui.setScreen(new SkinEditorScreen(this)) : () -> minecraft.gui.setScreen(new HatEditorScreen(this));
+            Runnable action = i == 0 ? () -> minecraft.setScreen(new SkinEditorScreen(this)) : () -> minecraft.setScreen(new HatEditorScreen(this));
             hits.add(new Hit(x, cy, w, h, action));
         }
     }
