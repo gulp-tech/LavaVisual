@@ -20,7 +20,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          MAIN=$(ls artifacts/lavavisual-*-mc26.2.jar 2>/dev/null | head -1 || true)
+          # The newest build on the branch (1.0.5 wins over 1.0.4 even if an old file is still around).
+          MAIN=$(ls artifacts/lavavisual-*-mc26.2.jar 2>/dev/null | sort -V | tail -1 || true)
           if [ -z "$MAIN" ]; then
             echo "на этой ветке нет опубликованных сборок — публиковать нечего"
             exit 0
@@ -33,9 +34,9 @@ jobs:
             gh release create "$TAG" --target "$GITHUB_SHA" --title "LavaVisual $VERSION" --notes-file .github/release-notes.md
           fi
           gh release upload "$TAG" --clobber \
-            artifacts/lavavisual-*.jar \
-            artifacts/LavaVisual-Client-*.zip \
-            artifacts/LavaVisual-Client-*.mrpack \
+            artifacts/lavavisual-"$VERSION"-*.jar \
+            artifacts/LavaVisual-Client-"$VERSION"-*.zip \
+            artifacts/LavaVisual-Client-"$VERSION"-*.mrpack \
             artifacts/SHA256SUMS \
             artifacts/STANDALONE-26.2.txt
           gh release view "$TAG" --json assets --jq '.assets[] | "\(.name) — \(.size) байт"'
