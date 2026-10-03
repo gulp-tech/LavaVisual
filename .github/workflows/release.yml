@@ -6,6 +6,11 @@ name: Publish release
 on:
   push:
     paths: ['artifacts/**', '.github/workflows/release.yml']
+  # The builds publish their files with the bot token, and pushes made with that token do not start other workflows.
+  # Listening for the builds themselves keeps the download page on the newest tested files without a manual restart.
+  workflow_run:
+    workflows: ['Build LavaVisual 26.2 standalone', 'Build LavaVisual (Minecraft 1.21.11)', 'Build LavaVisual (Minecraft 1.21.4)']
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -14,8 +19,12 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # A failed build leaves the page as it is; a successful one refreshes it.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch || github.ref_name }}
       - name: Create or refresh the release
         env:
           GH_TOKEN: ${{ github.token }}
