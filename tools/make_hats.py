@@ -1668,9 +1668,9 @@ def costumes():
     # The crewmate of the reference art: a bean-shaped suit, wide at the belly and domed on top, a sealed glass visor
     # in a black frame across the face, a rounded pack on the back and two chunky legs. The suit swallows both arms
     # (the mod draws them invisible, the held weapon stays), while the legs are the skin's own and walk with the player.
-    BODY = [[0.000, 0.512], [0.150, 0.498], [0.278, 0.458], [0.372, 0.386], [0.430, 0.286], [0.454, 0.150],
-            [0.458, -0.020], [0.452, -0.230], [0.436, -0.460], [0.410, -0.680], [0.374, -0.850], [0.320, -0.958],
-            [0.214, -1.020], [0.000, -1.048]]
+    BODY = [[0.000, 0.620], [0.210, 0.600], [0.340, 0.545], [0.430, 0.455], [0.468, 0.350], [0.488, 0.190],
+            [0.492, 0.000], [0.488, -0.210], [0.470, -0.430], [0.442, -0.650], [0.404, -0.840], [0.348, -0.955],
+            [0.232, -1.022], [0.000, -1.048]]
 
     def radius_at(y):
         """Radius of the suit at a height: the visor and the pack have to lie on that surface, not float off it."""
@@ -1733,19 +1733,19 @@ def costumes():
         from just under the suit hem (-0.30) to the floor, and the whole leg swings with the player's own bone."""
         x = side * 0.170
         return {'group': {'bone': 'legR' if side < 0 else 'legL'}, 'parts': [
-            {'tube': [[x, -0.240, 0.020], [x, -0.500, 0.036], [x, -0.600, 0.046]], 'radius': [0.170, 0.156],
+            {'tube': [[x, -0.235, 0.020], [x, -0.500, 0.036], [x, -0.600, 0.046]], 'radius': [0.204, 0.194],
              'sides': 18, 'paint': ['c', 'd'], 'mat': 'gloss'},
-            {'sphere': [x, -0.618, 0.062], 'r': [0.158, 0.085, 0.192], 'seg': 18, 'paint': ['c', 'd'], 'mat': 'gloss'},
+            {'sphere': [x, -0.618, 0.066], 'r': [0.196, 0.092, 0.226], 'seg': 18, 'paint': ['c', 'd'], 'mat': 'gloss'},
         ]}
 
     amogus = [{'group': {'bone': 'body'}, 'parts': [
         {'revolve': BODY, 'seg': 44, 'two': True, 'paint': ['c', 'd'], 'mat': 'gloss'},
         # Visor: a wide black frame wrapped on the suit, glass proud of it with a light top and a dark bottom, and
         # the window reflection of the reference in the upper right.
-        oval(-0.070, 0.452, 78, 0.010, 'k', 'satin', rows=10, steps=15),
-        oval(-0.008, 0.404, 70, 0.022, ['glass', 'glass2'], 'gloss', rows=10, steps=15, vertical=True),
-        band([(0.330, 0.0), (0.298, 0.55), (0.258, 0.6), (0.226, 0.2)], SHINE, 0.030, 'w', 'gloss', 0.45),
-        {'glowdisc': [0, 0.20, 0.50], 'size': 0.42, 'paint': 'glass', 'alpha': 0.05},
+        oval(-0.020, 0.560, 78, 0.010, 'k', 'satin', rows=10, steps=15),
+        oval(0.044, 0.512, 70, 0.022, ['glass', 'glass2'], 'gloss', rows=10, steps=15, vertical=True),
+        band([(0.430, 0.0), (0.398, 0.55), (0.356, 0.6), (0.326, 0.2)], SHINE, 0.034, 'w', 'gloss', 0.4),
+        {'glowdisc': [0, 0.28, 0.51], 'size': 0.46, 'paint': 'glass', 'alpha': 0.05},
         # Backpack: a rounded pack with a chrome vent, the way the reference model wears it.
         {'sphere': [0, -0.090, -0.470], 'r': [0.300, 0.345, 0.215], 'seg': 24, 'paint': ['c', 'd'], 'mat': 'gloss'},
         {'prism': [[-0.105, -0.055], [0.105, -0.055], [0.105, 0.020], [-0.105, 0.020]], 'z': [-0.700, -0.664],
@@ -1755,7 +1755,7 @@ def costumes():
         crew_leg(-1), crew_leg(1),
     ]}]
     c.append({'name': 'Амонг Ас', 'hint': 'Красный скафандр, стеклянный визор, рюкзак; руки внутри', 'tint': 0xC6111B,
-              'hide': 7, 'hats': 1, 'head': [0.050, 1.28, 0.0], 'back': 0.34, 'parts': amogus})
+              'hide': 7, 'hats': 1, 'head': [0.160, 1.28, 0.0], 'back': 0.34, 'parts': amogus})
 
     # --------------------------------------------------------- Инвалидное кресло
     # A sporty folding chair after the reference photo: a black seat and backrest with teal panels on a chrome frame,
@@ -1837,11 +1837,11 @@ def costumes():
         # shoulder at 0 and the hand at -0.703, so the sleeve runs straight down the arm and the glove sits a little
         # outboard (the push ring is 0.10 from the arm axis) and a touch forward, where the arm leans 12 degrees.
         wheelchair.append({'group': {'bone': bone}, 'parts': [
-            {'tube': [[0, -0.020, 0.000], [side * 0.030, -0.340, 0.050], [side * 0.062, -0.610, 0.100]],
-             'radius': [0.150, 0.128], 'sides': 12, 'paint': ['c', 'c'], 'mat': 'satin'},
-            {'tube': [[side * 0.052, -0.610, 0.100], [side * 0.090, -0.700, 0.120]], 'radius': [0.128, 0.118],
+            {'tube': [[0, -0.020, 0.004], [side * 0.030, -0.340, 0.050], [side * 0.062, -0.610, 0.100]],
+             'radius': [0.192, 0.168], 'sides': 14, 'paint': ['c', 'c'], 'mat': 'satin'},
+            {'tube': [[side * 0.052, -0.610, 0.100], [side * 0.090, -0.700, 0.124]], 'radius': [0.162, 0.140],
              'sides': 12, 'paint': 'seat', 'mat': 'satin'},
-            {'sphere': [side * 0.100, -0.756, 0.136], 'r': [0.090, 0.096, 0.108], 'seg': 14, 'paint': 'seat', 'mat': 'satin'},
+            {'sphere': [side * 0.104, -0.762, 0.146], 'r': [0.112, 0.116, 0.126], 'seg': 14, 'paint': 'seat', 'mat': 'satin'},
             {'tube': [[side * 0.100, -0.756, 0.136], [side * 0.106, -0.812, 0.176]], 'radius': [0.062, 0.052],
              'sides': 10, 'paint': 'seat', 'mat': 'satin'},
             {'sphere': [side * 0.110, -0.838, 0.212], 'r': [0.046, 0.050, 0.056], 'seg': 12, 'paint': 'steel', 'mat': 'satin', 'detail': True},

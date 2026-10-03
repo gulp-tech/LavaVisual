@@ -61,7 +61,7 @@ public final class MenuTheme {
         UiDraw.round(g, 8, logoY - 16, brandW + 12, 12, 4, UiDraw.alpha(0x14161B, 0.55 + 0.25 * near));
         UiFont.text(g, mc.font, brand, 14, logoY - 13, UiDraw.alpha(0xC5CCD6, 0.6 + 0.35 * near), brandW + 2, UiFont.Face.SMALL);
         // Version chip in the opposite corner, mirroring the brand.
-        String version = "v" + Edition.version();
+        String version = "v" + Edition.version().replaceFirst("-mc.*$", "");
         int versionW = UiFont.width(g, mc.font, version, UiFont.Face.SMALL);
         int chipX = w - versionW - 22;
         UiDraw.round(g, chipX, logoY - 16, versionW + 14, 12, 4, UiDraw.alpha(0x14161B, 0.5));

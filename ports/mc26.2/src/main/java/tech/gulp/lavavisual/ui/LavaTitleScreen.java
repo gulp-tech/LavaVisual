@@ -118,10 +118,21 @@ public final class LavaTitleScreen extends Screen {
         aurora(g, now, ac, ac2, enter);
 
         List<Item> list = items;
-        int left = Math.max(22, (int) (width * 0.075)), buttonW = Math.clamp(width / 3, 160, 214), buttonH = 24, gap = 6;
+        int left = Math.max(22, (int) (width * 0.075)), buttonW = Math.clamp(width / 3, 160, 214);
         int logoW = Logo.width(false), logoH = Logo.MENU_H, headH = logoH * 2 + 30;
+        // The list always ends above the version line: on a short window (a big GUI scale, a phone) the buttons and
+        // the logo shrink a little instead of running off the bottom, where the version line would land on them.
+        int reserve = 26, buttonH = 24, gap = 6;
         int blockH = headH + list.size() * (buttonH + gap);
-        int top = Math.max(12, (height - blockH) / 2 - 6);
+        int avail = Math.max(140, height - reserve - 10);
+        if (blockH > avail) {
+            double fit = avail / (double) blockH;
+            buttonH = Math.max(16, (int) Math.round(buttonH * fit));
+            gap = Math.max(3, (int) Math.round(gap * fit));
+            headH = Math.max(logoH * 2 + 12, (int) Math.round(headH * fit));
+            blockH = headH + list.size() * (buttonH + gap);
+        }
+        int top = Math.max(6, (height - reserve - blockH) / 2);
 
         // Logo (twice the menu size, pixel-exact texture), name and edition.
         int lift = (int) Math.round((1 - enter) * 10);

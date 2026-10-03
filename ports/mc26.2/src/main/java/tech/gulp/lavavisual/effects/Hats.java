@@ -524,7 +524,8 @@ public final class Hats {
                 case 16 -> 0x9ED0EC;
                 case 17 -> 0x2A2C32;
                 case 18 -> 0x2C3042;
-                case 19 -> 0x2E5B8C;
+                case 19 -> 0x18191E;
+                case 20 -> 0x2E5B8C;
                 default -> 0x18191E;
             };
         }
