@@ -269,7 +269,6 @@ public final class ClickGuiScreen extends Screen {
             UiDraw.round(g, bodyX - 1, y - 1, bodyW + 2, 50, 9, UiDraw.alpha(ac, 0.11 * lit));
             UiDraw.roundH(g, bodyX + 1, y + 1, bodyW - 2, 46, 7, UiDraw.alpha(ac, 0.13 * lit), UiDraw.alpha(ac2, 0.02 * lit));
             UiDraw.roundV(g, bodyX + 1, y + 10, 2, 28, 1, UiDraw.alpha(ac, lit), UiDraw.alpha(ac2, lit));
-            UiDraw.roundV(g, bodyX + bodyW - 3, y + 12, 2, 24, 1, UiDraw.alpha(ac, 0.75 * lit), UiDraw.alpha(ac2, 0.75 * lit));
         }
         String icon = CARD_ICONS.getOrDefault(key.startsWith("setting:") ? "setting" : key, Icons.SLIDERS_HORIZONTAL);
         UiDraw.round(g, bodyX + 9, y + 11, 26, 26, 8, UiDraw.alpha(0xFFFFFF, (0.05 + 0.10 * lit) * op));
