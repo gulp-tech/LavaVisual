@@ -925,7 +925,8 @@ class Builder:
             'gr': mix((60, 182, 90), self.l, 0.1), 'r': (224, 48, 58),
             'chrome': (206, 212, 220), 'steel': (124, 132, 145), 'tire': (34, 35, 40),
             'glass': (158, 208, 236), 'glass2': (46, 91, 140), 'seat': (42, 44, 50),
-            'trouser': (44, 48, 66), 'shoe': (24, 25, 30), 'hair': (46, 35, 29),
+            'trouser': (44, 48, 66), 'shoe': (24, 25, 30),
+            'hair': (48, 34, 27), 'hair2': (96, 72, 52),
         }[key]
 
     def paint(self, paint, t, y, index):
@@ -1809,10 +1810,12 @@ def costumes():
                        for x in [round(-0.116 + 0.232 * i / 4, 4) for i in range(5)]], 'paint': INK, 'mat': 'satin'},
             {'sphere': [0, -0.628, 0.176], 'r': [0.098, 0.058, 0.086], 'seg': 14, 'paint': INK, 'mat': 'gloss', 'detail': True},
         ]})
-    # Headpiece: the frilled band around the head and the small bow on top of it.
+    # Headpiece: the frilled band around the head and the small bow on top of it. The hair is a shell a hair
+    # thinner than the head, so the skin's 'head' offset below (lift 0.055, scale 1.20) puts a hat of any kind
+    # outside the hair instead of letting the hair poke through it.
     # Hair: a shell two pixels over the head, open at the face; the fringe above the eyes, side locks by the cheeks
     # and a bun at the back. The frilled band of the headpiece sits on the hair, with its bow above the ear.
-    HAIR = 'hair'
+    HAIR, HAIR_LIT = 'hair', 'hair2'      # тёмные волосы и светлый блик на них
     maid.append({'group': {'bone': 'head'}, 'parts': [
         # The head is a box 0.234 wide, so the hair is a shell just outside it (0.26-0.28): its own crown over the
         # top, the sides and the back lower down (leaving the face open), a fringe above the eyes and long hair
@@ -1826,18 +1829,24 @@ def costumes():
         # Fringe over the forehead, ending above the eyes, with a soft wave along its edge.
         {'sheet': wrap_grid([(0.492, 0.244, 0.244, 0.0), (0.474, 0.268, 0.270, 0.0), (0.448, 0.272, 0.276, 0.0),
                              (0.414, 0.270, 0.274, 0.0), (0.392, 0.264, 0.268, 0.0, 0.010)], cols=26, span=(-0.185, 0.185),
-                         pleats=4, depth=0.02), 'paint': HAIR, 'mat': 'fur'},
+                         pleats=4, depth=0.02), 'paint': HAIR_LIT, 'mat': 'fur'},
+        # Светлый блик по макушке — волосы читаются как волосы, а не как тёмная шапка.
+        {'sheet': wrap_grid([(0.496, 0.150, 0.150, 0.0), (0.484, 0.234, 0.234, 0.0), (0.466, 0.262, 0.262, 0.0)],
+                            cols=20, span=(-0.26, 0.26)), 'paint': HAIR_LIT, 'mat': 'fur', 'detail': True},
         # Long hair down the back, hanging from the head bone, so it turns with the head.
         {'sheet': wrap_grid([(0.300, 0.272, 0.272, 0.0), (0.180, 0.276, 0.276, 0.0), (0.050, 0.272, 0.272, 0.0),
                              (-0.080, 0.262, 0.262, 0.0), (-0.200, 0.244, 0.244, 0.0, 0.010)],
                             cols=32, span=(0.22, 0.78)), 'paint': HAIR, 'mat': 'fur'},
         {'group': {'mirror': True}, 'parts': [
             {'tube': [[0.268, 0.352, 0.140], [0.286, 0.150, 0.170], [0.276, -0.020, 0.154]], 'radius': [0.058, 0.044],
-             'sides': 12, 'caps': False, 'paint': HAIR, 'mat': 'fur'},
+             'sides': 12, 'caps': False, 'paint': HAIR_LIT, 'mat': 'fur'},
         ]},
         {'sphere': [0, 0.318, -0.314], 'r': [0.156, 0.146, 0.126], 'seg': 18, 'paint': HAIR, 'mat': 'fur'},
-        {'group': {'at': [0, 0.318, -0.314]}, 'parts': [
-            {'torus': [0.134, 0.016], 'seg': 20, 'sides': 6, 'paint': HAIR, 'mat': 'fur', 'detail': True},
+        # The tie of the bun: a ring around the bun's base (the XY plane, just in front of its widest point), so
+        # from behind the bun itself hides it — a ring lying in the XZ plane used to poke out of the sphere as a
+        # dark slit across the bun.
+        {'group': {'at': [0, 0.318, -0.246], 'rot': [90, 0, 0]}, 'parts': [
+            {'torus': [0.130, 0.016], 'seg': 22, 'sides': 6, 'paint': HAIR, 'mat': 'fur', 'detail': True},
         ]},
         {'sheet': wrap_grid([(0.412, 0.266, 0.266, 0.0), (0.386, 0.280, 0.280, 0.3), (0.358, 0.276, 0.276, 0.65),
                              (0.336, 0.264, 0.264, 1.0, 0.016)], cols=44, pleats=14, depth=0.04, span=(-0.5, 0.5)),
@@ -1845,7 +1854,7 @@ def costumes():
         {'group': {'at': [0.252, 0.388, -0.056], 'rot': [8, 74, 0]}, 'parts': bow(0.82, INK, 'gloss')},
     ]})
     c.append({'name': 'Горничная', 'hint': 'Тёмное платье с белым фартуком и кружевом, повязка с бантом; платье красится',
-              'tint': 0x24272E, 'hide': 2, 'hats': 1, 'head': [0.045, 1.06, 0.0], 'back': 0.16,
+              'tint': 0x24272E, 'hide': 2, 'hats': 1, 'head': [0.055, 1.20, 0.0], 'back': 0.16,
               'cover': {'torso': [-0.58, -0.02], 'armR': [-0.27, 0.03], 'armL': [-0.27, 0.03]}, 'parts': maid})
 
     # ------------------------------------------------------------------ Инвалидное кресло
@@ -1897,7 +1906,7 @@ def costumes():
             grid.append(line)
         return grid
 
-    def deck(sag=0.018, half=0.290, back=-0.360, front=0.600, rows=9, cols=13, paint=SEAT, mat='satin'):
+    def deck(sag=0.018, half=0.272, back=-0.360, front=0.440, rows=9, cols=13, paint=SEAT, mat='satin'):
         """The sling of the seat: a cloth that sags across its width, the way a real one does."""
         return {'sheet': [[[r4(x), r4(DECK - sag * (1 - (abs(x) / half) ** 2)), r4(z), r4((x + half) / (2 * half))]
                            for z in [round(back + (front - back) * j / (cols - 1), 4) for j in range(cols)]]
@@ -1907,8 +1916,8 @@ def costumes():
     chair = [
         # Sling seat between the rails, its accent piping and the front edge of the cloth.
         deck(),
-        deck(sag=0.014, back=-0.330, front=0.560, paint=ACCENT, mat='satin', rows=7, cols=9),
-        {'tube': [[-0.286, r4(DECK - 0.028), 0.598], [0.286, r4(DECK - 0.028), 0.598]], 'radius': [0.013, 0.013],
+        deck(sag=0.014, back=-0.330, front=0.424, paint=ACCENT, mat='satin', rows=7, cols=9),
+        {'tube': [[-0.272, r4(DECK - 0.028), 0.437], [0.272, r4(DECK - 0.028), 0.437]], 'radius': [0.013, 0.013],
          'sides': 8, 'paint': ACCENT, 'mat': 'satin'},
         # Upholstered back, curved around the rider's back, with the accent insert between the canes.
         {'sheet': panel([(r4(HIPS - 0.018), 0.286, -0.352, -0.088), (r4(HIPS + 0.165), 0.276, -0.352, -0.086),
@@ -1918,17 +1927,17 @@ def costumes():
                          (r4(HIPS + 0.315), 0.204, -0.300, -0.030)], cols=8), 'paint': ACCENT, 'mat': 'satin',
          'detail': True},
         # Cross brace under the sling, the axle tube and the top tube between the canes.
-        frame([(-0.290, DECK - 0.075, -0.240), (0.290, AXLE_Y + 0.060, 0.070)]),
-        frame([(0.290, DECK - 0.075, -0.240), (-0.290, AXLE_Y + 0.060, 0.070)]),
+        frame([(-0.252, DECK - 0.075, -0.240), (0.252, AXLE_Y + 0.060, 0.070)]),
+        frame([(0.252, DECK - 0.075, -0.240), (-0.252, AXLE_Y + 0.060, 0.070)]),
         frame([(-0.330, AXLE_Y, AXLE_Z), (0.330, AXLE_Y, AXLE_Z)]),
-        frame([(-0.300, HIPS + 0.462, -0.400), (-0.150, HIPS + 0.492, -0.412), (0.150, HIPS + 0.492, -0.412),
-               (0.300, HIPS + 0.462, -0.400)]),
-        # Seat belt across the lap, on the front of the drawn pelvis.
-        plate(-0.244, 0.244, HIPS - 0.034, HIPS + 0.006, 0.118, 0.160, SEAT, detail=True),
+        frame([(-0.268, HIPS + 0.462, -0.400), (-0.150, HIPS + 0.492, -0.412), (0.150, HIPS + 0.492, -0.412),
+               (0.268, HIPS + 0.462, -0.400)]),
+        # Seat belt across the lap, on top of the drawn thighs (never inside them).
+        plate(-0.244, 0.244, HIPS + 0.004, HIPS + 0.036, 0.118, 0.160, SEAT, detail=True),
         # ---- the rider's lower half, drawn by the chair (his own legs are hidden) ----
         # Pelvis: fills the gap between the sling and the player's own hips, so the torso continues into the seat.
-        plate(-0.240, 0.240, DECK - 0.015, HIPS + 0.002, -0.125, 0.125, TROUSER),
-        plate(-0.212, 0.212, DECK - 0.015, HIPS - 0.070, -0.150, 0.150, TROUSER),
+        plate(-0.240, 0.240, DECK + 0.006, HIPS + 0.002, -0.125, 0.125, TROUSER),
+        plate(-0.212, 0.212, DECK + 0.006, HIPS - 0.070, -0.150, 0.150, TROUSER),
     ]
     for side in (-1, 1):
         x0, x1 = sorted((side * 0.010, side * 0.234))
@@ -1945,19 +1954,23 @@ def costumes():
              'paint': SHOE, 'mat': 'gloss', 'detail': True},
             # ---- chair frame on this side ----
             # Seat rail, the back cane rising from it and the front upright going down to the caster.
-            frame([(side * 0.300, DECK - 0.014, -0.360), (side * 0.300, DECK - 0.014, 0.600)]),
-            frame([(side * 0.300, DECK - 0.010, -0.375), (side * 0.296, HIPS + 0.235, -0.385),
-                   (side * 0.290, HIPS + 0.468, -0.395)]),
-            frame([(side * 0.300, DECK - 0.010, 0.585), (side * 0.286, GROUND + 0.190, 0.300),
-                   (side * 0.268, GROUND + 0.078, 0.276)]),
+            frame([(side * 0.268, DECK - 0.014, -0.360), (side * 0.268, DECK - 0.014, 0.440)]),
+            frame([(side * 0.268, DECK - 0.010, -0.375), (side * 0.262, HIPS + 0.235, -0.385),
+                   (side * 0.256, HIPS + 0.468, -0.395)]),
+            frame([(side * 0.268, DECK - 0.010, 0.437), (side * 0.262, GROUND + 0.190, 0.300),
+                   (side * 0.248, GROUND + 0.078, 0.276)]),
             # Footrest hanger down to the plate that waits under the seated foot.
-            frame([(side * 0.288, DECK - 0.020, 0.588), (side * 0.276, -1.210, 0.740), (side * 0.258, ANKLE - 0.022, 0.780)]),
+            frame([(side * 0.268, DECK - 0.020, 0.430), (side * 0.262, -1.210, 0.740), (side * 0.250, ANKLE - 0.022, 0.780)]),
             plate(side * 0.040, side * 0.245, ANKLE - 0.024, ANKLE - 0.008, 0.400, 0.880, SEAT),
             plate(side * 0.048, side * 0.237, ANKLE - 0.008, ANKLE - 0.002, 0.408, 0.872, 'tire', 'matte', detail=True),
             {'tube': [[side * 0.046, r4(ANKLE - 0.012), 0.872], [side * 0.239, r4(ANKLE - 0.012), 0.872]],
              'radius': [0.011, 0.011], 'sides': 6, 'paint': 'chrome', 'mat': 'metal', 'detail': True},
             # Side guard over the tyre, and the grip of the push handle.
-            plate(side * 0.318, side * 0.372, DECK + 0.020, -0.740, -0.300, 0.130, [ACCENT, 'steel'], detail=True),
+            # Щиток над колесом: наклонён вместе с колесом и стоит снаружи шины, а не внутри неё.
+            {'group': {'at': [side * APART, r4(AXLE_Y), AXLE_Z], 'rot': [0, 0, side * -CAMBER]}, 'parts': [
+                plate(side * 0.078, side * 0.092, 0.150, 0.340, -0.250, 0.160, [ACCENT, 'steel'], detail=True),
+                plate(side * 0.070, side * 0.078, 0.170, 0.320, -0.230, 0.140, 'steel', 'metal', detail=True),
+            ]},
             {'tube': [[side * 0.288, HIPS + 0.472, -0.404], [side * 0.300, HIPS + 0.500, -0.456], [side * 0.306, HIPS + 0.498, -0.540]],
              'radius': [0.026, 0.024], 'sides': 8, 'paint': SEAT, 'mat': 'satin'},
         ]
@@ -1973,7 +1986,7 @@ def costumes():
             frame([(0.0, 0.086, -0.030), (0.0, 0.086, 0.030)], 0.014, 6),
             frame([(-0.028, 0.086, 0.0), (0.028, 0.086, 0.0)], 0.016, 6),
         ]
-        chair.append({'group': {'at': [side * 0.268, r4(GROUND + 0.078), 0.276], 'roll': ['x', r4(0.9375 / 0.078)]},
+        chair.append({'group': {'at': [side * 0.248, r4(GROUND + 0.078), 0.276], 'roll': ['x', r4(0.9375 / 0.078)]},
                       'parts': caster})
         # Rear wheel, leaning in by the camber: tyre, rim, spokes, push ring, hub and the quick-release button.
         wheel = [

@@ -43,7 +43,7 @@ public final class Hats {
     private static final int GROUP = 0, REVOLVE = 1, TUBE = 2, TORUS = 3, SPHERE = 4, GEM = 5, PRISM = 6, POLY = 7, STRIP = 8,
             GLOW_RING = 9, GLOW_FLAT = 10, GLOW_DISC = 11, SHEET = 12;
     private static final String[] KEYS = {"c", "l", "m", "d", "dl", "cw", "lw", "w", "k", "g", "p", "gr", "r",
-            "chrome", "steel", "tire", "glass", "seat", "trouser", "shoe", "glass2"};
+            "chrome", "steel", "tire", "glass", "seat", "trouser", "shoe", "glass2", "hair", "hair2"};
     private static final String[] MATS = {"matte", "satin", "gloss", "metal", "gem", "fur", "glow"};
     private static final int GLOW = 6;
     private static final float[] GLOSS = {0.06f, 0.22f, 0.5f, 0.9f, 1.0f, 0f};
@@ -528,6 +528,8 @@ public final class Hats {
                 case 18 -> 0x2C3042;
                 case 19 -> 0x18191E;
                 case 20 -> 0x2E5B8C;
+                case 21 -> 0x30221B;   // hair of a skin: dark brown, as in tools/make_hats.py
+                case 22 -> 0x604834;   // its lit highlight
                 default -> 0x18191E;
             };
         }

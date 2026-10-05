@@ -1,7 +1,7 @@
 name: Publish release
 
 # Собранные и проверенные файлы из artifacts/ выкладываются как релиз, чтобы у каждой версии была одна страница
-# (обновлено: 1.0.6 — посадка в кресле, руки игрока, причёска и физика платья горничной, портрет инвентаря).
+# (обновлено: 1.0.7 — цвет и пучок волос горничной, посадка головных уборов на причёску, кресло без ног в текстурах).
 # (перезапуск после публикации новой сборки: тронуть этот файл — пуш бота, который выкладывает jar, сборку не запускает).
 # со скачиванием. Запускается сам после публикации сборки и вручную: Actions -> Publish release -> Run workflow.
 on:
@@ -31,7 +31,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          # The newest build on the branch (1.0.6 wins over an older file if one is still around).
+          # The newest build on the branch (1.0.7 wins over an older file if one is still around).
           MAIN=$(ls artifacts/lavavisual-*-mc26.2.jar 2>/dev/null | sort -V | tail -1 || true)
           if [ -z "$MAIN" ]; then
             echo "на этой ветке нет опубликованных сборок — публиковать нечего"
