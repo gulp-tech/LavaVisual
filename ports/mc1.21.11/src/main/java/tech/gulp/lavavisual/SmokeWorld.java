@@ -450,7 +450,7 @@ final class SmokeWorld {
             LavaVisual.LOGGER.info("LavaVisual smoke shot world_outfit_front");
         }
         if (ticks == OUTFIT_AT + 90) { c.capeEnabled = false; c.extras.clear(); mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }
-        // Skins: the maid and the wheelchair, while the player walks, with a pair of glasses on the head so the
+        // Skins: the maid (cloth swinging) and the wheelchair (legs drawn by the suit), while the player walks,
         // accessory fit is judged on the skin and not on the bare player. Screenshots from behind and from the front.
         if (ticks == SKIN_AT) {
             c.capeEnabled = false; c.extras.clear(); c.hatEnabled = false; c.wingsEnabled = false;

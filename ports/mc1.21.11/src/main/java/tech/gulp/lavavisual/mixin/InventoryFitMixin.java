@@ -16,7 +16,7 @@ import tech.gulp.lavavisual.effects.WorldCosmetics;
 @Mixin(InventoryScreen.class)
 public abstract class InventoryFitMixin {
     /** The portrait box (x0, y0, x1, y1, size) gains a little room, and the model shrinks to fit it. */
-    private static final int MARGIN_X = 11, MARGIN_TOP = 12, MARGIN_BOTTOM = 8;
+    private static final int MARGIN_X = 12, MARGIN_TOP = 14, MARGIN_BOTTOM = 10;
 
     @ModifyVariable(method = "renderEntityInInventoryFollowsMouse", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private static int lavavisual$boxLeft(int x0) {
@@ -46,6 +46,6 @@ public abstract class InventoryFitMixin {
      */
     @ModifyVariable(method = "renderEntityInInventoryFollowsMouse", at = @At("HEAD"), argsOnly = true, ordinal = 4)
     private static int lavavisual$scale(int size) {
-        return WorldCosmetics.inInventory() ? Math.max(12, Math.round(size * 0.72f)) : size;
+        return WorldCosmetics.inInventory() ? Math.max(12, Math.round(size * 0.70f)) : size;
     }
 }

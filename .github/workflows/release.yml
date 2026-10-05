@@ -31,7 +31,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          # The newest build on the branch (1.0.5 wins over 1.0.4 even if an old file is still around).
+          # The newest build on the branch (1.0.6 wins over an older file if one is still around).
           MAIN=$(ls artifacts/lavavisual-*-mc26.2.jar 2>/dev/null | sort -V | tail -1 || true)
           if [ -z "$MAIN" ]; then
             echo "на этой ветке нет опубликованных сборок — публиковать нечего"

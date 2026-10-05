@@ -34,7 +34,7 @@ public final class Hats {
      *  The names and hints must stay in step with tools/make_hats.py costumes(); tools/check_costumes.py checks it. */
     public static final String[] COSTUME_NAMES = {"Горничная", "Инвалидное кресло"};
     public static final String[] COSTUME_HINTS = {"Тёмное платье, белый фартук с кружевом, чулки и повязка с бантом; платье красится",
-            "Хромовая рама, спицы и обода, руки на ободах, ноги на подножках"};
+            "Хромовая рама, спицы, обода и подножки; руки и кисти остаются твоими"};
     /** Bones a costume group can hang from: the model's own parts, so the geometry walks, swings and turns with them. */
     public static final String[] BONE_NAMES = {"body", "back", "head", "armR", "armL", "legR", "legL"};
     /** Accessories worn on the head (the others sit on the body). */
@@ -227,7 +227,7 @@ public final class Hats {
         float[][] points;
         float[][][] strip, sheet, sheetNormals;
         float[] fan, ao;
-        boolean closed, two, caps = true, lit = true, detail, cycle, altCycle, facets, mirror;
+        boolean closed, two, caps = true, lit = true, detail, cloth, cycle, altCycle, facets, mirror;
         int seg = 24, sides = 12, stripes, ridges, repeat = 1, spinAxis = -1, rollAxis = -1, bone = -1;
         float rollSpeed;
         float twist, phase, arcFrom = 0, arcTo = 360, r0, r1, power = 1, y, size, alpha = 1, up, down, z0, z1, big, small, radius, spinSpeed;
@@ -321,6 +321,8 @@ public final class Hats {
         p.two = bool(o, "two", p.kind == POLY || p.kind == STRIP || p.kind == SHEET);
         p.ao = o.has("ao") ? floats(o, "ao") : null;
         p.caps = bool(o, "caps", true); p.lit = bool(o, "lit", true); p.detail = bool(o, "detail", false);
+        p.cloth = bool(o, "cloth", false);
+        p.cloth = bool(o, "cloth", false);
         p.phase = number(o, "phase", 0);
         p.crease = (float) Math.cos(Math.toRadians(number(o, "crease", 50)));
         if (o.has("arc")) { float[] arc = floats(o, "arc"); p.arcFrom = arc[0]; p.arcTo = arc[1]; }
@@ -573,7 +575,7 @@ public final class Hats {
             for (int i = 0; i < 4; i++) {
                 g.transformPosition(p[i * 3], p[i * 3 + 1], p[i * 3 + 2], hat[i]);
                 ys[i] = hat[i].y;
-                if (deform != null) deform.apply(hat[i]);
+                if (deform != null && part.cloth) deform.apply(hat[i]);
                 world.transformPosition(hat[i], cam[i]);
             }
             float nx = 0, ny = 0, nz = 0;
@@ -587,7 +589,7 @@ public final class Hats {
             if (length < 1e-12f || !Float.isFinite(length)) return;
             nx /= length; ny /= length; nz /= length;
             float hl = (float) Math.sqrt(hx * hx + hy * hy + hz * hz);
-            if (deform != null && hl > 1e-9f) {
+            if (deform != null && part.cloth && hl > 1e-9f) {
                 // The outward hint bends with the cloth, so faces keep the right side even when the cape flies up.
                 float qx = (p[0] + p[3] + p[6] + p[9]) * 0.25f, qy = (p[1] + p[4] + p[7] + p[10]) * 0.25f, qz = (p[2] + p[5] + p[8] + p[11]) * 0.25f, e = 0.01f / hl;
                 g.transformPosition(qx, qy, qz, tmp);
@@ -612,7 +614,7 @@ public final class Hats {
             int a = Math.clamp(Math.round(alpha * part.alpha * 255), 0, 255) << 24;
             for (int i = 0; i < 4; i++) {
                 float mx = nx, my = ny, mz = nz;
-                if (smooth && (deform == null || deform.smoothNormals())) {
+                if (smooth && (deform == null || !part.cloth || deform.smoothNormals())) {
                     normalMatrix.transform(n[i * 3], n[i * 3 + 1], n[i * 3 + 2], vn);
                     float vl = vn.length();
                     if (vl > 1e-9f) {
@@ -891,7 +893,7 @@ public final class Hats {
             if (part.kind == GLOW_DISC) {
                 if (right == null || up == null) return;
                 g.transformPosition(part.center[0], part.center[1], part.center[2], tmp2);
-                if (deform != null) deform.apply(tmp2);
+                if (deform != null && part.cloth) deform.apply(tmp2);
                 world.transformPosition(tmp2);
                 float size = part.size * scale;
                 int steps = Math.max(8, seg / 2);

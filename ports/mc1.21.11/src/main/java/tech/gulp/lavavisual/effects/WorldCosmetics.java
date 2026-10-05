@@ -545,6 +545,12 @@ public final class WorldCosmetics {
         }
     }
     /**
+     * The inventory draws the player at a smaller scale inside a picture-in-picture box, and the depth of that pass
+     * is coarse: a hat sunk onto the head by its usual amount fights with the head there and shows as a flickering
+     * half. In the portrait the hat is therefore lifted clear of the head instead of being sunk into it.
+     */
+    private static final double PORTRAIT_LIFT = 0.020;
+    /**
      * Rigid hat: starts from the model's own head transform (whatever turned or tilted it this frame) and sits on the
      * hat layer or the helmet, a hair above it so the bottom never shimmers on the skin.
      */
@@ -557,12 +563,18 @@ public final class WorldCosmetics {
         int worn = wornSkin(s);
         float[] onSkin = worn == 0 || Hats.costumeHats(worn) == 0 ? null : Hats.costumeHead(worn);
         if (onSkin != null) fit *= onSkin[1];
-        double top = (s.headEquipment != null && !s.headEquipment.isEmpty() ? 9.0 : s.showHat ? 8.5 : 8.0) + 0.06;
+        // The portrait of the inventory is a small picture-in-picture pass with coarse depth: a hat sunk onto the
+        // head by its usual amount fights with it there and shows as a flickering half. In the portrait the hat
+        // therefore sits on the hat layer and a hair above, never inside the head.
+        boolean portrait = inInventory();
+        double sink = portrait ? -PORTRAIT_LIFT : Hats.sink(type) * size;
+        double top = (s.headEquipment != null && !s.headEquipment.isEmpty() ? 9.0
+                : s.showHat || portrait ? 8.5 : 8.0) + 0.06;
         pose.pushPose();
         model.head.translateAndRotate(pose);
         pose.scale(1, -1, -1); // model space (y down, face towards -z) -> cosmetic space (y up, face towards +z)
         // Worn hats wrap the head: wider than the 8 px head and sunk half a pixel, so they never float above it.
-        pose.translate(0, top / 16.0 + (lift - Hats.sink(type) * size) / 0.9375 + (onSkin != null ? onSkin[0] : 0), onSkin != null ? onSkin[2] : 0);
+        pose.translate(0, top / 16.0 + (lift - sink) / 0.9375 + (onSkin != null ? onSkin[0] : 0), onSkin != null ? onSkin[2] : 0);
         pose.mulPose(new Quaternionf().rotationY(spin));
         float k = (float) (size / 0.9375);
         pose.scale(k * fit, (float) (k * stretch), k * fit);
@@ -706,6 +718,28 @@ public final class WorldCosmetics {
      * hanging in one place. Seven parts are enough for the whole body (a cat wears a collar on the body, ears on the
      * head, paws on both arms and both legs and the tail on the back).
      */
+    /**
+     * Cloth of a skin in motion: the skirt, the petticoat and the apron of a dress swing with the walk. A skin marks
+     * such parts with "cloth" in hats.json, and only those parts are bent here — a hem trails behind the step, lifts
+     * a little when the rider runs and breathes with a slow wave of its own. The offsets stay small (well under a
+     * pixel), so the cloth can never reach the legs inside it; the deform is stateless, so the inventory preview and
+     * the world always agree.
+     */
+    private static Hats.Deform skinCloth(final double vx, final double vy, final double vz, final float seconds) {
+        final double speed = Math.sqrt(vx * vx + vz * vz);
+        final double trail = Math.min(0.055, speed * 0.012) + Math.min(0.030, Math.max(0, -vy) * 0.010);
+        final double lift = Math.min(0.045, Math.max(0, speed * 0.010));
+        final double dx = speed > 1e-4 ? -vx / speed * trail : 0, dz = speed > 1e-4 ? -vz / speed * trail : 0;
+        return v -> {
+            float w = (float) Math.max(0, Math.min(1, (-v.y - 0.42) / 0.50));   // 0 at the waist, 1 at the hem
+            if (w <= 0.001f) return;
+            float wave = (float) Math.sin(seconds * 3.1 + w * 4.4 + v.x * 7.0 + v.z * 5.0);
+            float spread = 1 + (float) lift * w * 2.4f;
+            v.x = (float) (v.x * spread + dx * w + wave * 0.010 * w);
+            v.z = (float) (v.z * spread + dz * w + wave * 0.008 * w);
+            v.y += (float) (lift * w) + wave * 0.008f * w;
+        };
+    }
     private static void costume(net.minecraft.client.model.player.PlayerModel model, PoseStack pose, net.minecraft.client.renderer.SubmitNodeCollector collector, net.minecraft.client.renderer.entity.state.AvatarRenderState s, int type, int color, int light, int style,
                                 float opacity, float seconds, float swing, float motion) {
         Hats.Model item = Hats.costume(type);
@@ -736,7 +770,11 @@ public final class WorldCosmetics {
         model.body.translateAndRotate(pose);
         pose.scale(1, -1, -1);
         pose.scale(k, k, k);
-        submitModel(collector, pose, item, new Hats.Look(color, light, style, opacity, seconds, swing, 1, env(s), 0, null, 0, motion, bones),
+        // The cloth of a skin (a dress) swings with the walk: the same speed the accessories use, and the
+        // same switch (physics), so one setting moves the cape, the scarf and the hem together.
+        double[] v = velocity(s);
+        Hats.Deform cloth = LavaVisualClient.config().capePhysics ? skinCloth(v[0], v[1], v[2], seconds) : null;
+        submitModel(collector, pose, item, new Hats.Look(color, light, style, opacity, seconds, swing, 1, env(s), 0, cloth, 0, motion, bones),
                 (float) Math.max(0.2, s.scale));
         pose.popPose();
         costumesDrawn++;
