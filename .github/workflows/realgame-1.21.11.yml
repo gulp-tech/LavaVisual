@@ -1,4 +1,5 @@
 name: Real game test (Minecraft 1.21.11)
+# (1.1.1 финал: файл тронут — живой прогон проверяет итоговую сборку без скинов.
 # Starts the actual game the player starts: vanilla 1.21.11 + Fabric Loader + the published jar,
 # not the development client. This is the only way to catch problems that only exist after remapping.
 # The published jar is committed by the build workflow with its own token, and such a push never starts
