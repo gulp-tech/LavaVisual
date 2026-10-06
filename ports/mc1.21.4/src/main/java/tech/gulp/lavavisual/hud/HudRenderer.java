@@ -305,7 +305,9 @@ public final class HudRenderer {
     public static void hotbarDurability(GuiGraphics g) {
         Minecraft mc = Minecraft.getInstance();
         HudConfig c = LavaVisualClient.config();
-        if (mc.player == null || mc.options.hideGui || mc.player.isSpectator()) return;
+        // F1 hides the whole HUD together with our layers, so nothing extra to check here; spectators have
+        // no hotbar at all.
+        if (mc.player == null || mc.player.isSpectator()) return;
         var inventory = mc.player.getInventory();
         double pulse = warnPulse();
         int left = g.guiWidth() / 2 - 91, y = g.guiHeight() - 19;
