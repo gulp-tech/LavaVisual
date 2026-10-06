@@ -73,9 +73,6 @@ public final class Hats {
         public Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread, Deform deform) {
             this(color, light, style, alpha, time, swingTime, flap, env, spread, deform, 0);
         }
-        public Look(int color, int light, int style, float alpha, float time, float swingTime, float flap, float env, float spread, Deform deform, float lift) {
-            this(color, light, style, alpha, time, swingTime, flap, env, spread, deform, lift);
-        }
     }
     /** Optional bend of model-space vertices before the world transform (the cape cloth). */
     public interface Deform {
