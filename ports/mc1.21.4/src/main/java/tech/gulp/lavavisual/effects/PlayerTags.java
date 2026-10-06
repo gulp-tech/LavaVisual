@@ -46,9 +46,11 @@ public final class PlayerTags {
         return decorate(name);
     }
 
-    /** The player behind a player-list row. The profile accessors moved between versions, so the name is matched. */
+    /** The player behind a player-list row: the connection caches exactly one row per player, so identity matches. */
     private static Player byRow(PlayerInfo info, Minecraft mc) {
-        if (info == null || mc.level == null) return null;
+        if (info == null || mc.level == null || mc.getConnection() == null) return null;
+        for (Player player : mc.level.players())
+            if (mc.getConnection().getPlayerInfo(player.getUUID()) == info) return player;
         Object profile = info.getProfile();
         String name = call(profile, "getName");
         if (name == null) name = call(profile, "name");
@@ -70,24 +72,14 @@ public final class PlayerTags {
         return name.getString().startsWith(GLYPH) ? name : Component.empty().append(LOGO).append(" ").append(name);
     }
 
-    /** CI: the row of the local player, asked for exactly the way the overlay asks for its own rows. */
+    /** CI: the row of the local player, run through the very code the player list uses for every row. */
     public static String selfCheck(Minecraft mc) {
-        try {
-            if (mc.getConnection() == null || mc.player == null) return "no connection";
-            var info = mc.getConnection().getPlayerInfo(mc.player.getUUID());
-            if (info == null) return "no player info";
-            Object overlay = null;
-            for (var field : Minecraft.class.getDeclaredFields())
-                if (field.getType().getName().endsWith("PlayerTabOverlay")) { field.setAccessible(true); overlay = field.get(mc); break; }
-            if (overlay == null) return "no tab overlay";
-            var method = overlay.getClass().getDeclaredMethod("getNameForDisplay", PlayerInfo.class);
-            method.setAccessible(true);
-            Object row = method.invoke(overlay, info);
-            String text = row instanceof Component component ? component.getString() : "";
-            return (text.startsWith(GLYPH) ? "ok " : "no badge ") + '"' + text + '"';
-        } catch (ReflectiveOperationException | RuntimeException error) {
-            return error.getClass().getSimpleName() + ": " + error.getMessage();
-        }
+        if (mc.getConnection() == null || mc.player == null) return "no connection";
+        PlayerInfo info = mc.getConnection().getPlayerInfo(mc.player.getUUID());
+        if (info == null) return "no player info";
+        Component row = tabBadge(info, Component.literal("smoke"));
+        String text = row == null ? "" : row.getString();
+        return (text.startsWith(GLYPH) ? "ok " : "no badge ") + '"' + text + '"';
     }
 
     /** CI check: the glyph comes from the badge font (without it the font falls back to a narrow box). */

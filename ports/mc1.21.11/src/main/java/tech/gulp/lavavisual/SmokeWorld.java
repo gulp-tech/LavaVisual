@@ -531,8 +531,8 @@ final class SmokeWorld {
         }
         if (ticks == HITBOX_AT + 32) c.hitboxStyle = 2;
         if (ticks == HITBOX_AT + 40) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_fill");
-        // Player list: a single player world never draws the Tab list (its own row would be the only one), so the
-        // decorated row is asked for directly — the same call the overlay makes. This checks the mixin hook too.
+        // Player list: a single player world never draws the Tab list, so the row of this very player is pushed through
+        // the decoration the overlay applies to every row — the row must come out with the badge, and rows must count.
         if (ticks == TAB_AT) {
             c.hitboxEnabled = false;
             c.reachEnabled = false;
@@ -540,12 +540,10 @@ final class SmokeWorld {
         }
         if (ticks == TAB_AT + 24) {
             String row = tech.gulp.lavavisual.effects.PlayerTags.selfCheck(mc);
-            // The row is asked for through reflection: in a single player world nothing draws the Tab list, and if a
-            // future version hides the overlay instance from reflection, the applied hook itself is the proof.
-            boolean ok = row.startsWith("ok ")
-                    || row.startsWith("no tab overlay") && tech.gulp.lavavisual.effects.PlayerTags.tabMixinLoaded;
+            boolean ok = row.startsWith("ok ");
             LavaVisual.LOGGER.info((ok ? "LavaVisual smoke tab badge ok" : "LavaVisual smoke tab badge failed")
-                    + ": " + row + ", hooked " + tech.gulp.lavavisual.effects.PlayerTags.tabMixinLoaded);
+                    + ": " + row + ", rows " + tech.gulp.lavavisual.effects.PlayerTags.tabBadges
+                    + ", hooked " + tech.gulp.lavavisual.effects.PlayerTags.tabMixinLoaded);
             LavaVisual.LOGGER.info("LavaVisual smoke shot world_tab");
         }
         if (ticks == TAB_AT + 34) mc.options.keyPlayerList.setDown(false);
