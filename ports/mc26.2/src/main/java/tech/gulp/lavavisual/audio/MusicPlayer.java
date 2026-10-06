@@ -45,6 +45,10 @@ public final class MusicPlayer {
     // Requests for the streamer thread (under LOCK). trackGen changes with every play / close and retires the open
     // decoder; generation also changes with every seek and retires audio decoded for the old position.
     private static Track openRequest;
+    /** Station the streamer thread has to start generating, -1 when a file is being opened. */
+    private static int radioRequest = -1;
+    /** Station that is tuned in right now, or -1 while a file plays. */
+    private static int radioIndex = -1;
     private static long seekRequest = -1;
     private static double openSeek = -1;
     private static boolean closeRequest;
@@ -64,10 +68,20 @@ public final class MusicPlayer {
     public static List<Track> tracks() { synchronized (LOCK) { return List.copyOf(TRACKS); } }
     public static int index() { return index; }
     public static int skipped() { return skipped; }
-    public static Track current() { synchronized (LOCK) { return index >= 0 && index < TRACKS.size() ? TRACKS.get(index) : null; } }
+    public static Track current() {
+        synchronized (LOCK) {
+            if (radioIndex >= 0 && playing) return Radio.track(radioIndex);
+            return index >= 0 && index < TRACKS.size() ? TRACKS.get(index) : null;
+        }
+    }
+    /** Station that is on air, or -1 while a file plays. */
+    public static int radioIndex() { synchronized (LOCK) { return radioIndex; } }
+    /** True while the radio is on air (a station, not a file). */
+    public static boolean radioActive() { synchronized (LOCK) { return radioIndex >= 0 && playing; } }
     /** Neighbour in play order (shuffle picks at random, so the list order is shown). */
     public static Track neighbour(int step) {
         synchronized (LOCK) {
+            if (radioIndex >= 0) return Radio.track(radioIndex + step);
             if (TRACKS.size() < 2 || index < 0) return null;
             return TRACKS.get(Math.floorMod(index + step, TRACKS.size()));
         }
@@ -100,7 +114,7 @@ public final class MusicPlayer {
             skipped = bad;
             index = -1;
             for (int i = 0; i < TRACKS.size(); i++) if (TRACKS.get(i).file().equals(now)) index = i;
-            if (index < 0 && playing) close();
+            if (index < 0 && playing && radioIndex < 0) close();
         }
     }
     private static AudioInfo info(Path file) {
@@ -122,6 +136,7 @@ public final class MusicPlayer {
     public static void play(int i) {
         synchronized (LOCK) {
             close();
+            radioIndex = -1;
             if (i < 0 || i >= TRACKS.size()) return;
             index = i;
             Track track = TRACKS.get(i);
@@ -155,6 +170,43 @@ public final class MusicPlayer {
             }
         }
     }
+    /** Tunes the radio to station i: the streamer thread composes the music as it goes, nothing is read from disk. */
+    public static void playRadio(int station) {
+        var stations = Radio.stations();
+        if (station < 0 || station >= stations.size()) return;
+        synchronized (LOCK) {
+            close();
+            radioIndex = station;
+            Track track = Radio.track(station);
+            error = "";
+            decodeError = "";
+            failed = false;
+            if (!LavaAudio.ready()) { fail(track, "звук игры недоступен (OpenAL)"); return; }
+            try {
+                AL10.alGetError();
+                source = AL10.alGenSources();
+                for (int b = 0; b < BUFFERS; b++) BUFFER_IDS[b] = AL10.alGenBuffers();
+                if (AL10.alGetError() != AL10.AL_NO_ERROR) { close(); fail(track, "OpenAL не дал источник звука"); return; }
+                context = ALC10.alcGetCurrentContext();
+                AL10.alSourcei(source, AL10.AL_SOURCE_RELATIVE, AL10.AL_TRUE);
+                AL10.alSource3f(source, AL10.AL_POSITION, 0, 0, 0);
+                AL10.alSourcef(source, AL10.AL_ROLLOFF_FACTOR, 0);
+                AL10.alSourcef(source, AL10.AL_GAIN, gain());
+                for (int b = 0; b < BUFFERS; b++) FREE.addLast(BUFFER_IDS[b]);
+                baseFrame = 0;
+                ended = finished = paused = false;
+                playing = true;
+                radioRequest = station;
+                musicQuietTicks = 0;
+                startStreamer();
+                LOCK.notifyAll();
+            } catch (RuntimeException | LinkageError failure) {
+                LavaVisual.LOGGER.warn("LavaVisual: cannot start the radio station {}", track.name(), failure);
+                close();
+                fail(track, failure.getMessage() == null ? failure.getClass().getSimpleName() : failure.getMessage());
+            }
+        }
+    }
     private static void fail(Track track, String why) {
         error = why;
         LavaVisual.LOGGER.warn("LavaVisual: {} does not play: {}", track.file().getFileName(), why);
@@ -181,16 +233,19 @@ public final class MusicPlayer {
             boolean closing;
             int tg, g;
             synchronized (LOCK) {
-                boolean pending = openRequest != null || seekRequest >= 0 || closeRequest;
+                boolean pending = openRequest != null || radioRequest >= 0 || seekRequest >= 0 || closeRequest;
                 if (!pending) try { LOCK.wait(playing ? 20 : 250); } catch (InterruptedException e) { closeDecoder(); return; }
                 open = openRequest; openRequest = null;
+                int radio = radioRequest; radioRequest = -1;
                 seekTo = seekRequest; seekRequest = -1;
                 closing = closeRequest; closeRequest = false;
                 tg = trackGen; g = generation;
             }
             try {
-                if (closing || open != null) closeDecoder();
-                if (open != null) {
+                if (closing || open != null || radio >= 0) closeDecoder();
+                if (radio >= 0) {
+                    if (openRadio(radio, tg) == -2) continue;
+                } else if (open != null) {
                     long first = openDecoder(open, tg);
                     if (first == -2) continue;
                     if (first >= 0) seekTo = first;
@@ -239,6 +294,24 @@ public final class MusicPlayer {
         chunk = new short[frames * dChannels];
         pcm = MemoryUtil.memAllocShort(frames * dChannels);
         return first;
+    }
+    /** Starts a station generator; there is no sample rate to learn, so the first frame is always 0. */
+    private static long openRadio(int station, int tg) {
+        Decoders.Source opened = new Radio.Synth(station);
+        synchronized (LOCK) {
+            if (trackGen != tg || !playing) { opened.close(); return -2; }
+            channels = opened.channels();
+            rate = opened.rate();
+            lengthFrames = -1;
+        }
+        decoder = opened;
+        decoderGen = tg;
+        dChannels = opened.channels();
+        dRate = opened.rate();
+        int frames = dRate * CHUNK_MS / 1000;
+        chunk = new short[frames * dChannels];
+        pcm = MemoryUtil.memAllocShort(frames * dChannels);
+        return -1;
     }
     private static void closeDecoder() {
         if (decoder != null) { decoder.close(); decoder = null; }
@@ -300,9 +373,12 @@ public final class MusicPlayer {
         }
         if (restart) {
             boolean wasPaused = paused;
-            int track = index;
+            int track = index, station = radioIndex;
             synchronized (LOCK) { source = 0; close(); } // the old device's AL objects are gone
-            if (LavaAudio.ready()) { play(track); seek(at); if (wasPaused) toggle(); }
+            if (LavaAudio.ready()) {
+                if (station >= 0) playRadio(station); else { play(track); seek(at); }
+                if (wasPaused) toggle();
+            }
             return;
         }
         if (failed) {
@@ -324,7 +400,7 @@ public final class MusicPlayer {
 
     public static void toggle() {
         synchronized (LOCK) {
-            if (!playing) { int start = index >= 0 ? index : 0; play(start); return; }
+            if (!playing) { if (radioIndex >= 0) playRadio(radioIndex); else play(index >= 0 ? index : 0); return; }
             if (paused) { paused = false; startIfNeeded(); }
             else { AL10.alSourcePause(source); paused = true; }
         }
@@ -332,6 +408,11 @@ public final class MusicPlayer {
     public static void stop() { synchronized (LOCK) { close(); } }
     public static void next(boolean automatic) {
         var c = LavaVisualClient.config();
+        int stations = Radio.stations().size();
+        if (radioIndex >= 0) {
+            playRadio(c.musicShuffle && stations > 1 ? RANDOM.nextInt(stations) : (radioIndex + 1) % stations);
+            return;
+        }
         int target;
         synchronized (LOCK) {
             int n = TRACKS.size();
@@ -346,6 +427,11 @@ public final class MusicPlayer {
     }
     /** Back: restarts the track after 3 s, otherwise goes to the previous one. */
     public static void previous() {
+        if (radioIndex >= 0) {
+            int stations = Radio.stations().size();
+            playRadio((radioIndex + stations - 1) % stations);
+            return;
+        }
         synchronized (LOCK) {
             if (playing && position() > 3) { seek(0); return; }
             int n = TRACKS.size();
@@ -379,11 +465,14 @@ public final class MusicPlayer {
         synchronized (LOCK) {
             if (!playing || source == 0 || rate <= 0) return 0;
             int offset = ALC10.alcGetCurrentContext() == context ? AL10.alGetSourcei(source, AL11.AL_SAMPLE_OFFSET) : 0;
-            return Math.min(duration(), (baseFrame + Math.max(0, offset)) / (double) rate);
+            double seconds = (baseFrame + Math.max(0, offset)) / (double) rate;
+            double duration = duration();
+            return duration > 0 ? Math.min(duration, seconds) : seconds;
         }
     }
     public static double duration() {
         synchronized (LOCK) {
+            if (radioIndex >= 0) return 0; // live radio has no length
             long length = playing ? lengthFrames : -1;
             if (rate > 0 && length > 0) return length / (double) rate;
             Track t = index >= 0 && index < TRACKS.size() ? TRACKS.get(index) : null;
@@ -411,6 +500,7 @@ public final class MusicPlayer {
         channels = 0;
         lengthFrames = -1;
         openRequest = null;
+        radioRequest = -1;
         seekRequest = -1;
         openSeek = -1;
         closeRequest = true;

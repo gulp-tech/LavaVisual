@@ -77,6 +77,8 @@ public final class HudRenderer {
             case "watermark" -> "Водянка";
             case "minimap" -> "Миникарта";
             case "music" -> "Музыка";
+            case "hitbox" -> "Хитбоксы";
+            case "reach" -> "Хит-рейндж";
             default -> "HUD";
         };
     }
@@ -106,6 +108,7 @@ public final class HudRenderer {
             toast(g, mc);
             if (LavaVisualClient.STATE.hudHidden) return;
             handDurability(g, mc);
+            reachReadout(g, mc);
             tech.gulp.lavavisual.map.WaypointOverlay.draw(g, mc);
         }
         for (String id : HudConfig.IDS) {
@@ -178,16 +181,23 @@ public final class HudRenderer {
         net.minecraft.client.gui.Font font = mc.font;
         String title = track == null ? "Музыка" : track.shown();
         UiFont.text(g, font, title, tx, 8, 0xFFF2F4F8, tw, Face.BOLD);
+        int station = tech.gulp.lavavisual.audio.MusicPlayer.radioIndex();
         String state = tech.gulp.lavavisual.audio.MusicPlayer.paused() ? "пауза" : tech.gulp.lavavisual.audio.MusicPlayer.playing() ? "играет" : "стоп";
         String sub = track == null ? "Плеер: " + tech.gulp.lavavisual.input.Binds.keyName(tech.gulp.lavavisual.input.Binds.Action.MUSIC)
+                : station >= 0 ? "радио · " + tech.gulp.lavavisual.audio.Radio.station(station).genre() + (tech.gulp.lavavisual.audio.MusicPlayer.paused() ? " · пауза" : "")
                 : (track.artist().isBlank() ? "" : track.artist() + " · ") + state;
         UiFont.text(g, font, sub, tx, 20, 0xFF9AA3B2, tw, Face.SMALL);
         double pos = tech.gulp.lavavisual.audio.MusicPlayer.position(), len = tech.gulp.lavavisual.audio.MusicPlayer.duration();
-        double progress = len > 0 ? Math.clamp(pos / len, 0, 1) : 0;
+        boolean live = tech.gulp.lavavisual.audio.MusicPlayer.radioActive();
+        double progress = !live && len > 0 ? Math.clamp(pos / len, 0, 1) : 0;
         UiDraw.round(g, tx, 32, tw, 3, 1, 0xFF2A2E37);
         int filled = (int) Math.round(tw * progress);
-        if (filled > 1) UiDraw.roundH(g, tx, 32, filled, 3, 1, accent, accent2);
-        String a = tech.gulp.lavavisual.audio.MusicPlayer.time(pos), b = tech.gulp.lavavisual.audio.MusicPlayer.time(len);
+        if (live) { // live radio: a bright head running along the bar instead of a position
+            int head = (int) (System.nanoTime() / 24_000_000L % (tw + 30)) - 15;
+            int from = Math.max(0, head), to = Math.min(tw, head + 26);
+            if (to > from) UiDraw.roundH(g, tx + from, 32, to - from, 3, 1, accent, accent2);
+        } else if (filled > 1) UiDraw.roundH(g, tx, 32, filled, 3, 1, accent, accent2);
+        String a = live ? "эфир" : tech.gulp.lavavisual.audio.MusicPlayer.time(pos), b = live ? "" : tech.gulp.lavavisual.audio.MusicPlayer.time(len);
         UiFont.text(g, font, a, tx, 38, 0xFFB8C0CD, 40, Face.SMALL);
         UiFont.text(g, font, b, tx + tw - UiFont.width(g, font, b, Face.SMALL), 38, 0xFFB8C0CD, 40, Face.SMALL);
         var prev = tech.gulp.lavavisual.audio.MusicPlayer.neighbour(-1);
@@ -296,6 +306,25 @@ public final class HudRenderer {
     /** 0..1 breath of the low-durability warning: slow enough to notice, fast enough not to be missed. */
     private static double warnPulse() {
         return 0.5 + 0.5 * Math.sin(System.nanoTime() / 300_000_000.0);
+    }
+
+    /** Reach readout next to the crosshair: the distance to what the crosshair points at, over the radius. */
+    private static void reachReadout(GuiGraphicsExtractor g, Minecraft mc) {
+        HudConfig c = LavaVisualClient.config();
+        if (!c.reachEnabled || !c.reachReadout || mc.player == null) return;
+        double radius = tech.gulp.lavavisual.effects.WorldCosmetics.reachRadius();
+        Vec3 point = mc.hitResult == null ? null : mc.hitResult.getLocation();
+        String text;
+        int color;
+        if (point == null) {
+            text = String.format(Locale.ROOT, "— / " + "%.1f", radius);
+            color = 0xFF9AA0AC;
+        } else {
+            double distance = mc.player.getEyePosition().distanceTo(point);
+            text = String.format(Locale.ROOT, "%.1f / %.1f", distance, radius);
+            color = distance <= radius ? 0xFF7ADB6A : 0xFFE0453A;
+        }
+        UiFont.centered(g, mc.font, text, g.guiWidth() / 2, g.guiHeight() / 2 - 17, UiDraw.alpha(color, 0.95), Face.SMALL);
     }
 
     /**

@@ -16,8 +16,8 @@ final class SmokeWorld {
             DUMMY_AT = HATS_AT + HATS.length * HAT_STEP + 10, HANDS_AT = DUMMY_AT + 70, CRIT_AT = HANDS_AT + 50,
             TRAIL_AT = CRIT_AT + 50, ZOOM_AT = TRAIL_AT + 95, FREE_AT = ZOOM_AT + 40, WINGS_EDIT_AT = FREE_AT + 40,
             MAP_AT = WINGS_EDIT_AT + 45, SOUND_AT = MAP_AT + 110, MUSIC_AT = SOUND_AT + 12, FORMATS_AT = MUSIC_AT + 72, TIME_AT = FORMATS_AT + 104, ITEMS_AT = TIME_AT + 80,
-            PROJ_AT = ITEMS_AT + 70, OUTFIT_AT = PROJ_AT + 50, SHOTS_AT = OUTFIT_AT + 94, HOTBAR_AT = SHOTS_AT + 216,
-            END_AT = SHOTS_AT + 264;
+            PROJ_AT = ITEMS_AT + 70, OUTFIT_AT = PROJ_AT + 50, SHOTS_AT = OUTFIT_AT + 94, HOTBAR_AT = SHOTS_AT + 216, RADIO_AT = HOTBAR_AT + 40, HITBOX_AT = RADIO_AT + 60,
+            TAB_AT = HITBOX_AT + 46, END_AT = TAB_AT + 40;
     private static float walkLift;
     private static double p1, p2, p3, p4;
     private static boolean musicPlaying, musicPaused, musicStable, musicSeek, musicNext, musicPrevious;
@@ -488,6 +488,63 @@ final class SmokeWorld {
                 ? "LavaVisual smoke durability alert ok (" + tech.gulp.lavavisual.hud.DurabilityAlert.count() + ")"
                 : "LavaVisual smoke durability alert failed");
         if (ticks == HOTBAR_AT + 30) { c.handDurability = false; }
+
+        // Radio: the thirteen stations are composed on the fly, so the CI can prove without any files that the
+        // generator really streams through OpenAL — and that the next station comes on air.
+        if (ticks == RADIO_AT) {
+            c.handDurability = false;
+            tech.gulp.lavavisual.audio.MusicPlayer.playRadio(2);
+        }
+        if (ticks == RADIO_AT + 40) {
+            boolean ok = tech.gulp.lavavisual.audio.MusicPlayer.playing()
+                    && tech.gulp.lavavisual.audio.MusicPlayer.position() > 1
+                    && tech.gulp.lavavisual.audio.MusicPlayer.alState() == org.lwjgl.openal.AL10.AL_PLAYING;
+            LavaVisual.LOGGER.info((ok ? "LavaVisual smoke radio ok" : "LavaVisual smoke radio failed") + String.format(java.util.Locale.ROOT,
+                    ": station %d, %.2f s, state %d", tech.gulp.lavavisual.audio.MusicPlayer.radioIndex(),
+                    tech.gulp.lavavisual.audio.MusicPlayer.position(), tech.gulp.lavavisual.audio.MusicPlayer.alState()));
+            tech.gulp.lavavisual.audio.MusicPlayer.next(false);
+        }
+        if (ticks == RADIO_AT + 58) {
+            boolean ok = tech.gulp.lavavisual.audio.MusicPlayer.playing() && tech.gulp.lavavisual.audio.MusicPlayer.radioIndex() == 3
+                    && tech.gulp.lavavisual.audio.MusicPlayer.position() > 0.1
+                    && tech.gulp.lavavisual.audio.MusicPlayer.alState() == org.lwjgl.openal.AL10.AL_PLAYING;
+            LavaVisual.LOGGER.info((ok ? "LavaVisual smoke radio next ok" : "LavaVisual smoke radio next failed")
+                    + ": station " + tech.gulp.lavavisual.audio.MusicPlayer.radioIndex()
+                    + String.format(java.util.Locale.ROOT, ", %.2f s", tech.gulp.lavavisual.audio.MusicPlayer.position()));
+        }
+        // Visual hitboxes and the reach circle: a zombie next to the player, then boxes have to be built and drawn.
+        if (ticks == HITBOX_AT) {
+            c.hitboxEnabled = true;
+            c.hitboxTargets = 0;
+            c.hitboxStyle = 1;
+            c.hitboxLine = 1.6;
+            c.hitboxRange = 24;
+            c.reachEnabled = true;
+            c.reachReadout = true;
+            player.connection.sendCommand("summon minecraft:zombie ~2 ~ ~-1");
+        }
+        if (ticks == HITBOX_AT + 20) {
+            long boxes = tech.gulp.lavavisual.effects.WorldCosmetics.boxesDrawn;
+            boolean ok = boxes > 0 && tech.gulp.lavavisual.effects.WorldCosmetics.reachDrawn;
+            LavaVisual.LOGGER.info((ok ? "LavaVisual smoke hitbox ok" : "LavaVisual smoke hitbox failed")
+                    + ": boxes " + boxes + ", reach " + tech.gulp.lavavisual.effects.WorldCosmetics.reachDrawn);
+            LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox");
+        }
+        if (ticks == HITBOX_AT + 32) c.hitboxStyle = 2;
+        if (ticks == HITBOX_AT + 40) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_fill");
+        // Player list: the LV badge must appear on LavaVisual rows — the shot photographs the open list.
+        if (ticks == TAB_AT) {
+            c.hitboxEnabled = false;
+            c.reachEnabled = false;
+            mc.options.keyPlayerList.setDown(true);
+        }
+        if (ticks == TAB_AT + 24) {
+            int rows = tech.gulp.lavavisual.effects.PlayerTags.tabBadges;
+            LavaVisual.LOGGER.info((rows > 0 ? "LavaVisual smoke tab badge ok" : "LavaVisual smoke tab badge failed")
+                    + ": rows " + rows + ", hooked " + tech.gulp.lavavisual.effects.PlayerTags.tabMixinLoaded);
+            LavaVisual.LOGGER.info("LavaVisual smoke shot world_tab");
+        }
+        if (ticks == TAB_AT + 34) mc.options.keyPlayerList.setDown(false);
 
         if (ticks == END_AT) finish(null);
     }

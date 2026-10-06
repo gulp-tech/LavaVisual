@@ -18,7 +18,7 @@ public final class HudConfig {
     public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark", "minimap", "music");
     /** Every element with its own colour. Missing from {@link #colors} means "follow the theme colour". */
     public static final List<String> COLOR_KEYS = List.of("menu", "menu_bg", "hud_bg", "watermark", "target", "keys", "armor", "coordinates",
-            "performance", "totems", "minimap", "badge", "crosshair", "jump", "particles", "ambient", "marker", "esp", "kill", "hat", "trail", "waypoint", "crit", "music", "cape", "outfit", "projectile");
+            "performance", "totems", "minimap", "badge", "crosshair", "jump", "particles", "ambient", "marker", "esp", "kill", "hat", "trail", "waypoint", "crit", "music", "cape", "outfit", "projectile", "hitbox", "reach");
     /** Thrown things that can leave a trail (ProjectileTrails.NAMES in the same order). */
     public static final List<String> PROJECTILE_IDS = List.of("pearl", "arrow", "trident", "snowball", "egg", "potion", "bottle", "firework", "wind", "eye");
     public int schemaVersion = SCHEMA;
@@ -38,6 +38,14 @@ public final class HudConfig {
     public boolean durabilityAlert = true, durabilityAlertSound = true;
     /** Held item durability under the crosshair. */
     public boolean handDurability;
+    /** Visual hitboxes around living entities; targets 0 = all, 1 = players, 2 = mobs. */
+    public boolean hitboxEnabled, hitboxSelf;
+    public int hitboxTargets, hitboxStyle;
+    public double hitboxLine = 1.6, hitboxFill = 0.18, hitboxRange = 24;
+    /** Reach: the circle on the ground and the distance readout next to the crosshair (mode 0 attack, 1 block, 2 own). */
+    public boolean reachEnabled = true, reachReadout = true;
+    public int reachMode;
+    public double reachRadius = 3;
     public boolean crosshairEnabled, jumpEnabled, particlesEnabled, ambientEnabled, viewModelEnabled;
     public int crosshairShape = 1;
     public double crosshairScale = 1, crosshairOpacity = 1;
@@ -198,6 +206,7 @@ public final class HudConfig {
         hitSoundEnabled = critSoundEnabled = totemSoundEnabled = killSoundEnabled = false;
         markerEnabled = skyEnabled = fpsBoost = critBoost = false;
         hatEnabled = wingsEnabled = trailEnabled = espEnabled = killEffect = false;
+        hitboxEnabled = hitboxSelf = reachEnabled = reachReadout = false;
         capeEnabled = itemPhysics = projTrails = timeEnabled = false;
         extras.clear();
         swingStyle = 0;
@@ -217,6 +226,13 @@ public final class HudConfig {
         widgets = clean;
         crosshairShape = Math.max(1, Math.min(3, crosshairShape));
         durabilityThreshold = bounded(durabilityThreshold, 0.05, 0.6, 0.2);
+        hitboxTargets = Math.floorMod(hitboxTargets, 3);
+        hitboxStyle = Math.floorMod(hitboxStyle, 3);
+        hitboxLine = bounded(hitboxLine, 0.6, 3, 1.6);
+        hitboxFill = bounded(hitboxFill, 0, 0.5, 0.18);
+        hitboxRange = bounded(hitboxRange, 4, 64, 24);
+        reachMode = Math.floorMod(reachMode, 3);
+        reachRadius = bounded(reachRadius, 1, 8, 3);
         rgb = Math.max(0, Math.min(0xFFFFFF, rgb));
         rgb2 = Math.max(0, Math.min(0xFFFFFF, rgb2));
         if (styleVersion < 1) {

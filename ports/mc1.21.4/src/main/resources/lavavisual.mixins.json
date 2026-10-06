@@ -17,6 +17,7 @@
     "GuiScreenMixin",
     "MinecraftTitleMixin",
     "EntityRendererMixin",
+    "PlayerTabOverlayMixin",
     "PongMixin",
     "FramerateLimitTrackerMixin",
     "InventoryFitMixin",

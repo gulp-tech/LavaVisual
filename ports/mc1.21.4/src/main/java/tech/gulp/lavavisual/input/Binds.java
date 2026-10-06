@@ -137,7 +137,9 @@ public final class Binds {
             case DISABLE_ALL -> ": всё выключено";
             case MUSIC_PLAY, MUSIC_NEXT, MUSIC_PREV, MUSIC_FORWARD, MUSIC_BACK -> {
                 var track = tech.gulp.lavavisual.audio.MusicPlayer.current();
-                if (track == null) yield ": нет треков в папке music";
+                int station = tech.gulp.lavavisual.audio.MusicPlayer.radioIndex();
+                if (track == null) yield ": нет треков в папке music · включите радио";
+                if (station >= 0) yield ": радио " + track.shown() + (tech.gulp.lavavisual.audio.MusicPlayer.paused() ? " · пауза" : " · эфир");
                 String state = tech.gulp.lavavisual.audio.MusicPlayer.paused() ? " · пауза" : "";
                 yield action == Action.MUSIC_FORWARD || action == Action.MUSIC_BACK
                         ? ": " + tech.gulp.lavavisual.audio.MusicPlayer.time(tech.gulp.lavavisual.audio.MusicPlayer.position()) + state

@@ -50,7 +50,7 @@ public final class ClickGuiScreen extends Screen {
             Map.entry("freelook", Icons.EYE), Map.entry("mute_vanilla", Icons.VOLUME_X), Map.entry("trail_glow", Icons.SPARKLES), Map.entry("dummy_spin", Icons.ROTATE_CW),
             Map.entry("zoom_smooth", Icons.WAND_SPARKLES), Map.entry("zoom_mouse", Icons.MOUSE), Map.entry("crit_color", Icons.PALETTE), Map.entry("crit_magic", Icons.SPARKLES), Map.entry("crit_always", Icons.SWORDS),
             Map.entry("sound0", Icons.SWORDS), Map.entry("sound1", Icons.ZAP), Map.entry("sound2", Icons.HEART_PULSE),
-            Map.entry("sound3", Icons.SKULL), Map.entry("shadows", Icons.LAYERS), Map.entry("animations", Icons.WAND_SPARKLES), Map.entry("durability_warn", Icons.SHIELD), Map.entry("durability_alert", Icons.BELL), Map.entry("durability_sound", Icons.VOLUME_2), Map.entry("hand_durability", Icons.CROSSHAIR),
+            Map.entry("sound3", Icons.SKULL), Map.entry("shadows", Icons.LAYERS), Map.entry("animations", Icons.WAND_SPARKLES), Map.entry("durability_warn", Icons.SHIELD), Map.entry("durability_alert", Icons.BELL), Map.entry("durability_sound", Icons.VOLUME_2), Map.entry("hand_durability", Icons.CROSSHAIR), Map.entry("hitbox", Icons.SQUARE_PEN), Map.entry("hitbox_self", Icons.USER), Map.entry("reach", Icons.TARGET), Map.entry("reach_readout", Icons.RULER),
             Map.entry("sky", Icons.CLOUD_SUN), Map.entry("time", Icons.SUN), Map.entry("cape", Icons.FLAG), Map.entry("outfit", Icons.HEADPHONES), Map.entry("outfit1", Icons.EYE), Map.entry("outfit2", Icons.HEADPHONES), Map.entry("outfit3", Icons.WIND), Map.entry("projectile", Icons.NAVIGATION_2), Map.entry("proj_mine", Icons.USER), Map.entry("proj_glow", Icons.SPARKLES), Map.entry("proj_item", Icons.PALETTE), Map.entry("items", Icons.GEM), Map.entry("items_flat", Icons.LAYERS), Map.entry("boost", Icons.ROCKET), Map.entry("setting", Icons.EYE),
             Map.entry("minimap", Icons.MAP), Map.entry("beams", Icons.SIGNPOST), Map.entry("labels", Icons.NAVIGATION),
             Map.entry("mapcoords", Icons.LOCATE_FIXED), Map.entry("mapmarks", Icons.MAP_PINNED), Map.entry("tilt", Icons.MOVE_VERTICAL), Map.entry("cooldown", Icons.TIMER));
@@ -177,6 +177,9 @@ public final class ClickGuiScreen extends Screen {
         text(g, title, tx, y + 8, 0xFFE8EAF0, width - (tx - x) - 8); hit(x, y, width, 24, callback);
     }
     private void button(GuiGraphicsExtractor g, String title, Runnable callback) { button(g, null, title, callback); }
+    private static final String[] HITBOX_TARGETS = {"Все", "Игроки", "Мобы"};
+    private static final String[] HITBOX_STYLES = {"Углы", "Контур", "Заливка"};
+    private static final String[] REACH_MODES = {"Атака 3", "Блок 4.5", "Свой радиус"};
     private static final String[] ESP_STYLES = {"Призраки", "Круг", "Кристаллы", "Маркер", "Орбиты"};
     private static final String[] AIR_STYLES = {"Светлячки", "Снег", "Звёзды", "Угольки", "Сердечки"};
     private static final String[] TRAIL_STYLES = {"Лента", "Неон", "Спираль", "Искры", "Комета"};
@@ -669,6 +672,24 @@ public final class ClickGuiScreen extends Screen {
             slider(g, "Размер маркера", c.markerSize, 0.15, 0.9, v -> c.markerSize = v, false);
         });
         toggle(g, "kill", "Kill Effect", "Столб света и искры, когда ваша цель погибает", c.killEffect, () -> { c.killEffect = !c.killEffect; changed(); }, null);
+        section(g, "Визуалы");
+        toggle(g, "hitbox", "Хитбоксы", "Рамки вокруг живых сущностей · видны только вам", c.hitboxEnabled, () -> { c.hitboxEnabled = !c.hitboxEnabled; changed(); }, null);
+        group(g, "hitbox", c.hitboxEnabled, () -> {
+            caption(g, "Кого показывать");
+            chips(g, HITBOX_TARGETS, c.hitboxTargets, i -> { c.hitboxTargets = i; changed(); });
+            caption(g, "Вид");
+            chips(g, HITBOX_STYLES, c.hitboxStyle, i -> { c.hitboxStyle = i; changed(); });
+            slider(g, "Толщина линий", c.hitboxLine, 0.6, 3, v -> c.hitboxLine = v, false);
+            slider(g, "Заливка", c.hitboxFill, 0, 0.5, v -> c.hitboxFill = v, false);
+            slider(g, "Дистанция · блоки", c.hitboxRange, 4, 64, v -> c.hitboxRange = v, false);
+            toggle(g, "hitbox_self", "Свой бокс", "Рамка и вокруг себя · видно от третьего лица", c.hitboxSelf, () -> { c.hitboxSelf = !c.hitboxSelf; changed(); }, null);
+        });
+        toggle(g, "reach", "Хит-рейндж", "Круг досягаемости на земле и линия до цели", c.reachEnabled, () -> { c.reachEnabled = !c.reachEnabled; changed(); }, null);
+        group(g, "reach", c.reachEnabled, () -> {
+            chips(g, REACH_MODES, c.reachMode, i -> { c.reachMode = i; changed(); });
+            if (c.reachMode == 2) slider(g, "Свой радиус · блоки", c.reachRadius, 1, 8, v -> c.reachRadius = v, false);
+            toggle(g, "reach_readout", "Показывать дистанцию", "Число у прицела: расстояние / радиус", c.reachReadout, () -> { c.reachReadout = !c.reachReadout; changed(); }, null);
+        });
         section(g, "Удары");
         toggle(g, "particles", "Hit Particles", "Искры при ручной атаке", c.particlesEnabled, () -> { c.particlesEnabled = !c.particlesEnabled; changed(); }, null);
         group(g, "particles", c.particlesEnabled, () -> {
@@ -844,6 +865,20 @@ public final class ClickGuiScreen extends Screen {
         var track = tech.gulp.lavavisual.audio.MusicPlayer.current();
         button(g, Icons.MUSIC, "Открыть плеер · " + tech.gulp.lavavisual.input.Binds.keyName(tech.gulp.lavavisual.input.Binds.Action.MUSIC),
                 () -> minecraft.gui.setScreen(new MusicScreen(this)));
+        section(g, "Радио · 13 станций");
+        note(g, "Станции сочиняются на ходу: файлы не нужны, музыка есть у всех и без интернета");
+        var stations = tech.gulp.lavavisual.audio.Radio.stations();
+        String[] stationNames = new String[stations.size()];
+        for (int i = 0; i < stations.size(); i++) stationNames[i] = stations.get(i).name();
+        chips(g, stationNames, tech.gulp.lavavisual.audio.MusicPlayer.radioIndex(), tech.gulp.lavavisual.audio.MusicPlayer::playRadio, 4);
+        int onAir = tech.gulp.lavavisual.audio.MusicPlayer.radioIndex();
+        if (onAir >= 0) note(g, (tech.gulp.lavavisual.audio.MusicPlayer.playing() ? "Эфир: " : "Станция: ") + stations.get(onAir).name()
+                + " · " + stations.get(onAir).genre() + " · " + (int) stations.get(onAir).bpm() + " BPM");
+        else note(g, "Выберите станцию — или включите свои треки ниже");
+        action(g, Icons.SHUFFLE, "Случайная станция", bodyX, cursor, (bodyW - 8) / 2, () ->
+                tech.gulp.lavavisual.audio.MusicPlayer.playRadio(java.util.concurrent.ThreadLocalRandom.current().nextInt(stations.size())));
+        action(g, Icons.X, "Остановить", bodyX + (bodyW - 8) / 2 + 8, cursor, (bodyW - 8) / 2, tech.gulp.lavavisual.audio.MusicPlayer::stop);
+        cursor += 32;
         var tracks = tech.gulp.lavavisual.audio.MusicPlayer.tracks();
         note(g, track == null || !tech.gulp.lavavisual.audio.MusicPlayer.active()
                 ? (tracks.isEmpty() ? "Треков нет — положите музыку в папку music" : "Ничего не играет · треков: " + tracks.size())
@@ -1247,7 +1282,7 @@ public final class ClickGuiScreen extends Screen {
         colorRow(g, "menu_bg", "Фон меню");
         colorRow(g, "hud_bg", "Фон панелей HUD");
         section(g, "HUD");
-        for (String id : List.of("watermark", "target", "keys", "armor", "coordinates", "performance", "totems", "minimap")) colorRow(g, id, HudRenderer.title(id));
+        for (String id : List.of("watermark", "target", "keys", "armor", "coordinates", "performance", "totems", "minimap", "hitbox", "reach")) colorRow(g, id, HudRenderer.title(id));
         section(g, "Эффекты");
         String[][] effects = {{"crosshair", "Прицел"}, {"jump", "Jump Circle"}, {"particles", "Hit Particles"}, {"ambient", "Частицы в воздухе"},
                 {"marker", "Маркер удара"}, {"esp", "Target ESP"}, {"kill", "Kill Effect"}, {"hat", "Шляпа"}, {"wings", "Крылья"}, {"trail", "Trails"}, {"cape", "Плащ"}, {"projectile", "Следы снарядов"}, {"crit", "Насыщенный крит"}, {"waypoint", "Новые метки"}};

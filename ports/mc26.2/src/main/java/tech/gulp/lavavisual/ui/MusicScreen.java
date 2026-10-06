@@ -75,19 +75,28 @@ public final class MusicScreen extends Screen {
         UiFont.text(g, font, title, ix, cy + 2, 0xFFF2F4F8, iw, UiFont.Face.BOLD);
         String err = MusicPlayer.error();
         boolean broken = track != null && !MusicPlayer.active() && !err.isEmpty();
+        int station = MusicPlayer.radioIndex();
         String sub = broken ? "Не играет: " + err : track == null ? (tracks.isEmpty() ? "Положите музыку в папку music или перетащите файлы сюда" : "Нажмите на трек в списке")
+                : station >= 0 ? "радио · " + tech.gulp.lavavisual.audio.Radio.station(station).genre() + (MusicPlayer.paused() ? " · пауза" : "")
                 : (track.artist().isBlank() ? "" : track.artist() + " · ") + (MusicPlayer.paused() ? "пауза" : MusicPlayer.playing() ? "играет" : "стоп");
         UiFont.text(g, font, sub, ix, cy + 15, broken ? 0xFFFF8A80 : 0xFF9AA3B2, iw);
         barX = ix; barY = cy + 32; barW = iw;
+        boolean live = MusicPlayer.radioActive();
         double len = MusicPlayer.duration(), pos = seeking ? seekPreview : MusicPlayer.position();
-        double progress = len > 0 ? Math.clamp(pos / len, 0, 1) : 0;
+        double progress = !live && len > 0 ? Math.clamp(pos / len, 0, 1) : 0;
         UiDraw.round(g, barX, barY, barW, 4, 2, 0xFF353A43);
         int filled = (int) Math.round(barW * progress);
-        if (filled > 1) UiDraw.roundH(g, barX, barY, filled, 4, 2, ac, 0xFF000000 | UiDraw.mix(ac, ac2, progress));
-        boolean overBar = my >= barY - 5 && my < barY + 9 && mx >= barX - 4 && mx <= barX + barW + 4;
-        if (overBar || seeking) UiDraw.circle(g, barX + filled, barY + 2, 6, UiDraw.alpha(ac, 0.3));
-        UiDraw.circle(g, barX + filled, barY + 2, 3.5, 0xFFF2F5FA);
-        String a = MusicPlayer.time(pos), b = MusicPlayer.time(len);
+        if (live) { // live radio: a bright head runs along the bar, there is nothing to rewind
+            int head = (int) (System.nanoTime() / 24_000_000L % (barW + 40)) - 20;
+            int from = Math.max(0, head), to = Math.min(barW, head + 34);
+            if (to > from) UiDraw.roundH(g, barX + from, barY, to - from, 4, 2, ac, ac2);
+        } else if (filled > 1) UiDraw.roundH(g, barX, barY, filled, 4, 2, ac, 0xFF000000 | UiDraw.mix(ac, ac2, progress));
+        boolean overBar = !live && my >= barY - 5 && my < barY + 9 && mx >= barX - 4 && mx <= barX + barW + 4;
+        if (!live) {
+            if (overBar || seeking) UiDraw.circle(g, barX + filled, barY + 2, 6, UiDraw.alpha(ac, 0.3));
+            UiDraw.circle(g, barX + filled, barY + 2, 3.5, 0xFFF2F5FA);
+        }
+        String a = live ? "прямой эфир" : MusicPlayer.time(pos), b = live ? "" : MusicPlayer.time(len);
         UiFont.text(g, font, a, barX, barY + 9, 0xFFB8C0CD, 50, UiFont.Face.SMALL);
         UiFont.text(g, font, b, barX + barW - UiFont.width(g, font, b, UiFont.Face.SMALL), barY + 9, 0xFFB8C0CD, 50, UiFont.Face.SMALL);
 
@@ -208,7 +217,7 @@ public final class MusicScreen extends Screen {
     /** Left click at a screen position; true when something was hit. */
     public boolean click(double x, double y) {
         if (buttons.click(x, y)) { UiSound.click(); return true; }
-        if (y >= barY - 5 && y < barY + 9 && x >= barX - 4 && x <= barX + barW + 4 && MusicPlayer.active()) { seeking = true; seekTo(x); return true; }
+        if (y >= barY - 5 && y < barY + 9 && x >= barX - 4 && x <= barX + barW + 4 && MusicPlayer.active() && !MusicPlayer.radioActive()) { seeking = true; seekTo(x); return true; }
         if (y >= volY - 5 && y < volY + 8 && x >= volX - 4 && x <= volX + volW + 4) { volumeDrag = true; volumeTo(x); return true; }
         for (Hit hit : List.copyOf(hits))
             if (x >= hit.x() && x < hit.x() + hit.w() && y >= hit.y() && y < hit.y() + hit.h()) { hit.action().run(); return true; }

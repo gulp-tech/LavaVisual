@@ -1,6 +1,7 @@
 package tech.gulp.lavavisual.effects;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -16,7 +17,12 @@ import tech.gulp.lavavisual.LavaVisualClient;
  */
 public final class PlayerTags {
     private static final ResourceLocation FONT = ResourceLocation.fromNamespaceAndPath("lavavisual", "badge");
-    private static final Component LOGO = Component.literal("\uE000").withStyle(style -> style.withFont(FONT).withColor(0xFFFFFF));
+    private static final String GLYPH = "\uE000";
+    private static final Component LOGO = Component.literal(GLYPH).withStyle(style -> style.withFont(FONT).withColor(0xFFFFFF));
+    /** Rows badged in the player list (the CI smoke log prints it). */
+    public static int tabBadges;
+    /** Set by PlayerTabOverlayMixin when it is applied: proves the player list is hooked in this version. */
+    public static boolean tabMixinLoaded;
     private PlayerTags() { }
 
     /** The name tag with the LV logo in front when it belongs to another player showing the mark. */
@@ -24,12 +30,28 @@ public final class PlayerTags {
         if (name == null || !(entity instanceof Player player)) return name;
         var mc = Minecraft.getInstance();
         if (player == mc.player || !LavaVisualClient.config().badgeEnabled || !HatSync.marked(player)) return name;
-        return Component.empty().append(LOGO).append(" ").append(name);
+        return decorate(name);
+    }
+
+    /** The player list row with the LV logo in front; here your own row is marked too, so you see your badge. */
+    public static Component tabBadge(PlayerInfo info, Component name) {
+        if (name == null || info == null || !LavaVisualClient.config().badgeEnabled) return name;
+        var mc = Minecraft.getInstance();
+        Player player = mc.level == null ? null : mc.level.getPlayerByUUID(info.getProfile().getId());
+        if (player == null || !HatSync.marked(player)) return name;
+        tabBadges++;
+        return decorate(name);
+    }
+
+    /** Adds the glyph unless the name already carries it: name tags and player list rows both pass through here. */
+    private static Component decorate(Component name) {
+        return name.getString().startsWith(GLYPH) ? name : Component.empty().append(LOGO).append(" ").append(name);
     }
 
     /** CI check: the glyph comes from the badge font (without it the font falls back to a narrow box). */
     public static String selfTest() {
         int width = Minecraft.getInstance().font.width(LOGO);
-        return (width >= 10 ? "LavaVisual badge glyph ok: " : "LavaVisual badge glyph failed: ") + width;
+        return (width >= 10 ? "LavaVisual badge glyph ok: " : "LavaVisual badge glyph failed: ") + width
+                + " · player list " + (tabMixinLoaded ? "hooked" : "not hooked") + ", rows " + tabBadges;
     }
 }

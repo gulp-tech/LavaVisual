@@ -141,7 +141,7 @@ def main():
     view = View(340, 326)
     view.img.paste(0x101319FF, (0, 0, 340 * SS, 326 * SS))
 
-    view.text(14, 12, 'LavaVisual 1.1.4 · прочность', TEXT, 1.0, size=13, bold=True)
+    view.text(14, 12, 'LavaVisual 1.1.5 · прочность', TEXT, 1.0, size=13, bold=True)
     view.text(14, 31, 'Одно оформление во всех визуалах: дорожка, градиент, блик, процент по цвету.', DIM, 1.0, size=7)
 
     view.text(14, 52, 'Броня · обычная прочность', DIM, 1.0, size=8, bold=True)

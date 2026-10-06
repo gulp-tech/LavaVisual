@@ -228,14 +228,24 @@ public final class LavaTitleScreen extends Screen {
         }
     }
 
-    /** Quick access on the right: open the editor of any worn cosmetic straight from the menu, with what is on now. */
+    /** Russian plural for "трек": 1 трек, 2 трека, 5 треков. */
+    private static boolean plural(int n) {
+        int tens = n % 100, ones = n % 10;
+        return tens < 11 || tens > 14 ? ones >= 2 && ones <= 4 : false;
+    }
+    /** Quick access on the right: library shortcuts and the main editor. Never shows which cosmetic is worn. */
     private void quick(GuiGraphics g, int ac, int ac2, double enter) {
-        var c = LavaVisualClient.config();
-        String[][] chips = {{"Шляпа", c.hatEnabled ? tech.gulp.lavavisual.effects.Hats.name(c.hatType) : "не выбрана"},
-                {"Крылья", c.wingsEnabled ? tech.gulp.lavavisual.effects.Hats.wingName(c.wingsType) : "не выбраны"},
-                {"Плащ", c.capeEnabled ? tech.gulp.lavavisual.effects.Hats.capeName(c.capeType) : "не выбран"}};
-        Runnable[] actions = {() -> minecraft.setScreen(new HatEditorScreen(this)), () -> minecraft.setScreen(new WingsEditorScreen(this)),
-                () -> minecraft.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COSMETICS, "cape"))};
+        var tracks = tech.gulp.lavavisual.audio.MusicPlayer.tracks();
+        var current = tech.gulp.lavavisual.audio.MusicPlayer.current();
+        String onAir = current == null || !current.playable() ? "" : current.line();
+        String library = tracks.isEmpty() ? "Добавьте треки в меню"
+                : tracks.size() + (plural(tracks.size()) ? " трека" : " треков");
+        String[][] chips = {{"Радио", onAir.isEmpty() ? library : onAir},
+                {"Редактор", "Шляпы, крылья и плащи"},
+                {"LavaVisual " + Edition.label(), (Edition.client() ? "Клиент" : "Мод") + " · профиль и тема"}};
+        Runnable[] actions = {() -> minecraft.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MUSIC)),
+                () -> minecraft.setScreen(new HatEditorScreen(this)),
+                () -> minecraft.setScreen(new ClickGuiScreen())};
         int w = Math.clamp(width / 4, 120, 168), h = 30, gap = 8;
         int x = width - w - 16, y = Math.max(16, height / 2 - (chips.length * (h + gap) - gap) / 2);
         for (int i = 0; i < chips.length; i++) {

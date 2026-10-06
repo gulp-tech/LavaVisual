@@ -94,7 +94,7 @@ jobs:
               assert len(models['capes']) == 6 and len(models['extras']) == 3, (len(models.get('capes', [])), len(models.get('extras', [])))
               assert m['mixins'] == ['lavavisual.mixins.json']
               mixins = json.loads(jar.read('lavavisual.mixins.json'))
-              assert set(mixins['client']) == {'HandViewMixin', 'SoundManagerMixin', 'MouseHandlerMixin', 'OptionsMixin', 'LevelRendererMixin', 'ScreenEffectRendererMixin', 'CameraMixin', 'ClientClockManagerMixin', 'ItemEntityRendererMixin', 'ItemEntityRenderStateMixin', 'GuiScreenMixin', 'MinecraftTitleMixin', 'EntityRendererMixin', 'PongMixin', 'FramerateLimitTrackerMixin', 'InventoryFitMixin', 'ScreenBackdropMixin'}
+              assert set(mixins['client']) == {'HandViewMixin', 'SoundManagerMixin', 'MouseHandlerMixin', 'OptionsMixin', 'LevelRendererMixin', 'ScreenEffectRendererMixin', 'CameraMixin', 'ClientClockManagerMixin', 'ItemEntityRendererMixin', 'ItemEntityRenderStateMixin', 'GuiScreenMixin', 'MinecraftTitleMixin', 'EntityRendererMixin', 'PongMixin', 'FramerateLimitTrackerMixin', 'InventoryFitMixin', 'ScreenBackdropMixin', 'PlayerTabOverlayMixin'}
               forbidden = ('BoxEsp', 'Tracers', 'Chams', 'LivingEntityRendererMixin', 'LavaRenderLayers')
               assert not any(any(word in path for word in forbidden) for path in jar.namelist())
           PY
@@ -103,7 +103,7 @@ jobs:
         run: echo "path=$(ls ports/mc26.2/build/libs/*.jar | grep -v sources | head -1)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
-          name: LavaVisual-1.1.4-mc26.2
+          name: LavaVisual-1.1.5-mc26.2
           path: ${{ steps.jar.outputs.path }}
       - name: Publish tested JAR
         if: github.event_name == 'push'

@@ -53,7 +53,8 @@ public final class WorldCosmetics {
     private static final java.util.Map<Integer, WingClock> WING_CLOCKS = new java.util.HashMap<>();
     private record MarkerFrame(Vec3 origin, int shape, float size, float alpha) { }
     /** colors: jump, esp, kill, trail, marker (theme or per-element). */
-    private record Frame(List<RingFrame> rings, List<SparkFrame> sparks, List<MarkerFrame> markers, int[] colors, int[] lights, List<HatFrame> hats, float spin, List<TrailPoint> trail, Vec3 esp, float espHeight, float espWidth, int espStyle, List<BeamFrame> beams, List<tech.gulp.lavavisual.map.WaypointOverlay.Beam> waypoints, List<ShotTrail> shots) { }
+    private record Frame(List<RingFrame> rings, List<SparkFrame> sparks, List<MarkerFrame> markers, int[] colors, int[] lights, List<HatFrame> hats, float spin, List<TrailPoint> trail, Vec3 esp, float espHeight, float espWidth, int espStyle, List<BeamFrame> beams, List<tech.gulp.lavavisual.map.WaypointOverlay.Beam> waypoints, List<ShotTrail> shots,
+            List<BoxFrame> boxes, ReachFrame reach) { }
     private static final RenderStateDataKey<Frame> DATA = RenderStateDataKey.create(() -> "lavavisual:cosmetics");
     private static final ArrayList<Ring> RINGS = new ArrayList<>();
     private static final ArrayList<Mark> MARKS = new ArrayList<>();
@@ -184,7 +185,7 @@ public final class WorldCosmetics {
                 espWidth = snapshot.entity().getBbWidth();
             }
             if (RINGS.isEmpty() && SPARKS.isEmpty() && MARKS.isEmpty() && TRAIL.isEmpty() && BEAMS.isEmpty() && hats.isEmpty() && esp == null && waypointBeams.isEmpty()
-                    && ProjectileTrails.active() == 0) { tech.gulp.lavavisual.compat.Frames.set(DATA, null); return; }
+                    && ProjectileTrails.active() == 0 && BOXES.isEmpty() && REACH == null) { tech.gulp.lavavisual.compat.Frames.set(DATA, null); return; }
             int particleColor = c.color("particles") & 0xFFFFFF, ambientColor = c.color("ambient") & 0xFFFFFF, killColor = c.color("kill") & 0xFFFFFF,
                     critColor = c.color("crit") & 0xFFFFFF, trailColor = c.color2("trail") & 0xFFFFFF;
             double now = tick + context.tickCounter().getGameTimeDeltaPartialTick(false);
@@ -239,7 +240,7 @@ public final class WorldCosmetics {
             // Second tones: the theme gradient (lava orange to amethyst by default) instead of a lighter shade.
             int[] lights = {c.color2("jump") & 0xFFFFFF, c.color2("esp") & 0xFFFFFF, c.color2("kill") & 0xFFFFFF, c.color2("trail") & 0xFFFFFF, c.color2("marker") & 0xFFFFFF};
             tech.gulp.lavavisual.compat.Frames.set(DATA, new Frame(List.copyOf(rings), List.copyOf(sparks), List.copyOf(markers), colors, lights, List.copyOf(hats), (float) (now * 0.06),
-                    List.copyOf(trail), esp, espHeight, espWidth, c.espStyle, List.copyOf(beams), waypointBeams, ProjectileTrails.frame(partial)));
+                    List.copyOf(trail), esp, espHeight, espWidth, c.espStyle, List.copyOf(beams), waypointBeams, ProjectileTrails.frame(partial), List.copyOf(BOXES), REACH));
         });
         WorldRenderEvents.BEFORE_DEBUG_RENDER.register(WorldCosmetics::render);
     }
@@ -296,7 +297,7 @@ public final class WorldCosmetics {
         return count;
     }
     public static void clear() {
-        RINGS.clear(); SPARKS.clear(); MARKS.clear(); CLICKS.clear(); TRAIL.clear(); BEAMS.clear(); CapeCloth.clear(); AccessoryPhysics.clear(); espVisible = false; lastKillId = -1; ready = false; grounded = false; tick = 0; lastHitTick = -100; groundPosition = Vec3.ZERO; combo = 0; comboTarget = null;
+        RINGS.clear(); SPARKS.clear(); MARKS.clear(); CLICKS.clear(); TRAIL.clear(); BEAMS.clear(); CapeCloth.clear(); AccessoryPhysics.clear(); espVisible = false; lastKillId = -1; ready = false; grounded = false; BOXES.clear(); REACH = null; tick = 0; lastHitTick = -100; groundPosition = Vec3.ZERO; combo = 0; comboTarget = null;
     }
     public static void tick(Minecraft mc) {
         if (mc.player == null || mc.level == null) { clear(); return; }
@@ -348,7 +349,139 @@ public final class WorldCosmetics {
         }
         grounded = player.onGround(); ready = true;
         if (grounded) groundPosition = player.position();
+        snapshotBoxes(mc, player, c);
     }
+
+    // ------------------------------------------------------------------ visual hitboxes and the reach circle
+
+    /** One visual hitbox: feet centre, size, the two theme colours and the settings copied at tick time. */
+    record BoxFrame(Vec3 center, float width, float height, int color, int light, int style, float line, float fill, boolean aimed) { }
+    /** Reach: the player, the circle radius, the aimed point (may be null) and whether it is within reach. */
+    record ReachFrame(Vec3 feet, Vec3 eye, Vec3 target, float radius, int color, int light, boolean inReach) { }
+    private static final List<BoxFrame> BOXES = new ArrayList<>();
+    private static ReachFrame REACH;
+    /** Hitboxes drawn in the last frame (the CI smoke test reads this). */
+    public static int boxesDrawn;
+    /** Whether the reach circle was drawn in the last frame (the CI smoke test reads this). */
+    public static boolean reachDrawn;
+    /** Reach radius used by the HUD readout, so the number next to the crosshair and the circle agree. */
+    public static double reachRadius() {
+        var c = LavaVisualClient.config();
+        return c.reachMode == 0 ? 3.0 : c.reachMode == 1 ? 4.5 : c.reachRadius;
+    }
+
+    /** Rebuilds the hitbox and reach snapshots from the world; runs on the client tick, where entities are safe. */
+    private static void snapshotBoxes(Minecraft mc, net.minecraft.world.entity.player.Player player, HudConfig c) {
+        BOXES.clear(); REACH = null;
+        var aimed = mc.hitResult instanceof EntityHitResult hit ? hit.getEntity() : null;
+        if (c.hitboxEnabled) {
+            int color = c.color("hitbox") & 0xFFFFFF, light = c.color2("hitbox") & 0xFFFFFF;
+            boolean firstPerson = mc.options.getCameraType().isFirstPerson();
+            for (var entity : mc.level.entitiesForRendering()) {
+                if (!(entity instanceof LivingEntity living) || !living.isAlive() || living.isInvisible()) continue;
+                if (living == player && (!c.hitboxSelf || firstPerson)) continue;
+                if (living.distanceTo(player) > c.hitboxRange) continue;
+                boolean isPlayer = living instanceof net.minecraft.world.entity.player.Player;
+                if (c.hitboxTargets == 1 && !isPlayer) continue;
+                if (c.hitboxTargets == 2 && isPlayer) continue;
+                BOXES.add(new BoxFrame(living.position(), living.getBbWidth(), living.getBbHeight(), color, light,
+                        c.hitboxStyle, (float) c.hitboxLine, (float) c.hitboxFill, living == aimed));
+            }
+        }
+        if (c.reachEnabled) {
+            double radius = reachRadius();
+            Vec3 eye = player.getEyePosition();
+            Vec3 target = mc.hitResult == null ? null : mc.hitResult.getLocation();
+            REACH = new ReachFrame(player.position(), eye, target, (float) radius, c.color("reach") & 0xFFFFFF, c.color2("reach") & 0xFFFFFF,
+                    target != null && eye.distanceTo(target) <= radius);
+        }
+    }
+
+    /** Hitboxes and the reach circle, drawn in the same pass as the rest of the cosmetics. */
+    private static void drawBoxes(PoseStack.Pose pose, VertexConsumer out, Frame frame, Vec3 camera, Vector3f right, Vector3f up) {
+        boxesDrawn = frame.boxes().size();
+        for (BoxFrame box : frame.boxes()) {
+            int color = box.aimed() ? UiDraw.mix(box.color(), 0xFFFFFF, 0.4) : box.color();
+            hitbox(pose, out, box.center().subtract(camera), box.width(), box.height(), color, box.light(), box.style(),
+                    box.line(), box.aimed() ? (float) Math.min(0.5, box.fill() * 1.8) : box.fill(), right, up);
+        }
+        if (frame.reach() == null) { reachDrawn = false; return; }
+        reachDrawn = true;
+        ReachFrame r = frame.reach();
+        Vec3 feet = r.feet().subtract(camera);
+        ripple(pose, out, feet, r.radius() * 0.93f, r.radius(), r.color(), r.light(), 0.34f, 0.34f, frame.spin());
+        ripple(pose, out, feet, r.radius() * 0.985f, r.radius(), 0xFFFFFF, r.color(), 0.30f, 0.30f, frame.spin() * 2);
+        if (r.target() == null) return;
+        Vec3 eye = r.eye().subtract(camera), target = r.target().subtract(camera);
+        int line = r.inReach() ? 0x7ADB6A : 0xE0453A;
+        ribbon(pose, out, (float) eye.x, (float) eye.y, (float) eye.z, (float) target.x, (float) target.y, (float) target.z, 0.022f, UiDraw.alpha(line, 0.8f), right, up);
+        ripple(pose, out, target, 0.10f, 0.17f, line, 0xFFFFFF, 0.55f, 0.55f, frame.spin() * 3);
+    }
+
+    /** One hitbox: corner ticks, a full frame, or a translucent fill with a frame; always camera-facing ribbons. */
+    private static void hitbox(PoseStack.Pose pose, VertexConsumer out, Vec3 p, float width, float height, int color, int light,
+                               int style, float line, float fill, Vector3f right, Vector3f up) {
+        float x0 = (float) p.x - width / 2, x1 = (float) p.x + width / 2;
+        float y0 = (float) p.y, y1 = (float) p.y + height;
+        float z0 = (float) p.z - width / 2, z1 = (float) p.z + width / 2;
+        float w = Math.max(0.6f, line) * 0.045f;
+        int c = UiDraw.alpha(color, style == 2 ? 0.95f : 0.9f);
+        if (style == 2 && fill > 0.01f) {
+            int face = UiDraw.alpha(color, Math.min(0.5f, fill));
+            quad(pose, out, x0, y0, z0, x1, y0, z0, x1, y0, z1, x0, y0, z1, face);
+            quad(pose, out, x0, y1, z0, x0, y1, z1, x1, y1, z1, x1, y1, z0, face);
+            quad(pose, out, x0, y0, z0, x0, y1, z0, x1, y1, z0, x1, y0, z0, face);
+            quad(pose, out, x1, y0, z1, x1, y1, z1, x0, y1, z1, x0, y0, z1, face);
+            quad(pose, out, x0, y0, z1, x0, y1, z1, x0, y1, z0, x0, y0, z0, face);
+            quad(pose, out, x1, y0, z0, x1, y1, z0, x1, y1, z1, x1, y0, z1, face);
+        }
+        if (style == 0) {
+            float t = Math.clamp(width * 0.3f, 0.18f, 0.45f);
+            for (int sx = 0; sx < 2; sx++) for (int sy = 0; sy < 2; sy++) for (int sz = 0; sz < 2; sz++) {
+                float x = sx == 0 ? x0 : x1, y = sy == 0 ? y0 : y1, z = sz == 0 ? z0 : z1;
+                ribbon(pose, out, x, y, z, x + (sx == 0 ? t : -t), y, z, w, c, right, up);
+                ribbon(pose, out, x, y, z, x, y + (sy == 0 ? t : -t), z, w, c, right, up);
+                ribbon(pose, out, x, y, z, x, y, z + (sz == 0 ? t : -t), w, c, right, up);
+            }
+        } else {
+            for (int sy = 0; sy < 2; sy++) for (int sz = 0; sz < 2; sz++)
+                ribbon(pose, out, x0, sy == 0 ? y0 : y1, sz == 0 ? z0 : z1, x1, sy == 0 ? y0 : y1, sz == 0 ? z0 : z1, w, c, right, up);
+            for (int sx = 0; sx < 2; sx++) for (int sz = 0; sz < 2; sz++)
+                ribbon(pose, out, sx == 0 ? x0 : x1, y0, sz == 0 ? z0 : z1, sx == 0 ? x0 : x1, y1, sz == 0 ? z0 : z1, w, c, right, up);
+            for (int sx = 0; sx < 2; sx++) for (int sy = 0; sy < 2; sy++)
+                ribbon(pose, out, sx == 0 ? x0 : x1, sy == 0 ? y0 : y1, z0, sx == 0 ? x0 : x1, sy == 0 ? y0 : y1, z1, w, c, right, up);
+        }
+        // A brighter base line reads as a floor marker, so the height of the box is visible from a distance.
+        ribbon(pose, out, x0, y0, z0, x1, y0, z0, w * 1.5f, UiDraw.alpha(light, 0.8f), right, up);
+    }
+
+    /** Camera-facing ribbon between two points: the building block of every hitbox edge. */
+    private static void ribbon(PoseStack.Pose pose, VertexConsumer out, float ax, float ay, float az, float bx, float by, float bz,
+                               float half, int color, Vector3f right, Vector3f up) {
+        float dx = bx - ax, dy = by - ay, dz = bz - az;
+        float length = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+        if (length < 1e-4f) return;
+        dx /= length; dy /= length; dz /= length;
+        float fx = right.y * up.z - right.z * up.y, fy = right.z * up.x - right.x * up.z, fz = right.x * up.y - right.y * up.x;
+        float nx = dy * fz - dz * fy, ny = dz * fx - dx * fz, nz = dx * fy - dy * fx;
+        float n = (float) Math.sqrt(nx * nx + ny * ny + nz * nz);
+        if (n < 1e-4f) { nx = right.x; ny = right.y; nz = right.z; } else { nx /= n; ny /= n; nz /= n; }
+        float ox = nx * half, oy = ny * half, oz = nz * half;
+        vertex(pose, out, ax - ox, ay - oy, az - oz, color);
+        vertex(pose, out, ax + ox, ay + oy, az + oz, color);
+        vertex(pose, out, bx + ox, by + oy, bz + oz, color);
+        vertex(pose, out, bx - ox, by - oy, bz - oz, color);
+    }
+
+    /** Flat quad of four points in order (the translucent faces of a filled hitbox). */
+    private static void quad(PoseStack.Pose pose, VertexConsumer out, float ax, float ay, float az, float bx, float by, float bz,
+                             float cx, float cy, float cz, float dx, float dy, float dz, int color) {
+        vertex(pose, out, ax, ay, az, color);
+        vertex(pose, out, bx, by, bz, color);
+        vertex(pose, out, cx, cy, cz, color);
+        vertex(pose, out, dx, dy, dz, color);
+    }
+
     private static void render(WorldRenderContext context) {
         Frame frame = tech.gulp.lavavisual.compat.Frames.get(DATA);
         if (frame == null) return;
@@ -360,6 +493,7 @@ public final class WorldCosmetics {
             // Camera-relative doubles are converted only after subtraction, avoiding far-coordinate jitter.
             new tech.gulp.lavavisual.compat.Submitter(context.consumers()).submitCustomGeometry(context.matrixStack(), GLOW, (pose, out) -> {
                 int jump = frame.colors[0], jumpLight = frame.lights[0];
+                drawBoxes(pose, out, frame, camera, right, up);
                 for (RingFrame ring : frame.rings) {
                     Vec3 p = ring.origin.subtract(camera);
                     float r = ring.radius, a = ring.alpha;
