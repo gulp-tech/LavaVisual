@@ -1,83 +1,24 @@
 > Configure project :
 > Task :compileJava
-/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:234: error: cannot find symbol
-  symbol:   class GuiGraphics
-  location: class LavaTitleScreen
-/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:381: error: cannot find symbol
-  symbol:   class HudConfig
-  location: class WorldCosmetics
-/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:316: error: cannot find symbol
-  symbol:   class Vec3
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:243: error: cannot find symbol
-        Runnable[] actions = {() -> minecraft.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MUSIC)),
-  symbol:   method setScreen(ClickGuiScreen)
-  location: variable minecraft of type Minecraft
-/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:244: error: cannot find symbol
-                () -> minecraft.setScreen(new HatEditorScreen(this)),
-  symbol:   method setScreen(HatEditorScreen)
-  location: variable minecraft of type Minecraft
-/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:245: error: cannot find symbol
-                () -> minecraft.setScreen(new ClickGuiScreen())};
-  symbol:   method setScreen(ClickGuiScreen)
-  location: variable minecraft of type Minecraft
-/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:245: error: cannot find symbol
-  symbol:   variable radio
-  location: class MusicPlayer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:246: error: cannot find symbol
-  symbol:   variable radio
-  location: class MusicPlayer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:247: error: cannot find symbol
-  symbol:   variable radio
-  location: class MusicPlayer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:41: error: cannot find symbol
-  symbol:   method getId()
-  location: class GameProfile
+/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:80: error: cannot find symbol
+  symbol:   method getTabList()
+  location: variable mc of type Minecraft
+/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:82: error: cannot find symbol
+  symbol:   method getTabList()
+  location: variable mc of type Minecraft
 > Task :compileJava FAILED
 FAILURE: Build failed with an exception.
 * What went wrong:
 > Compilation failed; see the compiler output below.
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:234: error: cannot find symbol
-    symbol:   class GuiGraphics
-    location: class LavaTitleScreen
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:381: error: cannot find symbol
-    symbol:   class HudConfig
-    location: class WorldCosmetics
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:316: error: cannot find symbol
-    symbol:   class Vec3
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:245: error: cannot find symbol
-    symbol:   variable radio
-    location: class MusicPlayer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:246: error: cannot find symbol
-    symbol:   variable radio
-    location: class MusicPlayer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:247: error: cannot find symbol
-    symbol:   variable radio
-    location: class MusicPlayer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:243: error: cannot find symbol
-          Runnable[] actions = {() -> minecraft.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MUSIC)),
-    symbol:   method setScreen(ClickGuiScreen)
-    location: variable minecraft of type Minecraft
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:244: error: cannot find symbol
-                  () -> minecraft.setScreen(new HatEditorScreen(this)),
-    symbol:   method setScreen(HatEditorScreen)
-    location: variable minecraft of type Minecraft
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:245: error: cannot find symbol
-                  () -> minecraft.setScreen(new ClickGuiScreen())};
-    symbol:   method setScreen(ClickGuiScreen)
-    location: variable minecraft of type Minecraft
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:41: error: cannot find symbol
-    symbol:   method getId()
-    location: class GameProfile
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:80: error: cannot find symbol
+    symbol:   method getTabList()
+    location: variable mc of type Minecraft
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:82: error: cannot find symbol
+    symbol:   method getTabList()
+    location: variable mc of type Minecraft
 > Check your code and dependencies to fix the compilation error(s)
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).
-::error title=Build diagnostics::WARNING: A restricted method in java.lang.System has been called%0AWARNING: java.lang.System::load has been called by net.rubygrapefruit.platform.internal.NativeLibraryLoader in an unnamed module (file:/home/runner/.gradle/wrapper/dists/gradle-9.5.1-bin/iq79hdu3mqx29lgffhp8bfmx/gradle-9.5.1/lib/native-platform-0.22-milestone-29.jar)%0AWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module%0AWARNING: Restricted methods will be blocked in a future release unless native access is enabled%0A%0ATo honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.5.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.%0ADaemon will be stopped at the end of the build %0A%0A> Configure project :%0AFabric Loom: 1.17.21%0A%0A> Task :compileJava%0A/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:234: error: cannot find symbol%0A    private void quick(GuiGraphics g, int ac, int ac2, double enter) {%0A                       ^
-::error title=Build diagnostics::  symbol:   class GuiGraphics%0A  location: class LavaTitleScreen%0A/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:381: error: cannot find symbol%0A    private static void snapshotBoxes(Minecraft mc, net.minecraft.world.entity.player.Player player, HudConfig c) {%0A                                                                                                     ^%0A  symbol:   class HudConfig%0A  location: class WorldCosmetics%0A/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:316: error: cannot find symbol%0A        Vec3 point = mc.hitResult == null ? null : mc.hitResult.getLocation();%0A        ^%0A  symbol:   class Vec3%0A  location: class HudRenderer%0A/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:243: error: cannot find symbol%0A        Runnable[] actions = {() -> minecraft.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MUSIC)),%0A                                             ^
-::error title=Build diagnostics::  symbol:   method setScreen(ClickGuiScreen)%0A  location: variable minecraft of type Minecraft%0A/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:244: error: cannot find symbol%0A                () -> minecraft.setScreen(new HatEditorScreen(this)),%0A                               ^%0A  symbol:   method setScreen(HatEditorScreen)%0A  location: variable minecraft of type Minecraft%0A/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:245: error: cannot find symbol%0A                () -> minecraft.setScreen(new ClickGuiScreen())};%0A                               ^%0A  symbol:   method setScreen(ClickGuiScreen)%0A  location: variable minecraft of type Minecraft%0A/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:245: error: cannot find symbol%0A                if (closing || open != null || radio >= 0) closeDecoder();%0A                                               ^
-::error title=Build diagnostics::  symbol:   variable radio%0A  location: class MusicPlayer%0A/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:246: error: cannot find symbol%0A                if (radio >= 0) {%0A                    ^%0A  symbol:   variable radio%0A  location: class MusicPlayer%0A/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:247: error: cannot find symbol%0A                    if (openRadio(radio, tg) == -2) continue;%0A                                  ^%0A  symbol:   variable radio%0A  location: class MusicPlayer%0A/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:41: error: cannot find symbol%0A        Player player = mc.level == null ? null : mc.level.getPlayerByUUID(info.getProfile().getId());%0A                                                                                            ^
-::error title=Build diagnostics::  symbol:   method getId()%0A  location: class GameProfile%0A10 errors%0A%0A> Task :compileJava FAILED%0Agradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_3-1791309922642.json%0A%0A[Incubating] Problems report is available at: file:///home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/build/reports/problems/problems-report.html%0A%0AFAILURE: Build failed with an exception.%0A%0A* What went wrong:%0AExecution failed for task ':compileJava' (registered by plugin class 'org.gradle.api.plugins.JavaBasePlugin').%0A> Compilation failed; see the compiler output below.%0A  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:234: error: cannot find symbol
-::error title=Build diagnostics::      private void quick(GuiGraphics g, int ac, int ac2, double enter) {%0A                         ^%0A    symbol:   class GuiGraphics%0A    location: class LavaTitleScreen%0A  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:381: error: cannot find symbol%0A      private static void snapshotBoxes(Minecraft mc, net.minecraft.world.entity.player.Player player, HudConfig c) {%0A                                                                                                       ^%0A    symbol:   class HudConfig%0A    location: class WorldCosmetics%0A  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:316: error: cannot find symbol%0A          Vec3 point = mc.hitResult == null ? null : mc.hitResult.getLocation();%0A          ^%0A    symbol:   class Vec3%0A    location: class HudRenderer%0A  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:245: error: cannot find symbol
-::error title=Build diagnostics::                  if (closing || open != null || radio >= 0) closeDecoder();%0A                                                 ^%0A    symbol:   variable radio%0A    location: class MusicPlayer%0A  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:246: error: cannot find symbol%0A                  if (radio >= 0) {%0A                      ^%0A    symbol:   variable radio%0A    location: class MusicPlayer%0A  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:247: error: cannot find symbol%0A                      if (openRadio(radio, tg) == -2) continue;%0A                                    ^%0A    symbol:   variable radio%0A    location: class MusicPlayer%0A  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:243: error: cannot find symbol
-::error title=Build diagnostics::          Runnable[] actions = {() -> minecraft.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MUSIC)),%0A                                               ^%0A    symbol:   method setScreen(ClickGuiScreen)%0A    location: variable minecraft of type Minecraft%0A  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:244: error: cannot find symbol%0A                  () -> minecraft.setScreen(new HatEditorScreen(this)),%0A                                 ^%0A    symbol:   method setScreen(HatEditorScreen)%0A    location: variable minecraft of type Minecraft%0A  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:245: error: cannot find symbol%0A                  () -> minecraft.setScreen(new ClickGuiScreen())};%0A                                 ^%0A    symbol:   method setScreen(ClickGuiScreen)%0A    location: variable minecraft of type Minecraft%0A  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:41: error: cannot find symbol
-::error title=Build diagnostics::          Player player = mc.level == null ? null : mc.level.getPlayerByUUID(info.getProfile().getId());%0A                                                                                              ^%0A    symbol:   method getId()%0A    location: class GameProfile%0A  10 errors%0A%0A* Try:%0A> Check your code and dependencies to fix the compilation error(s)%0A> Run with --scan to get full insights from a Build Scan (powered by Develocity).%0A%0ABUILD FAILED in 24s%0A1 actionable task: 1 executed
+::error title=Build diagnostics::WARNING: A restricted method in java.lang.System has been called%0AWARNING: java.lang.System::load has been called by net.rubygrapefruit.platform.internal.NativeLibraryLoader in an unnamed module (file:/home/runner/.gradle/wrapper/dists/gradle-9.5.1-bin/iq79hdu3mqx29lgffhp8bfmx/gradle-9.5.1/lib/native-platform-0.22-milestone-29.jar)%0AWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module%0AWARNING: Restricted methods will be blocked in a future release unless native access is enabled%0A%0ATo honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.5.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.%0ADaemon will be stopped at the end of the build %0A%0A> Configure project :%0AFabric Loom: 1.17.21%0A%0A> Task :compileJava%0A/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:80: error: cannot find symbol%0A            var method = mc.getTabList().getClass().getDeclaredMethod("getNameForDisplay", PlayerInfo.class);%0A                           ^
+::error title=Build diagnostics::  symbol:   method getTabList()%0A  location: variable mc of type Minecraft%0A/home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:82: error: cannot find symbol%0A            Object row = method.invoke(mc.getTabList(), info);%0A                                         ^%0A  symbol:   method getTabList()%0A  location: variable mc of type Minecraft%0A2 errors%0A%0A> Task :compileJava FAILED%0Agradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_3-1791312448535.json%0A%0A[Incubating] Problems report is available at: file:///home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/build/reports/problems/problems-report.html%0A%0AFAILURE: Build failed with an exception.
+::error title=Build diagnostics::%0A* What went wrong:%0AExecution failed for task ':compileJava' (registered by plugin class 'org.gradle.api.plugins.JavaBasePlugin').%0A> Compilation failed; see the compiler output below.%0A  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:80: error: cannot find symbol%0A              var method = mc.getTabList().getClass().getDeclaredMethod("getNameForDisplay", PlayerInfo.class);%0A                             ^%0A    symbol:   method getTabList()%0A    location: variable mc of type Minecraft%0A  /home/runner/work/LavaVisual/LavaVisual/ports/mc26.2/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:82: error: cannot find symbol%0A              Object row = method.invoke(mc.getTabList(), info);%0A                                           ^%0A    symbol:   method getTabList()%0A    location: variable mc of type Minecraft%0A  2 errors
+::error title=Build diagnostics::%0A* Try:%0A> Check your code and dependencies to fix the compilation error(s)%0A> Run with --scan to get full insights from a Build Scan (powered by Develocity).%0A%0ABUILD FAILED in 21s%0A1 actionable task: 1 executed
