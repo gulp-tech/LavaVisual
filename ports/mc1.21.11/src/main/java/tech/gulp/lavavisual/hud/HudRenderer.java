@@ -308,8 +308,11 @@ public final class HudRenderer {
             if (stack.isDamageableItem() && stack.getMaxDamage() > 0) {
                 double ratio = Math.clamp(1 - (double) stack.getDamageValue() / stack.getMaxDamage(), 0, 1);
                 int color = durability(ratio);
-                g.fill(x + 3, y + 18, x + 17, y + 19, 0xFF2A2D35);
-                g.fill(x + 3, y + 18, x + 3 + Math.max(1, (int) Math.round(14 * ratio)), y + 19, color);
+                // Украшенная полоса прочности: тёмная дорожка, градиент от цвета к его светлому тону и блик сверху.
+                UiDraw.round(g, x + 3, y + 17, 14, 3, 1, 0xFF23262D);
+                int bar = Math.max(1, (int) Math.round(12 * ratio));
+                UiDraw.roundH(g, x + 4, y + 18, bar, 2, 1, color, UiDraw.mix(color, 0xFFFFFF, 0.35));
+                g.fill(x + 4, y + 18, x + 3 + bar, y + 18, UiDraw.alpha(0xFFFFFF, 0.35));
                 UiFont.centered(g, font, Math.round(ratio * 100) + "%", x + 10, y + 22, color, Face.SMALL);
             } else UiFont.centered(g, font, "∞", x + 10, y + 22, 0xFF9AA0AC, Face.SMALL);
         }
@@ -502,8 +505,11 @@ public final class HudRenderer {
                 g.renderItem(stack, sx + 2, sy + 1);
                 if (stack.isDamageableItem() && stack.getMaxDamage() > 0) {
                     double left = Math.clamp(1 - (double) stack.getDamageValue() / stack.getMaxDamage(), 0, 1);
-                    g.fill(sx + 3, sy + 17, sx + 16, sy + 18, 0xFF2A2D35);
-                    g.fill(sx + 3, sy + 17, sx + 3 + Math.max(1, (int) Math.round(13 * left)), sy + 18, durability(left));
+                    int worn = durability(left);
+                    UiDraw.round(g, sx + 3, sy + 16, 13, 3, 1, 0xFF23262D);
+                    int fill = Math.max(1, (int) Math.round(11 * left));
+                    UiDraw.roundH(g, sx + 4, sy + 17, fill, 2, 1, worn, UiDraw.mix(worn, 0xFFFFFF, 0.35));
+                    g.fill(sx + 4, sy + 17, sx + 3 + fill, sy + 17, UiDraw.alpha(0xFFFFFF, 0.35));
                 }
             }
         }
