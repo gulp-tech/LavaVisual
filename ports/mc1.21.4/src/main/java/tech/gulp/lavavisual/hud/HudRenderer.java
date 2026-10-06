@@ -298,7 +298,7 @@ public final class HudRenderer {
     }
 
     /** Armor: the actual pieces, durability strip and percent; vanilla slot silhouettes when empty. */
-    private static void armor(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2) {
+    private static void armor(GuiGraphics g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2) {
         int bw = 97, bh = 36;
         Font font = mc.font;
         panel(g, c, 0, 0, bw, bh, 6, w.opacity, accent, accent2);
@@ -314,11 +314,11 @@ public final class HudRenderer {
             if (low) UiDraw.round(g, x - 1, y - 1, 22, 22, 5, UiDraw.alpha(WARN_COLOR, 0.35 + 0.4 * pulse));
             UiDraw.round(g, x, y, 20, 20, 4, 0xF21D2027);
             if (stack.isEmpty()) {
-                g.blitSprite(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath("minecraft", ARMOR_SPRITES[i]), x + 2, y + 2, 16, 16, 0x66FFFFFF);
+                g.blitSprite(net.minecraft.client.renderer.RenderType::guiTextured, ResourceLocation.fromNamespaceAndPath("minecraft", ARMOR_SPRITES[i]), x + 2, y + 2, 16, 16, 0x66FFFFFF);
                 UiFont.centered(g, font, "—", x + 10, y + 22, 0xFF5D6472, Face.SMALL);
                 continue;
             }
-            g.item(stack, x + 2, y + 2);
+            g.renderItem(stack, x + 2, y + 2);
             if (low) UiDraw.round(g, x, y, 20, 20, 4, UiDraw.alpha(WARN_COLOR, 0.10 + 0.20 * pulse));
             if (ratio >= 0) {
                 int color = durability(ratio);
@@ -523,10 +523,10 @@ public final class HudRenderer {
                 if (c.shadows) UiDraw.round(g, sx + 1, sy + 1, 19, 19, 4, UiDraw.alpha(0, w.opacity * 0.25 * fade));
                 UiDraw.roundV(g, sx, sy, 19, 19, 4, UiDraw.alpha(UiDraw.mix(PANEL, 0xFFFFFF, 0.05), w.opacity * fade), UiDraw.alpha(PANEL, w.opacity * fade));
                 if (stack.isEmpty()) {
-                    if (i < 4) g.blitSprite(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath("minecraft", ARMOR_SPRITES[i]), sx + 2, sy + 2, 15, 15, UiDraw.alpha(0xFFFFFF, 0.3 * fade));
+                    if (i < 4) g.blitSprite(net.minecraft.client.renderer.RenderType::guiTextured, ResourceLocation.fromNamespaceAndPath("minecraft", ARMOR_SPRITES[i]), sx + 2, sy + 2, 15, 15, UiDraw.alpha(0xFFFFFF, 0.3 * fade));
                     continue;
                 }
-                g.item(stack, sx + 2, sy + 1);
+                g.renderItem(stack, sx + 2, sy + 1);
                 if (low) UiDraw.round(g, sx, sy, 19, 19, 4, UiDraw.alpha(WARN_COLOR, 0.10 + 0.20 * pulse));
                 if (left >= 0) {
                     int worn = durability(left);
