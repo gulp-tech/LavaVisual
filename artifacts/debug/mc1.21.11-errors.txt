@@ -1,13 +1,21 @@
 > Configure project :
 > Task :compileJava
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/Hats.java:76: error: invalid canonical constructor in record Look
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/Hats.java:68: error: recursive constructor invocation
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:302: error: cannot find symbol
+  symbol:   class GuiGraphicsExtractor
+  location: class HudRenderer
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:527: error: cannot find symbol
+  symbol:   method item(ItemStack,int,int)
+  location: variable g of type GuiGraphics
 > Task :compileJava FAILED
 FAILURE: Build failed with an exception.
 * What went wrong:
 > Compilation failed; see the compiler output below.
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/Hats.java:76: error: invalid canonical constructor in record Look
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/Hats.java:68: error: recursive constructor invocation
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:302: error: cannot find symbol
+    symbol:   class GuiGraphicsExtractor
+    location: class HudRenderer
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:527: error: cannot find symbol
+    symbol:   method item(ItemStack,int,int)
+    location: variable g of type GuiGraphics
 > Check your code and dependencies to fix the compilation error(s)
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).
 4
