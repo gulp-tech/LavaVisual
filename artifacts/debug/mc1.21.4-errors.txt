@@ -1,45 +1,39 @@
 > Configure project :
 > Task :compileJava
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:301: error: cannot find symbol
-  symbol:   class GuiGraphicsExtractor
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:374: error: cannot find symbol
+  symbol:   class HudConfig
+  location: class WorldCosmetics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:315: error: cannot find symbol
+  symbol:   class Vec3
   location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:317: error: cannot find symbol
-  symbol:   variable RenderPipelines
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:317: error: cannot find symbol
-  symbol:   variable Identifier
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:526: error: cannot find symbol
-  symbol:   variable RenderPipelines
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:526: error: cannot find symbol
-  symbol:   variable Identifier
-  location: class HudRenderer
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:529: error: cannot find symbol
-  symbol:   method item(ItemStack,int,int)
-  location: variable g of type GuiGraphics
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:245: error: cannot find symbol
+  symbol:   variable radio
+  location: class MusicPlayer
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:246: error: cannot find symbol
+  symbol:   variable radio
+  location: class MusicPlayer
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:247: error: cannot find symbol
+  symbol:   variable radio
+  location: class MusicPlayer
 > Task :compileJava FAILED
 FAILURE: Build failed with an exception.
 * What went wrong:
 > Compilation failed; see the compiler output below.
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:301: error: cannot find symbol
-    symbol:   class GuiGraphicsExtractor
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/WorldCosmetics.java:374: error: cannot find symbol
+    symbol:   class HudConfig
+    location: class WorldCosmetics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:315: error: cannot find symbol
+    symbol:   class Vec3
     location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:317: error: cannot find symbol
-    symbol:   variable RenderPipelines
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:317: error: cannot find symbol
-    symbol:   variable Identifier
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:526: error: cannot find symbol
-    symbol:   variable RenderPipelines
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:526: error: cannot find symbol
-    symbol:   variable Identifier
-    location: class HudRenderer
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/hud/HudRenderer.java:529: error: cannot find symbol
-    symbol:   method item(ItemStack,int,int)
-    location: variable g of type GuiGraphics
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:245: error: cannot find symbol
+    symbol:   variable radio
+    location: class MusicPlayer
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:246: error: cannot find symbol
+    symbol:   variable radio
+    location: class MusicPlayer
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/audio/MusicPlayer.java:247: error: cannot find symbol
+    symbol:   variable radio
+    location: class MusicPlayer
 > Check your code and dependencies to fix the compilation error(s)
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).
-12
+10
