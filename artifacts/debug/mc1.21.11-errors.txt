@@ -1,25 +1,13 @@
 > Configure project :
 > Task :compileJava
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:237: error: cannot find symbol
-            Runnable action = i == 0 ? () -> minecraft.gui.setScreen(new SkinEditorScreen(this)) : () -> minecraft.gui.setScreen(new HatEditorScreen(this));
-  symbol:   method setScreen(SkinEditorScreen)
-  location: variable gui of type Gui
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:237: error: cannot find symbol
-            Runnable action = i == 0 ? () -> minecraft.gui.setScreen(new SkinEditorScreen(this)) : () -> minecraft.gui.setScreen(new HatEditorScreen(this));
-  symbol:   method setScreen(HatEditorScreen)
-  location: variable gui of type Gui
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/Hats.java:76: error: invalid canonical constructor in record Look
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/Hats.java:68: error: recursive constructor invocation
 > Task :compileJava FAILED
 FAILURE: Build failed with an exception.
 * What went wrong:
 > Compilation failed; see the compiler output below.
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:237: error: cannot find symbol
-              Runnable action = i == 0 ? () -> minecraft.gui.setScreen(new SkinEditorScreen(this)) : () -> minecraft.gui.setScreen(new HatEditorScreen(this));
-    symbol:   method setScreen(SkinEditorScreen)
-    location: variable gui of type Gui
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/ui/LavaTitleScreen.java:237: error: cannot find symbol
-              Runnable action = i == 0 ? () -> minecraft.gui.setScreen(new SkinEditorScreen(this)) : () -> minecraft.gui.setScreen(new HatEditorScreen(this));
-    symbol:   method setScreen(HatEditorScreen)
-    location: variable gui of type Gui
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/Hats.java:76: error: invalid canonical constructor in record Look
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.11/src/main/java/tech/gulp/lavavisual/effects/Hats.java:68: error: recursive constructor invocation
 > Check your code and dependencies to fix the compilation error(s)
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).
 4
