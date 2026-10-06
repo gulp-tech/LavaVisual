@@ -30,6 +30,8 @@ public final class HudConfig {
     public static final int[][] THEMES = {{0xFF6A2B, 0xA77BFF}, {0xFF5A36, 0xFFC233}, {0x85F56A, 0x2CE0C8}, {0x36C8FF, 0x4C6BFF},
             {0xB45CFF, 0xFF5C9A}, {0xFFC233, 0xFF7A3C}, {0xFF5C9A, 0xFFB36B}, {0xFF8A3C, 0xFF3D7F}, {0x9BE7FF, 0xC7B8FF}};
     public boolean shadows = true, animations = true;
+    /** Nearly broken gear breathes red in the HUD; the warning can be switched off here. */
+    public boolean durabilityWarn = true;
     public boolean crosshairEnabled, jumpEnabled, particlesEnabled, ambientEnabled, viewModelEnabled;
     public int crosshairShape = 1;
     public double crosshairScale = 1, crosshairOpacity = 1;

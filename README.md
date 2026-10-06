@@ -1,4 +1,4 @@
-# LavaVisual 1.1.1 — Minecraft 26.2
+# LavaVisual 1.1.2 — Minecraft 26.2
 
 <img src="ports/mc26.2/src/main/resources/assets/lavavisual/icon.png" width="96" alt="LV">
 
@@ -7,9 +7,9 @@
 
 | | Скачать | Что внутри |
 | --- | --- | --- |
-| **Мод** | [lavavisual-1.1.1-mc26.2.jar](artifacts/lavavisual-1.1.1-mc26.2.jar) | только LavaVisual, в папку `mods` |
-| **Клиент** | [LavaVisual-Client-1.1.1-mc26.2.mrpack](artifacts/LavaVisual-Client-1.1.1-mc26.2.mrpack) | готовая сборка для Modrinth App, Prism Launcher, ATLauncher |
-| **Клиент (архив)** | [LavaVisual-Client-1.1.1-mc26.2.zip](artifacts/LavaVisual-Client-1.1.1-mc26.2.zip) | папки `mods` и `config` для TLauncher, телефонов и ручной установки |
+| **Мод** | [lavavisual-1.1.2-mc26.2.jar](artifacts/lavavisual-1.1.2-mc26.2.jar) | только LavaVisual, в папку `mods` |
+| **Клиент** | [LavaVisual-Client-1.1.2-mc26.2.mrpack](artifacts/LavaVisual-Client-1.1.2-mc26.2.mrpack) | готовая сборка для Modrinth App, Prism Launcher, ATLauncher |
+| **Клиент (архив)** | [LavaVisual-Client-1.1.2-mc26.2.zip](artifacts/LavaVisual-Client-1.1.2-mc26.2.zip) | папки `mods` и `config` для TLauncher, телефонов и ручной установки |
 
 Контрольные суммы — в [SHA256SUMS](artifacts/SHA256SUMS).
 
@@ -74,6 +74,9 @@ PojavLauncher, MojoLauncher, Amethyst и другие лаунчеры на ос
 
 - **HUD:** водяной знак, Target HUD с аватаром, клавиши с CPS, броня, тотемы, координаты, музыка. Элементы
   перетаскиваются и меняют размер, шрифт HUD выбирается.
+- **Прочность:** полосы прочности брони и предметов оформлены одинаково — скруглённая дорожка, градиент и
+  блик; процент меняет цвет. Когда остаётся 20 % и меньше, слот «дышит» красным (отключается в настройках
+  виджета брони).
 - **Косметика:** 14 шляп и 5 видов объёмных крыльев с редакторами (размер, положение, взмахи, цвет), 6 плащей с
   физикой ткани (развеваются от бега, прыжков и поворотов, с подкладкой), аксессуары (очки, наушники, шарф), следы.
   Хвост шарфа раскачивается, крылья отводятся назад на бегу и приподнимаются в падении. Косметика не врезается в
@@ -126,10 +129,12 @@ PojavLauncher, MojoLauncher, Amethyst и другие лаунчеры на ос
 перезагрузку ресурсов, звук, музыку всех форматов и стоимость миникарты, а скриншоты кладёт в `artifacts/`. Пакеты
 клиента собирает `tools/make_client.py`.
 
-Без Minecraft и Gradle под рукой пригодятся два местных инструмента: `tools/check_java.py` разбирает все
+Без Minecraft и Gradle под рукой пригодятся местные инструменты: `tools/check_java.py` разбирает все
 `*.java` портов (грамматика tree-sitter) и ругается на синтаксис и на вызовы несуществующих членов `UiDraw`,
-`UiFont`, `Icons`, а `tools/preview_menu.py` рисует макет меню (`docs/menu-preview.png`) с теми же размерами и
-декором, что и `ui/ClickGuiScreen.java`. Оба требуют пакетов с PyPI: `tree-sitter tree-sitter-java` и `pillow`.
+`UiFont`, `Icons`; `tools/preview_menu.py` рисует макет меню (`docs/menu-preview.png`) с теми же размерами и
+декором, что и `ui/ClickGuiScreen.java`; `tools/preview_durability.py` рисует полосы прочности и предупреждение
+о низкой прочности (`docs/durability-preview.png`) с геометрией `hud/HudRenderer.java`.
+Нужны пакеты с PyPI: `tree-sitter tree-sitter-java` и `pillow`.
 
 ## Сторонние материалы
 
