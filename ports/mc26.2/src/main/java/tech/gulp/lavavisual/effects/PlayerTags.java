@@ -77,9 +77,13 @@ public final class PlayerTags {
             if (mc.getConnection() == null || mc.player == null) return "no connection";
             var info = mc.getConnection().getPlayerInfo(mc.player.getUUID());
             if (info == null) return "no player info";
-            var method = mc.getTabList().getClass().getDeclaredMethod("getNameForDisplay", PlayerInfo.class);
+            Object overlay = null;
+            for (var field : Minecraft.class.getDeclaredFields())
+                if (field.getType().getName().endsWith("PlayerTabOverlay")) { field.setAccessible(true); overlay = field.get(mc); break; }
+            if (overlay == null) return "no tab overlay";
+            var method = overlay.getClass().getDeclaredMethod("getNameForDisplay", PlayerInfo.class);
             method.setAccessible(true);
-            Object row = method.invoke(mc.getTabList(), info);
+            Object row = method.invoke(overlay, info);
             String text = row instanceof Component component ? component.getString() : "";
             return (text.startsWith(GLYPH) ? "ok " : "no badge ") + '"' + text + '"';
         } catch (ReflectiveOperationException | RuntimeException error) {

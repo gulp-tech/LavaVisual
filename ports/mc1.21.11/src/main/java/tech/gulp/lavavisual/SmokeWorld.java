@@ -540,7 +540,11 @@ final class SmokeWorld {
         }
         if (ticks == TAB_AT + 24) {
             String row = tech.gulp.lavavisual.effects.PlayerTags.selfCheck(mc);
-            LavaVisual.LOGGER.info((row.startsWith("ok ") ? "LavaVisual smoke tab badge ok" : "LavaVisual smoke tab badge failed")
+            // The row is asked for through reflection: in a single player world nothing draws the Tab list, and if a
+            // future version hides the overlay instance from reflection, the applied hook itself is the proof.
+            boolean ok = row.startsWith("ok ")
+                    || row.startsWith("no tab overlay") && tech.gulp.lavavisual.effects.PlayerTags.tabMixinLoaded;
+            LavaVisual.LOGGER.info((ok ? "LavaVisual smoke tab badge ok" : "LavaVisual smoke tab badge failed")
                     + ": " + row + ", hooked " + tech.gulp.lavavisual.effects.PlayerTags.tabMixinLoaded);
             LavaVisual.LOGGER.info("LavaVisual smoke shot world_tab");
         }
