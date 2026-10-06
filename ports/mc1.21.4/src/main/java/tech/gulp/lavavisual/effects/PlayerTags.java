@@ -70,6 +70,22 @@ public final class PlayerTags {
         return name.getString().startsWith(GLYPH) ? name : Component.empty().append(LOGO).append(" ").append(name);
     }
 
+    /** CI: the row of the local player, asked for exactly the way the overlay asks for its own rows. */
+    public static String selfCheck(Minecraft mc) {
+        try {
+            if (mc.getConnection() == null || mc.player == null) return "no connection";
+            var info = mc.getConnection().getPlayerInfo(mc.player.getUUID());
+            if (info == null) return "no player info";
+            var method = mc.getTabList().getClass().getDeclaredMethod("getNameForDisplay", PlayerInfo.class);
+            method.setAccessible(true);
+            Object row = method.invoke(mc.getTabList(), info);
+            String text = row instanceof Component component ? component.getString() : "";
+            return (text.startsWith(GLYPH) ? "ok " : "no badge ") + '"' + text + '"';
+        } catch (ReflectiveOperationException | RuntimeException error) {
+            return error.getClass().getSimpleName() + ": " + error.getMessage();
+        }
+    }
+
     /** CI check: the glyph comes from the badge font (without it the font falls back to a narrow box). */
     public static String selfTest() {
         int width = Minecraft.getInstance().font.width(LOGO);

@@ -531,16 +531,17 @@ final class SmokeWorld {
         }
         if (ticks == HITBOX_AT + 32) c.hitboxStyle = 2;
         if (ticks == HITBOX_AT + 40) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_fill");
-        // Player list: the LV badge must appear on LavaVisual rows — the shot photographs the open list.
+        // Player list: a single player world never draws the Tab list (its own row would be the only one), so the
+        // decorated row is asked for directly — the same call the overlay makes. This checks the mixin hook too.
         if (ticks == TAB_AT) {
             c.hitboxEnabled = false;
             c.reachEnabled = false;
             mc.options.keyPlayerList.setDown(true);
         }
         if (ticks == TAB_AT + 24) {
-            int rows = tech.gulp.lavavisual.effects.PlayerTags.tabBadges;
-            LavaVisual.LOGGER.info((rows > 0 ? "LavaVisual smoke tab badge ok" : "LavaVisual smoke tab badge failed")
-                    + ": rows " + rows + ", hooked " + tech.gulp.lavavisual.effects.PlayerTags.tabMixinLoaded);
+            String row = tech.gulp.lavavisual.effects.PlayerTags.selfCheck(mc);
+            LavaVisual.LOGGER.info((row.startsWith("ok ") ? "LavaVisual smoke tab badge ok" : "LavaVisual smoke tab badge failed")
+                    + ": " + row + ", hooked " + tech.gulp.lavavisual.effects.PlayerTags.tabMixinLoaded);
             LavaVisual.LOGGER.info("LavaVisual smoke shot world_tab");
         }
         if (ticks == TAB_AT + 34) mc.options.keyPlayerList.setDown(false);
