@@ -78,7 +78,15 @@ public final class MusicScreen extends Screen {
         String sub = broken ? "Не играет: " + err : track == null ? (tracks.isEmpty() ? "Положите музыку в папку music или перетащите файлы сюда" : "Нажмите на трек в списке")
                 : station >= 0 ? "радио · " + tech.gulp.lavavisual.audio.Radio.station(station).genre() + (MusicPlayer.paused() ? " · пауза" : "")
                 : (track.artist().isBlank() ? "" : track.artist() + " · ") + (MusicPlayer.paused() ? "пауза" : MusicPlayer.playing() ? "играет" : "стоп");
-        UiFont.text(g, font, sub, ix, cy + 15, broken ? 0xFFFF8A80 : 0xFF9AA3B2, iw);
+        UiFont.text(g, font, sub, ix, cy + 15, broken ? 0xFFFF8A80 : 0xFF9AA3B2, iw - (station >= 0 ? 76 : 0));
+        if (station >= 0) {
+            // Radio on air: the station is switched right here, next to the "радио · жанр" line.
+            int sx = ix + iw - 9, sy = cy + 19;
+            round(g, mx, my, sx, sy, 8, Icons.SKIP_FORWARD, 0xFFE8EAF0, () -> MusicPlayer.next(false));
+            round(g, mx, my, sx - 22, sy, 8, Icons.SKIP_BACK, 0xFFE8EAF0, MusicPlayer::previous);
+            String num = (station + 1) + "/" + tech.gulp.lavavisual.audio.Radio.stations().size();
+            UiFont.text(g, font, num, sx - 22 - 8 - UiFont.width(g, font, num, UiFont.Face.SMALL), sy - 4, 0xFF8C95A4, 60, UiFont.Face.SMALL);
+        }
         barX = ix; barY = cy + 32; barW = iw;
         boolean live = MusicPlayer.radioActive();
         double len = MusicPlayer.duration(), pos = seeking ? seekPreview : MusicPlayer.position();

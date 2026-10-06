@@ -865,9 +865,9 @@ public final class ClickGuiScreen extends Screen {
         var track = tech.gulp.lavavisual.audio.MusicPlayer.current();
         button(g, Icons.MUSIC, "Открыть плеер · " + tech.gulp.lavavisual.input.Binds.keyName(tech.gulp.lavavisual.input.Binds.Action.MUSIC),
                 () -> minecraft.gui.setScreen(new MusicScreen(this)));
-        section(g, "Радио · 13 станций");
-        note(g, "Станции сочиняются на ходу: файлы не нужны, музыка есть у всех и без интернета");
         var stations = tech.gulp.lavavisual.audio.Radio.stations();
+        section(g, "Радио · " + stations.size() + " станций");
+        note(g, "Станции сочиняются на ходу: файлы не нужны, музыка есть у всех и без интернета");
         String[] stationNames = new String[stations.size()];
         for (int i = 0; i < stations.size(); i++) stationNames[i] = stations.get(i).name();
         chips(g, stationNames, tech.gulp.lavavisual.audio.MusicPlayer.radioIndex(), tech.gulp.lavavisual.audio.MusicPlayer::playRadio, 4);
