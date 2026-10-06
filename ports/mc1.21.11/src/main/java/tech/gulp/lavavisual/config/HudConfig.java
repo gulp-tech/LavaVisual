@@ -32,6 +32,12 @@ public final class HudConfig {
     public boolean shadows = true, animations = true;
     /** Nearly broken gear breathes red in the HUD; the warning can be switched off here. */
     public boolean durabilityWarn = true;
+    /** Threshold of the low-durability warning: everything at or below this share counts as nearly broken. */
+    public double durabilityThreshold = 0.2;
+    /** A toast and a soft chime once per item when it drops below the threshold. */
+    public boolean durabilityAlert = true, durabilityAlertSound = true;
+    /** Held item durability under the crosshair. */
+    public boolean handDurability;
     public boolean crosshairEnabled, jumpEnabled, particlesEnabled, ambientEnabled, viewModelEnabled;
     public int crosshairShape = 1;
     public double crosshairScale = 1, crosshairOpacity = 1;
@@ -210,6 +216,7 @@ public final class HudConfig {
         }
         widgets = clean;
         crosshairShape = Math.max(1, Math.min(3, crosshairShape));
+        durabilityThreshold = bounded(durabilityThreshold, 0.05, 0.6, 0.2);
         rgb = Math.max(0, Math.min(0xFFFFFF, rgb));
         rgb2 = Math.max(0, Math.min(0xFFFFFF, rgb2));
         if (styleVersion < 1) {

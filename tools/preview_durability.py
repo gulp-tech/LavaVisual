@@ -110,6 +110,21 @@ def hotbar_slot(view, x, y, ratio, pulse=1.0, warn=True, icon=None):
     view.rr(x + 2, y + 13, bar, 1, 0, 0xFFFFFF, 0.35)
 
 
+def hand_bar(view, x, y, ratio, pulse=1.0, warn=True):
+    """Held item durability under the crosshair, in the order of HudRenderer.handDurability()."""
+    low = ratio <= 0.2 and warn
+    color = shown(durability(ratio), pulse) if low else durability(ratio)
+    width = 44
+    view.rr(x + width / 2 - 5, y - 9, 1, 4, 0, 0xC9D0DA, 0.9)
+    view.rr(x + width / 2 - 2, y - 10, 4, 1, 0, 0xC9D0DA, 0.9)
+    if low:
+        view.rr(x - 2, y - 2, width + 4, 7, 3, WARN, 0.25 + 0.35 * pulse)
+    view.rr(x, y, width, 3, 1, TRACK)
+    bar = max(1, round((width - 2) * ratio))
+    view.rrh(x + 1, y + 1, bar, 1, 1, color, mix(color, 0xFFFFFF, 0.35))
+    view.text(x + width + 5, y - 3, f'{round(ratio * 100)}%', color, 0.95, size=6)
+
+
 def armor_widget(view, x, y, ratios, pulse=1.0, warn=True):
     view.rr(x, y, 97, 36, 6, PANEL)
     for i, ratio in enumerate(ratios):
@@ -123,10 +138,10 @@ def gear_strip(view, x, y, ratios, pulse=1.0, warn=True):
 
 def main():
     out = Path(sys.argv[1]) if len(sys.argv) > 1 else OUT
-    view = View(340, 272)
-    view.img.paste(0x101319FF, (0, 0, 340 * SS, 272 * SS))
+    view = View(340, 326)
+    view.img.paste(0x101319FF, (0, 0, 340 * SS, 326 * SS))
 
-    view.text(14, 12, 'LavaVisual 1.1.3 · прочность', TEXT, 1.0, size=13, bold=True)
+    view.text(14, 12, 'LavaVisual 1.1.4 · прочность', TEXT, 1.0, size=13, bold=True)
     view.text(14, 31, 'Одно оформление во всех визуалах: дорожка, градиент, блик, процент по цвету.', DIM, 1.0, size=7)
 
     view.text(14, 52, 'Броня · обычная прочность', DIM, 1.0, size=8, bold=True)
@@ -145,7 +160,14 @@ def main():
     for i, (ratio, icon) in enumerate(hotbar):
         hotbar_slot(view, 14 + i * 20, 226, ratio, 1.0, True, icon)
 
-    view.text(14, 258, 'Порог 20 % · выключатель «Подсветка низкой прочности» в настройках виджета брони', DIM, 0.85, size=6)
+    view.text(14, 266, 'В руке · полоса под прицелом, порог и оповещение — в настройках виджета брони', DIM, 1.0, size=8, bold=True)
+    hand_bar(view, 14, 284, 0.08, 1.0)
+    hand_bar(view, 100, 284, 0.55, 1.0)
+    view.rr(190, 276, 136, 18, 6, PANEL, 0.88)
+    view.rr(196, 281, 3, 8, 1, 0xFF6A2B, 1.0)
+    view.text(204, 281, 'Почти сломано: рука · 8%', TEXT, 0.95, size=7)
+
+    view.text(14, 312, 'Порог 20 % · выключатель «Подсветка низкой прочности» в настройках виджета брони', DIM, 0.85, size=6)
     view.img.save(out)
     print(f'{out} -> {out.stat().st_size // 1024} KB')
 

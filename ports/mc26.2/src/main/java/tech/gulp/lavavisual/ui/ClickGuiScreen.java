@@ -50,7 +50,7 @@ public final class ClickGuiScreen extends Screen {
             Map.entry("freelook", Icons.EYE), Map.entry("mute_vanilla", Icons.VOLUME_X), Map.entry("trail_glow", Icons.SPARKLES), Map.entry("dummy_spin", Icons.ROTATE_CW),
             Map.entry("zoom_smooth", Icons.WAND_SPARKLES), Map.entry("zoom_mouse", Icons.MOUSE), Map.entry("crit_color", Icons.PALETTE), Map.entry("crit_magic", Icons.SPARKLES), Map.entry("crit_always", Icons.SWORDS),
             Map.entry("sound0", Icons.SWORDS), Map.entry("sound1", Icons.ZAP), Map.entry("sound2", Icons.HEART_PULSE),
-            Map.entry("sound3", Icons.SKULL), Map.entry("shadows", Icons.LAYERS), Map.entry("animations", Icons.WAND_SPARKLES), Map.entry("durability_warn", Icons.SHIELD),
+            Map.entry("sound3", Icons.SKULL), Map.entry("shadows", Icons.LAYERS), Map.entry("animations", Icons.WAND_SPARKLES), Map.entry("durability_warn", Icons.SHIELD), Map.entry("durability_alert", Icons.BELL), Map.entry("durability_sound", Icons.VOLUME_2), Map.entry("hand_durability", Icons.CROSSHAIR),
             Map.entry("sky", Icons.CLOUD_SUN), Map.entry("time", Icons.SUN), Map.entry("cape", Icons.FLAG), Map.entry("outfit", Icons.HEADPHONES), Map.entry("outfit1", Icons.EYE), Map.entry("outfit2", Icons.HEADPHONES), Map.entry("outfit3", Icons.WIND), Map.entry("projectile", Icons.NAVIGATION_2), Map.entry("proj_mine", Icons.USER), Map.entry("proj_glow", Icons.SPARKLES), Map.entry("proj_item", Icons.PALETTE), Map.entry("items", Icons.GEM), Map.entry("items_flat", Icons.LAYERS), Map.entry("boost", Icons.ROCKET), Map.entry("setting", Icons.EYE),
             Map.entry("minimap", Icons.MAP), Map.entry("beams", Icons.SIGNPOST), Map.entry("labels", Icons.NAVIGATION),
             Map.entry("mapcoords", Icons.LOCATE_FIXED), Map.entry("mapmarks", Icons.MAP_PINNED), Map.entry("tilt", Icons.MOVE_VERTICAL), Map.entry("cooldown", Icons.TIMER));
@@ -1001,7 +1001,13 @@ public final class ClickGuiScreen extends Screen {
         if (cross) button(g, "Форма: " + new String[]{"", "точка", "плюс", "квадрат"}[c.crosshairShape], () -> { c.crosshairShape = c.crosshairShape % 3 + 1; changed(); });
         else {
             if (selected.equals("target")) slider(g, "Удержание цели · сек", c.targetHold, 0.5, 10, v -> c.targetHold = v, false);
-            if (selected.equals("armor")) toggle(g, "durability_warn", "Подсветка низкой прочности", "Слот дышит красным, когда броня или предмет в руке вот-вот сломаются", c.durabilityWarn, () -> { c.durabilityWarn = !c.durabilityWarn; changed(); }, null);
+            if (selected.equals("armor")) {
+                toggle(g, "durability_warn", "Подсветка низкой прочности", "Слот дышит красным, когда броня или предмет в руке вот-вот сломаются", c.durabilityWarn, () -> { c.durabilityWarn = !c.durabilityWarn; changed(); }, null);
+                slider(g, "Порог предупреждения · %", Math.round(c.durabilityThreshold * 100), 5, 60, v -> c.durabilityThreshold = v / 100.0, true);
+                toggle(g, "durability_alert", "Оповещение", "Всплывающая подсказка, когда предмет впервые проваливается ниже порога", c.durabilityAlert, () -> { c.durabilityAlert = !c.durabilityAlert; changed(); }, null);
+                toggle(g, "durability_sound", "Звук оповещения", "Мягкий звонок вместе с подсказкой", c.durabilityAlertSound, () -> { c.durabilityAlertSound = !c.durabilityAlertSound; changed(); }, null);
+                toggle(g, "hand_durability", "Прочность в руке", "Полоса прочности предмета в руке под прицелом", c.handDurability, () -> { c.handDurability = !c.handDurability; changed(); }, null);
+            }
             if (selected.equals("minimap")) mapOptions(g);
             button(g, Icons.MOVE, "Переместить на экране", () -> minecraft.gui.setScreen(new HudEditorScreen(this, selected)));
         }

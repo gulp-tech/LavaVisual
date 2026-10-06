@@ -188,6 +188,7 @@ public final class LavaVisualClient implements ClientModInitializer {
             tech.gulp.lavavisual.effects.SwingStyles.tick(client);
             tech.gulp.lavavisual.effects.HatSync.tick(client);
             tech.gulp.lavavisual.hud.PingMeter.tick(client);
+            tech.gulp.lavavisual.hud.DurabilityAlert.tick(client);
             tech.gulp.lavavisual.map.Minimap.tick(client);
             if (client.player != null) {
                 var pos = client.player.blockPosition();

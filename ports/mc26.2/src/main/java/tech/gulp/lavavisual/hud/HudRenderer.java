@@ -105,6 +105,7 @@ public final class HudRenderer {
         if (!edit) {
             toast(g, mc);
             if (LavaVisualClient.STATE.hudHidden) return;
+            handDurability(g, mc);
             tech.gulp.lavavisual.map.WaypointOverlay.draw(g, mc);
         }
         for (String id : HudConfig.IDS) {
@@ -289,13 +290,37 @@ public final class HudRenderer {
         }
     }
 
-    /** Nearly broken: below this share of durability the slot warns. */
-    private static final double WARN_BELOW = 0.2;
+    /** Colour of the low-durability warning; the threshold itself lives in the settings (durabilityThreshold). */
     private static final int WARN_COLOR = 0xE0453A;
 
     /** 0..1 breath of the low-durability warning: slow enough to notice, fast enough not to be missed. */
     private static double warnPulse() {
         return 0.5 + 0.5 * Math.sin(System.nanoTime() / 300_000_000.0);
+    }
+
+    /**
+     * Held item durability under the crosshair (Interface: "Прочность в руке"): one thin bar in the same decorated
+     * style, so a nearly broken tool is noticed before it snaps. Drawn only for damaged, breakable items.
+     */
+    private static void handDurability(GuiGraphicsExtractor g, Minecraft mc) {
+        HudConfig c = LavaVisualClient.config();
+        if (!c.handDurability || mc.player == null) return;
+        ItemStack stack = mc.player.getMainHandItem();
+        if (stack.isEmpty() || !stack.isDamageableItem() || stack.getMaxDamage() <= 0) return;
+        double ratio = Math.clamp(1 - (double) stack.getDamageValue() / stack.getMaxDamage(), 0, 1);
+        if (ratio >= 1) return;
+        double pulse = warnPulse();
+        boolean low = ratio <= c.durabilityThreshold && c.durabilityWarn;
+        int color = durability(ratio);
+        if (low) color = UiDraw.mix(color, 0xFFFFFF, 0.45 * pulse);
+        int width = 44, x = (g.guiWidth() - width) / 2, y = g.guiHeight() / 2 + 13;
+        if (low) UiDraw.round(g, x - 2, y - 2, width + 4, 7, 3, UiDraw.alpha(WARN_COLOR, 0.25 + 0.35 * pulse));
+        UiDraw.round(g, x, y, width, 3, 1, 0xFF23262D);
+        int bar = Math.max(1, (int) Math.round((width - 2) * ratio));
+        UiDraw.roundH(g, x + 1, y + 1, bar, 1, 1, color, UiDraw.mix(color, 0xFFFFFF, 0.35));
+        String percent = Math.round(ratio * 100) + "%";
+        int tw = UiFont.width(g, mc.font, percent, Face.SMALL);
+        UiFont.text(g, mc.font, percent, x + width + 5, y - 3, UiDraw.alpha(color, 0.95), tw + 2, Face.SMALL);
     }
 
     /**
@@ -318,7 +343,7 @@ public final class HudRenderer {
             double ratio = Math.clamp(1 - (double) stack.getDamageValue() / stack.getMaxDamage(), 0, 1);
             if (ratio >= 1) continue;
             int x = left + 3 + i * 20;
-            boolean low = ratio <= WARN_BELOW && c.durabilityWarn;
+            boolean low = ratio <= c.durabilityThreshold && c.durabilityWarn;
             if (low) {
                 UiDraw.round(g, x - 1, y - 1, 18, 18, 3, UiDraw.alpha(WARN_COLOR, 0.35 + 0.4 * pulse));
                 UiDraw.round(g, x, y, 16, 16, 2, UiDraw.alpha(WARN_COLOR, 0.10 + 0.20 * pulse));
@@ -344,7 +369,7 @@ public final class HudRenderer {
             ItemStack stack = player == null ? ItemStack.EMPTY : player.getItemBySlot(ARMOR[i]);
             double ratio = stack.isDamageableItem() && stack.getMaxDamage() > 0
                     ? Math.clamp(1 - (double) stack.getDamageValue() / stack.getMaxDamage(), 0, 1) : -1;
-            boolean low = ratio >= 0 && ratio <= WARN_BELOW && c.durabilityWarn;
+            boolean low = ratio >= 0 && ratio <= c.durabilityThreshold && c.durabilityWarn;
             // Почти сломано: слот мягко дышит красным — это видно боковым зрением, ещё до цифр.
             if (low) UiDraw.round(g, x - 1, y - 1, 22, 22, 5, UiDraw.alpha(WARN_COLOR, 0.35 + 0.4 * pulse));
             UiDraw.round(g, x, y, 20, 20, 4, 0xF21D2027);
@@ -550,7 +575,7 @@ public final class HudRenderer {
                 ItemStack stack = gear[i];
                 double left = stack.isDamageableItem() && stack.getMaxDamage() > 0
                         ? Math.clamp(1 - (double) stack.getDamageValue() / stack.getMaxDamage(), 0, 1) : -1;
-                boolean low = left >= 0 && left <= WARN_BELOW && c.durabilityWarn;
+                boolean low = left >= 0 && left <= c.durabilityThreshold && c.durabilityWarn;
                 if (low) UiDraw.round(g, sx - 1, sy - 1, 21, 21, 5, UiDraw.alpha(WARN_COLOR, 0.35 + 0.4 * pulse));
                 if (c.shadows) UiDraw.round(g, sx + 1, sy + 1, 19, 19, 4, UiDraw.alpha(0, w.opacity * 0.25 * fade));
                 UiDraw.roundV(g, sx, sy, 19, 19, 4, UiDraw.alpha(UiDraw.mix(PANEL, 0xFFFFFF, 0.05), w.opacity * fade), UiDraw.alpha(PANEL, w.opacity * fade));

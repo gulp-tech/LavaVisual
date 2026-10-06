@@ -17,7 +17,8 @@ final class SmokeWorld {
             DUMMY_AT = HATS_AT + HATS.length * HAT_STEP + 10, HANDS_AT = DUMMY_AT + 70, CRIT_AT = HANDS_AT + 50,
             TRAIL_AT = CRIT_AT + 50, ZOOM_AT = TRAIL_AT + 95, FREE_AT = ZOOM_AT + 40, WINGS_EDIT_AT = FREE_AT + 40,
             MAP_AT = WINGS_EDIT_AT + 45, SOUND_AT = MAP_AT + 110, MUSIC_AT = SOUND_AT + 12, FORMATS_AT = MUSIC_AT + 72, TIME_AT = FORMATS_AT + 104, ITEMS_AT = TIME_AT + 80,
-            PROJ_AT = ITEMS_AT + 70, OUTFIT_AT = PROJ_AT + 50, SHOTS_AT = OUTFIT_AT + 94, END_AT = SHOTS_AT + 234;
+            PROJ_AT = ITEMS_AT + 70, OUTFIT_AT = PROJ_AT + 50, SHOTS_AT = OUTFIT_AT + 94, HOTBAR_AT = SHOTS_AT + 216,
+            END_AT = SHOTS_AT + 264;
     private static float walkLift;
     private static double p1, p2, p3, p4;
     private static boolean musicPlaying, musicPaused, musicStable, musicSeek, musicNext, musicPrevious;
@@ -469,7 +470,25 @@ final class SmokeWorld {
         if (ticks == SHOTS_AT + 200) LavaVisual.LOGGER.info("LavaVisual smoke shot world_servers");
         if (ticks == SHOTS_AT + 214) { mc.setScreen(null); c.extras.clear(); mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }
 
-        if (ticks == END_AT) finish(null);
+        // Hotbar durability: a worn tool, armor, a shield and an elytra in the slots (plus a whole sword and a
+        // stack that cannot wear), so the strips, the low-durability warning and the held-item bar are photographed
+        // in the real renderer. The world was created with cheats on, so plain commands are enough.
+        if (ticks == HOTBAR_AT) {
+            c.handDurability = true;
+            player.connection.sendCommand("item replace entity @s hotbar.0 with minecraft:diamond_pickaxe[minecraft:damage=1400]");
+            player.connection.sendCommand("item replace entity @s hotbar.1 with minecraft:iron_chestplate[minecraft:damage=210]");
+            player.connection.sendCommand("item replace entity @s hotbar.2 with minecraft:netherite_sword[minecraft:damage=600]");
+            player.connection.sendCommand("item replace entity @s hotbar.3 with minecraft:shield[minecraft:damage=120]");
+            player.connection.sendCommand("item replace entity @s hotbar.4 with minecraft:elytra[minecraft:damage=405]");
+            player.connection.sendCommand("item replace entity @s hotbar.5 with minecraft:diamond_sword");
+            player.connection.sendCommand("item replace entity @s hotbar.6 with minecraft:golden_apple 3");
+        }
+        if (ticks == HOTBAR_AT + 12) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hotbar");
+        if (ticks == HOTBAR_AT + 20) LavaVisual.LOGGER.info(tech.gulp.lavavisual.hud.DurabilityAlert.count() > 0
+                ? "LavaVisual smoke durability alert ok (" + tech.gulp.lavavisual.hud.DurabilityAlert.count() + ")"
+                : "LavaVisual smoke durability alert failed");
+        if (ticks == HOTBAR_AT + 30) { c.handDurability = false; }
+
         if (ticks == END_AT) finish(null);
     }
 

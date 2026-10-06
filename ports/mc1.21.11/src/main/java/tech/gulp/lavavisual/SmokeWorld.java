@@ -470,9 +470,10 @@ final class SmokeWorld {
         if (ticks == SHOTS_AT + 214) { mc.setScreen(null); c.extras.clear(); mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }
 
         // Hotbar durability: a worn tool, armor, a shield and an elytra in the slots (plus a whole sword and a
-        // stack that cannot wear), so the strips and the low-durability warning are photographed in the real
-        // renderer. The world was created with cheats on, so plain commands are enough.
+        // stack that cannot wear), so the strips, the low-durability warning and the held-item bar are photographed
+        // in the real renderer. The world was created with cheats on, so plain commands are enough.
         if (ticks == HOTBAR_AT) {
+            c.handDurability = true;
             player.connection.sendCommand("item replace entity @s hotbar.0 with minecraft:diamond_pickaxe[minecraft:damage=1400]");
             player.connection.sendCommand("item replace entity @s hotbar.1 with minecraft:iron_chestplate[minecraft:damage=210]");
             player.connection.sendCommand("item replace entity @s hotbar.2 with minecraft:netherite_sword[minecraft:damage=600]");
@@ -481,9 +482,12 @@ final class SmokeWorld {
             player.connection.sendCommand("item replace entity @s hotbar.5 with minecraft:diamond_sword");
             player.connection.sendCommand("item replace entity @s hotbar.6 with minecraft:golden_apple 3");
         }
-        if (ticks == HOTBAR_AT + 25) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hotbar");
+        if (ticks == HOTBAR_AT + 12) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hotbar");
+        if (ticks == HOTBAR_AT + 20) LavaVisual.LOGGER.info(tech.gulp.lavavisual.hud.DurabilityAlert.count() > 0
+                ? "LavaVisual smoke durability alert ok (" + tech.gulp.lavavisual.hud.DurabilityAlert.count() + ")"
+                : "LavaVisual smoke durability alert failed");
+        if (ticks == HOTBAR_AT + 30) { c.handDurability = false; }
 
-        if (ticks == END_AT) finish(null);
         if (ticks == END_AT) finish(null);
     }
 
