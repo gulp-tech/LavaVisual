@@ -26,8 +26,6 @@ public final class AccessoryPhysics {
         float fwd, side, fwdV, sideV;
         /** Wings: sweep > 0 tips go back, lift > 0 tips go up; with velocities. */
         float sweep, lift, sweepV, liftV;
-        /** Distance walked (cosmetic units) with the frame it was last advanced on; rolled wheels ride on it. */
-        double wheel = 0, wheelAt = 0, wheelFrame = Double.NaN;
     }
 
     /** The player's springs, advanced for this frame. pose maps the body's model space (+y up, +z chest) to world axes. */
@@ -48,29 +46,6 @@ public final class AccessoryPhysics {
         }
         return sim;
     }
-    /**
-     * Distance walked by this player in cosmetic units, advanced once per frame like the springs. A wheel of radius r
-     * turns by distance / r, which the models express as the roll speed of the group, so wheels never slip.
-     */
-    static float rolling(int id, double vx, double vy, double vz, double frame) {
-        long now = System.nanoTime();
-        Sim sim = SIMS.computeIfAbsent(id, key -> new Sim());
-        sim.seen = now;
-        if (sim.wheelFrame != frame) {
-            double dt = sim.wheelAt == 0 ? 0 : Math.min(0.1, Math.max(0, (now - sim.wheelAt) / 1e9));
-            sim.wheelAt = now;
-            sim.wheelFrame = frame;
-            double speed = Math.sqrt(vx * vx + vy * vy + vz * vz);
-            sim.wheel += speed * dt * 0.9375;
-            if (sim.wheel > 1_000_000) sim.wheel = 0;
-        }
-        if (now - sweepAt > 5_000_000_000L) {
-            sweepAt = now;
-            SIMS.values().removeIf(other -> now - other.seen > 10_000_000_000L);
-        }
-        return (float) sim.wheel;
-    }
-
     static void clear() { SIMS.clear(); }
 
     private static void advance(Sim sim, Matrix3f m, float vx, float vy, float vz, long now, int id) {

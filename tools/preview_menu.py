@@ -13,7 +13,7 @@ is a mock-up, not a screenshot: it shows the design, not the pixel-exact result.
     python3 tools/preview_menu.py [out.png (default docs/menu-preview.png)]
 
 Two pages are drawn side by side: "Эффекты" (sections, cards with open option groups, chips, sliders) and "Косметика"
-with the skin subpage open (chips, actions, colour row, note).
+with the cape subpage open (chips, an action, a colour row and a note).
 """
 import math
 import re
@@ -234,7 +234,7 @@ class Menu:
             v.rrh(left + 11, top + ph - 25, side - 22, 1, 0, ACCENT, ACCENT2, 0.28)
             v.text(left + 16, top + ph - 21, '26.2 · LavaVisual', 0x6F7988, size=9)
         # header
-        heading = ('Скины' if self.sub else 'Эффекты')
+        heading = ('Плащ' if self.sub else 'Эффекты')
         v.rrv(self.body_x - 9, top + 18, 3, 12, 1, ACCENT, ACCENT2, 1.0)
         v.glow(self.body_x + 30, top + 24, 66, ACCENT, 0.07)
         search_w = max(70, min(150, self.body_w // 2 - 20))
@@ -398,7 +398,7 @@ class Menu:
 
 
 def key_icon(key):
-    return {'esp': 'SCAN_EYE', 'marker': 'TARGET', 'particles': 'SPARKLE', 'costume': 'CROWN', 'hat': 'CROWN',
+    return {'esp': 'SCAN_EYE', 'marker': 'TARGET', 'particles': 'SPARKLE', 'cape': 'WIND', 'hat': 'CROWN',
             'wings': 'WIND', 'target': 'TARGET', 'coordinates': 'MAP_PIN', 'armor': 'SHIELD', 'totems': 'HEART_PULSE',
             'keys': 'KEYBOARD', 'watermark': 'STAMP', 'kill': 'SKULL'}.get(key, 'SLIDERS_HORIZONTAL')
 
@@ -419,15 +419,17 @@ def page_effects(menu):
 
 
 def page_cosmetics(menu):
-    """The skin subpage: a card, styles as chips, an action and a colour row."""
+    """The cape subpage: a card with its options open, chips, a slider and a colour row."""
     menu.section('Образ')
-    menu.toggle('costume', 'Скины', '2 скина: горничная и инвалидное кресло', True, settings=True)
-    menu.caption('Стиль')
-    menu.chips(['узор', 'сплошной', 'градиент'], 0)
-    menu.action('PENCIL', 'Редактор скина · виден только вам')
+    menu.toggle('cape', 'Плащ', '6 видов · ткань развевается на ветру', True, settings=True,
+                group=(96, lambda: (menu.caption('Вид'),
+                                    menu.chips(['Классический', 'Королевский', 'Звёздный'], 0),
+                                    menu.caption('Стиль'),
+                                    menu.chips(['узор', 'сплошной', 'градиент'], 2),
+                                    menu.slider('Прозрачность', '1.00', 1.0))))
     menu.section('Цвет')
-    menu.slider('Насыщенность', '0.85', 0.85)
-    menu.action('CROWN', 'Редактор шляпы')
+    menu.slider('Развевание', '1.00', 0.5)
+    menu.action('PENCIL', 'Редактор шляпы')
 
 
 def main():

@@ -39,7 +39,7 @@ public final class ClickGuiScreen extends Screen {
     private static final String[] TAB_ICONS = {Icons.LAYOUT_DASHBOARD, Icons.SPARKLES, Icons.HAND, Icons.VOLUME_2, Icons.MUSIC, Icons.MAP, Icons.KEYBOARD, Icons.PALETTE, Icons.EARTH, Icons.SETTINGS, Icons.CROWN};
     private static final int[] PRESETS = {0xFF5A36, 0xFF8A3C, 0xFFC233, 0xE8FF5A, 0x85F56A, 0x2CE08A, 0x36C8FF, 0x4C6BFF, 0xB45CFF, 0xFF5C9A, 0xFFFFFF, 0x9AA3B2};
     /** Settings pages opened from the Effects page (key -> heading). */
-    private static final Map<String, String> SUBPAGES = Map.of("cape", "Плащ", "outfit", "Аксессуары", "costume", "Скины", "projectile", "Следы снарядов", "items", "Физика предметов");
+    private static final Map<String, String> SUBPAGES = Map.of("cape", "Плащ", "outfit", "Аксессуары", "projectile", "Следы снарядов", "items", "Физика предметов");
     private static final Map<String, String> CARD_ICONS = Map.ofEntries(
             Map.entry("target", Icons.TARGET), Map.entry("coordinates", Icons.MAP_PIN), Map.entry("performance", Icons.GAUGE),
             Map.entry("keys", Icons.KEYBOARD), Map.entry("armor", Icons.SHIELD), Map.entry("totems", Icons.HEART_PULSE),
@@ -717,13 +717,9 @@ public final class ClickGuiScreen extends Screen {
                 () -> { c.capeEnabled = !c.capeEnabled; changed(); }, () -> select("cape"));
         toggle(g, "outfit", "Аксессуары", "Очки, наушники, шарф — в любом сочетании", !c.extras.isEmpty(),
                 () -> { if (c.extras.isEmpty()) c.extras.add(1); else c.extras.clear(); changed(); }, () -> select("outfit"));
-        toggle(g, "costume", "Скины", Hats.COSTUME_COUNT + " скина: горничная и инвалидное кресло", c.costumeEnabled,
-                () -> { c.costumeEnabled = !c.costumeEnabled; changed(); }, () -> select("costume"));
         int half = (bodyW - 8) / 2;
         action(g, Icons.PENCIL, "Редактор шляпы", bodyX, cursor, half, () -> minecraft.gui.setScreen(new HatEditorScreen(this)));
         action(g, Icons.PENCIL, "Редактор крыльев", bodyX + half + 8, cursor, half, () -> minecraft.gui.setScreen(new WingsEditorScreen(this)));
-        cursor += 32;
-        action(g, Icons.PENCIL, "Редактор скина · виден только вам", bodyX, cursor, bodyW, () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
         cursor += 32;
         section(g, "След");
         toggle(g, "trail", "Trails", "Светящийся след за вами", c.trailEnabled, () -> { c.trailEnabled = !c.trailEnabled; changed(); }, null);
@@ -993,7 +989,6 @@ public final class ClickGuiScreen extends Screen {
         if (selected.equals("wings")) { wingsSettings(g); return; }
         if (selected.equals("cape")) { capeSettings(g); return; }
         if (selected.equals("outfit")) { outfitSettings(g); return; }
-        if (selected.equals("costume")) { costumeSettings(g); return; }
         if (selected.equals("projectile")) { projectileSettings(g); return; }
         if (selected.equals("items")) { itemSettings(g); return; }
         var w = cross ? null : c.widgets.get(selected);
@@ -1078,23 +1073,6 @@ public final class ClickGuiScreen extends Screen {
         chips(g, STYLES, c.outfitStyle, i -> { c.outfitStyle = i; changed(); });
         section(g, "Цвет");
         colorRow(g, "outfit", "Цвет аксессуаров");
-    }
-    private void costumeSettings(GuiGraphicsExtractor g) {
-        var c = LavaVisualClient.config();
-        toggle(g, "costume", "Скины", "Вид от 3-го лица · скин видите только вы", c.costumeEnabled,
-                () -> { c.costumeEnabled = !c.costumeEnabled; changed(); }, null);
-        section(g, "Вид скина");
-        java.util.function.IntConsumer pickSkin = i -> { c.costumeType = i + 1; c.costumeEnabled = true; changed(); };
-        chips(g, Hats.COSTUME_NAMES, c.costumeType - 1, pickSkin, 3);
-        note(g, Hats.COSTUME_HINTS[Math.clamp(c.costumeType - 1, 0, Hats.COSTUME_COUNT - 1)]);
-        button(g, Icons.PENCIL, "Открыть редактор · меню скроется", () -> minecraft.gui.setScreen(new SkinEditorScreen(this)));
-        section(g, "Настройка");
-        slider(g, "Прозрачность", c.costumeOpacity, 0.3, 1, v -> c.costumeOpacity = v, false);
-        caption(g, "Узор");
-        chips(g, STYLES, c.costumeStyle, i -> { c.costumeStyle = i; changed(); });
-        section(g, "Цвет");
-        colorRow(g, "costume", "Цвет скина");
-        note(g, "Скин привязан к костям игрока: платье ходит вместе с шагом, а у кресла руки ложатся на обода и колёса катятся ровно по пройденному пути. Платье красится в выбранный цвет, фартук и кружево остаются белыми; шляпа и аксессуары сами садятся на голову скина.");
     }
     private void projectileSettings(GuiGraphicsExtractor g) {
         var c = LavaVisualClient.config();
@@ -1265,7 +1243,7 @@ public final class ClickGuiScreen extends Screen {
         for (String id : List.of("watermark", "target", "keys", "armor", "coordinates", "performance", "totems", "minimap")) colorRow(g, id, HudRenderer.title(id));
         section(g, "Эффекты");
         String[][] effects = {{"crosshair", "Прицел"}, {"jump", "Jump Circle"}, {"particles", "Hit Particles"}, {"ambient", "Частицы в воздухе"},
-                {"marker", "Маркер удара"}, {"esp", "Target ESP"}, {"kill", "Kill Effect"}, {"hat", "Шляпа"}, {"wings", "Крылья"}, {"trail", "Trails"}, {"cape", "Плащ"}, {"outfit", "Аксессуары"}, {"costume", "Скин"}, {"projectile", "Следы снарядов"}, {"crit", "Насыщенный крит"}, {"waypoint", "Новые метки"}};
+                {"marker", "Маркер удара"}, {"esp", "Target ESP"}, {"kill", "Kill Effect"}, {"hat", "Шляпа"}, {"wings", "Крылья"}, {"trail", "Trails"}, {"cape", "Плащ"}, {"projectile", "Следы снарядов"}, {"crit", "Насыщенный крит"}, {"waypoint", "Новые метки"}};
         for (String[] e : effects) colorRow(g, e[0], e[1]);
         button(g, Icons.ROTATE_CCW, "Все цвета — как тема", () -> { c.colors.clear(); c.chroma.clear(); hsvCache.clear(); changed(); });
     }

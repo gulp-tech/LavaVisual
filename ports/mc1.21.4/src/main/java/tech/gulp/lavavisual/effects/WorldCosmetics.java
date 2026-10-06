@@ -68,16 +68,6 @@ public final class WorldCosmetics {
     private static final PoseStack.Pose IDENTITY = new PoseStack().last();
     private static final Vector3f CAMERA_RIGHT = new Vector3f(1, 0, 0), CAMERA_UP = new Vector3f(0, 1, 0);
     private static double frameNow;
-    /** Bones a costume group can hang from, in Hats.BONE_NAMES order: body, back, head, right arm, left arm, right leg, left leg. */
-    private static final int SPRITE_BODY = 0, SPRITE_BACK = 1, SPRITE_HEAD = 2, SPRITE_ARM_R = 3, SPRITE_ARM_L = 4, SPRITE_LEG_R = 5, SPRITE_LEG_L = 6, BONE_COUNT = 7;
-    /** Scratch bone transforms. Slots rotate, because the newer versions run the geometry lambdas after the frame. */
-    private static final Matrix4f[][] BONE_POOL = new Matrix4f[24][BONE_COUNT];
-    private static int boneSlot;
-    /** Skins drawn in the last frame (read by the smoke test to prove a skin really rendered). */
-    public static volatile int costumesDrawn;
-    static {
-        for (Matrix4f[] bones : BONE_POOL) for (int i = 0; i < BONE_COUNT; i++) bones[i] = new Matrix4f();
-    }
     private static final ArrayList<Beam> BEAMS = new ArrayList<>();
     private static boolean espVisible;
     private static int lastKillId = -1;
@@ -468,16 +458,8 @@ public final class WorldCosmetics {
     /** True when this client wears anything LavaVisual draws: the inventory then gets extra room for it. */
     public static boolean anyWorn() {
         var c = LavaVisualClient.config();
-        return c.costumeEnabled && Hats.costume(c.costumeType) != null || c.hatEnabled || c.wingsEnabled || c.capeEnabled
+        return c.hatEnabled || c.wingsEnabled || c.capeEnabled
                 || c.extras != null && !c.extras.isEmpty();
-    }
-    /** Worn skin type on this render state (0 = none): skins are local, so only you and the dummy have one. */
-    private static int wornSkin(net.minecraft.client.renderer.entity.state.PlayerRenderState s) {
-        var c = LavaVisualClient.config();
-        if (!c.costumeEnabled || Hats.costume(c.costumeType) == null) return 0;
-        var mc = Minecraft.getInstance();
-        if (mc.player == null) return 0;
-        return s.id == mc.player.getId() || Dummy.is(s.id) ? c.costumeType : 0;
     }
     /** Called by CosmeticLayer for every drawn player model (you, the local dummy, and players who share cosmetics). */
     private static int layerLight = 0xF000F0;
@@ -490,30 +472,13 @@ public final class WorldCosmetics {
         float seconds = (float) (frameNow / 20.0);
         long nanos = System.nanoTime();
         if (s.id == mc.player.getId() || Dummy.is(s.id)) {
-            // A worn skin is a whole look: the hat would sit inside it (the maid's headpiece swallows the head).
-            boolean skin = c.costumeEnabled && Hats.costume(c.costumeType) != null;
-            // A skin wears its own colours (the maid's dark dress, the chrome chair) until the player picks one for it.
-            int skinRgb = skin ? Hats.costumeTint(c.costumeType) : 0;
-            boolean skinAuto = skinRgb != 0 && !c.customColor("costume") && !(c.chroma != null && c.chroma.contains("costume"));
-            int skinColor = skinAuto ? 0xFF000000 | skinRgb : c.color("costume");
-            int skinLight = skinAuto ? 0xFF000000 | tech.gulp.lavavisual.config.ColorMath.companion(skinRgb) : c.color2("costume");
-            // A skin that does not cover the head keeps the hat: it rides on the skin's own head at its own colour.
-            boolean skinHat = !skin || Hats.costumeHats(c.costumeType) != 0;
-            if (c.hatEnabled && skinHat) hat(model, pose, collector, s, c.hatType, Hats.hat(c.hatType), skin || !skinAuto ? c.color("hat") : skinColor, skin || !skinAuto ? c.color2("hat") : skinLight, c.hatStyle, (float) c.hatOpacity,
+            if (c.hatEnabled) hat(model, pose, collector, s, c.hatType, Hats.hat(c.hatType), c.color("hat"), c.color2("hat"), c.hatStyle, (float) c.hatOpacity,
                     c.hatSize, c.hatLift, c.hatCone, (float) (Hats.visor(c.hatType) ? 0 : frameNow * 0.06 * c.hatSpin), seconds);
-            if (c.wingsEnabled) wings(model, pose, collector, s, Hats.wing(c.wingsType), skinAuto ? skinColor : c.color("wings"), skinAuto ? skinLight : c.color2("wings"), c.wingsStyle,
+            if (c.wingsEnabled) wings(model, pose, collector, s, Hats.wing(c.wingsType), c.color("wings"), c.color2("wings"), c.wingsStyle,
                     (float) c.wingsOpacity, c.wingsSize, (float) c.wingsFlap, WingFit.of(c), seconds, nanos);
-            if (c.capeEnabled) cape(model, pose, collector, s, Hats.cape(c.capeType), skinAuto ? skinColor : c.color("cape"), skinAuto ? skinLight : c.color2("cape"), c.capeStyle, (float) c.capeOpacity, (float) c.capeSway, seconds);
+            if (c.capeEnabled) cape(model, pose, collector, s, Hats.cape(c.capeType), c.color("cape"), c.color2("cape"), c.capeStyle, (float) c.capeOpacity, (float) c.capeSway, seconds);
             for (int i = 1; i <= Hats.EXTRA_COUNT; i++)
                 if (c.extras.contains(i)) extra(model, pose, collector, s, i, c.color("outfit"), c.color2("outfit"), c.outfitStyle, seconds);
-            if (skin) {
-                double[] v = velocity(s);
-                // The arms ride the model's own swing (the rings and paws follow the hand): a gait whose amplitude is
-                // the vanilla walk speed, so the pushing hands move only while the player walks.
-                float walk = Math.clamp(s.walkAnimationSpeed, 0, 1);
-                costume(model, pose, collector, s, c.costumeType, skinColor, skinLight, c.costumeStyle,
-                        (float) c.costumeOpacity, seconds, walk, AccessoryPhysics.rolling(s.id, v[0], v[1], v[2], frameNow));
-            }
             return;
         }
         if (!c.hatOthers || !HatSync.any() || s.distanceToCameraSq >= 48 * 48) return;
@@ -560,10 +525,6 @@ public final class WorldCosmetics {
                             float opacity, double size, double lift, double stretch, float spin, float seconds) {
         if (hat == null) return;
         float fit = Hats.fit(type);
-        // On a worn skin the hat sits on the skin's own head, not on the (invisible) player head under it.
-        int worn = wornSkin(s);
-        float[] onSkin = worn == 0 || Hats.costumeHats(worn) == 0 ? null : Hats.costumeHead(worn);
-        if (onSkin != null) fit *= onSkin[1];
         // The portrait of the inventory is a small picture-in-picture pass with coarse depth: a hat sunk onto the
         // head by its usual amount fights with it there and shows as a flickering half. In the portrait the hat
         // therefore sits on the hat layer and a hair above, never inside the head.
@@ -575,7 +536,7 @@ public final class WorldCosmetics {
         model.head.translateAndRotate(pose);
         pose.scale(1, -1, -1); // model space (y down, face towards -z) -> cosmetic space (y up, face towards +z)
         // Worn hats wrap the head: wider than the 8 px head and sunk half a pixel, so they never float above it.
-        pose.translate(0, top / 16.0 + (lift - sink) / 0.9375 + (onSkin != null ? onSkin[0] : 0), onSkin != null ? onSkin[2] : 0);
+        pose.translate(0, top / 16.0 + (lift - sink) / 0.9375, 0);
         pose.mulPose(new Quaternionf().rotationY(spin));
         float k = (float) (size / 0.9375);
         pose.scale(k * fit, (float) (k * stretch), k * fit);
@@ -596,10 +557,8 @@ public final class WorldCosmetics {
         pose.pushPose();
         model.body.translateAndRotate(pose);
         pose.scale(1, -1, -1);
-        // Off the jacket layer and the sleeves (the top corners of the cloth curl forward), or off the chestplate,
-        // and further back still when a worn skin adds a backpack or a chair frame behind the player.
-        int capeWorn = wornSkin(s);
-        pose.translate(0, 0, -(armor ? 3.45 : 2.6) / 16.0 - (capeWorn == 0 ? 0 : Hats.costumeBack(capeWorn)));
+        // Off the jacket layer and the sleeves (the top corners of the cloth curl forward), or off the chestplate.
+        pose.translate(0, 0, -(armor ? 3.45 : 2.6) / 16.0);
         float k = 1 / 0.9375f;
         Hats.Deform cloth = null;
         if (LavaVisualClient.config().capePhysics) {
@@ -644,12 +603,9 @@ public final class WorldCosmetics {
             // helmet (10 px) the same way instead of sinking into them.
             boolean helmet = s.headEquipment != null && !s.headEquipment.isEmpty();
             float grow = helmet ? 1.26f : s.showHat ? 1.13f : 1f;
-            int onWorn = wornSkin(s);
-            float[] onHead = onWorn == 0 || Hats.costumeHats(onWorn) == 0 ? null : Hats.costumeHead(onWorn);
-            if (onHead != null) grow *= onHead[1];
             pose.translate(0, 4 / 16.0, 0);
             pose.scale(grow, grow, grow);
-            pose.translate(0, 4 / 16.0 + (onHead != null ? onHead[0] : 0), onHead != null ? onHead[2] : 0);
+            pose.translate(0, 4 / 16.0, 0);
         } else {
             model.body.translateAndRotate(pose);
             pose.scale(1, -1, -1);
@@ -688,8 +644,7 @@ public final class WorldCosmetics {
         model.body.translateAndRotate(pose);
         pose.scale(1, -1, -1);
         // The roots sit just off the jacket layer (or the chestplate), so neither the beat nor the sweep pushes them in.
-        int wingWorn = wornSkin(s);
-        pose.translate(0, -3 / 16.0 + fit.lift(), -(armor ? 4.0 : 3.0) / 16.0 - fit.back() - (wingWorn == 0 ? 0 : Hats.costumeBack(wingWorn)));
+        pose.translate(0, -3 / 16.0 + fit.lift(), -(armor ? 4.0 : 3.0) / 16.0 - fit.back());
         if (fit.tilt() != 0) pose.mulPose(new org.joml.Quaternionf().rotateX((float) Math.toRadians(-fit.tilt())));
         float k = (float) (size / 0.9375);
         pose.scale(k, k, k);
@@ -712,83 +667,6 @@ public final class WorldCosmetics {
         static WingFit of(tech.gulp.lavavisual.config.HudConfig c) {
             return new WingFit((float) c.wingsLift, (float) c.wingsBack, (float) c.wingsTilt, (float) c.wingsSpread, (float) c.wingsSpeed);
         }
-    }
-    /**
-     * Full skin on the body's own frame: every group of the model names the bone it hangs from (Hats.BONE_NAMES) and
-     * is placed by that model part, so the geometry walks, swings, turns and crouches with the player instead of
-     * hanging in one place. Seven parts are enough for the whole body (a cat wears a collar on the body, ears on the
-     * head, paws on both arms and both legs and the tail on the back).
-     */
-    /**
-     * Cloth of a skin in motion: the skirt, the petticoat and the apron of a dress swing with the walk. A skin marks
-     * such parts with "cloth" in hats.json, and only those parts are bent here — a hem trails behind the step, lifts
-     * a little when the rider runs and breathes with a slow wave of its own. The offsets stay small (well under a
-     * pixel), so the cloth can never reach the legs inside it; the deform is stateless, so the inventory preview and
-     * the world always agree.
-     */
-    private static Hats.Deform skinCloth(final double vx, final double vy, final double vz, final float seconds) {
-        final double speed = Math.sqrt(vx * vx + vz * vz);
-        final double trail = Math.min(0.055, speed * 0.012) + Math.min(0.030, Math.max(0, -vy) * 0.010);
-        final double lift = Math.min(0.045, Math.max(0, speed * 0.010));
-        final double dx = speed > 1e-4 ? -vx / speed * trail : 0, dz = speed > 1e-4 ? -vz / speed * trail : 0;
-        return v -> {
-            float w = (float) Math.max(0, Math.min(1, (-v.y - 0.42) / 0.50));   // 0 at the waist, 1 at the hem
-            if (w <= 0.001f) return;
-            float wave = (float) Math.sin(seconds * 3.1 + w * 4.4 + v.x * 7.0 + v.z * 5.0);
-            float spread = 1 + (float) lift * w * 2.4f;
-            v.x = (float) (v.x * spread + dx * w + wave * 0.010 * w);
-            v.z = (float) (v.z * spread + dz * w + wave * 0.008 * w);
-            v.y += (float) (lift * w) + wave * 0.008f * w;
-        };
-    }
-    private static void costume(net.minecraft.client.model.PlayerModel model, PoseStack pose, tech.gulp.lavavisual.compat.Submitter collector, net.minecraft.client.renderer.entity.state.PlayerRenderState s, int type, int color, int light, int style,
-                                float opacity, float seconds, float swing, float motion) {
-        Hats.Model item = Hats.costume(type);
-        if (item == null) return;
-        float k = 1 / 0.9375f;
-        // The sprite frame: the neck (the body part's pivot), flipped into cosmetic space where +y is up and +z the face.
-        Matrix4f sprite = new Matrix4f();
-        pose.pushPose();
-        model.body.translateAndRotate(pose);
-        pose.scale(1, -1, -1);
-        pose.scale(k, k, k);
-        sprite.set(pose.last().pose());
-        pose.popPose();
-        Matrix4f[] bones = BONE_POOL[Math.floorMod(boneSlot++, BONE_POOL.length)];
-        bone(pose, bones, SPRITE_BODY, model.body, sprite, k);
-        bone(pose, bones, SPRITE_BACK, model.body, sprite, k);
-        bone(pose, bones, SPRITE_HEAD, model.head, sprite, k);
-        bone(pose, bones, SPRITE_ARM_R, model.rightArm, sprite, k);
-        bone(pose, bones, SPRITE_ARM_L, model.leftArm, sprite, k);
-        bone(pose, bones, SPRITE_LEG_R, model.rightLeg, sprite, k);
-        bone(pose, bones, SPRITE_LEG_L, model.leftLeg, sprite, k);
-        // A skin that replaces a limb freezes it: the maid's stockings replace the player's legs outright, and the
-        // rider of the chair never walks. The bones are dropped, so those parts stay in the skin's own rest pose.
-        int still = Hats.costumeStill(type);
-        if ((still & 1) != 0) { bones[SPRITE_ARM_R] = null; bones[SPRITE_ARM_L] = null; }
-        if ((still & 2) != 0) { bones[SPRITE_LEG_R] = null; bones[SPRITE_LEG_L] = null; }
-        pose.pushPose();
-        model.body.translateAndRotate(pose);
-        pose.scale(1, -1, -1);
-        pose.scale(k, k, k);
-        // The cloth of a skin (a dress) swings with the walk: the same speed the accessories use, and the
-        // same switch (physics), so one setting moves the cape, the scarf and the hem together.
-        double[] v = velocity(s);
-        Hats.Deform cloth = LavaVisualClient.config().capePhysics ? skinCloth(v[0], v[1], v[2], seconds) : null;
-        submitModel(collector, pose, item, new Hats.Look(color, light, style, opacity, seconds, swing, 1, env(s), 0, cloth, 0, motion, bones),
-                (float) Math.max(0.2, s.scale));
-        pose.popPose();
-        costumesDrawn++;
-    }
-    /** One bone inside the sprite frame: the model part's own pose for this frame, relative to the body's. */
-    private static void bone(PoseStack pose, Matrix4f[] bones, int slot, net.minecraft.client.model.geom.ModelPart part, Matrix4f sprite, float k) {
-        pose.pushPose();
-        part.translateAndRotate(pose);
-        pose.scale(1, -1, -1);
-        pose.scale(k, k, k);
-        if (bones[slot] == null) bones[slot] = new Matrix4f(); // a limb frozen by a skin last frame
-        bones[slot].set(sprite).invert().mul(pose.last().pose());
-        pose.popPose();
     }
     private static void submitModel(tech.gulp.lavavisual.compat.Submitter collector, PoseStack pose, Hats.Model model, Hats.Look look, float worldScale) {
         Vector3f right = new Vector3f(CAMERA_RIGHT), up = new Vector3f(CAMERA_UP);

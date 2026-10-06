@@ -18,7 +18,6 @@
     "MinecraftTitleMixin",
     "EntityRendererMixin",
     "PongMixin",
-    "PlayerSkinPoseMixin",
     "FramerateLimitTrackerMixin",
     "InventoryFitMixin",
     "ScreenBackdropMixin"

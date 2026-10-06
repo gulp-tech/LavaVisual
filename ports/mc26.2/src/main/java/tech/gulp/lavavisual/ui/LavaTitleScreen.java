@@ -225,15 +225,18 @@ public final class LavaTitleScreen extends Screen {
         }
     }
 
-    /** Quick access on the right: open the skin or hat editor straight from the menu, with what is worn right now. */
+    /** Quick access on the right: open the editor of any worn cosmetic straight from the menu, with what is on now. */
     private void quick(GuiGraphicsExtractor g, int ac, int ac2, double enter) {
         var c = LavaVisualClient.config();
-        String skin = c.costumeEnabled && c.costumeType > 0 ? tech.gulp.lavavisual.effects.Hats.costumeName(c.costumeType) : "не выбран";
-        String hat = c.hatEnabled ? tech.gulp.lavavisual.effects.Hats.name(c.hatType) : "не выбрана";
-        String[][] chips = {{"Скин", skin}, {"Шляпа", hat}};
-        int w = Math.clamp(width / 4, 120, 168), h = 30, x = width - w - 16, y = Math.max(16, height / 2 - h - 6);
+        String[][] chips = {{"Шляпа", c.hatEnabled ? tech.gulp.lavavisual.effects.Hats.name(c.hatType) : "не выбрана"},
+                {"Крылья", c.wingsEnabled ? tech.gulp.lavavisual.effects.Hats.wingName(c.wingsType) : "не выбраны"},
+                {"Плащ", c.capeEnabled ? tech.gulp.lavavisual.effects.Hats.capeName(c.capeType) : "не выбран"}};
+        Runnable[] actions = {() -> minecraft.gui.setScreen(new HatEditorScreen(this)), () -> minecraft.gui.setScreen(new WingsEditorScreen(this)),
+                () -> minecraft.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_COSMETICS, "cape"))};
+        int w = Math.clamp(width / 4, 120, 168), h = 30, gap = 8;
+        int x = width - w - 16, y = Math.max(16, height / 2 - (chips.length * (h + gap) - gap) / 2);
         for (int i = 0; i < chips.length; i++) {
-            int cy = y + i * (h + 8);
+            int cy = y + i * (h + gap);
             boolean over = mx >= x && mx < x + w && my >= cy && my < cy + h;
             double hover = motion("quick" + i, over ? 1 : 0);
             UiDraw.round(g, x, cy, w, h, 8, UiDraw.alpha(0x14161B, (0.55 + 0.2 * hover) * enter));
@@ -242,11 +245,9 @@ public final class LavaTitleScreen extends Screen {
             UiFont.text(g, font, chips[i][0], x + 12, cy + 5, UiDraw.alpha(0x8F98A6, enter), w - 18, UiFont.Face.SMALL);
             UiFont.text(g, font, chips[i][1], x + 12, cy + 16, UiDraw.alpha(UiDraw.mix(0xE3E7EE, 0xFFFFFF, hover), enter), w - 18, UiFont.Face.BOLD);
             UiFont.icon(g, font, Icons.CHEVRON_RIGHT, x + w - 16, cy + 11, UiDraw.alpha(0xFFFFFF, 0.5 * hover * enter));
-            Runnable action = i == 0 ? () -> minecraft.gui.setScreen(new SkinEditorScreen(this)) : () -> minecraft.gui.setScreen(new HatEditorScreen(this));
-            hits.add(new Hit(x, cy, w, h, action));
+            hits.add(new Hit(x, cy, w, h, actions[i]));
         }
     }
-
     /** Slow embers rising in both theme colours; positions are pure functions of time. */
     private void embers(GuiGraphicsExtractor g, long now, int ac, int ac2, double enter) {
         double t = now / 1e9, span = height + 24;

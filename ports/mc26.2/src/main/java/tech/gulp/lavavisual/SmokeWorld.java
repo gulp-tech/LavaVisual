@@ -16,9 +16,8 @@ final class SmokeWorld {
             DUMMY_AT = HATS_AT + HATS.length * HAT_STEP + 10, HANDS_AT = DUMMY_AT + 70, CRIT_AT = HANDS_AT + 50,
             TRAIL_AT = CRIT_AT + 50, ZOOM_AT = TRAIL_AT + 95, FREE_AT = ZOOM_AT + 40, WINGS_EDIT_AT = FREE_AT + 40,
             MAP_AT = WINGS_EDIT_AT + 45, SOUND_AT = MAP_AT + 110, MUSIC_AT = SOUND_AT + 12, FORMATS_AT = MUSIC_AT + 72, TIME_AT = FORMATS_AT + 104, ITEMS_AT = TIME_AT + 80,
-            PROJ_AT = ITEMS_AT + 70, OUTFIT_AT = PROJ_AT + 50, SKIN_AT = OUTFIT_AT + 94, END_AT = SKIN_AT + 394;
+            PROJ_AT = ITEMS_AT + 70, OUTFIT_AT = PROJ_AT + 50, SHOTS_AT = OUTFIT_AT + 94, END_AT = SHOTS_AT + 234;
     private static float walkLift;
-    private static long maidQuads, chairQuads;
     private static double p1, p2, p3, p4;
     private static boolean musicPlaying, musicPaused, musicStable, musicSeek, musicNext, musicPrevious;
     private static double hiddenMs, shownMs, timeOnMs;
@@ -451,56 +450,26 @@ final class SmokeWorld {
             LavaVisual.LOGGER.info("LavaVisual smoke shot world_outfit_front");
         }
         if (ticks == OUTFIT_AT + 90) { c.capeEnabled = false; c.extras.clear(); mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }
-        // Skins: the maid (cloth swinging) and the wheelchair (legs drawn by the suit), while the player walks,
-        // accessory fit is judged on the skin and not on the bare player. Screenshots from behind and from the front.
-        if (ticks == SKIN_AT) {
-            c.capeEnabled = false; c.extras.clear(); c.hatEnabled = false; c.wingsEnabled = false;
-            c.costumeEnabled = true; c.costumeType = 1; c.costumeStyle = 0; c.costumeOpacity = 1;
-            tech.gulp.lavavisual.effects.WorldCosmetics.costumesDrawn = 0;
-            mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
-        }
-        // Every stage here is held far longer than a screenshot needs: the capture is taken up to half a second
-        // after the shot line appears, so a stage that ended right after its line would be photographed as the next
-        // one (the maid-with-a-hat shot used to catch the inventory instead of the world).
-        if (ticks > SKIN_AT && ticks < SKIN_AT + 30) player.setPos(player.getX(), player.getY(), player.getZ() - 0.22);
-        if (ticks == SKIN_AT + 30) LavaVisual.LOGGER.info("LavaVisual smoke shot world_skin_maid_back");
-        if (ticks == SKIN_AT + 36) maidQuads = tech.gulp.lavavisual.effects.WorldCosmetics.costumesDrawn;
-        if (ticks == SKIN_AT + 50) { c.costumeType = 2; tech.gulp.lavavisual.effects.WorldCosmetics.costumesDrawn = 0; c.extras = new java.util.ArrayList<>(java.util.List.of(1)); }
-        if (ticks == SKIN_AT + 74) LavaVisual.LOGGER.info("LavaVisual smoke shot world_skin_chair_back");
-        if (ticks == SKIN_AT + 80) chairQuads = tech.gulp.lavavisual.effects.WorldCosmetics.costumesDrawn;
-        if (ticks == SKIN_AT + 92) mc.options.setCameraType(CameraType.THIRD_PERSON_FRONT);
-        if (ticks == SKIN_AT + 118) LavaVisual.LOGGER.info("LavaVisual smoke shot world_skin_chair_front");
-        if (ticks == SKIN_AT + 126) {
-            boolean ok = maidQuads > 0 && chairQuads > 0;
-            LavaVisual.LOGGER.info((ok ? "LavaVisual smoke skins ok" : "LavaVisual smoke skins failed")
-                    + ": maid " + maidQuads + ", chair " + chairQuads);
-        }
-        // The maid (whose own hair is a shell around the head) with a hat on, judged in the world first: the hair
-        // must not poke through the hat.
-        if (ticks == SKIN_AT + 130) { c.costumeEnabled = true; c.costumeType = 1; c.extras.clear(); c.hatEnabled = true; c.hatType = 11; }
-        if (ticks == SKIN_AT + 146) LavaVisual.LOGGER.info("LavaVisual smoke shot world_skin_maid_hat");
-        // A skin and a hat on, the inventory open: the whole look must be inside the portrait window (it used to be
-        // cut off at the edge, and the step in the client ran before a world existed, so the shot showed the title).
-        if (ticks == SKIN_AT + 160) {
-            c.costumeEnabled = true; c.costumeType = 1; c.hatEnabled = true; c.hatType = 11;
+        // Screens: the inventory portrait with a hat on and on the bare head, then the world list and the server
+        // list with the menu frame. Every stage is held far longer than a screenshot needs: the capture is taken up
+        // to half a second after the shot line, so a stage that ended right after its line would be photographed late.
+        if (ticks == SHOTS_AT) {
+            c.capeEnabled = false; c.extras.clear(); c.hatEnabled = true; c.hatType = 11;
             mc.gui.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
         }
-        if (ticks == SKIN_AT + 190) LavaVisual.LOGGER.info("LavaVisual smoke shot inventory");
-        if (ticks == SKIN_AT + 210) { mc.gui.setScreen(null); c.hatEnabled = false; }
-        // The same portrait with the hat alone, on the bare head: nothing of ours but the hat, so the box, the scale
-        // and the hat's own height are judged on their own.
-        if (ticks == SKIN_AT + 224) {
-            c.costumeEnabled = false; c.hatEnabled = true; c.hatType = 11;
-            mc.gui.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
-        }
-        if (ticks == SKIN_AT + 254) LavaVisual.LOGGER.info("LavaVisual smoke shot inventory_hat");
-        if (ticks == SKIN_AT + 274) { mc.gui.setScreen(null); c.costumeEnabled = true; c.costumeType = 1; c.hatEnabled = false; }
-        if (ticks == SKIN_AT + 286) mc.gui.setScreen(new net.minecraft.client.gui.screens.worldselection.SelectWorldScreen(null));
-        if (ticks == SKIN_AT + 316) LavaVisual.LOGGER.info("LavaVisual smoke shot world_worlds");
-        if (ticks == SKIN_AT + 330) mc.gui.setScreen(new net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen(null));
-        if (ticks == SKIN_AT + 360) LavaVisual.LOGGER.info("LavaVisual smoke shot world_servers");
-        if (ticks == SKIN_AT + 374) { mc.gui.setScreen(null); c.costumeEnabled = false; c.extras.clear(); mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }
+        if (ticks == SHOTS_AT + 30) LavaVisual.LOGGER.info("LavaVisual smoke shot inventory");
+        if (ticks == SHOTS_AT + 50) { mc.gui.setScreen(null); c.hatEnabled = false; }
+        // The same portrait with nothing of ours but the box and the scale, so both can be judged on their own.
+        if (ticks == SHOTS_AT + 64) mc.gui.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
+        if (ticks == SHOTS_AT + 94) LavaVisual.LOGGER.info("LavaVisual smoke shot inventory_bare");
+        if (ticks == SHOTS_AT + 114) mc.gui.setScreen(null);
+        if (ticks == SHOTS_AT + 126) mc.gui.setScreen(new net.minecraft.client.gui.screens.worldselection.SelectWorldScreen(null));
+        if (ticks == SHOTS_AT + 156) LavaVisual.LOGGER.info("LavaVisual smoke shot world_worlds");
+        if (ticks == SHOTS_AT + 170) mc.gui.setScreen(new net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen(null));
+        if (ticks == SHOTS_AT + 200) LavaVisual.LOGGER.info("LavaVisual smoke shot world_servers");
+        if (ticks == SHOTS_AT + 214) { mc.gui.setScreen(null); c.extras.clear(); mc.options.setCameraType(CameraType.THIRD_PERSON_BACK); }
 
+        if (ticks == END_AT) finish(null);
         if (ticks == END_AT) finish(null);
     }
 
