@@ -9,6 +9,7 @@ name: Real game test (Minecraft 1.21.11)
 # (1.1.1: файл тронут, чтобы живой прогон взял уже новый jar из artifacts/, а не прежний.)
 on:
   push:
+    # (1.1.3: файл тронут, чтобы живой прогон взял уже новый jar 1.1.3 из artifacts/.)
     # (1.1.2: файл тронут, чтобы живой прогон взял уже новый jar 1.1.2 из artifacts/.)
     paths: ['artifacts/lavavisual-*-mc1.21.11.jar', '.github/workflows/realgame-1.21.11.yml', 'tools/real_game.py']
   workflow_dispatch:
