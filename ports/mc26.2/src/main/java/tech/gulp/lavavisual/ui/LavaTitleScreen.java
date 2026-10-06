@@ -231,7 +231,7 @@ public final class LavaTitleScreen extends Screen {
         return tens < 11 || tens > 14 ? ones >= 2 && ones <= 4 : false;
     }
     /** Quick access on the right: library shortcuts and the main editor. Never shows which cosmetic is worn. */
-    private void quick(GuiGraphics g, int ac, int ac2, double enter) {
+    private void quick(GuiGraphicsExtractor g, int ac, int ac2, double enter) {
         var tracks = tech.gulp.lavavisual.audio.MusicPlayer.tracks();
         var current = tech.gulp.lavavisual.audio.MusicPlayer.current();
         String onAir = current == null || !current.playable() ? "" : current.line();
@@ -240,9 +240,9 @@ public final class LavaTitleScreen extends Screen {
         String[][] chips = {{"Радио", onAir.isEmpty() ? library : onAir},
                 {"Редактор", "Шляпы, крылья и плащи"},
                 {"LavaVisual " + Edition.label(), (Edition.client() ? "Клиент" : "Мод") + " · профиль и тема"}};
-        Runnable[] actions = {() -> minecraft.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MUSIC)),
-                () -> minecraft.setScreen(new HatEditorScreen(this)),
-                () -> minecraft.setScreen(new ClickGuiScreen())};
+        Runnable[] actions = {() -> minecraft.gui.setScreen(new ClickGuiScreen(ClickGuiScreen.PAGE_MUSIC)),
+                () -> minecraft.gui.setScreen(new HatEditorScreen(this)),
+                () -> minecraft.gui.setScreen(new ClickGuiScreen())};
         int w = Math.clamp(width / 4, 120, 168), h = 30, gap = 8;
         int x = width - w - 16, y = Math.max(16, height / 2 - (chips.length * (h + gap) - gap) / 2);
         for (int i = 0; i < chips.length; i++) {

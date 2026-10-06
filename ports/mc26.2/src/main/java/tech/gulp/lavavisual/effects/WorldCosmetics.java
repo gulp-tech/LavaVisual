@@ -378,7 +378,7 @@ public final class WorldCosmetics {
     }
 
     /** Rebuilds the hitbox and reach snapshots from the world; runs on the client tick, where entities are safe. */
-    private static void snapshotBoxes(Minecraft mc, net.minecraft.world.entity.player.Player player, HudConfig c) {
+    private static void snapshotBoxes(Minecraft mc, net.minecraft.world.entity.player.Player player, tech.gulp.lavavisual.config.HudConfig c) {
         BOXES.clear(); REACH = null;
         var aimed = mc.hitResult instanceof EntityHitResult hit ? hit.getEntity() : null;
         if (c.hitboxEnabled) {

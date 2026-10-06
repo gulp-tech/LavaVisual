@@ -37,10 +37,29 @@ public final class PlayerTags {
     public static Component tabBadge(PlayerInfo info, Component name) {
         if (name == null || info == null || !LavaVisualClient.config().badgeEnabled) return name;
         var mc = Minecraft.getInstance();
-        Player player = mc.level == null ? null : mc.level.getPlayerByUUID(info.getProfile().getId());
+        Player player = byRow(info, mc);
         if (player == null || !HatSync.marked(player)) return name;
         tabBadges++;
         return decorate(name);
+    }
+
+    /** The player behind a player-list row. The profile accessors moved between versions, so the name is matched. */
+    private static Player byRow(PlayerInfo info, Minecraft mc) {
+        if (info == null || mc.level == null) return null;
+        Object profile = info.getProfile();
+        String name = call(profile, "getName");
+        if (name == null) name = call(profile, "name");
+        if (name == null) return null;
+        for (Player player : mc.level.players()) if (name.equals(player.getName().getString())) return player;
+        return null;
+    }
+
+    private static String call(Object target, String method) {
+        try {
+            return String.valueOf(target.getClass().getMethod(method).invoke(target));
+        } catch (ReflectiveOperationException | RuntimeException ignored) {
+            return null;
+        }
     }
 
     /** Adds the glyph unless the name already carries it: name tags and player list rows both pass through here. */

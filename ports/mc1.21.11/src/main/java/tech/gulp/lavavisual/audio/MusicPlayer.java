@@ -231,12 +231,12 @@ public final class MusicPlayer {
             Track open;
             long seekTo;
             boolean closing;
-            int tg, g;
+            int tg, g, radio;
             synchronized (LOCK) {
                 boolean pending = openRequest != null || radioRequest >= 0 || seekRequest >= 0 || closeRequest;
                 if (!pending) try { LOCK.wait(playing ? 20 : 250); } catch (InterruptedException e) { closeDecoder(); return; }
                 open = openRequest; openRequest = null;
-                int radio = radioRequest; radioRequest = -1;
+                radio = radioRequest; radioRequest = -1;
                 seekTo = seekRequest; seekRequest = -1;
                 closing = closeRequest; closeRequest = false;
                 tg = trackGen; g = generation;

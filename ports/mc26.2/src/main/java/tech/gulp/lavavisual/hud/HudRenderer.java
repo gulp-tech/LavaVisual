@@ -313,7 +313,7 @@ public final class HudRenderer {
         HudConfig c = LavaVisualClient.config();
         if (!c.reachEnabled || !c.reachReadout || mc.player == null) return;
         double radius = tech.gulp.lavavisual.effects.WorldCosmetics.reachRadius();
-        Vec3 point = mc.hitResult == null ? null : mc.hitResult.getLocation();
+        net.minecraft.world.phys.Vec3 point = mc.hitResult == null ? null : mc.hitResult.getLocation();
         String text;
         int color;
         if (point == null) {
