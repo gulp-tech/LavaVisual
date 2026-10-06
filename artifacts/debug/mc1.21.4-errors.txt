@@ -1,6 +1,13 @@
 > Configure project :
-> Task :classpathFile
-javap failed for net.minecraft.client.model.player.PlayerModel (exit 1): Error: class not found: net.minecraft.client.model.player.PlayerModel
-mixin descriptors checked: 2
-MIXIN PROBLEM: PlayerSkinPoseMixin.java: javap found nothing for net.minecraft.client.model.player.PlayerModel
-0
+> Task :compileJava
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/Hats.java:76: error: invalid canonical constructor in record Look
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/Hats.java:68: error: recursive constructor invocation
+> Task :compileJava FAILED
+FAILURE: Build failed with an exception.
+* What went wrong:
+> Compilation failed; see the compiler output below.
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/Hats.java:76: error: invalid canonical constructor in record Look
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/Hats.java:68: error: recursive constructor invocation
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+4
