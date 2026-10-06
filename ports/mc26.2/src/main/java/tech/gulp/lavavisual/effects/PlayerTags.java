@@ -39,7 +39,10 @@ public final class PlayerTags {
         if (name == null || info == null || !LavaVisualClient.config().badgeEnabled) return name;
         var mc = Minecraft.getInstance();
         Player player = byRow(info, mc);
-        if (player == null || !HatSync.marked(player)) return name;
+        if (player == null) return name;
+        // Your own row trusts your own settings: in single player the server does not echo the mark back.
+        boolean shows = player == mc.player ? Badge.marked(mc.options.buildPlayerInformation()) : HatSync.marked(player);
+        if (!shows) return name;
         tabBadges++;
         return decorate(name);
     }

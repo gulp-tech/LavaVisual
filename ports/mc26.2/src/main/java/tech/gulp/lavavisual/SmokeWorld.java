@@ -512,7 +512,7 @@ final class SmokeWorld {
                     + ": station " + tech.gulp.lavavisual.audio.MusicPlayer.radioIndex()
                     + String.format(java.util.Locale.ROOT, ", %.2f s", tech.gulp.lavavisual.audio.MusicPlayer.position()));
         }
-        // Visual hitboxes and the reach circle: a zombie next to the player, then boxes have to be built and drawn.
+        // Visual hitboxes and the reach circle: a pig next to the player (the smoke world is peaceful, so no monsters), then boxes have to be built and drawn.
         if (ticks == HITBOX_AT) {
             c.hitboxEnabled = true;
             c.hitboxTargets = 0;
@@ -521,7 +521,7 @@ final class SmokeWorld {
             c.hitboxRange = 24;
             c.reachEnabled = true;
             c.reachReadout = true;
-            player.connection.sendCommand("summon minecraft:zombie ~2 ~ ~-1");
+            player.connection.sendCommand("summon minecraft:pig ~2 ~ ~-1");
         }
         if (ticks == HITBOX_AT + 20) {
             long boxes = tech.gulp.lavavisual.effects.WorldCosmetics.boxesDrawn;
