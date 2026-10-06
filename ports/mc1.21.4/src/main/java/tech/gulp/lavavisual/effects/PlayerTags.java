@@ -39,8 +39,8 @@ public final class PlayerTags {
         var mc = Minecraft.getInstance();
         Player player = byRow(info, mc);
         if (player == null) return name;
-        // Your own row trusts your own settings: in single player the server does not echo the mark back.
-        boolean shows = player == mc.player ? Badge.marked(mc.options.buildPlayerInformation()) : HatSync.marked(player);
+        // Your own row trusts what you share right now: the server does not echo the mark back to its sender at once.
+        boolean shows = player == mc.player ? HatSync.advertised() : HatSync.marked(player);
         if (!shows) return name;
         tabBadges++;
         return decorate(name);

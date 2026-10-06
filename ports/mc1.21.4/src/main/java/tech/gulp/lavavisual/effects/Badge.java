@@ -1,6 +1,5 @@
 package tech.gulp.lavavisual.effects;
 
-import java.lang.reflect.Field;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.world.entity.player.Player;
@@ -10,8 +9,6 @@ import net.minecraft.world.entity.player.Player;
     while joining, only after ten seconds in the world, and it briefly spells out the hat. Reading marks is always safe. */
 public final class Badge {
     public static final int BIT = 0x80;
-    private static Field field;
-    private static boolean searched;
     private Badge() { }
     public static ClientInformation mark(ClientInformation info) { return withBit(info, HatSync.advertised()); }
     public static ClientInformation withBit(ClientInformation info, boolean bit) {
@@ -42,32 +39,8 @@ public final class Badge {
         } catch (ReflectiveOperationException | RuntimeException ignored) { }
         return false;
     }
+    /** Whether the player carries the mark. Read through the mixin on Player, never by a reflected field name. */
     public static boolean marked(Player player) {
-        EntityDataAccessor<Byte> accessor = accessor(player);
-        if (accessor == null) return false;
-        try {
-            Object value = player.getEntityData().get(accessor);
-            return value instanceof Byte parts && (parts & BIT) != 0;
-        } catch (RuntimeException error) {
-            return false;
-        }
-    }
-    @SuppressWarnings("unchecked")
-    private static EntityDataAccessor<Byte> accessor(Player player) {
-        if (!searched) {
-            searched = true;
-            for (Class<?> type = player.getClass(); type != null && field == null; type = type.getSuperclass()) {
-                try {
-                    Field candidate = type.getDeclaredField("DATA_PLAYER_MODE_CUSTOMISATION");
-                    candidate.setAccessible(true);
-                    field = candidate;
-                } catch (NoSuchFieldException | RuntimeException ignored) { }
-            }
-        }
-        try {
-            return field == null ? null : (EntityDataAccessor<Byte>) field.get(null);
-        } catch (IllegalAccessException | RuntimeException error) {
-            return null;
-        }
+        return player instanceof SkinParts parts && (parts.lavavisual$skinParts() & BIT) != 0;
     }
 }
