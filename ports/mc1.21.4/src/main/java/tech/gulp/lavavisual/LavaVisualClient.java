@@ -209,6 +209,8 @@ public final class LavaVisualClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register((g, delta) -> {
             HudRenderer.partial = delta.getGameTimeDeltaPartialTick(false);
             HudRenderer.draw(g, false, null);
+            // The vanilla hotbar draws its own durability strips; ours go on top.
+            HudRenderer.hotbarDurability(g);
             Minecraft client = Minecraft.getInstance();
             if (config.crosshairEnabled && client.player != null && !client.player.isSpectator()
                     && client.options.getCameraType().isFirstPerson()) HudRenderer.crosshair(g);

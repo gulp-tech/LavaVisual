@@ -5,8 +5,9 @@ The HUD cannot be looked at without launching Minecraft, and the strips live dee
 draws them with PIL instead, using exactly the geometry and the colours of the mod: the armour widget (4 slots of
 20 x 20 with a step of 23), the equipment strip of the Target HUD (slots of 19 x 19 with a step of 21), the track of
 14 x 3 and 13 x 3, the one-unit highlight, the percent text, and the low-durability warning (the red rim stays under the
-slot plate, the breathing wash goes over the item, the percent brightens with the pulse). The pulse is drawn at its
-brightest phase.
+slot plate, the breathing wash goes over the item, the percent brightens with the pulse). The hotbar slots of the
+player are drawn the same way, over the vanilla hotbar: 20 px step, 16 px icon, the strip at the bottom of the icon.
+The pulse is drawn at its brightest phase.
 
     python3 tools/preview_durability.py [out.png (default docs/durability-preview.png)]
 
@@ -90,6 +91,25 @@ def gear_slot(view, x, y, ratio, pulse=1.0, warn=True, sprite=None):
     view.rr(x + 4, y + 17, fill, 1, 0, 0xFFFFFF, 0.35)
 
 
+def hotbar_slot(view, x, y, ratio, pulse=1.0, warn=True, icon=None):
+    """One hotbar slot of the player, in the order of HudRenderer.hotbarDurability()."""
+    low = ratio is not None and ratio >= 0 and ratio <= 0.2 and warn
+    view.rr(x - 1, y - 1, 22, 22, 3, 0x8B8B8B, 0.35)
+    view.rr(x, y, 20, 20, 2, 0x1D2027, 1.0)
+    if icon:
+        view.icon(icon, x + 3, y + 2, 14, 0xC9D0DA, 0.85)
+    if ratio is None or ratio < 0:
+        return
+    if low:
+        view.rr(x - 1, y - 1, 18, 18, 3, WARN, 0.35 + 0.4 * pulse)
+        view.rr(x, y, 16, 16, 2, WARN, 0.10 + 0.20 * pulse)
+    color = shown(durability(ratio), pulse) if low else durability(ratio)
+    view.rr(x + 1, y + 12, 14, 3, 1, TRACK)
+    bar = max(1, round(12 * ratio))
+    view.rrh(x + 2, y + 13, bar, 2, 1, color, mix(color, 0xFFFFFF, 0.35))
+    view.rr(x + 2, y + 13, bar, 1, 0, 0xFFFFFF, 0.35)
+
+
 def armor_widget(view, x, y, ratios, pulse=1.0, warn=True):
     view.rr(x, y, 97, 36, 6, PANEL)
     for i, ratio in enumerate(ratios):
@@ -103,10 +123,10 @@ def gear_strip(view, x, y, ratios, pulse=1.0, warn=True):
 
 def main():
     out = Path(sys.argv[1]) if len(sys.argv) > 1 else OUT
-    view = View(322, 224)
-    view.img.paste(0x101319FF, (0, 0, 322 * SS, 224 * SS))
+    view = View(340, 272)
+    view.img.paste(0x101319FF, (0, 0, 340 * SS, 272 * SS))
 
-    view.text(14, 12, 'LavaVisual 1.1.2 · прочность', TEXT, 1.0, size=13, bold=True)
+    view.text(14, 12, 'LavaVisual 1.1.3 · прочность', TEXT, 1.0, size=13, bold=True)
     view.text(14, 31, 'Одно оформление во всех визуалах: дорожка, градиент, блик, процент по цвету.', DIM, 1.0, size=7)
 
     view.text(14, 52, 'Броня · обычная прочность', DIM, 1.0, size=8, bold=True)
@@ -120,7 +140,12 @@ def main():
     view.text(14, 174, 'Снаряжение в Target HUD · те же полосы, то же предупреждение', DIM, 1.0, size=8, bold=True)
     gear_strip(view, 14, 185, [0.9, 0.55, 0.3, None, 0.15])
 
-    view.text(14, 213, 'Порог 20 % · выключатель «Подсветка низкой прочности» в настройках виджета брони', DIM, 0.85, size=6)
+    view.text(14, 214, 'Хотбар игрока · те же полосы и предупреждение поверх ванильных', DIM, 1.0, size=8, bold=True)
+    hotbar = [(0.10, 'SWORDS'), (0.12, 'SHIELD'), (0.70, 'GEM'), (0.64, 'SHIELD_HALF'), (0.06, 'WIND'), (1.0, 'CROWN'), (None, 'APPLE'), (None, None), (None, None)]
+    for i, (ratio, icon) in enumerate(hotbar):
+        hotbar_slot(view, 14 + i * 20, 226, ratio, 1.0, True, icon)
+
+    view.text(14, 258, 'Порог 20 % · выключатель «Подсветка низкой прочности» в настройках виджета брони', DIM, 0.85, size=6)
     view.img.save(out)
     print(f'{out} -> {out.stat().st_size // 1024} KB')
 

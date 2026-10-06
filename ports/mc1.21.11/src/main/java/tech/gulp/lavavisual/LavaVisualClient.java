@@ -208,6 +208,9 @@ public final class LavaVisualClient implements ClientModInitializer {
             }
         });
         HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, id("widgets"), (g, delta) -> { HudRenderer.partial = delta.getGameTimeDeltaPartialTick(false); HudRenderer.draw(g, false, null); });
+        // The vanilla hotbar draws its own durability strips; ours go on top, right after it.
+        HudElementRegistry.attachElementAfter(VanillaHudElements.HOTBAR, id("hotbar_durability"),
+                (g, delta) -> HudRenderer.hotbarDurability(g));
         HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, original -> (g, delta) -> {
             Minecraft client = Minecraft.getInstance();
             if (!config.crosshairEnabled || client.player == null || client.player.isSpectator()

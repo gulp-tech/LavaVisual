@@ -298,6 +298,38 @@ public final class HudRenderer {
         return 0.5 + 0.5 * Math.sin(System.nanoTime() / 300_000_000.0);
     }
 
+    /**
+     * Hotbar slots of the player: the very same decorated strip and the same low-durability warning as the armor
+     * widget and the equipment strip, drawn over the vanilla hotbar. Only damaged items get a strip, exactly like
+     * vanilla, and the geometry follows the vanilla slot: 20 px step, 16 px icon, strip at the bottom of the icon.
+     */
+    public static void hotbarDurability(GuiGraphicsExtractor g) {
+        Minecraft mc = Minecraft.getInstance();
+        HudConfig c = LavaVisualClient.config();
+        if (mc.player == null || mc.options.hideGui || mc.player.isSpectator()) return;
+        var inventory = mc.player.getInventory();
+        double pulse = warnPulse();
+        int left = g.guiWidth() / 2 - 91, y = g.guiHeight() - 19;
+        for (int i = 0; i < 9; i++) {
+            ItemStack stack = inventory.getItem(i);
+            if (stack.isEmpty() || !stack.isDamageableItem() || stack.getMaxDamage() <= 0) continue;
+            double ratio = Math.clamp(1 - (double) stack.getDamageValue() / stack.getMaxDamage(), 0, 1);
+            if (ratio >= 1) continue;
+            int x = left + 3 + i * 20;
+            boolean low = ratio <= WARN_BELOW && c.durabilityWarn;
+            if (low) {
+                UiDraw.round(g, x - 1, y - 1, 18, 18, 3, UiDraw.alpha(WARN_COLOR, 0.35 + 0.4 * pulse));
+                UiDraw.round(g, x, y, 16, 16, 2, UiDraw.alpha(WARN_COLOR, 0.10 + 0.20 * pulse));
+            }
+            int color = durability(ratio);
+            if (low) color = UiDraw.mix(color, 0xFFFFFF, 0.45 * pulse);
+            UiDraw.round(g, x + 1, y + 12, 14, 3, 1, 0xFF23262D);
+            int bar = Math.max(1, (int) Math.round(12 * ratio));
+            UiDraw.roundH(g, x + 2, y + 13, bar, 2, 1, color, UiDraw.mix(color, 0xFFFFFF, 0.35));
+            g.fill(x + 2, y + 13, x + 1 + bar, y + 13, UiDraw.alpha(0xFFFFFF, 0.35));
+        }
+    }
+
     /** Armor: the actual pieces, durability strip and percent; vanilla slot silhouettes when empty. */
     private static void armor(GuiGraphicsExtractor g, Minecraft mc, HudConfig c, HudConfig.Widget w, int accent, int accent2) {
         int bw = 97, bh = 36;
