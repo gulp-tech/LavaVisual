@@ -5,6 +5,7 @@ name: Real game test (Minecraft 1.21.11)
 # another workflow, so this one also runs from the Actions tab (`gh workflow run realgame-1.21.11.yml`).
 # It runs on every published 1.21.11 jar (перезапуск: 1.1.0 — без скинов, украшенные шляпы, крылья, плащи и меню), and a fresh release is validated by touching this file: the run then
 # picks up the newest jar in artifacts/ and plays it for real. This run is the last gate before the release page.
+# (1.1.0: файл тронут, чтобы живой прогон взял уже новый jar из artifacts/, а не прежний.)
 on:
   push:
     paths: ['artifacts/lavavisual-*-mc1.21.11.jar', '.github/workflows/realgame-1.21.11.yml', 'tools/real_game.py']
