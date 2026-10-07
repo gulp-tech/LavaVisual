@@ -3887,6 +3887,28 @@ public final class net.minecraft.server.level.ClientInformation extends java.lan
   public boolean allowsListing();
   public net.minecraft.server.level.ParticleStatus particleStatus();
 }
+=== net.minecraft.world.entity.Avatar
+Compiled from "Avatar.java"
+public class net.minecraft.world.entity.Avatar extends net.minecraft.world.entity.LivingEntity {
+  public static final net.minecraft.world.entity.HumanoidArm DEFAULT_MAIN_HAND;
+  public static final int DEFAULT_MODEL_CUSTOMIZATION;
+  public static final float DEFAULT_EYE_HEIGHT;
+  public static final net.minecraft.world.phys.Vec3 DEFAULT_VEHICLE_ATTACHMENT;
+  private static final float CROUCH_BB_HEIGHT;
+  private static final float SWIMMING_BB_WIDTH;
+  public static final float SWIMMING_BB_HEIGHT;
+  protected static final net.minecraft.world.entity.EntityDimensions STANDING_DIMENSIONS;
+  protected static final java.util.Map<net.minecraft.world.entity.Pose, net.minecraft.world.entity.EntityDimensions> POSES;
+  protected static final net.minecraft.network.syncher.EntityDataAccessor<net.minecraft.world.entity.HumanoidArm> DATA_PLAYER_MAIN_HAND;
+  protected static final net.minecraft.network.syncher.EntityDataAccessor<java.lang.Byte> DATA_PLAYER_MODE_CUSTOMISATION;
+  protected net.minecraft.world.entity.Avatar(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.LivingEntity>, net.minecraft.world.level.Level);
+  protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData$Builder);
+  public net.minecraft.world.entity.HumanoidArm getMainArm();
+  public void setMainArm(net.minecraft.world.entity.HumanoidArm);
+  public boolean isModelPartShown(net.minecraft.world.entity.player.PlayerModelPart);
+  public net.minecraft.world.entity.EntityDimensions getDefaultDimensions(net.minecraft.world.entity.Pose);
+  static {};
+}
 === net.minecraft.world.entity.player.Player
 Compiled from "Player.java"
 public abstract class net.minecraft.world.entity.player.Player extends net.minecraft.world.entity.Avatar implements net.minecraft.world.entity.ContainerUser {
