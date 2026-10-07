@@ -3433,6 +3433,8 @@ public final class net.minecraft.server.level.ClientInformation extends java.lan
   public boolean allowsListing();
   public net.minecraft.server.level.ParticleStatus particleStatus();
 }
+=== net.minecraft.world.entity.Avatar
+Error: class not found: net.minecraft.world.entity.Avatar
 === net.minecraft.world.entity.player.Player
 Compiled from "Player.java"
 public abstract class net.minecraft.world.entity.player.Player extends net.minecraft.world.entity.LivingEntity {
