@@ -1,4 +1,4 @@
-# LavaVisual 1.1.5 — Minecraft 26.2
+# LavaVisual 1.1.6 — Minecraft 26.2
 
 <img src="ports/mc26.2/src/main/resources/assets/lavavisual/icon.png" width="96" alt="LV">
 
@@ -7,11 +7,14 @@
 
 | | Скачать | Что внутри |
 | --- | --- | --- |
-| **Мод** | [lavavisual-1.1.5-mc26.2.jar](artifacts/lavavisual-1.1.5-mc26.2.jar) | только LavaVisual, в папку `mods` |
-| **Клиент** | [LavaVisual-Client-1.1.5-mc26.2.mrpack](artifacts/LavaVisual-Client-1.1.5-mc26.2.mrpack) | готовая сборка для Modrinth App, Prism Launcher, ATLauncher |
-| **Клиент (архив)** | [LavaVisual-Client-1.1.5-mc26.2.zip](artifacts/LavaVisual-Client-1.1.5-mc26.2.zip) | папки `mods` и `config` для TLauncher, телефонов и ручной установки |
+| **Мод** | [lavavisual-1.1.6-mc26.2.jar](artifacts/lavavisual-1.1.6-mc26.2.jar) | только LavaVisual, в папку `mods` |
+| **Клиент** | [LavaVisual-Client-1.1.6-mc26.2.mrpack](artifacts/LavaVisual-Client-1.1.6-mc26.2.mrpack) | готовая сборка для Modrinth App, Prism Launcher, ATLauncher |
+| **Клиент (архив)** | [LavaVisual-Client-1.1.6-mc26.2.zip](artifacts/LavaVisual-Client-1.1.6-mc26.2.zip) | папки `mods` и `config` для TLauncher, телефонов и ручной установки |
 
 Контрольные суммы — в [SHA256SUMS](artifacts/SHA256SUMS).
+
+**Что нового в 1.1.6:** значки LavaVisual теперь видны во всех версиях — логотип LV перед ником и в списке игроков
+(**Tab**), вместе с синхронизацией косметики между игроками; станции радио переключаются прямо на экране плеера.
 
 **Bedrock:** игроки Bedrock видят аксессуары LavaVisual-игроков (очки, наушники, шарф), если на сервере стоит
 расширение для Geyser — [LavaVisual-Bedrock-1.1.0.jar](artifacts/bedrock/LavaVisual-Bedrock-1.1.0.jar) в папку
