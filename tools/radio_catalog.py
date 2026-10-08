@@ -12,7 +12,8 @@ import json
 import sys
 import urllib.request
 
-API = ['https://de1.api.radio-browser.info', 'https://de2.api.radio-browser.info', 'https://fi1.api.radio-browser.info']
+API = ['https://all.api.radio-browser.info', 'https://de1.api.radio-browser.info', 'https://de2.api.radio-browser.info',
+       'https://nl1.api.radio-browser.info', 'https://fi1.api.radio-browser.info']
 UA = 'LavaVisual (Minecraft mod) radio check'
 
 
@@ -20,11 +21,11 @@ def directory(country):
     for server in API:
         try:
             request = urllib.request.Request(f'{server}/json/stations/bycountrycodeexact/{country}?hidebroken=true',
-                                             headers={'User-Agent': UA})
+                                             headers={'User-Agent': UA, 'Accept': 'application/json'})
             with urllib.request.urlopen(request, timeout=40) as response:
                 return json.loads(response.read().decode('utf-8'))
         except (OSError, ValueError) as failure:
-            print('directory', server, failure, file=sys.stderr)
+            print('directory', server, repr(failure), file=sys.stderr, flush=True)
     raise SystemExit('radio-browser is not reachable')
 
 

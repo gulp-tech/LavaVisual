@@ -1,7 +1,6 @@
 name: Radio catalogue (Russia)
 # Lists the Russian internet stations from radio-browser.info and checks which MP3 streams really play.
-# Run by hand from the Actions tab or with `gh workflow run radio-catalog.yml --ref <branch>`; the result is an
-# artifact, nothing is committed.
+# Runs on push of its own files, or by hand from the Actions tab; the result is an artifact, nothing is committed.
 on:
   push:
     paths: ['tools/radio_catalog.py', '.github/workflows/radio-catalog.yml']
@@ -18,8 +17,13 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: List and check the stations
-        run: python3 tools/radio_catalog.py radio-catalog-RU.tsv RU
-      - uses: actions/upload-artifact@v4
+        run: python3 tools/radio_catalog.py radio-catalog-RU.tsv RU 2>&1 | tee radio-catalog-RU.log
+      - name: Keep the result
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: radio-catalog-RU
-          path: radio-catalog-RU.tsv
+          path: |
+            radio-catalog-RU.tsv
+            radio-catalog-RU.log
+          if-no-files-found: warn
