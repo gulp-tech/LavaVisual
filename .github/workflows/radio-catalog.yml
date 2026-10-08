@@ -1,0 +1,23 @@
+name: Radio catalogue (Russia)
+# Lists the Russian internet stations from radio-browser.info and checks which MP3 streams really play.
+# Run by hand from the Actions tab or with `gh workflow run radio-catalog.yml --ref <branch>`; the result is an
+# artifact, nothing is committed.
+on:
+  workflow_dispatch:
+concurrency:
+  group: lavavisual-radio-catalog-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  catalogue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - name: List and check the stations
+        run: python3 tools/radio_catalog.py radio-catalog-RU.tsv RU
+      - uses: actions/upload-artifact@v4
+        with:
+          name: radio-catalog-RU
+          path: radio-catalog-RU.tsv
