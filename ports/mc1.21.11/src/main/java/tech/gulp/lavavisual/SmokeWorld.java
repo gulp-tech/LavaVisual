@@ -548,10 +548,19 @@ final class SmokeWorld {
         }
         if (ticks == HITBOX_AT + 80) { c.hitboxStyle = 1; c.hitboxFill = 0.16; c.hitboxView = false; }
         if (ticks == HITBOX_AT + 88) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_fill");
+        // Another pig walks in right in front of the camera for the corner brackets: the first one may have
+        // wandered off, and a far away box does not show a style.
+        if (ticks == HITBOX_AT + 100) {
+            double yaw = Math.toRadians(player.getYRot());
+            player.connection.sendCommand(String.format(java.util.Locale.ROOT, "summon minecraft:pig %.3f %.3f %.3f {NoAI:1b}",
+                    player.getX() - Math.sin(yaw) * 2.3 + Math.cos(yaw) * 1.1, player.getY(),
+                    player.getZ() + Math.cos(yaw) * 2.3 + Math.sin(yaw) * 1.1));
+        }
         if (ticks == HITBOX_AT + 150) c.hitboxStyle = 2;
         if (ticks == HITBOX_AT + 158) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_corners");
         // The reach number needs a hit box under the crosshair: a cow two and a half blocks ahead, the view a little
         // down, and the radius small enough for the number to be green in reach and red beyond it.
+        if (ticks == HITBOX_AT + 200) player.connection.sendCommand("kill @e[type=minecraft:pig]");
         if (ticks == HITBOX_AT + 220) {
             c.hitboxStyle = 0;
             c.reachLine = true;

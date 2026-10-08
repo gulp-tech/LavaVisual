@@ -98,6 +98,18 @@ jobs:
           git commit -q -m 'Client log [skip ci]' || exit 0
           git push -q origin "HEAD:$GITHUB_REF_NAME" || true
 
+      - name: Keep what the radio said
+        if: always()
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch -q origin "$GITHUB_REF_NAME" && git reset -q --mixed "origin/$GITHUB_REF_NAME"
+          mkdir -p artifacts/debug
+          grep -E "LavaVisual smoke radio" ports/mc1.21.11/build/client-smoke.log > artifacts/debug/radio-1.21.11.txt || true
+          test -s artifacts/debug/radio-1.21.11.txt || echo "the smoke test did not get to the radio" > artifacts/debug/radio-1.21.11.txt
+          git add -f artifacts/debug/radio-1.21.11.txt
+          git commit -q -m 'Radio log [skip ci]' || exit 0
+          git push -q origin "HEAD:$GITHUB_REF_NAME" || true
       - name: Publish tested build
         if: github.event_name == 'push'
         run: |
