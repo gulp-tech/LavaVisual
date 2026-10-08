@@ -25,7 +25,9 @@ home = Path.home() / '.lavavisual-game' / mc
 mods = home / 'mods'
 mods.mkdir(parents=True, exist_ok=True)
 
-jar = next(iter(sorted((root / 'artifacts').glob(f'lavavisual-*-mc{mc}.jar'))), None)
+# The newest version wins: a plain sort would put 1.1.7 before 1.2.0 and test the old jar.
+jar = max((root / 'artifacts').glob(f'lavavisual-*-mc{mc}.jar'),
+         key=lambda p: tuple(int(n) for n in re.findall(r'\d+', p.name.split('-mc')[0])), default=None)
 if jar is None:
     sys.exit(f'::error::no published jar for {mc}')
 shutil.copy(jar, mods / jar.name)
