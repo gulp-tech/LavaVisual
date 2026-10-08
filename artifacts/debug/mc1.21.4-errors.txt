@@ -1,11 +1,21 @@
 > Configure project :
 > Task :compileJava
-/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/audio/NetRadio.java:162: error: method stream in class Decoders cannot be applied to given types;
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:79: error: cannot find symbol
+  symbol:   method getTabList()
+  location: variable mc of type Minecraft
+/home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:81: error: cannot find symbol
+  symbol:   method getTabList()
+  location: variable mc of type Minecraft
 > Task :compileJava FAILED
 FAILURE: Build failed with an exception.
 * What went wrong:
 > Compilation failed; see the compiler output below.
-  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/audio/NetRadio.java:162: error: method stream in class Decoders cannot be applied to given types;
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:79: error: cannot find symbol
+    symbol:   method getTabList()
+    location: variable mc of type Minecraft
+  /home/runner/work/LavaVisual/LavaVisual/ports/mc1.21.4/src/main/java/tech/gulp/lavavisual/effects/PlayerTags.java:81: error: cannot find symbol
+    symbol:   method getTabList()
+    location: variable mc of type Minecraft
 > Check your code and dependencies to fix the compilation error(s)
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).
-2
+4
