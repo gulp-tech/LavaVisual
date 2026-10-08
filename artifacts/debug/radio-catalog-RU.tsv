@@ -99,7 +99,7 @@ state	name	codec	bitrate	votes	tags	url	ok
 	EuropaPplus Top 40	MP3	128	367	128kbit,top 40	http://eptop128.streamr.ru/	1
 	Radio Caprice - Folk Metal	AAC+	320	361	folk metal,metal,radio caprice	http://79.120.39.202:8000/folkmetal	
 	Radio Caprice - Classic Rock / Rock	AAC+	48	359	classic rock,rock	http://79.120.77.11:8002/rock	
-	M.Deep Radio	MP3	192	358	chillout,deep house,electronic,house	https://deephousex.ru/live	0
+	M.Deep Radio	MP3	192	358	chillout,deep house,electronic,house	https://deephousex.ru/live	1
 	Radio Caprice - Deep / Chill House [1]	AAC+	48	357	chill house,deep house,electronic,radcap	http://79.120.39.202:8002/deephouse	
 	Nostalgie Russia	MP3	128	349	pop rock	https://listen7.myradio24.com/alexx333	1
 	Radio Caprice - Cool / West Coast Jazz	AAC+	48	345	cool jazz,jazz	http://79.120.39.202:8002/cooljazz	
@@ -181,7 +181,7 @@ state	name	codec	bitrate	votes	tags	url	ok
 	RadCap - Symphonic Death Metal	AAC+	320	180	death metal,metal,symphonic death metal	http://213.141.131.10:8000/symphodeath	
 	Mixadance FM	AAC+	80	177	blues,chill,jazz,moody,music,relax,working	https://stream.mixadance.fm/mixadancejazz	
 	Radio Caprice - Avant-Garde Jazz / Free Improvisation [2]	AAC+	320	176	avant-garde,avant-garde jazz,free jazz,improvisation,radcap	http://79.111.119.111:8000/avantgardejazz	
-	M.Deep Radio	MP3	192	174	chillout,deep house,electronic,house	https://deephousex.ru/live	0
+	M.Deep Radio	MP3	192	174	chillout,deep house,electronic,house	https://deephousex.ru/live	1
 	RADCAP: DARK / DOOM / NOIR / FUNERAL / AMBIENT JAZZ	AAC+	320	174	dark jazz	http://79.120.39.202:8000/darkjazz	
 	Radio Caprice - French/Nouvelle Chanson	AAC+	320	168	chanson,chansons françaises,french,french chansons,french music,radcap,radio caprice	http://79.111.14.76:8000/frenchchanson	
 	DFM - Dancehall	AAC+	96	167	dance,dance pop,house,mix	https://dfm-dancehall.hostingradio.ru/dancehall96.aacp	
@@ -734,13 +734,13 @@ Kamchatka	Drakkar	MP3	192	0	deep house,house	https://radio.kamchatkalive.ru:8103
 Kamchatka	Kamchatka LIVE Dance	MP3	192	0		https://radio.kamchatkalive.ru:8103/dance	1
 Khabarovsk	Breaking Bass Air	MP3	320	141	atmospheric,darkstep,dnb,dram&bass,drumandbass,hardstep,intelligent,jazzstep,jumpup,jungle,liquid,neurofunk,sambass,techstep	https://aircast.breaking-bass.ru:8443/air	1
 Khabarovsk	East of Russia (Восток России)	MP3	256	108	rock,soft rock	http://109.70.24.182:8000/stream/1/	1
-Kirov	Maria FM 102.9	MP3	128	3	pop,pop music	https://online.mariafm.ru:8443/MariaFM	0
+Kirov	Maria FM 102.9	MP3	128	3	pop,pop music	https://online.mariafm.ru:8443/MariaFM	1
 Kolyvan, Novosibirsk Region	DATASET RADIO	AAC	160	4		https://region-ru4.tunio.ai/datasetradio.aac	
 Leningrad Oblast	Eldoradio	MP3	0	118		http://emgspb.hostingradio.ru/eldoradio64.mp3	1
 Massachusetts	adskoe_radio	MP3	192	0		https://radio.openos.pp.ua/listen/adskoe_radio/radio.mp3	1
 Moscow	Europa Plus	MP3	0	59746	dance,house,pop	http://ep256.hostingradio.ru:8052/europaplus256.mp3	1
 Moscow	DFM Дискач 90-х	AAC+	96	55811	90-е,eurodance,nostalgia	https://dfm-disc90.hostingradio.ru/disc9096.aacp	
-Moscow	Anon.FM	MP3	192	19187	anime,dnb,downtempo,experimental,jazz,psychedelic,rock,trance	https://icecast.anon.fm/radio	1
+Moscow	Anon.FM	MP3	192	19188	anime,dnb,downtempo,experimental,jazz,psychedelic,rock,trance	https://icecast.anon.fm/radio	1
 Moscow	HIT FM	AAC	0	5494	dance,pop	https://hitfm.hostingradio.ru/hitfm96.aacp	
 Moscow	HIP HOP RADIO	AAC	160	4768	hiphop	https://tntradio.hostingradio.ru:8027/hhr128.mp3	
 Moscow	DFM	AAC	0	2712	dfm	https://dfm.hostingradio.ru/dfm96.aacp?0.28225617725168517	
@@ -914,7 +914,7 @@ Saint Petersburg	MOTORADIO.ONLINE, Just music, no programs	MP3	320	2	blues,class
 Saint Petersburg	MOTORADIO.ONLINE, Low AAC 24 kbps	MP3	224	0	blues,classic-rock,hard-rock,heavy-metal,motorcycle	https://stream.motoradio.online/std-mp3	1
 Saint Petersburg	MOYGID TV — ääniopasradio (moygid.online/fi)	MP3	128	0	audio guide,culture,education,finnish,history,suomi,talk,travel,ääniopas	https://moygid.online/fi/radio.mp3	1
 Saint Petersburg	MOYGID TV — audio guide radio (moygid.online/en)	MP3	128	0	audio guide,culture,education,english,history,talk,tourism,travel	https://moygid.online/en/radio.mp3	1
-Saint-Petersburg	Deep One	MP3	128	1322	deep house	https://stream.deep1.ru/deep1mp3	1
+Saint-Petersburg	Deep One	MP3	128	1322	deep house	https://stream.deep1.ru/deep1mp3	0
 Saint-Petersburg	Deep One	AAC	128	635		https://stream.deep1.ru/deep1aac	
 Saint-Petersburg	Anima Amoris Deep Tech House	MP3	0	401		https://amoris.sknt.ru/deeptech.mp3	0
 Saint-Petersburg	MOTORADIO	AAC	320	324	classic rock,hard rock,rock,talk	http://stream.motoradio.online:8000/high-aac	
