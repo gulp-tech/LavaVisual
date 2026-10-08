@@ -4,7 +4,7 @@ name: Radio catalogue (Russia)
 # with [skip ci], the same way the other CI checks keep their results.
 on:
   push:
-    paths: ['tools/radio_catalog.py', '.github/workflows/radio-catalog.yml']
+    paths: ['tools/radio_catalog.py', 'tools/radio_check.py', 'tools/radio_candidates.tsv', '.github/workflows/radio-catalog.yml']
   workflow_dispatch:
 concurrency:
   group: lavavisual-radio-catalog-${{ github.ref }}
@@ -20,15 +20,20 @@ jobs:
       - name: List and check the stations
         run: python3 tools/radio_catalog.py radio-catalog-RU.tsv RU 2>&1 | tee radio-catalog-RU.log
         continue-on-error: true
+      - name: Check the city stations
+        run: python3 tools/radio_check.py tools/radio_candidates.tsv radio-check.tsv 2>&1 | tee radio-check.log
+        continue-on-error: true
       - name: Keep the result
         if: always()
         run: |
           mkdir -p artifacts/debug
           cp -f radio-catalog-RU.log artifacts/debug/ || true
           [ -f radio-catalog-RU.tsv ] && cp -f radio-catalog-RU.tsv artifacts/debug/ || true
+          [ -f radio-check.tsv ] && cp -f radio-check.tsv artifacts/debug/ || true
+          [ -f radio-check.log ] && cp -f radio-check.log artifacts/debug/ || true
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -f -- artifacts/debug/radio-catalog-RU.log
-          git add -f -- artifacts/debug/radio-catalog-RU.tsv 2>/dev/null || true
+          git add -f -- artifacts/debug/radio-catalog-RU.tsv artifacts/debug/radio-check.tsv artifacts/debug/radio-check.log 2>/dev/null || true
           git commit -q -m 'Radio catalogue RU [skip ci]' || exit 0
           git push -q origin "HEAD:$GITHUB_REF_NAME" || true
