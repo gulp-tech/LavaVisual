@@ -1,4 +1,4 @@
-# LavaVisual 1.2.0 — Minecraft 26.2
+# LavaVisual 1.0.0 — Minecraft 26.2
 
 <img src="ports/mc26.2/src/main/resources/assets/lavavisual/icon.png" width="96" alt="LV">
 
@@ -7,13 +7,13 @@
 
 | | Скачать | Что внутри |
 | --- | --- | --- |
-| **Мод** | [lavavisual-1.2.0-mc26.2.jar](artifacts/lavavisual-1.2.0-mc26.2.jar) | только LavaVisual, в папку `mods` |
-| **Клиент** | [LavaVisual-Client-1.2.0-mc26.2.mrpack](artifacts/LavaVisual-Client-1.2.0-mc26.2.mrpack) | готовая сборка для Modrinth App, Prism Launcher, ATLauncher |
-| **Клиент (архив)** | [LavaVisual-Client-1.2.0-mc26.2.zip](artifacts/LavaVisual-Client-1.2.0-mc26.2.zip) | папки `mods` и `config` для TLauncher, телефонов и ручной установки |
+| **Мод** | [lavavisual-1.0.0-mc26.2.jar](artifacts/lavavisual-1.0.0-mc26.2.jar) | только LavaVisual, в папку `mods` |
+| **Клиент** | [LavaVisual-Client-1.0.0-mc26.2.mrpack](artifacts/LavaVisual-Client-1.0.0-mc26.2.mrpack) | готовая сборка для Modrinth App, Prism Launcher, ATLauncher |
+| **Клиент (архив)** | [LavaVisual-Client-1.0.0-mc26.2.zip](artifacts/LavaVisual-Client-1.0.0-mc26.2.zip) | папки `mods` и `config` для TLauncher, телефонов и ручной установки |
 
 Контрольные суммы — в [SHA256SUMS](artifacts/SHA256SUMS).
 
-**Что нового в 1.2.0:** радио вашего города — мод сам определяет город по IP и даёт станции ближайшего города каталога
+**Что нового в 1.0.0:** радио вашего города — мод сам определяет город по IP и даёт станции ближайшего города каталога
 (федеральные станции играют везде); круги досягаемости под каждым игроком, как в HitRange; радио и круги настраиваются
 в меню. Хитбоксы по-прежнему ванильные, с настраиваемыми цветами и без дрожания.
 

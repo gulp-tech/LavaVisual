@@ -25,11 +25,11 @@ home = Path.home() / '.lavavisual-game' / mc
 mods = home / 'mods'
 mods.mkdir(parents=True, exist_ok=True)
 
-# The newest version wins: a plain sort would put 1.1.7 before 1.2.0 and test the old jar.
-jar = max((root / 'artifacts').glob(f'lavavisual-*-mc{mc}.jar'),
-         key=lambda p: tuple(int(n) for n in re.findall(r'\d+', p.name.split('-mc')[0])), default=None)
-if jar is None:
-    sys.exit(f'::error::no published jar for {mc}')
+# The jar of the version in the sources (mod_version, e.g. 1.0.0-mc1.21.11), not the newest file in artifacts/.
+mod_version = next(line.split('=', 1)[1].strip() for line in (root / 'ports' / f'mc{mc}' / 'gradle.properties').read_text().splitlines() if line.startswith('mod_version='))
+jar = root / 'artifacts' / f'lavavisual-{mod_version}.jar'
+if not jar.exists():
+    sys.exit(f'::error::no published jar for {mc}: {jar.name}')
 shutil.copy(jar, mods / jar.name)
 
 # Fabric API, the same build the mod is compiled against.

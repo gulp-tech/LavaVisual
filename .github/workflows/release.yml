@@ -1,5 +1,5 @@
 name: Publish release
-# (1.2.0: файл тронут — публикуем сборки с радио города по IP и кругами досягаемости как в HitRange).
+# (1.0.0: файл тронут — публикуем сборки с радио города по IP и кругами досягаемости как в HitRange).
 # (1.1.5 финал: файл тронут — публикуем сборки с радио, хитбоксами, хит-рейнджем, значком в списке игроков и новым меню).
 # (1.1.6 финал: файл тронут — публикуем сборки со значками во всех версиях и списком игроков).
 # (1.1.6 итог: файл тронут ещё раз — сборки уже лежат в artifacts/, публикуем страницу релиза 1.1.6).
@@ -41,13 +41,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          # The newest build on the branch (1.1.1 wins over an older file if one is still around).
-          MAIN=$(ls artifacts/lavavisual-*-mc26.2.jar 2>/dev/null | sort -V | tail -1 || true)
-          if [ -z "$MAIN" ]; then
-            echo "на этой ветке нет опубликованных сборок — публиковать нечего"
+          # The version is the one in the sources, not the newest file: an older file must never win over it.
+          VERSION=$(grep '^mod_version=' ports/mc26.2/gradle.properties | cut -d= -f2 | sed 's/-mc26\.2$//')
+          if [ ! -f "artifacts/lavavisual-$VERSION-mc26.2.jar" ]; then
+            echo "на этой ветке нет опубликованных сборок $VERSION — публиковать нечего"
             exit 0
           fi
-          VERSION=$(basename "$MAIN" | sed 's/^lavavisual-//; s/-mc26\.2\.jar$//')
           TAG="v$VERSION"
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "релиз $TAG уже есть — обновляю файлы"
