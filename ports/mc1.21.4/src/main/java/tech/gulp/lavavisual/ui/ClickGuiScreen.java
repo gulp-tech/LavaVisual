@@ -1314,6 +1314,7 @@ public final class ClickGuiScreen extends Screen {
         colorRow(g, "hitbox", "Хитбоксы · игроки");
         colorRow(g, "hitbox_mob", "Хитбоксы · мобы");
         colorRow(g, "hitbox_aim", "Хитбокс цели под прицелом");
+        colorRow(g, "hitbox_look", "Луч взгляда (F3+B)");
         colorRow(g, "reach", "Хит-рейндж · круг и линия");
         section(g, "Эффекты");
         String[][] effects = {{"crosshair", "Прицел"}, {"jump", "Jump Circle"}, {"particles", "Hit Particles"}, {"ambient", "Частицы в воздухе"},

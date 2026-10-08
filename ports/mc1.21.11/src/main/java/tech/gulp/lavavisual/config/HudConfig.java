@@ -41,7 +41,7 @@ public final class HudConfig {
     /** Visual hitboxes around living entities; targets 0 = all, 1 = players, 2 = mobs. */
     public boolean hitboxEnabled, hitboxSelf;
     public int hitboxTargets, hitboxStyle;
-    public double hitboxLine = 1.6, hitboxFill, hitboxRange = 24;
+    public double hitboxLine = 0.6, hitboxFill, hitboxRange = 24;
     /** The short red eye ray of the vanilla debug view, drawn for every shown box. */
     public boolean hitboxView;
     /** Reach: the distance readout next to the crosshair, the ground ring and the line to the aimed point. */
@@ -156,6 +156,8 @@ public final class HudConfig {
             case "menu_bg" -> 0x12151B;
             case "hud_bg" -> 0x111216;
             case "hitbox", "hitbox_mob", "hitbox_aim" -> 0xFFFFFF;
+            // The look line of the vanilla F3+B view is blue.
+            case "hitbox_look" -> 0x3F7BFF;
             default -> theme;
         };
     }
@@ -241,7 +243,7 @@ public final class HudConfig {
         durabilityThreshold = bounded(durabilityThreshold, 0.05, 0.6, 0.2);
         hitboxTargets = Math.floorMod(hitboxTargets, 3);
         hitboxStyle = Math.floorMod(hitboxStyle, 3);
-        hitboxLine = bounded(hitboxLine, 0.6, 3, 1.6);
+        hitboxLine = bounded(hitboxLine, 0.6, 3, 0.6);
         hitboxFill = bounded(hitboxFill, 0, 0.5, 0);
         hitboxRange = bounded(hitboxRange, 4, 64, 24);
         reachMode = Math.floorMod(reachMode, 3);

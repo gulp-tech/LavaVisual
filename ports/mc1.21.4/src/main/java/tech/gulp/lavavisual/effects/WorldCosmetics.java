@@ -240,7 +240,7 @@ public final class WorldCosmetics {
             // Second tones: the theme gradient (lava orange to amethyst by default) instead of a lighter shade.
             int[] lights = {c.color2("jump") & 0xFFFFFF, c.color2("esp") & 0xFFFFFF, c.color2("kill") & 0xFFFFFF, c.color2("trail") & 0xFFFFFF, c.color2("marker") & 0xFFFFFF};
             tech.gulp.lavavisual.compat.Frames.set(DATA, new Frame(List.copyOf(rings), List.copyOf(sparks), List.copyOf(markers), colors, lights, List.copyOf(hats), (float) (now * 0.06),
-                    List.copyOf(trail), esp, espHeight, espWidth, c.espStyle, List.copyOf(beams), waypointBeams, ProjectileTrails.frame(partial), boxes(partial), REACH));
+                    List.copyOf(trail), esp, espHeight, espWidth, c.espStyle, List.copyOf(beams), waypointBeams, ProjectileTrails.frame(partial), boxes(partial), reach(partial)));
         });
         WorldRenderEvents.BEFORE_DEBUG_RENDER.register(WorldCosmetics::render);
     }
@@ -360,8 +360,10 @@ public final class WorldCosmetics {
     record BoxFrame(Vec3 base, float width, float height, int color, int style, float line, float fill, boolean aimed, Vec3 eye, Vec3 look) { }
     /** The reach marker: the ring on the ground, the aimed point and the line from the eye to it. */
     record ReachFrame(Vec3 feet, Vec3 eye, Vec3 target, float radius, int color, int light, boolean inReach) { }
+    /** The reach marker as gathered on the tick: only the player, the aimed point and the settings; placed per frame. */
+    private record ReachSource(net.minecraft.world.entity.player.Player player, Vec3 target, float radius, int color, int light) { }
     private static final List<BoxSource> BOXES = new ArrayList<>();
-    private static ReachFrame REACH;
+    private static ReachSource REACH;
     /** Hit boxes drawn in the last frame (the CI smoke test reads this). */
     public static int boxesDrawn;
     /** Whether the reach marker was drawn in the last frame (the CI smoke test reads this). */
@@ -392,12 +394,22 @@ public final class WorldCosmetics {
             }
         }
         if (c.reachEnabled && c.reachMarker) {
-            double radius = reachRadius();
-            Vec3 eye = player.getEyePosition();
             Vec3 target = mc.hitResult == null ? null : mc.hitResult.getLocation();
-            REACH = new ReachFrame(player.position(), eye, target, (float) radius, c.color("reach") & 0xFFFFFF, c.color2("reach") & 0xFFFFFF,
-                    target != null && eye.distanceTo(target) <= radius);
+            REACH = new ReachSource(player, target, (float) reachRadius(), c.color("reach") & 0xFFFFFF, c.color2("reach") & 0xFFFFFF);
         }
+    }
+
+    /**
+     * The reach marker of this frame. The ring and the eye are placed by the same partial tick as the model, so the
+     * ring does not shake while the player walks, and the in-reach test is made on the same eye as the line.
+     */
+    private static ReachFrame reach(double partial) {
+        if (REACH == null || REACH.player().isRemoved()) return null;
+        var player = REACH.player();
+        Vec3 eye = player.getEyePosition((float) partial);
+        Vec3 target = REACH.target();
+        return new ReachFrame(player.getPosition((float) partial), eye, target, REACH.radius(), REACH.color(), REACH.light(),
+                target != null && eye.distanceTo(target) <= REACH.radius());
     }
 
     /**
@@ -426,13 +438,16 @@ public final class WorldCosmetics {
         var c = LavaVisualClient.config();
         boxesDrawn = frame.boxes().size();
         for (BoxFrame box : frame.boxes()) hitbox(pose, out, box, camera, right, up);
-        // The eye ray of the vanilla debug view: a thin red line along the look direction of every shown entity.
-        if (c.hitboxView) for (BoxFrame box : frame.boxes()) {
-            Vec3 eye = box.eye().subtract(camera);
-            Vec3 look = box.look();
-            // The band starts a bit ahead of the eyes: one that begins right at the camera would fill the whole view.
-            edge(pose, out, (float) (eye.x + look.x * 1.4), (float) (eye.y + look.y * 1.4), (float) (eye.z + look.z * 1.4),
-                    (float) (eye.x + look.x * 3.4), (float) (eye.y + look.y * 3.4), (float) (eye.z + look.z * 3.4), 0.7f, UiDraw.alpha(0xE0453A, 0.85f), right, up);
+        // The eye ray of the vanilla debug view: a thin line along the look direction of every shown entity (blue by default).
+        if (c.hitboxView) {
+            int look = c.color("hitbox_look") & 0xFFFFFF;
+            for (BoxFrame box : frame.boxes()) {
+                Vec3 eye = box.eye().subtract(camera);
+                Vec3 dir = box.look();
+                // The band starts a bit ahead of the eyes: one that begins right at the camera would fill the whole view.
+                edge(pose, out, (float) (eye.x + dir.x * 1.4), (float) (eye.y + dir.y * 1.4), (float) (eye.z + dir.z * 1.4),
+                        (float) (eye.x + dir.x * 3.4), (float) (eye.y + dir.y * 3.4), (float) (eye.z + dir.z * 3.4), 0.7f, UiDraw.alpha(look, 0.85f), right, up);
+            }
         }
         if (frame.reach() == null) { reachDrawn = false; return; }
         reachDrawn = true;

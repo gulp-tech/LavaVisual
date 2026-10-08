@@ -327,7 +327,7 @@ public final class HudRenderer {
         var hit = mc.hitResult;
         if (hit == null || hit.getType() == net.minecraft.world.phys.HitResult.Type.MISS) return;
         net.minecraft.world.phys.Vec3 point = hit.getLocation();
-        double distance = mc.player.getEyePosition().distanceTo(point);
+        double distance = mc.player.getEyePosition(partial).distanceTo(point);
         boolean entity = hit instanceof net.minecraft.world.phys.EntityHitResult;
         // Blocks are only shown near the block reach: a wall thirty blocks away is not a reach question.
         if (!entity && distance > 6) return;

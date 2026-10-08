@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.lwjgl.stb.STBVorbis;
 import org.lwjgl.stb.STBVorbisInfo;
@@ -140,9 +139,12 @@ public final class Decoders {
         private final long expected;
         /** True for an internet stream: what has been played is dropped and seeking means nothing. */
         private final boolean live;
+        /** Guards {@code blocks} and {@code dropped}: the decoder thread drops old blocks while the player reads them. */
+        private final Object lock = new Object();
         private long dropped;
-        private final List<short[]> blocks = Collections.synchronizedList(new ArrayList<>());
-        private long written, pos;
+        private final List<short[]> blocks = new ArrayList<>();
+        private long written;
+        private volatile long pos;
         private volatile long decoded;
         private volatile boolean done, closed;
         private volatile String error = "";
@@ -182,9 +184,14 @@ public final class Decoders {
         }
         void push(short[] pcm, int offset, int frames) {
             while (frames > 0 && !closed) {
-                int index = (int) ((written - dropped) / BLOCK), at = (int) ((written - dropped) % BLOCK);
-                if (index >= blocks.size()) blocks.add(new short[BLOCK * channels]);
-                short[] block = blocks.get(index);
+                short[] block;
+                int at;
+                synchronized (lock) {
+                    int index = (int) ((written - dropped) / BLOCK);
+                    at = (int) ((written - dropped) % BLOCK);
+                    if (index >= blocks.size()) blocks.add(new short[BLOCK * channels]);
+                    block = blocks.get(index);
+                }
                 int n = Math.min(frames, BLOCK - at);
                 System.arraycopy(pcm, offset, block, at * channels, n * channels);
                 offset += n * channels;
@@ -194,7 +201,9 @@ public final class Decoders {
             }
             // A live stream never needs what has already been played: old blocks are dropped, so hours of radio do
             // not pile up in memory.
-            if (live) while (pos - dropped >= BLOCK && blocks.size() > 2) { blocks.remove(0); dropped += BLOCK; }
+            if (live) synchronized (lock) {
+                while (pos - dropped >= BLOCK && blocks.size() > 2) { blocks.remove(0); dropped += BLOCK; }
+            }
         }
         @Override public int channels() { return channels; }
         @Override public int rate() { return rate; }
@@ -205,8 +214,13 @@ public final class Decoders {
             if (available <= 0) return done ? -1 : 0;
             int n = (int) Math.min(maxFrames, available), copied = 0;
             while (copied < n) {
-                int index = (int) ((pos - dropped) / BLOCK), at = (int) ((pos - dropped) % BLOCK);
-                short[] block = blocks.get(index);
+                short[] block;
+                int at;
+                synchronized (lock) {
+                    int index = (int) ((pos - dropped) / BLOCK);
+                    at = (int) ((pos - dropped) % BLOCK);
+                    block = blocks.get(index);
+                }
                 int k = Math.min(n - copied, BLOCK - at);
                 System.arraycopy(block, at * channels, out, copied * channels, k * channels);
                 copied += k;
@@ -215,7 +229,7 @@ public final class Decoders {
             return n;
         }
         @Override public void seek(long frame) { if (!live) pos = Math.max(0, done ? Math.min(frame, decoded) : frame); }
-        @Override public void close() { closed = true; blocks.clear(); }
+        @Override public void close() { closed = true; synchronized (lock) { blocks.clear(); } }
     }
 
     /** MP3 through JavaMP3 (16-bit little-endian PCM out). The ID3 tag is skipped so a big cover cannot confuse it. */

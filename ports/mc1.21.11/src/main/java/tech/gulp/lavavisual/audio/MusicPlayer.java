@@ -408,6 +408,9 @@ public final class MusicPlayer {
         }
         if (finished) {
             finished = false;
+            // A stream that played for a while before it dropped gets a fresh set of retries: only a quick run of
+            // failures in a row counts towards switching the station.
+            if (radioIndex >= 0 && rate > 0 && baseFrame >= 30L * rate) streamRetries = 0;
             if (radioIndex >= 0 && Radio.stream(radioIndex) && streamRetries < 3) {
                 // An internet stream that dropped is retried on the same station, so a hiccup does not change the
                 // channel; only three failed attempts in a row switch to the next one.
