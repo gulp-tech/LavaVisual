@@ -1,6 +1,8 @@
 package tech.gulp.lavavisual.audio;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.SequenceInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -135,17 +137,18 @@ public final class NetRadio {
         int metaInterval = connection.getHeaderFieldInt("icy-metaint", 0);
         BufferedInputStream in = new BufferedInputStream(connection.getInputStream(), 1 << 16);
         try {
-            in.mark(16);
+            // The first bytes are read once and put back in front of the stream: no mark and no reset, so the decoder
+            // gets every byte of the stream in its order.
             byte[] head = in.readNBytes(16);
-            in.reset();
+            InputStream body = new SequenceInputStream(new ByteArrayInputStream(head), in);
             if (isPlaylist(type, head)) {
-                String next = firstAddress(new String(in.readNBytes(1 << 14), StandardCharsets.UTF_8), address);
+                String next = firstAddress(new String(body.readNBytes(1 << 14), StandardCharsets.UTF_8), address);
                 in.close();
                 return open(next, depth + 1);
             }
             checkFormat(type, head);
             // A station can still put its titles between the frames: they are cut out, so the decoder gets audio only.
-            InputStream ready = metaInterval > 0 ? new IcyStream(in, metaInterval) : in;
+            InputStream ready = metaInterval > 0 ? new IcyStream(body, metaInterval) : body;
             try {
                 return Decoders.stream(ready);
             } catch (RuntimeException | LinkageError failure) {
