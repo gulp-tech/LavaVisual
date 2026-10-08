@@ -240,7 +240,7 @@ public final class WorldCosmetics {
             // Second tones: the theme gradient (lava orange to amethyst by default) instead of a lighter shade.
             int[] lights = {c.color2("jump") & 0xFFFFFF, c.color2("esp") & 0xFFFFFF, c.color2("kill") & 0xFFFFFF, c.color2("trail") & 0xFFFFFF, c.color2("marker") & 0xFFFFFF};
             tech.gulp.lavavisual.compat.Frames.set(DATA, new Frame(List.copyOf(rings), List.copyOf(sparks), List.copyOf(markers), colors, lights, List.copyOf(hats), (float) (now * 0.06),
-                    List.copyOf(trail), esp, espHeight, espWidth, c.espStyle, List.copyOf(beams), waypointBeams, ProjectileTrails.frame(partial), List.copyOf(BOXES), REACH));
+                    List.copyOf(trail), esp, espHeight, espWidth, c.espStyle, List.copyOf(beams), waypointBeams, ProjectileTrails.frame(partial), boxes(partial), REACH));
         });
         WorldRenderEvents.BEFORE_DEBUG_RENDER.register(WorldCosmetics::render);
     }
@@ -352,43 +352,46 @@ public final class WorldCosmetics {
         snapshotBoxes(mc, player, c);
     }
 
-    // ------------------------------------------------------------------ visual hitboxes and the reach circle
+    // ------------------------------------------------------------------ visual hit boxes and the reach marker
 
-    /** One visual hitbox: feet centre, size, the two theme colours and the settings copied at tick time. */
-    record BoxFrame(Vec3 center, float width, float height, int color, int light, int style, float line, float fill, boolean aimed) { }
-    /** Reach: the player, the circle radius, the aimed point (may be null) and whether it is within reach. */
+    /** One hit box gathered on the tick: the entity itself, its size and the settings of that moment. */
+    private record BoxSource(net.minecraft.world.entity.Entity entity, float width, float height, int color, int style, float line, float fill, boolean aimed) { }
+    /** One hit box ready for drawing: interpolated corners, so the box never shakes while the entity moves. */
+    record BoxFrame(Vec3 base, float width, float height, int color, int style, float line, float fill, boolean aimed, Vec3 eye, Vec3 look) { }
+    /** The reach marker: the ring on the ground, the aimed point and the line from the eye to it. */
     record ReachFrame(Vec3 feet, Vec3 eye, Vec3 target, float radius, int color, int light, boolean inReach) { }
-    private static final List<BoxFrame> BOXES = new ArrayList<>();
+    private static final List<BoxSource> BOXES = new ArrayList<>();
     private static ReachFrame REACH;
-    /** Hitboxes drawn in the last frame (the CI smoke test reads this). */
+    /** Hit boxes drawn in the last frame (the CI smoke test reads this). */
     public static int boxesDrawn;
-    /** Whether the reach circle was drawn in the last frame (the CI smoke test reads this). */
+    /** Whether the reach marker was drawn in the last frame (the CI smoke test reads this). */
     public static boolean reachDrawn;
-    /** Reach radius used by the HUD readout, so the number next to the crosshair and the circle agree. */
+    /** Reach radius shared by the readout under the crosshair and the marker, so the two never disagree. */
     public static double reachRadius() {
         var c = LavaVisualClient.config();
         return c.reachMode == 0 ? 3.0 : c.reachMode == 1 ? 4.5 : c.reachRadius;
     }
 
-    /** Rebuilds the hitbox and reach snapshots from the world; runs on the client tick, where entities are safe. */
+    /** Gathers the boxes of the nearby entities on the tick: only the filtering happens here, the drawing is interpolated. */
     private static void snapshotBoxes(Minecraft mc, net.minecraft.world.entity.player.Player player, tech.gulp.lavavisual.config.HudConfig c) {
         BOXES.clear(); REACH = null;
         var aimed = mc.hitResult instanceof EntityHitResult hit ? hit.getEntity() : null;
         if (c.hitboxEnabled) {
-            int color = c.color("hitbox") & 0xFFFFFF, light = c.color2("hitbox") & 0xFFFFFF;
             boolean firstPerson = mc.options.getCameraType().isFirstPerson();
+            int players = c.color("hitbox") & 0xFFFFFF, mobs = c.color("hitbox_mob") & 0xFFFFFF;
             for (var entity : mc.level.entitiesForRendering()) {
-                if (!(entity instanceof LivingEntity living) || !living.isAlive() || living.isInvisible()) continue;
+                if (!(entity instanceof LivingEntity living) || !living.isAlive() || living.isRemoved() || living.isInvisible()) continue;
                 if (living == player && (!c.hitboxSelf || firstPerson)) continue;
                 if (living.distanceTo(player) > c.hitboxRange) continue;
                 boolean isPlayer = living instanceof net.minecraft.world.entity.player.Player;
                 if (c.hitboxTargets == 1 && !isPlayer) continue;
                 if (c.hitboxTargets == 2 && isPlayer) continue;
-                BOXES.add(new BoxFrame(living.position(), living.getBbWidth(), living.getBbHeight(), color, light,
+                var box = living.getBoundingBox();
+                BOXES.add(new BoxSource(living, (float) box.getXsize(), (float) box.getYsize(), isPlayer ? players : mobs,
                         c.hitboxStyle, (float) c.hitboxLine, (float) c.hitboxFill, living == aimed));
             }
         }
-        if (c.reachEnabled) {
+        if (c.reachEnabled && c.reachMarker) {
             double radius = reachRadius();
             Vec3 eye = player.getEyePosition();
             Vec3 target = mc.hitResult == null ? null : mc.hitResult.getLocation();
@@ -397,13 +400,39 @@ public final class WorldCosmetics {
         }
     }
 
-    /** Hitboxes and the reach circle, drawn in the same pass as the rest of the cosmetics. */
+    /**
+     * Hit boxes of this frame: every entity is placed by the same partial tick the game uses for its model, so a
+     * walking mob keeps its box exactly around itself instead of trailing one tick behind and shaking.
+     */
+    private static List<BoxFrame> boxes(double partial) {
+        if (BOXES.isEmpty()) return List.of();
+        int aim = LavaVisualClient.config().color("hitbox_aim") & 0xFFFFFF;
+        var out = new ArrayList<BoxFrame>(BOXES.size());
+        for (BoxSource source : BOXES) {
+            var entity = source.entity();
+            if (entity.isRemoved() || !entity.isAlive()) continue;
+            Vec3 lerped = entity.getPosition((float) partial);
+            Vec3 shift = lerped.subtract(entity.position());
+            var box = entity.getBoundingBox().move(shift.x, shift.y, shift.z);
+            out.add(new BoxFrame(new Vec3(box.minX, box.minY, box.minZ), (float) box.getXsize(), (float) box.getYsize(),
+                    source.aimed() ? aim : source.color(), source.style(), source.line(), source.fill(), source.aimed(),
+                    entity.getEyePosition((float) partial), entity.getViewVector((float) partial)));
+        }
+        return out;
+    }
+
+    /** Hit boxes and the reach marker, drawn in the same pass as the rest of the cosmetics. */
     private static void drawBoxes(PoseStack.Pose pose, VertexConsumer out, Frame frame, Vec3 camera, Vector3f right, Vector3f up) {
+        var c = LavaVisualClient.config();
         boxesDrawn = frame.boxes().size();
-        for (BoxFrame box : frame.boxes()) {
-            int color = box.aimed() ? UiDraw.mix(box.color(), 0xFFFFFF, 0.4) : box.color();
-            hitbox(pose, out, box.center().subtract(camera), box.width(), box.height(), color, box.light(), box.style(),
-                    box.line(), box.aimed() ? (float) Math.min(0.5, box.fill() * 1.8) : box.fill(), right, up);
+        for (BoxFrame box : frame.boxes()) hitbox(pose, out, box, camera, right, up);
+        // The eye ray of the vanilla debug view: a thin red line along the look direction of every shown entity.
+        if (c.hitboxView) for (BoxFrame box : frame.boxes()) {
+            Vec3 eye = box.eye().subtract(camera);
+            Vec3 look = box.look();
+            // The band starts a bit ahead of the eyes: one that begins right at the camera would fill the whole view.
+            edge(pose, out, (float) (eye.x + look.x * 1.4), (float) (eye.y + look.y * 1.4), (float) (eye.z + look.z * 1.4),
+                    (float) (eye.x + look.x * 3.4), (float) (eye.y + look.y * 3.4), (float) (eye.z + look.z * 3.4), 0.7f, UiDraw.alpha(0xE0453A, 0.85f), right, up);
         }
         if (frame.reach() == null) { reachDrawn = false; return; }
         reachDrawn = true;
@@ -414,20 +443,23 @@ public final class WorldCosmetics {
         if (r.target() == null) return;
         Vec3 eye = r.eye().subtract(camera), target = r.target().subtract(camera);
         int line = r.inReach() ? 0x7ADB6A : 0xE0453A;
-        ribbon(pose, out, (float) eye.x, (float) eye.y, (float) eye.z, (float) target.x, (float) target.y, (float) target.z, 0.022f, UiDraw.alpha(line, 0.8f), right, up);
+        if (c.reachLine) edge(pose, out, (float) eye.x, (float) eye.y, (float) eye.z, (float) target.x, (float) target.y, (float) target.z, 1f, UiDraw.alpha(line, 0.75f), right, up);
         ripple(pose, out, target, 0.10f, 0.17f, line, 0xFFFFFF, 0.55f, 0.55f, frame.spin() * 3);
     }
 
-    /** One hitbox: corner ticks, a full frame, or a translucent fill with a frame; always camera-facing ribbons. */
-    private static void hitbox(PoseStack.Pose pose, VertexConsumer out, Vec3 p, float width, float height, int color, int light,
-                               int style, float line, float fill, Vector3f right, Vector3f up) {
-        float x0 = (float) p.x - width / 2, x1 = (float) p.x + width / 2;
-        float y0 = (float) p.y, y1 = (float) p.y + height;
-        float z0 = (float) p.z - width / 2, z1 = (float) p.z + width / 2;
-        float w = Math.max(0.6f, line) * 0.045f;
-        int c = UiDraw.alpha(color, style == 2 ? 0.95f : 0.9f);
-        if (style == 2 && fill > 0.01f) {
-            int face = UiDraw.alpha(color, Math.min(0.5f, fill));
+    /**
+     * One hit box in three styles: the thin box of the vanilla debug view (0, the default), the same box with a soft
+     * translucent fill (1) and the corner brackets (2). Edges are camera-facing bands, so they stay visible from any
+     * angle and keep their width on screen.
+     */
+    private static void hitbox(PoseStack.Pose pose, VertexConsumer out, BoxFrame box, Vec3 camera, Vector3f right, Vector3f up) {
+        Vec3 p = box.base().subtract(camera);
+        float x0 = (float) p.x, x1 = x0 + box.width(), y0 = (float) p.y, y1 = y0 + box.height(), z0 = (float) p.z, z1 = z0 + box.width();
+        // The aimed box is a touch bolder, so the target under the crosshair stands out without a colour of its own.
+        float scale = Math.max(0.5f, box.line()) * (box.aimed() ? 1.5f : 1f);
+        int color = UiDraw.alpha(box.color(), box.aimed() ? 1f : 0.9f);
+        if (box.style() != 0 && box.fill() > 0.01f) {
+            int face = UiDraw.alpha(box.color(), Math.min(0.5f, box.fill()));
             quad(pose, out, x0, y0, z0, x1, y0, z0, x1, y0, z1, x0, y0, z1, face);
             quad(pose, out, x0, y1, z0, x0, y1, z1, x1, y1, z1, x1, y1, z0, face);
             quad(pose, out, x0, y0, z0, x0, y1, z0, x1, y1, z0, x1, y0, z0, face);
@@ -435,24 +467,38 @@ public final class WorldCosmetics {
             quad(pose, out, x0, y0, z1, x0, y1, z1, x0, y1, z0, x0, y0, z0, face);
             quad(pose, out, x1, y0, z0, x1, y1, z0, x1, y1, z1, x1, y0, z1, face);
         }
-        if (style == 0) {
-            float t = Math.clamp(width * 0.3f, 0.18f, 0.45f);
+        if (box.style() == 2) {
+            float t = Math.clamp(box.width() * 0.28f, 0.15f, 0.42f);
             for (int sx = 0; sx < 2; sx++) for (int sy = 0; sy < 2; sy++) for (int sz = 0; sz < 2; sz++) {
                 float x = sx == 0 ? x0 : x1, y = sy == 0 ? y0 : y1, z = sz == 0 ? z0 : z1;
-                ribbon(pose, out, x, y, z, x + (sx == 0 ? t : -t), y, z, w, c, right, up);
-                ribbon(pose, out, x, y, z, x, y + (sy == 0 ? t : -t), z, w, c, right, up);
-                ribbon(pose, out, x, y, z, x, y, z + (sz == 0 ? t : -t), w, c, right, up);
+                edge(pose, out, x, y, z, x + (sx == 0 ? t : -t), y, z, scale, color, right, up);
+                edge(pose, out, x, y, z, x, y + (sy == 0 ? t : -t), z, scale, color, right, up);
+                edge(pose, out, x, y, z, x, y, z + (sz == 0 ? t : -t), scale, color, right, up);
             }
-        } else {
-            for (int sy = 0; sy < 2; sy++) for (int sz = 0; sz < 2; sz++)
-                ribbon(pose, out, x0, sy == 0 ? y0 : y1, sz == 0 ? z0 : z1, x1, sy == 0 ? y0 : y1, sz == 0 ? z0 : z1, w, c, right, up);
-            for (int sx = 0; sx < 2; sx++) for (int sz = 0; sz < 2; sz++)
-                ribbon(pose, out, sx == 0 ? x0 : x1, y0, sz == 0 ? z0 : z1, sx == 0 ? x0 : x1, y1, sz == 0 ? z0 : z1, w, c, right, up);
-            for (int sx = 0; sx < 2; sx++) for (int sy = 0; sy < 2; sy++)
-                ribbon(pose, out, sx == 0 ? x0 : x1, sy == 0 ? y0 : y1, z0, sx == 0 ? x0 : x1, sy == 0 ? y0 : y1, z1, w, c, right, up);
+            return;
         }
-        // A brighter base line reads as a floor marker, so the height of the box is visible from a distance.
-        ribbon(pose, out, x0, y0, z0, x1, y0, z0, w * 1.5f, UiDraw.alpha(light, 0.8f), right, up);
+        for (int sy = 0; sy < 2; sy++) for (int sz = 0; sz < 2; sz++)
+            edge(pose, out, x0, sy == 0 ? y0 : y1, sz == 0 ? z0 : z1, x1, sy == 0 ? y0 : y1, sz == 0 ? z0 : z1, scale, color, right, up);
+        for (int sx = 0; sx < 2; sx++) for (int sz = 0; sz < 2; sz++)
+            edge(pose, out, sx == 0 ? x0 : x1, y0, sz == 0 ? z0 : z1, sx == 0 ? x0 : x1, y1, sz == 0 ? z0 : z1, scale, color, right, up);
+        for (int sx = 0; sx < 2; sx++) for (int sy = 0; sy < 2; sy++)
+            edge(pose, out, sx == 0 ? x0 : x1, sy == 0 ? y0 : y1, z0, sx == 0 ? x0 : x1, sy == 0 ? y0 : y1, z1, scale, color, right, up);
+    }
+
+    /**
+     * Width of a hit box edge: it grows with the distance to the camera, so the line keeps a steady thickness on
+     * screen the way the vanilla debug lines do, instead of turning into a fat plank up close.
+     */
+    private static float edgeWidth(float ax, float ay, float az, float bx, float by, float bz, float scale) {
+        double da = Math.sqrt((double) ax * ax + (double) ay * ay + (double) az * az);
+        double db = Math.sqrt((double) bx * bx + (double) by * by + (double) bz * bz);
+        return Math.max(0.003f, (float) ((da + db) * 0.5 * 0.0016 * Math.max(0.4f, scale)));
+    }
+
+    /** One edge of a hit box, drawn as a camera-facing band of the thickness of {@link #edgeWidth}. */
+    private static void edge(PoseStack.Pose pose, VertexConsumer out, float ax, float ay, float az, float bx, float by, float bz,
+                             float scale, int color, Vector3f right, Vector3f up) {
+        ribbon(pose, out, ax, ay, az, bx, by, bz, edgeWidth(ax, ay, az, bx, by, bz, scale), color, right, up);
     }
 
     /** Camera-facing ribbon between two points: the building block of every hitbox edge. */

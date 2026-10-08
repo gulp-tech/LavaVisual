@@ -77,7 +77,7 @@ public final class MusicScreen extends Screen {
         boolean broken = track != null && !MusicPlayer.active() && !err.isEmpty();
         int station = MusicPlayer.radioIndex();
         String sub = broken ? "Не играет: " + err : track == null ? (tracks.isEmpty() ? "Положите музыку в папку music или перетащите файлы сюда" : "Нажмите на трек в списке")
-                : station >= 0 ? "радио · " + tech.gulp.lavavisual.audio.Radio.station(station).genre() + (MusicPlayer.paused() ? " · пауза" : "")
+                : station >= 0 ? "радио · " + tech.gulp.lavavisual.audio.Radio.genre(station) + (MusicPlayer.paused() ? " · пауза" : "")
                 : (track.artist().isBlank() ? "" : track.artist() + " · ") + (MusicPlayer.paused() ? "пауза" : MusicPlayer.playing() ? "играет" : "стоп");
         UiFont.text(g, font, sub, ix, cy + 15, broken ? 0xFFFF8A80 : 0xFF9AA3B2, iw - (station >= 0 ? 76 : 0));
         if (station >= 0) {
@@ -85,7 +85,10 @@ public final class MusicScreen extends Screen {
             int sx = ix + iw - 9, sy = cy + 19;
             round(g, mx, my, sx, sy, 8, Icons.SKIP_FORWARD, 0xFFE8EAF0, () -> MusicPlayer.next(false));
             round(g, mx, my, sx - 22, sy, 8, Icons.SKIP_BACK, 0xFFE8EAF0, MusicPlayer::previous);
-            String num = (station + 1) + "/" + tech.gulp.lavavisual.audio.Radio.stations().size();
+            String num = (station + 1) + "/" + tech.gulp.lavavisual.audio.Radio.count();
+            // What is on air right now: the station itself tells it (ICY), so a talk show gets a name.
+            String onAirTitle = tech.gulp.lavavisual.audio.Radio.stream(station) ? tech.gulp.lavavisual.audio.NetRadio.nowPlaying(station) : "";
+            if (!onAirTitle.isEmpty()) UiFont.text(g, font, onAirTitle, ix + 62, cy + 41, 0xFF8C95A4, Math.max(20, iw - 130), UiFont.Face.SMALL);
             UiFont.text(g, font, num, sx - 22 - 8 - UiFont.width(g, font, num, UiFont.Face.SMALL), sy - 4, 0xFF8C95A4, 60, UiFont.Face.SMALL);
         }
         barX = ix; barY = cy + 32; barW = iw;

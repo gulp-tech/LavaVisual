@@ -16,8 +16,8 @@ final class SmokeWorld {
             DUMMY_AT = HATS_AT + HATS.length * HAT_STEP + 10, HANDS_AT = DUMMY_AT + 70, CRIT_AT = HANDS_AT + 50,
             TRAIL_AT = CRIT_AT + 50, ZOOM_AT = TRAIL_AT + 95, FREE_AT = ZOOM_AT + 40, WINGS_EDIT_AT = FREE_AT + 40,
             MAP_AT = WINGS_EDIT_AT + 45, SOUND_AT = MAP_AT + 110, MUSIC_AT = SOUND_AT + 12, FORMATS_AT = MUSIC_AT + 72, TIME_AT = FORMATS_AT + 104, ITEMS_AT = TIME_AT + 80,
-            PROJ_AT = ITEMS_AT + 70, OUTFIT_AT = PROJ_AT + 50, SHOTS_AT = OUTFIT_AT + 94, HOTBAR_AT = SHOTS_AT + 216, RADIO_AT = HOTBAR_AT + 40, HITBOX_AT = RADIO_AT + 60,
-            TAB_AT = HITBOX_AT + 46, END_AT = TAB_AT + 40;
+            PROJ_AT = ITEMS_AT + 70, OUTFIT_AT = PROJ_AT + 50, SHOTS_AT = OUTFIT_AT + 94, HOTBAR_AT = SHOTS_AT + 216, RADIO_AT = HOTBAR_AT + 40, NET_AT = RADIO_AT + 76,
+            HITBOX_AT = NET_AT + 140, TAB_AT = HITBOX_AT + 46, END_AT = TAB_AT + 40;
     private static float walkLift;
     private static double p1, p2, p3, p4;
     private static boolean musicPlaying, musicPaused, musicStable, musicSeek, musicNext, musicPrevious;
@@ -512,15 +512,32 @@ final class SmokeWorld {
                     + ": station " + tech.gulp.lavavisual.audio.MusicPlayer.radioIndex()
                     + String.format(java.util.Locale.ROOT, ", %.2f s", tech.gulp.lavavisual.audio.MusicPlayer.position()));
         }
-        // Visual hitboxes and the reach circle: a pig next to the player (the smoke world is peaceful, so no monsters), then boxes have to be built and drawn.
+        // Real radio: the station list is checked, and the first internet station is tuned in (talk radio, the very
+        // first of the list). The stream needs the network, so a station that does not answer only reports what
+        // happened — the run and the following checks go on regardless.
+        if (ticks == NET_AT) LavaVisual.LOGGER.info("LavaVisual smoke radio list " + tech.gulp.lavavisual.audio.NetRadio.selfTest());
+        if (ticks == NET_AT + 4) tech.gulp.lavavisual.audio.MusicPlayer.playRadio(tech.gulp.lavavisual.audio.Radio.stations().size());
+        if (ticks == NET_AT + 120) {
+            int station = tech.gulp.lavavisual.audio.MusicPlayer.radioIndex();
+            double at = tech.gulp.lavavisual.audio.MusicPlayer.position();
+            boolean ok = tech.gulp.lavavisual.audio.MusicPlayer.playing() && station == tech.gulp.lavavisual.audio.Radio.stations().size()
+                    && at > 0.5 && tech.gulp.lavavisual.audio.MusicPlayer.alState() == org.lwjgl.openal.AL10.AL_PLAYING;
+            LavaVisual.LOGGER.info((ok ? "LavaVisual smoke radio stream ok" : "LavaVisual smoke radio stream no data")
+                    + ": " + tech.gulp.lavavisual.audio.Radio.name(station)
+                    + String.format(java.util.Locale.ROOT, ", %.2f s", at));
+            tech.gulp.lavavisual.audio.MusicPlayer.stop();
+        }
+        // Visual hit boxes and the reach marker: a pig next to the player (the smoke world is peaceful, so no
+        // monsters), then the boxes have to be built, drawn on the frame and the marker has to reach the frame too.
         if (ticks == HITBOX_AT) {
             c.hitboxEnabled = true;
             c.hitboxTargets = 0;
-            c.hitboxStyle = 1;
-            c.hitboxLine = 1.6;
+            c.hitboxStyle = 0;
+            c.hitboxView = true;
             c.hitboxRange = 24;
             c.reachEnabled = true;
             c.reachReadout = true;
+            c.reachMarker = true;
             player.connection.sendCommand("summon minecraft:pig ~2 ~ ~-1");
         }
         if (ticks == HITBOX_AT + 20) {
@@ -530,8 +547,12 @@ final class SmokeWorld {
                     + ": boxes " + boxes + ", reach " + tech.gulp.lavavisual.effects.WorldCosmetics.reachDrawn);
             LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox");
         }
-        if (ticks == HITBOX_AT + 32) c.hitboxStyle = 2;
+        if (ticks == HITBOX_AT + 32) { c.hitboxStyle = 1; c.hitboxFill = 0.16; c.hitboxView = false; }
         if (ticks == HITBOX_AT + 40) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_fill");
+        if (ticks == HITBOX_AT + 52) c.hitboxStyle = 2;
+        if (ticks == HITBOX_AT + 60) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_corners");
+        if (ticks == HITBOX_AT + 72) { c.hitboxStyle = 0; c.reachLine = true; c.reachMode = 2; c.reachRadius = 4; }
+        if (ticks == HITBOX_AT + 80) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_reach");
         // Player list: a single player world never draws the Tab list, so the row of this very player is pushed through
         // the decoration the overlay applies to every row — the row must come out with the badge, and rows must count.
         if (ticks == TAB_AT) {

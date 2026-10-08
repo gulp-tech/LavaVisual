@@ -183,7 +183,8 @@ public final class HudRenderer {
         int station = tech.gulp.lavavisual.audio.MusicPlayer.radioIndex();
         String state = tech.gulp.lavavisual.audio.MusicPlayer.paused() ? "пауза" : tech.gulp.lavavisual.audio.MusicPlayer.playing() ? "играет" : "стоп";
         String sub = track == null ? "Плеер: " + tech.gulp.lavavisual.input.Binds.keyName(tech.gulp.lavavisual.input.Binds.Action.MUSIC)
-                : station >= 0 ? "радио · " + tech.gulp.lavavisual.audio.Radio.station(station).genre() + (tech.gulp.lavavisual.audio.MusicPlayer.paused() ? " · пауза" : "")
+                : station >= 0 ? "радио · " + tech.gulp.lavavisual.audio.Radio.genre(station) + liveTitle(station)
+                        + (tech.gulp.lavavisual.audio.MusicPlayer.paused() ? " · пауза" : "")
                 : (track.artist().isBlank() ? "" : track.artist() + " · ") + state;
         UiFont.text(g, font, sub, tx, 20, 0xFF9AA3B2, tw, Face.SMALL);
         double pos = tech.gulp.lavavisual.audio.MusicPlayer.position(), len = tech.gulp.lavavisual.audio.MusicPlayer.duration();
@@ -299,6 +300,13 @@ public final class HudRenderer {
         }
     }
 
+    /** What is on air right now on an internet station, as " · name"; empty for the stations composed on the fly. */
+    private static String liveTitle(int station) {
+        if (!tech.gulp.lavavisual.audio.Radio.stream(station)) return "";
+        String title = tech.gulp.lavavisual.audio.NetRadio.nowPlaying(station);
+        return title.isEmpty() ? "" : " · " + title;
+    }
+
     /** Colour of the low-durability warning; the threshold itself lives in the settings (durabilityThreshold). */
     private static final int WARN_COLOR = 0xE0453A;
 
@@ -307,23 +315,25 @@ public final class HudRenderer {
         return 0.5 + 0.5 * Math.sin(System.nanoTime() / 300_000_000.0);
     }
 
-    /** Reach readout next to the crosshair: the distance to what the crosshair points at, over the radius. */
+    /**
+     * Reach readout under the crosshair, the way the popular reach mods show it: a single number is the distance from
+     * the eyes to the point where the view ray meets the hit box of the target. Inside the reach radius the number is
+     * green, outside it is red, and nothing at all is drawn while the crosshair points at nothing.
+     */
     private static void reachReadout(GuiGraphics g, Minecraft mc) {
         HudConfig c = LavaVisualClient.config();
         if (!c.reachEnabled || !c.reachReadout || mc.player == null) return;
-        double radius = tech.gulp.lavavisual.effects.WorldCosmetics.reachRadius();
-        net.minecraft.world.phys.Vec3 point = mc.hitResult == null ? null : mc.hitResult.getLocation();
-        String text;
-        int color;
-        if (point == null) {
-            text = String.format(Locale.ROOT, "— / " + "%.1f", radius);
-            color = 0xFF9AA0AC;
-        } else {
-            double distance = mc.player.getEyePosition().distanceTo(point);
-            text = String.format(Locale.ROOT, "%.1f / %.1f", distance, radius);
-            color = distance <= radius ? 0xFF7ADB6A : 0xFFE0453A;
-        }
-        UiFont.centered(g, mc.font, text, g.guiWidth() / 2, g.guiHeight() / 2 - 17, UiDraw.alpha(color, 0.95), Face.SMALL);
+        var hit = mc.hitResult;
+        if (hit == null || hit.getType() == net.minecraft.world.phys.HitResult.Type.MISS) return;
+        net.minecraft.world.phys.Vec3 point = hit.getLocation();
+        double distance = mc.player.getEyePosition().distanceTo(point);
+        boolean entity = hit instanceof net.minecraft.world.phys.EntityHitResult;
+        // Blocks are only shown near the block reach: a wall thirty blocks away is not a reach question.
+        if (!entity && distance > 6) return;
+        double radius = entity ? tech.gulp.lavavisual.effects.WorldCosmetics.reachRadius() : 4.5;
+        int color = distance <= radius ? 0xFF7ADB6A : 0xFFE0453A;
+        UiFont.centered(g, mc.font, String.format(Locale.ROOT, "%.2f", distance), g.guiWidth() / 2, g.guiHeight() / 2 + 12,
+                UiDraw.alpha(color, 0.95), Face.SMALL);
     }
 
     /**
