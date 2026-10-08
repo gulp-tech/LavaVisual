@@ -1,4 +1,4 @@
-[13:09:38] [Render thread/INFO] (lavavisual) LavaVisual smoke radio ok: station 2, 1.97 s, state 4114
-[13:09:39] [Render thread/INFO] (lavavisual) LavaVisual smoke radio next ok: station 3, 0.89 s
-[13:09:39] [Render thread/INFO] (lavavisual) LavaVisual smoke radio list ok: 12 станций, разговорных 6, радио города 0 (город не определён), музыкальных 6, своих 0
-[13:09:45] [Render thread/INFO] (lavavisual) LavaVisual smoke radio stream ok: Радио Маяк, 5.30 s
+[14:06:38] [Render thread/INFO] (lavavisual) LavaVisual smoke radio ok: station 2, 1.97 s, state 4114
+[14:06:39] [Render thread/INFO] (lavavisual) LavaVisual smoke radio next ok: station 3, 0.90 s
+[14:06:40] [Render thread/INFO] (lavavisual) LavaVisual smoke radio list ok: 12 станций, разговорных 6, радио города 0 (город не определён), музыкальных 6, своих 0
+[14:06:46] [Render thread/INFO] (lavavisual) LavaVisual smoke radio stream ok: Радио Маяк, 5.41 s
