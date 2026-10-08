@@ -146,7 +146,12 @@ public final class NetRadio {
             checkFormat(type, head);
             // A station can still put its titles between the frames: they are cut out, so the decoder gets audio only.
             InputStream ready = metaInterval > 0 ? new IcyStream(in, metaInterval) : in;
-            return Decoders.stream(ready);
+            try {
+                return Decoders.stream(ready);
+            } catch (RuntimeException | LinkageError failure) {
+                // Not MP3 from the first bytes: say what came instead, so the cause is visible in the log and the toast.
+                throw new IOException("поток не MP3 (тип: " + (type.isEmpty() ? "не указан" : type) + ", начало: " + preview(head) + ")");
+            }
         } catch (IOException failure) {
             closeQuietly(in);
             throw failure;
@@ -223,10 +228,23 @@ public final class NetRadio {
     /** Names the formats the MP3 decoder cannot read, instead of letting it fail with a Java message. */
     private static void checkFormat(String type, byte[] head) throws Unsupported {
         String start = new String(head, StandardCharsets.US_ASCII);
+        String text = start.trim().toLowerCase(Locale.ROOT);
+        if (type.startsWith("text/") || type.contains("html") || type.contains("json") || text.startsWith("<") || text.startsWith("{"))
+            throw new Unsupported("станция отдала страницу, а не звук (" + (type.isEmpty() ? "тип не указан" : type) + ")");
         if (start.startsWith("OggS") || type.contains("ogg") || type.contains("opus")) throw new Unsupported("формат OGG/Opus не поддерживается");
         if (start.startsWith("fLaC") || type.contains("flac")) throw new Unsupported("формат FLAC не поддерживается");
         boolean adts = head.length >= 2 && (head[0] & 0xFF) == 0xFF && (head[1] & 0xF6) == 0xF0;
         if (adts || type.contains("aac") || type.contains("mp4")) throw new Unsupported("формат AAC не поддерживается");
+    }
+
+    /** The first bytes as text, for the log: what came instead of audio. */
+    private static String preview(byte[] head) {
+        StringBuilder text = new StringBuilder();
+        for (byte b : head) {
+            int c = b & 0xFF;
+            text.append(c >= 32 && c < 127 ? (char) c : '.');
+        }
+        return "'" + text + "'";
     }
 
     private static void closeQuietly(InputStream in) {
