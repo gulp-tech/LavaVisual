@@ -24,7 +24,7 @@ def directory(country):
                                              headers={'User-Agent': UA, 'Accept': 'application/json'})
             with urllib.request.urlopen(request, timeout=40) as response:
                 return json.loads(response.read().decode('utf-8'))
-        except (OSError, ValueError) as failure:
+        except Exception as failure:  # any mirror error: try the next one, the reason goes to the log
             print('directory', server, repr(failure), file=sys.stderr, flush=True)
     raise SystemExit('radio-browser is not reachable')
 
@@ -48,7 +48,7 @@ def probe(url):
                 if data[i] == 0xFF and (data[i + 1] & 0xE0) == 0xE0:
                     return True
             return False
-    except (OSError, ValueError):
+    except Exception:  # a broken stream is a result, not a crash: HTTP, SSL, timeouts, half-read bodies alike
         return False
 
 
@@ -83,4 +83,9 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        raise
