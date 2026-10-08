@@ -41,6 +41,8 @@ public final class MusicPlayer {
     private static final java.util.Map<Path, Scanned> SCANNED = new java.util.concurrent.ConcurrentHashMap<>();
     private record Scanned(long size, long modified, AudioInfo info) { }
     private static int index = -1, channels, rate, source, skipped;
+    /** How many times the current internet station has been retried after a drop-out. */
+    private static int streamRetries;
     private static long baseFrame, context, lengthFrames = -1;
     // Requests for the streamer thread (under LOCK). trackGen changes with every play / close and retires the open
     // decoder; generation also changes with every seek and retires audio decoded for the old position.
@@ -70,7 +72,7 @@ public final class MusicPlayer {
     public static int skipped() { return skipped; }
     public static Track current() {
         synchronized (LOCK) {
-            if (radioIndex >= 0 && playing) return Radio.track(radioIndex);
+            if (radioIndex >= 0 && playing) return Radio.trackOf(radioIndex);
             return index >= 0 && index < TRACKS.size() ? TRACKS.get(index) : null;
         }
     }
@@ -81,7 +83,7 @@ public final class MusicPlayer {
     /** Neighbour in play order (shuffle picks at random, so the list order is shown). */
     public static Track neighbour(int step) {
         synchronized (LOCK) {
-            if (radioIndex >= 0) return Radio.track(radioIndex + step);
+            if (radioIndex >= 0) return Radio.trackOf(radioIndex + step);
             if (TRACKS.size() < 2 || index < 0) return null;
             return TRACKS.get(Math.floorMod(index + step, TRACKS.size()));
         }
@@ -137,6 +139,7 @@ public final class MusicPlayer {
         synchronized (LOCK) {
             close();
             radioIndex = -1;
+            streamRetries = 0;
             if (i < 0 || i >= TRACKS.size()) return;
             index = i;
             Track track = TRACKS.get(i);
@@ -170,14 +173,17 @@ public final class MusicPlayer {
             }
         }
     }
-    /** Tunes the radio to station i: the streamer thread composes the music as it goes, nothing is read from disk. */
+    /**
+     * Tunes the radio to station i: a station of LavaVisual is composed on the fly, a real one is streamed from the
+     * internet. Both go through the same streamer thread, so the player, the HUD and the shortcuts behave the same.
+     */
     public static void playRadio(int station) {
-        var stations = Radio.stations();
-        if (station < 0 || station >= stations.size()) return;
+        if (station < 0 || station >= Radio.count()) return;
         synchronized (LOCK) {
+            if (station != radioIndex) streamRetries = 0;   // a new station counts its own drop-outs
             close();
             radioIndex = station;
-            Track track = Radio.track(station);
+            Track track = Radio.trackOf(station);
             error = "";
             decodeError = "";
             failed = false;
@@ -295,9 +301,20 @@ public final class MusicPlayer {
         pcm = MemoryUtil.memAllocShort(frames * dChannels);
         return first;
     }
-    /** Starts a station generator; there is no sample rate to learn, so the first frame is always 0. */
+    /**
+     * Tunes in to a station: the composed ones are generated in place, the real ones are decoded from the network as
+     * they arrive. A station that cannot be opened says why instead of leaving silence.
+     */
     private static long openRadio(int station, int tg) {
-        Decoders.Source opened = new Radio.Synth(station);
+        Decoders.Source opened;
+        try {
+            opened = Radio.stream(station) ? NetRadio.open(station - Radio.stations().size()) : new Radio.Synth(station);
+        } catch (IOException | RuntimeException | LinkageError failure) {
+            String why = failure.getMessage() == null ? "станция недоступна" : failure.getMessage();
+            LavaVisual.LOGGER.warn("LavaVisual: cannot tune in to station {}", Radio.name(station), failure);
+            synchronized (LOCK) { if (trackGen == tg) { decodeError = why; failed = true; } }
+            return -2;
+        }
         synchronized (LOCK) {
             if (trackGen != tg || !playing) { opened.close(); return -2; }
             channels = opened.channels();
@@ -389,7 +406,15 @@ public final class MusicPlayer {
             if (track != null) fail(track, why);
             return;
         }
-        if (finished) { finished = false; next(true); }
+        if (finished) {
+            finished = false;
+            if (radioIndex >= 0 && Radio.stream(radioIndex) && streamRetries < 3) {
+                // An internet stream that dropped is retried on the same station, so a hiccup does not change the
+                // channel; only three failed attempts in a row switch to the next one.
+                streamRetries++;
+                playRadio(radioIndex);
+            } else next(true);
+        }
         if (playing() && mc.getMusicManager() != null && musicQuietTicks-- <= 0) { mc.getMusicManager().stopPlaying(); musicQuietTicks = 100; }
     }
     private static float gain() {
@@ -408,7 +433,7 @@ public final class MusicPlayer {
     public static void stop() { synchronized (LOCK) { close(); } }
     public static void next(boolean automatic) {
         var c = LavaVisualClient.config();
-        int stations = Radio.stations().size();
+        int stations = Radio.count();
         if (radioIndex >= 0) {
             playRadio(c.musicShuffle && stations > 1 ? RANDOM.nextInt(stations) : (radioIndex + 1) % stations);
             return;
@@ -428,7 +453,7 @@ public final class MusicPlayer {
     /** Back: restarts the track after 3 s, otherwise goes to the previous one. */
     public static void previous() {
         if (radioIndex >= 0) {
-            int stations = Radio.stations().size();
+            int stations = Radio.count();
             playRadio((radioIndex + stations - 1) % stations);
             return;
         }

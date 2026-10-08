@@ -18,7 +18,7 @@ public final class HudConfig {
     public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark", "minimap", "music");
     /** Every element with its own colour. Missing from {@link #colors} means "follow the theme colour". */
     public static final List<String> COLOR_KEYS = List.of("menu", "menu_bg", "hud_bg", "watermark", "target", "keys", "armor", "coordinates",
-            "performance", "totems", "minimap", "badge", "crosshair", "jump", "particles", "ambient", "marker", "esp", "kill", "hat", "trail", "waypoint", "crit", "music", "cape", "outfit", "projectile", "hitbox", "reach");
+            "performance", "totems", "minimap", "badge", "crosshair", "jump", "particles", "ambient", "marker", "esp", "kill", "hat", "trail", "waypoint", "crit", "music", "cape", "outfit", "projectile", "hitbox", "hitbox_mob", "hitbox_aim", "reach");
     /** Thrown things that can leave a trail (ProjectileTrails.NAMES in the same order). */
     public static final List<String> PROJECTILE_IDS = List.of("pearl", "arrow", "trident", "snowball", "egg", "potion", "bottle", "firework", "wind", "eye");
     public int schemaVersion = SCHEMA;
@@ -41,9 +41,16 @@ public final class HudConfig {
     /** Visual hitboxes around living entities; targets 0 = all, 1 = players, 2 = mobs. */
     public boolean hitboxEnabled, hitboxSelf;
     public int hitboxTargets, hitboxStyle;
-    public double hitboxLine = 1.6, hitboxFill = 0.18, hitboxRange = 24;
-    /** Reach: the circle on the ground and the distance readout next to the crosshair (mode 0 attack, 1 block, 2 own). */
+    public double hitboxLine = 1.6, hitboxFill, hitboxRange = 24;
+    /** The short red eye ray of the vanilla debug view, drawn for every shown box. */
+    public boolean hitboxView;
+    /** Reach: the distance readout next to the crosshair, the ground ring and the line to the aimed point. */
     public boolean reachEnabled = true, reachReadout = true;
+    /** The ring of the reach radius on the ground plus the point marker where the crosshair lands. */
+    public boolean reachMarker = true;
+    /** The line from the eyes to the aimed point; off by default, as it crosses the whole view. */
+    public boolean reachLine;
+    /** Reach radius modes: 0 = attack reach 3, 1 = block reach 4.5, 2 = the slider below. */
     public int reachMode;
     public double reachRadius = 3;
     public boolean crosshairEnabled, jumpEnabled, particlesEnabled, ambientEnabled, viewModelEnabled;
@@ -144,7 +151,13 @@ public final class HudConfig {
     public boolean mapCoords = true, mapWaypoints = true;
     public boolean waypointBeams = true, waypointLabels = true;
     public static int defaultColor(String key, int theme) {
-        return switch (key) { case "menu_bg" -> 0x12151B; case "hud_bg" -> 0x111216; default -> theme; };
+        return switch (key) {
+            // Vanilla hitboxes are plain white; the aimed box, the mob boxes and the reach marker can be recoloured in the menu.
+            case "menu_bg" -> 0x12151B;
+            case "hud_bg" -> 0x111216;
+            case "hitbox", "hitbox_mob", "hitbox_aim" -> 0xFFFFFF;
+            default -> theme;
+        };
     }
     /** Opaque ARGB colour of an element: rainbow, custom or the theme colour. */
     public int color(String key) {
@@ -229,7 +242,7 @@ public final class HudConfig {
         hitboxTargets = Math.floorMod(hitboxTargets, 3);
         hitboxStyle = Math.floorMod(hitboxStyle, 3);
         hitboxLine = bounded(hitboxLine, 0.6, 3, 1.6);
-        hitboxFill = bounded(hitboxFill, 0, 0.5, 0.18);
+        hitboxFill = bounded(hitboxFill, 0, 0.5, 0);
         hitboxRange = bounded(hitboxRange, 4, 64, 24);
         reachMode = Math.floorMod(reachMode, 3);
         reachRadius = bounded(reachRadius, 1, 8, 3);

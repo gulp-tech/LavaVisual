@@ -24,7 +24,7 @@ jobs:
       - name: Dump the API of this Minecraft version
         run: |
           set -o pipefail
-          ports/mc26.2/gradlew -p ports/mc26.2 classpathFile --no-daemon
+          ports/mc26.2/gradlew -p ports/mc26.2 classpathFile --no-daemon 2>&1 | tee build.log
           cp=$(cat ports/mc26.2/build/compile-classpath.txt)
           mkdir -p artifacts/debug
           for c in 'net.minecraft.server.level.ClientInformation' 'net.minecraft.world.entity.Avatar' 'net.minecraft.world.entity.player.Player' 'net.minecraft.world.entity.player.PlayerModelPart' 'net.minecraft.client.Options' 'net.minecraft.client.Minecraft' 'net.minecraft.network.protocol.game.ServerboundClientInformationPacket' 'net.minecraft.client.multiplayer.PlayerInfo' 'net.minecraft.client.multiplayer.ClientPacketListener'; do
@@ -69,6 +69,18 @@ jobs:
             ports/mc26.2/build/client-smoke.log
             ports/mc26.2/run/logs/latest.log
           if-no-files-found: ignore
+      - name: Keep what the radio said
+        if: always()
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch -q origin "$GITHUB_REF_NAME" && git reset -q --mixed "origin/$GITHUB_REF_NAME"
+          mkdir -p artifacts/debug
+          grep -E "LavaVisual smoke radio" ports/mc26.2/build/client-smoke.log > artifacts/debug/radio-26.2.txt || true
+          test -s artifacts/debug/radio-26.2.txt || echo "the smoke test did not get to the radio" > artifacts/debug/radio-26.2.txt
+          git add -f artifacts/debug/radio-26.2.txt
+          git commit -q -m 'Radio log [skip ci]' || exit 0
+          git push -q origin "HEAD:$GITHUB_REF_NAME" || true
       - name: Verify standalone metadata
         run: |
           version=$(grep '^mod_version=' ports/mc26.2/gradle.properties | cut -d= -f2)
@@ -117,7 +129,7 @@ jobs:
         run: echo "path=$(ls ports/mc26.2/build/libs/*.jar | grep -v sources | head -1)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
-          name: LavaVisual-1.1.6-mc26.2
+          name: LavaVisual-1.1.7-mc26.2
           path: ${{ steps.jar.outputs.path }}
       - name: Publish tested JAR
         if: github.event_name == 'push'

@@ -102,11 +102,11 @@ artifacts/                    49 МБ готовых релизных файло
 | --- | --- | --- | --- |
 | корень | 5 | `LavaVisual` (ModInitializer), `LavaVisualClient` (205 строк, ClientModInitializer), `SmokeWorld`, `Edition`, `Platform` | точка входа, тик-цикл всех систем, HUD-элементы Fabric, watсhdog меню |
 | `config` | 4 | `HudConfig` (296), `ConfigStore`, `ColorMath`, `ChromaClock` | все настройки, 5 профилей, экспорт/импорт JSON, миграции схемы (SCHEMA 3), цвета и радуга |
-| `ui` | 19 | `ClickGuiScreen` (1471), `UiDraw` (246), `MenuTheme`, `LavaTitleScreen` (284), `MusicScreen` (272), редакторы, `Icons`, `UiFont`, `UiSound` | всё меню и оформление ванильных экранов |
+| `ui` | 19 | `ClickGuiScreen` (1500), `UiDraw` (246), `MenuTheme`, `LavaTitleScreen` (284), `MusicScreen` (292), редакторы, `Icons`, `UiFont`, `UiSound` | всё меню и оформление ванильных экранов |
 | `hud` | 5 | `HudRenderer` (541), `TargetSnapshot`, `SessionState`, `PingMeter`, `ClickCounter` | 9 HUD-виджетов: координаты, FPS, Target HUD с аватаром, клавиши+CPS, броня, тотемы, водяной знак, миникарта, музыка |
-| `effects` | 22 | `WorldCosmetics` (1192), `Hats` (939), `HatSync` (410), `AirParticles` (263), `CapeCloth`, `AccessoryPhysics`, `ProjectileTrails`, `ItemPhysics`, `CameraControl`, `PerformanceMode`, `TimeChanger`, `Badge`, `PlayerTags`, `Dummy`, `CustomSounds`, `CustomAudio`, `SwingStyles`, `CosmeticLayer` | вся косметика, эффекты, физика, звук, камера |
+| `effects` | 22 | `WorldCosmetics` (1288), `Hats` (939), `HatSync` (410), `AirParticles` (263), `CapeCloth`, `AccessoryPhysics`, `ProjectileTrails`, `ItemPhysics`, `CameraControl`, `PerformanceMode`, `TimeChanger`, `Badge`, `PlayerTags`, `Dummy`, `CustomSounds`, `CustomAudio`, `SwingStyles`, `CosmeticLayer` | вся косметика, эффекты, физика, звук, камера |
 | `map` | 3 | `Minimap` (367), `Waypoints`, `WaypointOverlay` | миникарта по цветам ванильных карт, метки с лучами |
-| `audio` | 5 | `Decoders` (352), `MusicPlayer` (425), `AudioInfo` (310), `LavaAudio`, `Covers` | декодеры mp3/ogg/opus/wav, плеер, обложки, фоновые загрузки |
+| `audio` | 7 | `MusicPlayer` (540), `Decoders` (404), `Radio` (305), `NetRadio` (268), `AudioInfo` (310), `LavaAudio`, `Covers` | декодеры mp3/ogg/opus/wav, плеер, обложки, 13 сочинённых станций и настоящее интернет-радио (потоки MP3, ICY-названия, `LavaVisual/radio.txt`) |
 | `mixin` | 18 | см. ниже | внедрение в ванильный клиент |
 | `input` | 1 | `Binds` (171) | 25 действий, меняются в меню, категория «LavaVisual» |
 
@@ -300,8 +300,10 @@ Smoke-скрипт (`lavavisual.uiSmoke=true`) — не просто «клие�
 `artifacts/` — всё в Git: по три `lavavisual-<версия>-mc*.jar` (по 2.4 МБ), три `.zip` клиента, три `.mrpack`,
 `SHA256SUMS`, `STANDALONE-26.2.txt`, скриншоты UI и мира (`ui-1.0-*.png`), логи и скриншоты smoke-тестов
 (`debug/`), материалы Bedrock (расширение, два пака, превью) и Bedrock-app (APK, скриншоты).
-Релизы: **1.0.4**, **1.0.5**, **1.0.6**, **1.0.7** (05.10), **1.1.0**, **1.1.1**, **1.1.2**, **1.1.3**, **1.1.4** и **1.1.5** (06.10), **1.1.6** (07.10, latest) — скины удалены, прочность украшена,
-радио, хитбоксы, хит-рейндж, значок LV в списке игроков и новое главное меню. Открытых issues и PR нет.
+Релизы: **1.0.4**, **1.0.5**, **1.0.6**, **1.0.7** (05.10), **1.1.0**, **1.1.1**, **1.1.2**, **1.1.3**, **1.1.4** и **1.1.5** (06.10), **1.1.6** (07.10) — скины удалены, прочность украшена,
+радио, хитбоксы, хит-рейндж, значок LV в списке игроков и новое главное меню;
+**1.1.7** (08.10, latest) — настоящее интернет-радио (разговорные станции и радио Махачкалы), ванильные хитбоксы без
+дрожания с настраиваемыми цветами и число досягаемости под прицелом. Открытых issues и PR нет.
 
 ---
 

@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
@@ -51,6 +52,11 @@ public final class Decoders {
             case WAV -> Memory.start(new Wav(bytes), info, background);
             case UNKNOWN -> throw new IOException("формат не распознан");
         };
+    }
+
+    /** A live MP3 stream (internet radio): the frames are decoded as they arrive, so the sound starts at once. */
+    public static Source stream(InputStream in) throws IOException {
+        return Memory.startLive(new Mp3Stream(in));
     }
 
     public record Pcm(short[] data, int frames, int channels, int rate) { }
@@ -132,17 +138,32 @@ public final class Decoders {
         private static final int BLOCK = 1 << 14;
         private final int channels, rate;
         private final long expected;
+        /** True for an internet stream: what has been played is dropped and seeking means nothing. */
+        private final boolean live;
+        private long dropped;
         private final List<short[]> blocks = Collections.synchronizedList(new ArrayList<>());
         private long written, pos;
         private volatile long decoded;
         private volatile boolean done, closed;
         private volatile String error = "";
 
-        private Memory(int channels, int rate, long expected) { this.channels = channels; this.rate = rate; this.expected = expected; }
+        private Memory(int channels, int rate, boolean live, long expected) {
+            this.channels = channels; this.rate = rate; this.live = live; this.expected = expected;
+        }
 
         static Memory start(Producer producer, AudioInfo info, boolean background) throws IOException {
+            check(producer);
+            return launch(new Memory(producer.channels, producer.rate, false, info.seconds > 0 ? (long) (info.seconds * producer.rate) : -1), producer, background);
+        }
+        /** A source without an end: an internet radio stream. */
+        static Memory startLive(Producer producer) throws IOException {
+            check(producer);
+            return launch(new Memory(producer.channels, producer.rate, true, -1), producer, true);
+        }
+        private static void check(Producer producer) throws IOException {
             if (producer.channels < 1 || producer.channels > 2 || producer.rate <= 0) throw new IOException("неверные параметры звука");
-            Memory memory = new Memory(producer.channels, producer.rate, info.seconds > 0 ? (long) (info.seconds * producer.rate) : -1);
+        }
+        private static Memory launch(Memory memory, Producer producer, boolean background) {
             Runnable body = () -> {
                 try { producer.run(memory); }
                 catch (IOException | RuntimeException | LinkageError failure) {
@@ -161,7 +182,7 @@ public final class Decoders {
         }
         void push(short[] pcm, int offset, int frames) {
             while (frames > 0 && !closed) {
-                int index = (int) (written / BLOCK), at = (int) (written % BLOCK);
+                int index = (int) ((written - dropped) / BLOCK), at = (int) ((written - dropped) % BLOCK);
                 if (index >= blocks.size()) blocks.add(new short[BLOCK * channels]);
                 short[] block = blocks.get(index);
                 int n = Math.min(frames, BLOCK - at);
@@ -171,6 +192,9 @@ public final class Decoders {
                 written += n;
                 decoded = written;
             }
+            // A live stream never needs what has already been played: old blocks are dropped, so hours of radio do
+            // not pile up in memory.
+            if (live) while (pos - dropped >= BLOCK && blocks.size() > 2) { blocks.remove(0); dropped += BLOCK; }
         }
         @Override public int channels() { return channels; }
         @Override public int rate() { return rate; }
@@ -181,7 +205,7 @@ public final class Decoders {
             if (available <= 0) return done ? -1 : 0;
             int n = (int) Math.min(maxFrames, available), copied = 0;
             while (copied < n) {
-                int index = (int) (pos / BLOCK), at = (int) (pos % BLOCK);
+                int index = (int) ((pos - dropped) / BLOCK), at = (int) ((pos - dropped) % BLOCK);
                 short[] block = blocks.get(index);
                 int k = Math.min(n - copied, BLOCK - at);
                 System.arraycopy(block, at * channels, out, copied * channels, k * channels);
@@ -190,7 +214,7 @@ public final class Decoders {
             }
             return n;
         }
-        @Override public void seek(long frame) { pos = Math.max(0, done ? Math.min(frame, decoded) : frame); }
+        @Override public void seek(long frame) { if (!live) pos = Math.max(0, done ? Math.min(frame, decoded) : frame); }
         @Override public void close() { closed = true; blocks.clear(); }
     }
 
@@ -199,6 +223,34 @@ public final class Decoders {
         private final fr.delthas.javamp3.Sound sound;
         Mp3(byte[] bytes, int start) throws IOException {
             sound = new fr.delthas.javamp3.Sound(new BufferedInputStream(new ByteArrayInputStream(bytes, start, bytes.length - start), 1 << 16));
+            channels = sound.isStereo() ? 2 : 1;
+            rate = sound.getSamplingFrequency();
+        }
+        @Override void run(Memory out) throws IOException {
+            byte[] buf = new byte[1 << 15];
+            short[] pcm = new short[buf.length / 2];
+            int carry = 0, frameBytes = 2 * channels;
+            try (fr.delthas.javamp3.Sound in = sound) {
+                while (!out.closed) {
+                    int n = in.read(buf, carry, buf.length - carry);
+                    if (n < 0) break;
+                    n += carry;
+                    int frames = n / frameBytes;
+                    for (int i = 0; i < frames * channels; i++) pcm[i] = (short) ((buf[2 * i] & 255) | buf[2 * i + 1] << 8);
+                    out.push(pcm, 0, frames);
+                    carry = n - frames * frameBytes;
+                    if (carry > 0) System.arraycopy(buf, frames * frameBytes, buf, 0, carry);
+                }
+            }
+        }
+    }
+
+
+    /** MP3 of an internet stream: the same decoder as for files, reading straight from the socket. */
+    private static final class Mp3Stream extends Producer {
+        private final fr.delthas.javamp3.Sound sound;
+        Mp3Stream(InputStream in) throws IOException {
+            sound = new fr.delthas.javamp3.Sound(in);
             channels = sound.isStereo() ? 2 : 1;
             rate = sound.getSamplingFrequency();
         }

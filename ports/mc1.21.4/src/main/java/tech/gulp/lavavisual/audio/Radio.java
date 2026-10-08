@@ -1,14 +1,16 @@
 package tech.gulp.lavavisual.audio;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Procedural radio: thirteen stations written by a small deterministic composer, so the mod always has something to
- * play — on any machine, in any country, without a single file on disk. Every station is an endless 44.1 kHz stereo
- * stream built from a chord progression, a bass line, a pad, an arpeggio, a melody and light percussion; the streamer
- * thread of the music player generates it exactly like a decoded file, so play / pause / volume, the HUD widget and
- * the playlist shortcuts all work the same way.
+ * The station list of the music player: thirteen stations composed on the fly by a small deterministic composer plus
+ * {@link NetRadio} with the real stations that are on air right now. The composed ones need no files and no internet,
+ * so the radio always has something to play; the internet ones are grouped into talk radio, the radio of Makhachkala
+ * and Dagestan, and music. Each composed station is an endless 44.1 kHz stereo stream built from a chord progression,
+ * a bass line, a pad, an arpeggio, a melody and light percussion; the streamer thread of the music player generates it
+ * exactly like a decoded or streamed file, so play / pause / volume, the HUD widget and the shortcuts work the same.
  */
 public final class Radio {
     private Radio() { }
@@ -85,6 +87,39 @@ public final class Radio {
         Station station = station(i);
         return new MusicPlayer.Track(Path.of("lavavisual-radio", station.name() + ".radio"), station.name(),
                 station.name(), "LavaVisual Радио", 0, "", "радио");
+    }
+
+    /** Title of the group of stations composed on the fly. */
+    public static final String SYNTH_GROUP = "Радио LavaVisual";
+    /** Every station that can be tuned in: the composed ones first, then the real internet stations. */
+    public static int count() { return STATIONS.size() + NetRadio.count(); }
+    /** True when station i comes from the internet. */
+    public static boolean stream(int i) { return i < 0 || i >= STATIONS.size(); }
+    /** Name of station i, whichever kind it is. */
+    public static String name(int i) {
+        if (i < 0 || i >= count()) return "";
+        return i < STATIONS.size() ? STATIONS.get(i).name() : NetRadio.name(i - STATIONS.size());
+    }
+    /** Genre of station i, whichever kind it is. */
+    public static String genre(int i) {
+        if (i < 0 || i >= count()) return "";
+        return i < STATIONS.size() ? STATIONS.get(i).genre() : NetRadio.genre(i - STATIONS.size());
+    }
+    /** Station i as a playlist entry: a station composed on the fly or an internet stream. */
+    public static MusicPlayer.Track trackOf(int i) {
+        int at = Math.floorMod(i, count());
+        return at < STATIONS.size() ? track(at) : NetRadio.track(at - STATIONS.size());
+    }
+    /** One line of the station list as the menu shows it. */
+    public record Row(int index, String group, String name, String genre, String url) { }
+    /** The catalogue for the menus: the real stations by group first, the composed ones after them. */
+    public static List<Row> rows() {
+        List<Row> rows = new ArrayList<>(count());
+        for (int i = 0; i < NetRadio.count(); i++)
+            rows.add(new Row(STATIONS.size() + i, NetRadio.group(i), NetRadio.name(i), NetRadio.genre(i), NetRadio.url(i)));
+        for (int i = 0; i < STATIONS.size(); i++)
+            rows.add(new Row(i, SYNTH_GROUP, STATIONS.get(i).name(), STATIONS.get(i).genre(), ""));
+        return rows;
     }
 
     private static final double TAU = Math.PI * 2;
