@@ -3,6 +3,8 @@ name: Radio catalogue (Russia)
 # Run by hand from the Actions tab or with `gh workflow run radio-catalog.yml --ref <branch>`; the result is an
 # artifact, nothing is committed.
 on:
+  push:
+    paths: ['tools/radio_catalog.py', '.github/workflows/radio-catalog.yml']
   workflow_dispatch:
 concurrency:
   group: lavavisual-radio-catalog-${{ github.ref }}
