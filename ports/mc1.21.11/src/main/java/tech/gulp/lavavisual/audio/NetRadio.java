@@ -150,7 +150,8 @@ public final class NetRadio {
             // A station can still put its titles between the frames: they are cut out, so the decoder gets audio only.
             InputStream ready = metaInterval > 0 ? new IcyStream(body, metaInterval) : body;
             try {
-                return Decoders.stream(ready);
+                // A live stream joins in the middle of a frame: the bytes before the first real frame header are skipped.
+                return Decoders.stream(alignToFrame(ready));
             } catch (RuntimeException | LinkageError failure) {
                 // Not MP3 from the first bytes: say what came instead, so the cause is visible in the log and the toast.
                 throw new IOException("поток не MP3 (тип: " + (type.isEmpty() ? "не указан" : type) + ", начало: " + preview(head) + ")");
@@ -238,6 +239,33 @@ public final class NetRadio {
         if (start.startsWith("fLaC") || type.contains("flac")) throw new Unsupported("формат FLAC не поддерживается");
         boolean adts = head.length >= 2 && (head[0] & 0xFF) == 0xFF && (head[1] & 0xF6) == 0xF0;
         if (adts || type.contains("aac") || type.contains("mp4")) throw new Unsupported("формат AAC не поддерживается");
+    }
+
+    /**
+     * Skips the bytes up to the first MP3 frame header. A live stream starts wherever the listener joined, so its first
+     * bytes are the middle of a frame; the decoder needs the stream to start at a frame.
+     */
+    private static InputStream alignToFrame(InputStream in) throws IOException {
+        byte[] buf = new byte[1 << 16];
+        int count = 0, from = 0;
+        while (true) {
+            for (int i = from; i + 4 <= count; i++) {
+                if (frameHeader(buf, i)) return new SequenceInputStream(new ByteArrayInputStream(buf, i, count - i), in);
+            }
+            if (count == buf.length) throw new IOException("в потоке не нашлось кадров MP3");
+            from = Math.max(0, count - 3);
+            int n = in.read(buf, count, buf.length - count);
+            if (n < 0) throw new IOException("поток закончился, кадров MP3 не найдено");
+            count += n;
+        }
+    }
+
+    /** A valid MPEG audio Layer III frame header: sync bits, layer 3, a real bitrate and a real sample rate. */
+    private static boolean frameHeader(byte[] b, int i) {
+        if ((b[i] & 0xFF) != 0xFF || (b[i + 1] & 0xE0) != 0xE0) return false;
+        if (((b[i + 1] >> 1) & 3) != 1) return false;
+        int bitrate = (b[i + 2] >> 4) & 0xF, rate = (b[i + 2] >> 2) & 3;
+        return bitrate != 0 && bitrate != 15 && rate != 3;
     }
 
     /** The first bytes as text, for the log: what came instead of audio. */
