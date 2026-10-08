@@ -16,7 +16,7 @@ state	name	codec	bitrate	votes	tags	url	ok
 	Radio Caprice - Erotic	AAC+	320	2151	chill,deep,downtempo,jazz,sensual,smooth	http://79.120.39.202:8000/erotic	
 	Radio Caprice - Dark Techno	AAC+	320	2135	darktechno,electronic,techno	http://79.111.14.76:9139/	
 	Radio Caprice - Dub Techno [2]	AAC+	320	1812	dub techno,electronic,radcap	http://79.120.39.202:8000/dubtechno	
-	Musical Decadence Radio	MP3	128	1766	#electro,#electronic-radio,#house,#techno	https://stream.musicaldecadence.ru/live	1
+	Musical Decadence Radio	MP3	128	1766	#electro,#electronic-radio,#house,#techno	https://stream.musicaldecadence.ru/live	0
 	DFM - Vocal Trance	AAC+	96	1620	trance	https://dfm-trance.hostingradio.ru/trance96.aacp	
 	Radio Caprice - Drum 'n' Bass [2]	AAC+	320	1610	drum & bass,drum 'n' bass,drum and bass,electronic,radcap	http://79.111.14.76:8000/drumbass	
 	Radio Caprice - Black Metal	AAC+	320	1570	black metal	http://79.120.77.11:9003/	
@@ -914,7 +914,7 @@ Saint Petersburg	MOTORADIO.ONLINE, Just music, no programs	MP3	320	2	blues,class
 Saint Petersburg	MOTORADIO.ONLINE, Low AAC 24 kbps	MP3	224	0	blues,classic-rock,hard-rock,heavy-metal,motorcycle	https://stream.motoradio.online/std-mp3	1
 Saint Petersburg	MOYGID TV — ääniopasradio (moygid.online/fi)	MP3	128	0	audio guide,culture,education,finnish,history,suomi,talk,travel,ääniopas	https://moygid.online/fi/radio.mp3	1
 Saint Petersburg	MOYGID TV — audio guide radio (moygid.online/en)	MP3	128	0	audio guide,culture,education,english,history,talk,tourism,travel	https://moygid.online/en/radio.mp3	1
-Saint-Petersburg	Deep One	MP3	128	1322	deep house	https://stream.deep1.ru/deep1mp3	0
+Saint-Petersburg	Deep One	MP3	128	1322	deep house	https://stream.deep1.ru/deep1mp3	1
 Saint-Petersburg	Deep One	AAC	128	635		https://stream.deep1.ru/deep1aac	
 Saint-Petersburg	Anima Amoris Deep Tech House	MP3	0	401		https://amoris.sknt.ru/deeptech.mp3	0
 Saint-Petersburg	MOTORADIO	AAC	320	324	classic rock,hard rock,rock,talk	http://stream.motoradio.online:8000/high-aac	
