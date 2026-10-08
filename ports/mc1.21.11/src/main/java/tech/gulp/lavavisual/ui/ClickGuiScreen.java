@@ -180,6 +180,7 @@ public final class ClickGuiScreen extends Screen {
     private static final String[] HITBOX_TARGETS = {"Все", "Игроки", "Мобы"};
     private static final String[] HITBOX_STYLES = {"Контур", "Контур + заливка", "Углы"};
     private static final String[] REACH_MODES = {"Атака 3", "Блок 4.5", "Свой радиус"};
+    private static final String[] REACH_CIRCLE_MODES = {"Линия", "Кольцо", "Заливка"};
     private static final String[] ESP_STYLES = {"Призраки", "Круг", "Кристаллы", "Маркер", "Орбиты"};
     private static final String[] AIR_STYLES = {"Светлячки", "Снег", "Звёзды", "Угольки", "Сердечки"};
     private static final String[] TRAIL_STYLES = {"Лента", "Неон", "Спираль", "Искры", "Комета"};
@@ -691,8 +692,13 @@ public final class ClickGuiScreen extends Screen {
             caption(g, "Радиус досягаемости");
             chips(g, REACH_MODES, c.reachMode, i -> { c.reachMode = i; changed(); });
             if (c.reachMode == 2) slider(g, "Свой радиус · блоки", c.reachRadius, 1, 8, v -> c.reachRadius = v, false);
-            toggle(g, "reach_marker", "Круг на земле", "Кольцо радиуса досягаемости у ваших ног", c.reachMarker, () -> { c.reachMarker = !c.reachMarker; changed(); }, null);
-            toggle(g, "reach_line", "Линия до цели", "Линия от глаз к точке прицела · по умолчанию выключена", c.reachLine, () -> { c.reachLine = !c.reachLine; changed(); }, null);
+            toggle(g, "reach_circle", "Круги досягаемости", "Круг радиуса досягаемости на земле под каждым игроком, как в HitRange", c.reachCircle, () -> { c.reachCircle = !c.reachCircle; changed(); }, null);
+            group(g, "reach_circle", c.reachCircle, () -> {
+                toggle(g, "reach_circle_self", "Свой круг", "Круг вокруг вас · цвет темы, меняется ниже", c.reachCircleSelf, () -> { c.reachCircleSelf = !c.reachCircleSelf; changed(); }, null);
+                toggle(g, "reach_circle_others", "Круги других игроков", "Игроки в радиусе 48 блоков · зелёный, если они в вашей досягаемости", c.reachCircleOthers, () -> { c.reachCircleOthers = !c.reachCircleOthers; changed(); }, null);
+                caption(g, "Вид круга");
+                chips(g, REACH_CIRCLE_MODES, c.reachCircleMode, i -> { c.reachCircleMode = i; changed(); });
+            });
         });
         section(g, "Удары");
         toggle(g, "particles", "Hit Particles", "Искры при ручной атаке", c.particlesEnabled, () -> { c.particlesEnabled = !c.particlesEnabled; changed(); }, null);
@@ -864,6 +870,48 @@ public final class ClickGuiScreen extends Screen {
         note(g, "Файлы прямо в папке sounds появятся во всех списках.");
         note(g, "Форматы " + tech.gulp.lavavisual.audio.AudioInfo.EXTENSIONS + ", имя любое. Можно перетащить файлы в окно.");
     }
+    /** The city of the radio: found by the IP address or chosen by hand from the list. */
+    private void cityRadio(GuiGraphics g) {
+        var c = LavaVisualClient.config();
+        var here = tech.gulp.lavavisual.audio.CityRadio.current();
+        toggle(g, "radio_city_auto", "Определять город по IP", "Раз в неделю спрашивает ipwho.is · сохраняется только город и координаты",
+                c.radioAutoCity, () -> { c.radioAutoCity = !c.radioAutoCity; tech.gulp.lavavisual.audio.NetRadio.refresh(); changed(); }, null);
+        note(g, cityNote(c, here));
+        action(g, Icons.REFRESH_CW, "Определить город снова", bodyX, cursor, bodyW, () -> {
+            tech.gulp.lavavisual.audio.CityLocator.detectNow();
+            tech.gulp.lavavisual.input.Binds.Toast.show("Ищу город по IP…");
+        });
+        cursor += 32;
+        caption(g, "Город радио");
+        var cities = tech.gulp.lavavisual.audio.CityRadio.cities();
+        String[] names = new String[cities.size() + 1];
+        names[0] = "Авто";
+        int selected = 0;
+        for (int i = 0; i < cities.size(); i++) {
+            names[i + 1] = cities.get(i).name();
+            if (cities.get(i).name().equals(c.radioCity)) selected = i + 1;
+        }
+        chips(g, names, selected, i -> {
+            c.radioCity = i == 0 ? "" : cities.get(i - 1).name();
+            tech.gulp.lavavisual.audio.NetRadio.refresh();
+            changed();
+        }, 4);
+    }
+
+    /** One line about the city: how it was found, or why the city radio is not playing. */
+    private static String cityNote(tech.gulp.lavavisual.config.HudConfig c, tech.gulp.lavavisual.audio.CityRadio.City here) {
+        if (!c.radioCity.isEmpty()) return "Город выбран вручную: " + c.radioCity + " · его станции играют здесь";
+        if (!c.radioAutoCity) return "Определение по IP выключено · выберите город в списке";
+        if (!tech.gulp.lavavisual.audio.CityLocator.located(c)) {
+            String error = tech.gulp.lavavisual.audio.CityLocator.error();
+            return error.isEmpty() ? "Город ещё не определён · запрос к ipwho.is" : "Город не определён: " + error + " · повтор через час";
+        }
+        String where = c.radioDetected + (c.radioRegion.isEmpty() ? "" : ", " + c.radioRegion);
+        if (here == null) return "Вы в городе " + where + " · рядом нет станций каталога (до 120 км), играет федеральное радио";
+        return here.name().equals(c.radioDetected) ? "Определён по IP: " + where + " · станции этого города"
+                : "Определён по IP: " + where + " · ближайший город каталога " + here.name();
+    }
+
     private void music(GuiGraphics g) {
         var c = LavaVisualClient.config();
         var track = tech.gulp.lavavisual.audio.MusicPlayer.current();
@@ -871,7 +919,8 @@ public final class ClickGuiScreen extends Screen {
                 () -> minecraft.setScreen(new MusicScreen(this)));
         var rows = tech.gulp.lavavisual.audio.Radio.rows();
         section(g, "Радио · " + rows.size() + " станций");
-        note(g, "Настоящее радио из интернета и тринадцать станций, сочинённых на ходу — интернет не обязателен");
+        note(g, "Настоящее радио из интернета: разговорное и музыкальное по стране и станции вашего города · интернет не обязателен");
+        cityRadio(g);
         int onAir = tech.gulp.lavavisual.audio.MusicPlayer.radioIndex();
         for (int at = 0; at < rows.size(); ) {
             var group = rows.get(at).group();
@@ -1315,7 +1364,8 @@ public final class ClickGuiScreen extends Screen {
         colorRow(g, "hitbox_mob", "Хитбоксы · мобы");
         colorRow(g, "hitbox_aim", "Хитбокс цели под прицелом");
         colorRow(g, "hitbox_look", "Луч взгляда (F3+B)");
-        colorRow(g, "reach", "Хит-рейндж · круг и линия");
+        colorRow(g, "reach", "Хит-рейндж · свой круг");
+        colorRow(g, "reach_in", "Хит-рейндж · игрок в досягаемости");
         section(g, "Эффекты");
         String[][] effects = {{"crosshair", "Прицел"}, {"jump", "Jump Circle"}, {"particles", "Hit Particles"}, {"ambient", "Частицы в воздухе"},
                 {"marker", "Маркер удара"}, {"esp", "Target ESP"}, {"kill", "Kill Effect"}, {"hat", "Шляпа"}, {"wings", "Крылья"}, {"trail", "Trails"}, {"cape", "Плащ"}, {"projectile", "Следы снарядов"}, {"crit", "Насыщенный крит"}, {"waypoint", "Новые метки"}};

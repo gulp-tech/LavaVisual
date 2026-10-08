@@ -54,7 +54,7 @@ public final class WorldCosmetics {
     private record MarkerFrame(Vec3 origin, int shape, float size, float alpha) { }
     /** colors: jump, esp, kill, trail, marker (theme or per-element). */
     private record Frame(List<RingFrame> rings, List<SparkFrame> sparks, List<MarkerFrame> markers, int[] colors, int[] lights, List<HatFrame> hats, float spin, List<TrailPoint> trail, Vec3 esp, float espHeight, float espWidth, int espStyle, List<BeamFrame> beams, List<tech.gulp.lavavisual.map.WaypointOverlay.Beam> waypoints, List<ShotTrail> shots,
-            List<BoxFrame> boxes, ReachFrame reach) { }
+            List<BoxFrame> boxes, List<ReachCircle> reach) { }
     private static final RenderStateDataKey<Frame> DATA = RenderStateDataKey.create(() -> "lavavisual:cosmetics");
     private static final ArrayList<Ring> RINGS = new ArrayList<>();
     private static final ArrayList<Mark> MARKS = new ArrayList<>();
@@ -185,7 +185,7 @@ public final class WorldCosmetics {
                 espWidth = snapshot.entity().getBbWidth();
             }
             if (RINGS.isEmpty() && SPARKS.isEmpty() && MARKS.isEmpty() && TRAIL.isEmpty() && BEAMS.isEmpty() && hats.isEmpty() && esp == null && waypointBeams.isEmpty()
-                    && ProjectileTrails.active() == 0 && BOXES.isEmpty() && REACH == null) { tech.gulp.lavavisual.compat.Frames.set(DATA, null); return; }
+                    && ProjectileTrails.active() == 0 && BOXES.isEmpty() && REACH.isEmpty()) { tech.gulp.lavavisual.compat.Frames.set(DATA, null); return; }
             int particleColor = c.color("particles") & 0xFFFFFF, ambientColor = c.color("ambient") & 0xFFFFFF, killColor = c.color("kill") & 0xFFFFFF,
                     critColor = c.color("crit") & 0xFFFFFF, trailColor = c.color2("trail") & 0xFFFFFF;
             double now = tick + context.tickCounter().getGameTimeDeltaPartialTick(false);
@@ -240,7 +240,7 @@ public final class WorldCosmetics {
             // Second tones: the theme gradient (lava orange to amethyst by default) instead of a lighter shade.
             int[] lights = {c.color2("jump") & 0xFFFFFF, c.color2("esp") & 0xFFFFFF, c.color2("kill") & 0xFFFFFF, c.color2("trail") & 0xFFFFFF, c.color2("marker") & 0xFFFFFF};
             tech.gulp.lavavisual.compat.Frames.set(DATA, new Frame(List.copyOf(rings), List.copyOf(sparks), List.copyOf(markers), colors, lights, List.copyOf(hats), (float) (now * 0.06),
-                    List.copyOf(trail), esp, espHeight, espWidth, c.espStyle, List.copyOf(beams), waypointBeams, ProjectileTrails.frame(partial), boxes(partial), reach(partial)));
+                    List.copyOf(trail), esp, espHeight, espWidth, c.espStyle, List.copyOf(beams), waypointBeams, ProjectileTrails.frame(partial), boxes(partial), reaches(partial)));
         });
         WorldRenderEvents.BEFORE_DEBUG_RENDER.register(WorldCosmetics::render);
     }
@@ -297,7 +297,7 @@ public final class WorldCosmetics {
         return count;
     }
     public static void clear() {
-        RINGS.clear(); SPARKS.clear(); MARKS.clear(); CLICKS.clear(); TRAIL.clear(); BEAMS.clear(); CapeCloth.clear(); AccessoryPhysics.clear(); espVisible = false; lastKillId = -1; ready = false; grounded = false; BOXES.clear(); REACH = null; tick = 0; lastHitTick = -100; groundPosition = Vec3.ZERO; combo = 0; comboTarget = null;
+        RINGS.clear(); SPARKS.clear(); MARKS.clear(); CLICKS.clear(); TRAIL.clear(); BEAMS.clear(); CapeCloth.clear(); AccessoryPhysics.clear(); espVisible = false; lastKillId = -1; ready = false; grounded = false; BOXES.clear(); REACH.clear(); tick = 0; lastHitTick = -100; groundPosition = Vec3.ZERO; combo = 0; comboTarget = null;
     }
     public static void tick(Minecraft mc) {
         if (mc.player == null || mc.level == null) { clear(); return; }
@@ -358,15 +358,22 @@ public final class WorldCosmetics {
     private record BoxSource(net.minecraft.world.entity.Entity entity, float width, float height, int color, int style, float line, float fill, boolean aimed) { }
     /** One hit box ready for drawing: interpolated corners, so the box never shakes while the entity moves. */
     record BoxFrame(Vec3 base, float width, float height, int color, int style, float line, float fill, boolean aimed, Vec3 eye, Vec3 look) { }
-    /** The reach marker: the ring on the ground, the aimed point and the line from the eye to it. */
-    record ReachFrame(Vec3 feet, Vec3 eye, Vec3 target, float radius, int color, int light, boolean inReach) { }
-    /** The reach marker as gathered on the tick: only the player, the aimed point and the settings; placed per frame. */
-    private record ReachSource(net.minecraft.world.entity.player.Player player, Vec3 target, float radius, int color, int light) { }
+    /** One reach circle as gathered on the tick: only the player and whether it is the player himself. */
+    private record ReachSource(net.minecraft.world.entity.player.Player player, boolean self) { }
+    /** One reach circle ready for drawing: where its player stands now, the radius, the colour and the circle mode. */
+    record ReachCircle(Vec3 feet, float radius, int color, int mode) { }
     private static final List<BoxSource> BOXES = new ArrayList<>();
-    private static ReachSource REACH;
+    /** Players whose reach circle is drawn: yourself and the others near you, gathered on the tick. */
+    private static final List<ReachSource> REACH = new ArrayList<>();
+    /** Other players get a circle only within this distance, so a crowd does not cover the ground. */
+    private static final double REACH_SEEN = 48;
+    /** Segments of a reach circle, as HitRange draws it. */
+    private static final int REACH_SEGMENTS = 60;
+    /** Thickness of the thick ring (mode 1), in blocks; the same default as HitRange. */
+    private static final float REACH_THICKNESS = 0.15f;
     /** Hit boxes drawn in the last frame (the CI smoke test reads this). */
     public static int boxesDrawn;
-    /** Whether the reach marker was drawn in the last frame (the CI smoke test reads this). */
+    /** Whether a reach circle was drawn in the last frame (the CI smoke test reads this). */
     public static boolean reachDrawn;
     /** Reach radius shared by the readout under the crosshair and the marker, so the two never disagree. */
     public static double reachRadius() {
@@ -376,7 +383,7 @@ public final class WorldCosmetics {
 
     /** Gathers the boxes of the nearby entities on the tick: only the filtering happens here, the drawing is interpolated. */
     private static void snapshotBoxes(Minecraft mc, net.minecraft.world.entity.player.Player player, tech.gulp.lavavisual.config.HudConfig c) {
-        BOXES.clear(); REACH = null;
+        BOXES.clear(); REACH.clear();
         var aimed = mc.hitResult instanceof EntityHitResult hit ? hit.getEntity() : null;
         if (c.hitboxEnabled) {
             boolean firstPerson = mc.options.getCameraType().isFirstPerson();
@@ -393,23 +400,40 @@ public final class WorldCosmetics {
                         c.hitboxStyle, (float) c.hitboxLine, (float) c.hitboxFill, living == aimed));
             }
         }
-        if (c.reachEnabled && c.reachMarker) {
-            Vec3 target = mc.hitResult == null ? null : mc.hitResult.getLocation();
-            REACH = new ReachSource(player, target, (float) reachRadius(), c.color("reach") & 0xFFFFFF, c.color2("reach") & 0xFFFFFF);
+        if (c.reachEnabled && c.reachCircle) {
+            if (c.reachCircleSelf) REACH.add(new ReachSource(player, true));
+            if (c.reachCircleOthers) {
+                for (var entity : mc.level.entitiesForRendering()) {
+                    if (!(entity instanceof net.minecraft.world.entity.player.Player other) || other == player) continue;
+                    if (!other.isAlive() || other.isRemoved() || other.isInvisible()) continue;
+                    if (other.distanceTo(player) > REACH_SEEN) continue;
+                    REACH.add(new ReachSource(other, false));
+                }
+            }
         }
     }
 
     /**
-     * The reach marker of this frame. The ring and the eye are placed by the same partial tick as the model, so the
-     * ring does not shake while the player walks, and the in-reach test is made on the same eye as the line.
+     * The reach circles of this frame. Every circle is placed by the same partial tick as its player's model, so it
+     * does not shake while the player walks. A circle of another player turns green when that player is in your reach.
      */
-    private static ReachFrame reach(double partial) {
-        if (REACH == null || REACH.player().isRemoved()) return null;
-        var player = REACH.player();
-        Vec3 eye = player.getEyePosition((float) partial);
-        Vec3 target = REACH.target();
-        return new ReachFrame(player.getPosition((float) partial), eye, target, REACH.radius(), REACH.color(), REACH.light(),
-                target != null && eye.distanceTo(target) <= REACH.radius());
+    private static List<ReachCircle> reaches(double partial) {
+        if (REACH.isEmpty()) return List.of();
+        var c = LavaVisualClient.config();
+        var me = Minecraft.getInstance().player;
+        if (me == null) return List.of();
+        float radius = (float) reachRadius();
+        int own = c.color("reach") & 0xFFFFFF, inside = c.color("reach_in") & 0xFFFFFF;
+        Vec3 myFeet = me.getPosition((float) partial);
+        var out = new ArrayList<ReachCircle>(REACH.size());
+        for (ReachSource source : REACH) {
+            var player = source.player();
+            if (player.isRemoved() || !player.isAlive()) continue;
+            Vec3 feet = player.getPosition((float) partial);
+            boolean near = !source.self() && feet.distanceTo(myFeet) <= radius;
+            out.add(new ReachCircle(feet, radius, near ? inside : own, c.reachCircleMode));
+        }
+        return out;
     }
 
     /**
@@ -433,7 +457,46 @@ public final class WorldCosmetics {
         return out;
     }
 
-    /** Hit boxes and the reach marker, drawn in the same pass as the rest of the cosmetics. */
+    /**
+     * One reach circle on the ground under its player, drawn the way HitRange draws it: a line (0), a thick ring (1,
+     * the default) or a filled disc (2). It sits a hair above the ground so it does not flicker with the grass.
+     */
+    private static void reachCircle(PoseStack.Pose pose, VertexConsumer out, ReachCircle circle, Vec3 camera, Vector3f right, Vector3f up) {
+        Vec3 feet = circle.feet().subtract(camera);
+        double y = feet.y + 0.02;
+        double r = circle.radius();
+        int n = REACH_SEGMENTS;
+        int color = circle.color();
+        if (circle.mode() == 0) {
+            for (int i = 0; i < n; i++) {
+                double a0 = i * Math.PI * 2 / n, a1 = (i + 1) * Math.PI * 2 / n;
+                edge(pose, out, (float) (feet.x + Math.cos(a0) * r), (float) y, (float) (feet.z + Math.sin(a0) * r),
+                        (float) (feet.x + Math.cos(a1) * r), (float) y, (float) (feet.z + Math.sin(a1) * r),
+                        1.2f, UiDraw.alpha(color, 0.9), right, up);
+            }
+            return;
+        }
+        double inner = circle.mode() == 1 ? r - REACH_THICKNESS / 2 : 0;
+        double outer = circle.mode() == 1 ? r + REACH_THICKNESS / 2 : r;
+        int fill = UiDraw.alpha(color, circle.mode() == 1 ? 0.85 : 0.22);
+        for (int i = 0; i < n; i++) {
+            double a0 = i * Math.PI * 2 / n, a1 = (i + 1) * Math.PI * 2 / n;
+            double c0 = Math.cos(a0), s0 = Math.sin(a0), c1 = Math.cos(a1), s1 = Math.sin(a1);
+            if (circle.mode() == 1) {
+                quad(pose, out, (float) (feet.x + c0 * inner), (float) y, (float) (feet.z + s0 * inner),
+                        (float) (feet.x + c0 * outer), (float) y, (float) (feet.z + s0 * outer),
+                        (float) (feet.x + c1 * outer), (float) y, (float) (feet.z + s1 * outer),
+                        (float) (feet.x + c1 * inner), (float) y, (float) (feet.z + s1 * inner), fill);
+            } else {
+                quad(pose, out, (float) feet.x, (float) y, (float) feet.z,
+                        (float) (feet.x + c0 * outer), (float) y, (float) (feet.z + s0 * outer),
+                        (float) (feet.x + c1 * outer), (float) y, (float) (feet.z + s1 * outer),
+                        (float) feet.x, (float) y, (float) feet.z, fill);
+            }
+        }
+    }
+
+    /** Hit boxes and the reach circles, drawn in the same pass as the rest of the cosmetics. */
     private static void drawBoxes(PoseStack.Pose pose, VertexConsumer out, Frame frame, Vec3 camera, Vector3f right, Vector3f up) {
         var c = LavaVisualClient.config();
         boxesDrawn = frame.boxes().size();
@@ -449,17 +512,9 @@ public final class WorldCosmetics {
                         (float) (eye.x + dir.x * 3.4), (float) (eye.y + dir.y * 3.4), (float) (eye.z + dir.z * 3.4), 0.7f, UiDraw.alpha(look, 0.85f), right, up);
             }
         }
-        if (frame.reach() == null) { reachDrawn = false; return; }
-        reachDrawn = true;
-        ReachFrame r = frame.reach();
-        Vec3 feet = r.feet().subtract(camera);
-        ripple(pose, out, feet, r.radius() * 0.93f, r.radius(), r.color(), r.light(), 0.34f, 0.34f, frame.spin());
-        ripple(pose, out, feet, r.radius() * 0.985f, r.radius(), 0xFFFFFF, r.color(), 0.30f, 0.30f, frame.spin() * 2);
-        if (r.target() == null) return;
-        Vec3 eye = r.eye().subtract(camera), target = r.target().subtract(camera);
-        int line = r.inReach() ? 0x7ADB6A : 0xE0453A;
-        if (c.reachLine) edge(pose, out, (float) eye.x, (float) eye.y, (float) eye.z, (float) target.x, (float) target.y, (float) target.z, 1f, UiDraw.alpha(line, 0.75f), right, up);
-        ripple(pose, out, target, 0.10f, 0.17f, line, 0xFFFFFF, 0.55f, 0.55f, frame.spin() * 3);
+        List<ReachCircle> circles = frame.reach();
+        reachDrawn = !circles.isEmpty();
+        for (ReachCircle circle : circles) reachCircle(pose, out, circle, camera, right, up);
     }
 
     /**

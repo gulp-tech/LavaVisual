@@ -15,10 +15,10 @@ import tech.gulp.lavavisual.effects.CustomSounds;
 
 /**
  * Real radio: stations that are on air right now, streamed from the internet and played through the same music player
- * as a local file. The list is grouped — talk radio, where the hosts and the guests actually speak; the radio of
- * Makhachkala and Dagestan; and music. The radio of any other city can be added in {@code LavaVisual/radio.txt}
- * (one line per station: {@code name | genre | url}), which the mod creates on first use. Only MP3 streams are listed,
- * because MP3 is the internet format the mod decodes by itself.
+ * as a local file. The list is grouped: talk radio, where the hosts and the guests actually speak; the radio of the
+ * player's city (found by the IP address or chosen in the menu, see {@link CityRadio}); music; and the stations of
+ * {@code LavaVisual/radio.txt} (one line per station: {@code name | genre | url}), which the mod creates on first use.
+ * Only MP3 streams are played, because MP3 is the internet format the mod decodes by itself.
  */
 public final class NetRadio {
     private NetRadio() { }
@@ -26,49 +26,16 @@ public final class NetRadio {
     /** One internet station: the group it is listed under, its name, its genre and the stream address. */
     public record Station(String group, String name, String genre, String url) { }
 
-    public static final String TALK = "Разговорное", LOCAL = "Махачкала · Дагестан", MUSIC = "Музыка", OWN = "Свои станции";
-
-    private static final List<Station> BUILT_IN = List.of(
-            // Talk radio: news, interviews and phone-ins — the hosts and the callers never stop talking.
-            new Station(TALK, "Радио Маяк", "новости, ток-шоу, разговоры", "http://icecast.vgtrk.cdnvideo.ru/mayakfm_mp3_192kbps"),
-            new Station(TALK, "Вести FM", "новости и разговоры в студии", "http://icecast.vgtrk.cdnvideo.ru/vestifm"),
-            new Station(TALK, "Радио России", "главный канал страны", "http://icecast.vgtrk.cdnvideo.ru/rrzonam_mp3_128kbps"),
-            new Station(TALK, "Комсомольская правда", "разговоры, новости, прямые эфиры", "http://kpradio.hostingradio.ru:8000/russia.radiokp128.mp3"),
-            new Station(TALK, "Говорит Москва", "интервью и ток-шоу", "http://media.govoritmoskva.ru:8880/ru64.mp3"),
-            new Station(TALK, "Радио Книга", "книги, чтение, разговоры", "http://bookradio.hostingradio.ru:8069/fm"),
-            // The radio of this city: the Makhachkala studio Radio05 — Russian and the languages of Dagestan, with
-            // hosts, call-ins and the music of every nation of the republic.
-            new Station(LOCAL, "Радио Дагестан", "республиканский канал", "http://stream.radio05.ru:8000/radio_dagestan_128"),
-            new Station(LOCAL, "Радио Кавказ", "Кавказ: музыка и разговоры", "http://stream.radio05.ru:8000/radio_kavkaz_128"),
-            new Station(LOCAL, "Радио Ватан · 106.6 FM", "Махачкала, на русском и аварском", "http://stream.radio05.ru:8000/radio_vatan_128"),
-            new Station(LOCAL, "Radio05.Ru", "главный эфир студии", "http://stream.radio05.ru:8000/radio05_128"),
-            new Station(LOCAL, "Аварское радио", "на аварском языке", "http://stream.radio05.ru:8000/avarskoe_radio_128"),
-            new Station(LOCAL, "Даргинское радио", "на даргинском языке", "http://stream.radio05.ru:8000/darginskoe_radio_128"),
-            new Station(LOCAL, "Лезгинское радио", "на лезгинском языке", "http://stream.radio05.ru:8000/lezginskoe_radio_128"),
-            new Station(LOCAL, "Кумыкское радио", "на кумыкском языке", "http://stream.radio05.ru:8000/kumykskoe_radio_128"),
-            new Station(LOCAL, "Лакское радио", "на лакском языке", "http://stream.radio05.ru:8000/lakskoe_radio_128"),
-            new Station(LOCAL, "Рутульское радио", "на рутульском языке", "http://stream.radio05.ru:8000/rutulskoe_radio_128"),
-            new Station(LOCAL, "Цахурское радио", "на цахурском языке", "http://stream.radio05.ru:8000/tsakhurskoe_radio_128"),
-            new Station(LOCAL, "Агульское радио", "на агульском языке", "http://stream.radio05.ru:8000/agulskoe_radio_128"),
-            new Station(LOCAL, "Табасаранское радио", "на табасаранском языке", "http://stream.radio05.ru:8000/tabasaranskoe_radio_128"),
-            new Station(LOCAL, "Ногайское радио", "на ногайском языке", "http://stream.radio05.ru:8000/nogayskoe_radio_128"),
-            new Station(LOCAL, "Татское радио", "на татском языке", "http://stream.radio05.ru:8000/tatskoe_radio_128"),
-            new Station(LOCAL, "Азербайджанское радио", "на азербайджанском языке", "http://stream.radio05.ru:8000/azerbaydzhanskoe_radio_128"),
-            new Station(LOCAL, "Чеченское радио", "на чеченском языке", "http://stream.radio05.ru:8000/chechenskoe_radio_128"),
-            new Station(LOCAL, "Прибой FM", "музыка и эфиры Махачкалы", "http://stream.radio05.ru:8000/priboyfm_128"),
-            // Music of the big Russian stations; every stream here is MP3.
-            new Station(MUSIC, "Европа Плюс", "популярная музыка", "http://ep256.hostingradio.ru:8052/europaplus256.mp3"),
-            new Station(MUSIC, "Дорожное радио", "музыка для дороги", "http://dorognoe.hostingradio.ru:8000/radio"),
-            new Station(MUSIC, "Ретро FM 70-е", "хиты семидесятых", "http://retro70.hostingradio.ru:8025/retro70-128.mp3"),
-            new Station(MUSIC, "Радио Шансон", "шансон и городской романс", "http://chanson.hostingradio.ru:8041/chanson256.mp3"),
-            new Station(MUSIC, "Русский Рок", "отечественный рок", "http://rock.volna.top/RusRock"),
-            new Station(MUSIC, "Русские Песни", "народные и эстрадные песни", "http://listen.rusongs.ru/ru-mp3-128"));
+    public static final String TALK = "Разговорное", MUSIC = "Музыка", OWN = "Свои станции";
 
     private static volatile List<Station> list;
     private static volatile long listTime = -60000, fileStamp = Long.MIN_VALUE;
 
     private static List<Station> reload() {
-        List<Station> all = new ArrayList<>(BUILT_IN);
+        List<Station> all = new ArrayList<>(CityRadio.national(TALK));
+        CityRadio.City city = CityRadio.current();
+        if (city != null) all.addAll(CityRadio.of(city));
+        all.addAll(CityRadio.national(MUSIC));
         Path file = file();
         try {
             if (Files.isRegularFile(file)) {
@@ -115,6 +82,7 @@ public final class NetRadio {
 
     /** The whole list: built-in stations plus the ones from radio.txt, reread when the file changes. */
     public static List<Station> stations() {
+        CityLocator.ensure();
         List<Station> known = list;
         long now = System.currentTimeMillis();
         if (known != null && now - listTime <= 5000) return known;
@@ -249,20 +217,20 @@ public final class NetRadio {
     /** Checks the station list: names, groups and addresses have to make sense. Reported by the CI smoke test. */
     public static String selfTest() {
         List<Station> all = stations();
-        int talk = 0, local = 0, music = 0, own = 0;
+        int talk = 0, city = 0, music = 0, own = 0;
         for (Station station : all) {
             if (station.name().isBlank() || station.genre().isBlank()) return "у станции нет имени или жанра";
             if (!station.url().startsWith("http://") && !station.url().startsWith("https://")) return "неверный адрес: " + station.url();
             switch (station.group()) {
                 case TALK -> talk++;
-                case LOCAL -> local++;
                 case MUSIC -> music++;
-                default -> own++;
+                case OWN -> own++;
+                default -> city++;
             }
         }
         if (talk < 6) return "разговорных станций мало: " + talk;
-        if (local < 18) return "местных станций мало: " + local;
         if (music < 6) return "музыкальных станций мало: " + music;
-        return "ok: " + all.size() + " станций, разговорных " + talk + ", местных " + local + ", музыкальных " + music + ", своих " + own;
+        CityRadio.City here = CityRadio.current();
+        return "ok: " + all.size() + " станций, разговорных " + talk + ", радио города " + city + " (" + (here == null ? "город не определён" : here.name()) + "), музыкальных " + music + ", своих " + own;
     }
 }

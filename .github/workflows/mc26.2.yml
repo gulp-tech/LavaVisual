@@ -129,7 +129,7 @@ jobs:
         run: echo "path=$(ls ports/mc26.2/build/libs/*.jar | grep -v sources | head -1)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
-          name: LavaVisual-1.1.7-mc26.2
+          name: LavaVisual-1.2.0-mc26.2
           path: ${{ steps.jar.outputs.path }}
       - name: Publish tested JAR
         if: github.event_name == 'push'

@@ -18,7 +18,7 @@ public final class HudConfig {
     public static final List<String> IDS = List.of("coordinates", "performance", "target", "keys", "armor", "totems", "watermark", "minimap", "music");
     /** Every element with its own colour. Missing from {@link #colors} means "follow the theme colour". */
     public static final List<String> COLOR_KEYS = List.of("menu", "menu_bg", "hud_bg", "watermark", "target", "keys", "armor", "coordinates",
-            "performance", "totems", "minimap", "badge", "crosshair", "jump", "particles", "ambient", "marker", "esp", "kill", "hat", "trail", "waypoint", "crit", "music", "cape", "outfit", "projectile", "hitbox", "hitbox_mob", "hitbox_aim", "reach");
+            "performance", "totems", "minimap", "badge", "crosshair", "jump", "particles", "ambient", "marker", "esp", "kill", "hat", "trail", "waypoint", "crit", "music", "cape", "outfit", "projectile", "hitbox", "hitbox_mob", "hitbox_aim", "hitbox_look", "reach", "reach_in");
     /** Thrown things that can leave a trail (ProjectileTrails.NAMES in the same order). */
     public static final List<String> PROJECTILE_IDS = List.of("pearl", "arrow", "trident", "snowball", "egg", "potion", "bottle", "firework", "wind", "eye");
     public int schemaVersion = SCHEMA;
@@ -44,15 +44,23 @@ public final class HudConfig {
     public double hitboxLine = 0.6, hitboxFill, hitboxRange = 24;
     /** The short red eye ray of the vanilla debug view, drawn for every shown box. */
     public boolean hitboxView;
-    /** Reach: the distance readout next to the crosshair, the ground ring and the line to the aimed point. */
+    /** Reach: the distance readout next to the crosshair and the circles of the reach radius, like HitRange. */
     public boolean reachEnabled = true, reachReadout = true;
-    /** The ring of the reach radius on the ground plus the point marker where the crosshair lands. */
-    public boolean reachMarker = true;
-    /** The line from the eyes to the aimed point; off by default, as it crosses the whole view. */
-    public boolean reachLine;
+    /** The circle of the reach radius on the ground under every player: yours and the others, within sight. */
+    public boolean reachCircle = true, reachCircleSelf = true, reachCircleOthers = true;
+    /** Circle look: 0 = a line, 1 = a thick ring (as HitRange draws it), 2 = a filled disc. */
+    public int reachCircleMode = 1;
     /** Reach radius modes: 0 = attack reach 3, 1 = block reach 4.5, 2 = the slider below. */
     public int reachMode;
     public double reachRadius = 3;
+    /** The radio of the city: found by the IP address once a week (ipwho.is) or chosen by hand. */
+    public boolean radioAutoCity = true;
+    /** The city chosen by hand from the list of the radio; empty means the city found by the IP address. */
+    public String radioCity = "";
+    /** The city and the region the IP address gave, and its coordinates (1000 = not located yet). */
+    public String radioDetected = "", radioRegion = "";
+    public double radioLat = 1000, radioLon = 1000;
+    public long radioLocatedAt;
     public boolean crosshairEnabled, jumpEnabled, particlesEnabled, ambientEnabled, viewModelEnabled;
     public int crosshairShape = 1;
     public double crosshairScale = 1, crosshairOpacity = 1;
@@ -152,12 +160,14 @@ public final class HudConfig {
     public boolean waypointBeams = true, waypointLabels = true;
     public static int defaultColor(String key, int theme) {
         return switch (key) {
-            // Vanilla hitboxes are plain white; the aimed box, the mob boxes and the reach marker can be recoloured in the menu.
+            // Vanilla hitboxes are plain white; the aimed box, the mob boxes and the reach circles can be recoloured in the menu.
             case "menu_bg" -> 0x12151B;
             case "hud_bg" -> 0x111216;
             case "hitbox", "hitbox_mob", "hitbox_aim" -> 0xFFFFFF;
             // The look line of the vanilla F3+B view is blue.
             case "hitbox_look" -> 0x3F7BFF;
+            // The circle of a player who is within reach of you; the circle of the reach radius is the theme colour.
+            case "reach_in" -> 0x7ADB6A;
             default -> theme;
         };
     }
@@ -248,6 +258,10 @@ public final class HudConfig {
         hitboxRange = bounded(hitboxRange, 4, 64, 24);
         reachMode = Math.floorMod(reachMode, 3);
         reachRadius = bounded(reachRadius, 1, 8, 3);
+        reachCircleMode = Math.floorMod(reachCircleMode, 3);
+        if (radioCity == null) radioCity = "";
+        if (radioDetected == null) radioDetected = "";
+        if (radioRegion == null) radioRegion = "";
         rgb = Math.max(0, Math.min(0xFFFFFF, rgb));
         rgb2 = Math.max(0, Math.min(0xFFFFFF, rgb2));
         if (styleVersion < 1) {

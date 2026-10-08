@@ -1,0 +1,51 @@
+# Радио городов и страны: проверено в CI (tools/radio_check.py), в мод попадают только адреса, которые отвечают аудио.
+# город | широта | долгота | регион | вид | станция | жанр | адрес потока
+# вид: talk — разговорное, music — музыка (только для «Вся Россия»); local — станция города
+# «Вся Россия» играет в любом городе; остальные строки — станции своего города.
+Махачкала	42.9849	47.5047	Дагестан	local	Радио Дагестан	республиканский канал	http://stream.radio05.ru:8000/radio_dagestan_128
+Махачкала	42.9849	47.5047	Дагестан	local	Радио Кавказ	Кавказ: музыка и разговоры	http://stream.radio05.ru:8000/radio_kavkaz_128
+Махачкала	42.9849	47.5047	Дагестан	local	Радио Ватан · 106.6 FM	на русском и аварском	http://stream.radio05.ru:8000/radio_vatan_128
+Махачкала	42.9849	47.5047	Дагестан	local	Radio05.Ru	главный эфир студии	http://stream.radio05.ru:8000/radio05_128
+Махачкала	42.9849	47.5047	Дагестан	local	Аварское радио	на аварском языке	http://stream.radio05.ru:8000/avarskoe_radio_128
+Махачкала	42.9849	47.5047	Дагестан	local	Даргинское радио	на даргинском языке	http://stream.radio05.ru:8000/darginskoe_radio_128
+Махачкала	42.9849	47.5047	Дагестан	local	Лезгинское радио	на лезгинском языке	http://stream.radio05.ru:8000/lezginskoe_radio_128
+Махачкала	42.9849	47.5047	Дагестан	local	Кумыкское радио	на кумыкском языке	http://stream.radio05.ru:8000/kumykskoe_radio_128
+Махачкала	42.9849	47.5047	Дагестан	local	Лакское радио	на лакском языке	http://stream.radio05.ru:8000/lakskoe_radio_128
+Махачкала	42.9849	47.5047	Дагестан	local	Рутульское радио	на рутульском языке	http://stream.radio05.ru:8000/rutulskoe_radio_128
+Махачкала	42.9849	47.5047	Дагестан	local	Цахурское радио	на цахурском языке	http://stream.radio05.ru:8000/tsakhurskoe_radio_128
+Махачкала	42.9849	47.5047	Дагестан	local	Агульское радио	на агульском языке	http://stream.radio05.ru:8000/agulskoe_radio_128
+Махачкала	42.9849	47.5047	Дагестан	local	Табасаранское радио	на табасаранском языке	http://stream.radio05.ru:8000/tabasaranskoe_radio_128
+Махачкала	42.9849	47.5047	Дагестан	local	Ногайское радио	на ногайском языке	http://stream.radio05.ru:8000/nogayskoe_radio_128
+Махачкала	42.9849	47.5047	Дагестан	local	Татское радио	на татском языке	http://stream.radio05.ru:8000/tatskoe_radio_128
+Махачкала	42.9849	47.5047	Дагестан	local	Азербайджанское радио	на азербайджанском языке	http://stream.radio05.ru:8000/azerbaydzhanskoe_radio_128
+Махачкала	42.9849	47.5047	Дагестан	local	Чеченское радио	на чеченском языке	http://stream.radio05.ru:8000/chechenskoe_radio_128
+Махачкала	42.9849	47.5047	Дагестан	local	Прибой FM	музыка и эфиры Махачкалы	http://stream.radio05.ru:8000/priboyfm_128
+Махачкала	42.9849	47.5047	Дагестан	local	Nostalgie FM Makhachkala	ретро	https://nostalgie.dagfm.ru/
+Москва	55.7558	37.6173	Москва	local	Радио Культура	культура, разговоры	https://icecast-vgtrk.cdnvideo.ru/kulturafm_mp3_192kbps
+Москва	55.7558	37.6173	Москва	local	Радио Москвы	новости и разговоры	http://icecast.vgtrk.cdnvideo.ru/moscowtalk128
+Москва	55.7558	37.6173	Москва	local	Коммерсантъ FM	деловые новости и интервью	http://kommersant77.hostingradio.ru:8016/kommersant128.mp3
+Москва	55.7558	37.6173	Москва	local	Радио Спутник	новости и разговоры	http://icecast-rian.cdnvideo.ru/voicesym
+Санкт-Петербург	59.9343	30.3351	Санкт-Петербург	local	Hermitage Radio	музыка	http://hermitage.hostingradio.ru/hermitage128.mp3
+Санкт-Петербург	59.9343	30.3351	Санкт-Петербург	local	Polygon FM	рок	https://eu6.fastcast4u.com/proxy/polygonf?mp=/stream
+Барнаул	53.3481	83.7798	Алтайский край	local	Mayak22 · ГТРК Алтай	разговоры и новости	http://gtrk22.ru:8000/mayak22
+Владикавказ	43.0241	44.6817	Северная Осетия	local	Радио Алания	региональное радио	http://vgtrk15.hostingradio.ru:8011/vgtrk15128.mp3
+Серпухов	54.9167	37.4167	Московская область	local	Avtoradio 105.5 FM Серпухов	местные новости, поп	http://77.73.90.46:1055/avtoradio
+Серпухов	54.9167	37.4167	Московская область	local	Nashe Radio 106.0 FM Серпухов	русский рок и поп	http://77.73.90.46:1055/nasheradio
+Тюмень	57.1530	65.5343	Тюменская область	local	Дипольфм	музыка	https://icecast-sibinformburo.cdnvideo.ru/dipolfm
+Хабаровск	48.4802	135.0719	Хабаровский край	local	Восток России	рок и поп	http://109.70.24.182:8000/stream/1/
+Хабаровск	48.4802	135.0719	Хабаровский край	local	Mix FM	поп	http://radio.gubernia.com:8000/radio3
+Петропавловск-Камчатский	53.0244	158.6433	Камчатский край	local	Kamchatka LIVE Dance	танцевальная	https://radio.kamchatkalive.ru:8103/dance
+Ростов-на-Дону	47.2357	39.7015	Ростовская область	local	Chicago	рэп и хип-хоп	https://listen6.myradio24.com/92398
+Новосибирск	55.0084	82.9357	Новосибирская область	local	Liquid DnB	драм-н-бейс	http://95.47.244.172:8000/live
+Вся Россия	0	0	Вся Россия	talk	Радио Маяк	новости, ток-шоу, разговоры	http://icecast.vgtrk.cdnvideo.ru/mayakfm_mp3_192kbps
+Вся Россия	0	0	Вся Россия	talk	Вести FM	новости и разговоры в студии	http://icecast.vgtrk.cdnvideo.ru/vestifm
+Вся Россия	0	0	Вся Россия	talk	Радио России	главный канал страны	http://icecast.vgtrk.cdnvideo.ru/rrzonam_mp3_128kbps
+Вся Россия	0	0	Вся Россия	talk	Комсомольская правда	разговоры, новости, прямые эфиры	http://kpradio.hostingradio.ru:8000/russia.radiokp128.mp3
+Вся Россия	0	0	Вся Россия	talk	Говорит Москва	интервью и ток-шоу	http://media.govoritmoskva.ru:8880/ru64.mp3
+Вся Россия	0	0	Вся Россия	talk	Радио Книга	книги, чтение, разговоры	http://bookradio.hostingradio.ru:8069/fm
+Вся Россия	0	0	Вся Россия	music	Европа Плюс	популярная музыка	http://ep256.hostingradio.ru:8052/europaplus256.mp3
+Вся Россия	0	0	Вся Россия	music	Дорожное радио	музыка для дороги	http://dorognoe.hostingradio.ru:8000/radio
+Вся Россия	0	0	Вся Россия	music	Ретро FM 70-е	хиты семидесятых	http://retro70.hostingradio.ru:8025/retro70-128.mp3
+Вся Россия	0	0	Вся Россия	music	Радио Шансон	шансон и городской романс	http://chanson.hostingradio.ru:8041/chanson256.mp3
+Вся Россия	0	0	Вся Россия	music	Русский Рок	отечественный рок	http://rock.volna.top/RusRock
+Вся Россия	0	0	Вся Россия	music	Русские Песни	народные и эстрадные песни	http://listen.rusongs.ru/ru-mp3-128

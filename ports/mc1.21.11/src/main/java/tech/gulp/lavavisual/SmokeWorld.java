@@ -536,7 +536,7 @@ final class SmokeWorld {
             c.hitboxRange = 24;
             c.reachEnabled = true;
             c.reachReadout = true;
-            c.reachMarker = true;
+            c.reachCircle = true;
             player.connection.sendCommand("summon minecraft:pig ~2 ~ ~-1");
         }
         if (ticks == HITBOX_AT + 20) {
@@ -550,7 +550,7 @@ final class SmokeWorld {
         if (ticks == HITBOX_AT + 40) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_fill");
         if (ticks == HITBOX_AT + 52) c.hitboxStyle = 2;
         if (ticks == HITBOX_AT + 60) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_corners");
-        if (ticks == HITBOX_AT + 72) { c.hitboxStyle = 0; c.reachLine = true; c.reachMode = 2; c.reachRadius = 4; }
+        if (ticks == HITBOX_AT + 72) { c.hitboxStyle = 0; c.reachCircleMode = 2; c.reachMode = 2; c.reachRadius = 4; }
         if (ticks == HITBOX_AT + 80) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_reach");
         // Player list: a single player world never draws the Tab list, so the row of this very player is pushed through
         // the decoration the overlay applies to every row — the row must come out with the badge, and rows must count.

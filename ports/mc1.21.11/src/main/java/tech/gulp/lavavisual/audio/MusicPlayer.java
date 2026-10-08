@@ -41,6 +41,8 @@ public final class MusicPlayer {
     private static final java.util.Map<Path, Scanned> SCANNED = new java.util.concurrent.ConcurrentHashMap<>();
     private record Scanned(long size, long modified, AudioInfo info) { }
     private static int index = -1, channels, rate, source, skipped;
+    /** The station that is on air, by its name and address: when the list of stations moves, a changed one is noticed. */
+    private static String radioKey = "";
     /** How many times the current internet station has been retried after a drop-out. */
     private static int streamRetries;
     private static long baseFrame, context, lengthFrames = -1;
@@ -183,6 +185,7 @@ public final class MusicPlayer {
             if (station != radioIndex) streamRetries = 0;   // a new station counts its own drop-outs
             close();
             radioIndex = station;
+            radioKey = Radio.key(station);
             Track track = Radio.trackOf(station);
             error = "";
             decodeError = "";
@@ -385,6 +388,14 @@ public final class MusicPlayer {
         boolean restart = false;
         double at = 0;
         synchronized (LOCK) {
+            // The list of stations can change under the player (the city is found, another city is chosen). The station
+            // on air is searched for by its name and address: it keeps playing at its new index, and it is stopped only
+            // when it is no longer in the list at all.
+            if (radioIndex >= 0 && !radioKey.equals(Radio.key(radioIndex))) {
+                int moved = Radio.indexOfKey(radioKey);
+                if (moved >= 0) radioIndex = moved;
+                else { close(); radioIndex = -1; radioKey = ""; }
+            }
             if (playing && context != ALC10.alcGetCurrentContext()) { restart = true; at = position(); }
             if (playing && source != 0 && !restart) AL10.alSourcef(source, AL10.AL_GAIN, gain());
         }

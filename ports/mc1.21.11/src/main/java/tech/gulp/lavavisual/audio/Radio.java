@@ -95,6 +95,13 @@ public final class Radio {
     public static int count() { return STATIONS.size() + NetRadio.count(); }
     /** True when station i comes from the internet. */
     public static boolean stream(int i) { return i < 0 || i >= STATIONS.size(); }
+    /** Identifies station i: it changes when the station at this index changes, so a playing one is never mistaken. */
+    public static String key(int i) { return name(i) + '\n' + (stream(i) ? NetRadio.url(i - STATIONS.size()) : ""); }
+    /** Index of the station with this key (its name and address), or -1 when it is no longer in the list. */
+    public static int indexOfKey(String key) {
+        for (int i = 0; i < count(); i++) if (key(i).equals(key)) return i;
+        return -1;
+    }
     /** Name of station i, whichever kind it is. */
     public static String name(int i) {
         if (i < 0 || i >= count()) return "";
