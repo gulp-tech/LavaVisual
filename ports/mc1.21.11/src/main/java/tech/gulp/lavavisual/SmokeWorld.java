@@ -559,7 +559,7 @@ final class SmokeWorld {
             c.reachRadius = 4;
             double yaw = Math.toRadians(player.getYRot());
             player.setXRot(15);
-            player.connection.sendCommand(String.format(java.util.Locale.ROOT, "summon minecraft:cow %.3f %.3f %.3f",
+            player.connection.sendCommand(String.format(java.util.Locale.ROOT, "summon minecraft:cow %.3f %.3f %.3f {NoAI:1b}",
                     player.getX() - Math.sin(yaw) * 2.4, player.getY(), player.getZ() + Math.cos(yaw) * 2.4));
         }
         if (ticks == HITBOX_AT + 250) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_reach");

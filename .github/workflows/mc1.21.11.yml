@@ -71,10 +71,6 @@ jobs:
           mean=$(identify -format '%[fx:mean]' "$shot")
           echo "main menu brightness: $mean"
           python3 -c "import sys; v=float(sys.argv[1]); print('menu brightness', v); sys.exit(0 if v > 0.02 else 1)" "$mean"
-          mkdir -p artifacts/debug && cp "$shot" artifacts/debug/menu-1.21.11.png
-          for later in hud hats map inventory world_hotbar world_hitbox world_hitbox_fill world_hitbox_corners world_hitbox_reach world_hitbox_far; do
-            test ! -f ports/mc1.21.11/build/shot-$later.png || cp ports/mc1.21.11/build/shot-$later.png artifacts/debug/shot-$later-1.21.11.png
-          done
 
       - name: Check the mixin targets against this version
         run: |
@@ -110,6 +106,11 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           for attempt in 1 2 3 4 5; do
             git fetch -q origin "$GITHUB_REF_NAME" && git reset -q --hard "origin/$GITHUB_REF_NAME"
+            mkdir -p artifacts/debug
+            cp ports/mc1.21.11/build/shot-title.png artifacts/debug/menu-1.21.11.png
+            for later in hud hats map inventory world_hotbar world_hitbox world_hitbox_fill world_hitbox_corners world_hitbox_reach world_hitbox_far; do
+              test ! -f ports/mc1.21.11/build/shot-$later.png || cp ports/mc1.21.11/build/shot-$later.png artifacts/debug/shot-$later-1.21.11.png
+            done
             mkdir -p artifacts
             rm -f artifacts/lavavisual-*-mc1.21.11.jar
             cp "ports/mc1.21.11/build/libs/lavavisual-${version}.jar" artifacts/
