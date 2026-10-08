@@ -4,12 +4,14 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import tech.gulp.lavavisual.LavaVisual;
 import tech.gulp.lavavisual.effects.CustomSounds;
 
@@ -113,31 +115,122 @@ public final class NetRadio {
                 "интернет-радио · " + station.genre(), 0, "", "поток");
     }
 
-    /** Tunes in to station i: the MP3 frames are decoded as they arrive, so the sound starts within a second. */
+    /** A stream this mod cannot decode (AAC, OGG, HLS...): retrying would not help, so the player says so at once. */
+    public static final class Unsupported extends IOException {
+        public Unsupported(String message) { super(message); }
+    }
+
+    /**
+     * Tunes in to station i. Any address that gives audio works: a playlist (.m3u, .pls) is followed to the stream it
+     * names, a redirect is followed even from http to https, and a format the mod cannot decode is named plainly.
+     */
     public static Decoders.Source open(int i) throws IOException {
-        Station station = station(i);
-        HttpURLConnection connection = (HttpURLConnection) new URL(station.url()).openConnection();
-        connection.setConnectTimeout(8000);
-        connection.setReadTimeout(20000);
-        connection.setInstanceFollowRedirects(true);
-        connection.setRequestProperty("User-Agent", "LavaVisual (Minecraft mod)");
-        connection.setRequestProperty("Accept", "*/*");
-        // No titles inside the MP3 frames: they would sit right among the audio and trip the decoder. The title is
-        // read by nowPlaying() over a separate connection instead.
-        connection.setRequestProperty("Icy-MetaData", "0");
-        InputStream raw = connection.getInputStream();
-        // A station can still put its titles between the frames: they are cut out, so the decoder gets audio only.
+        return open(station(i).url(), 0);
+    }
+
+    private static Decoders.Source open(String address, int depth) throws IOException {
+        if (depth > 3) throw new IOException("слишком много плейлистов подряд");
+        HttpURLConnection connection = connect(address);
+        String type = String.valueOf(connection.getContentType()).toLowerCase(Locale.ROOT);
         int metaInterval = connection.getHeaderFieldInt("icy-metaint", 0);
-        InputStream in = new BufferedInputStream(metaInterval > 0 ? new IcyStream(raw, metaInterval) : raw, 1 << 16);
+        BufferedInputStream in = new BufferedInputStream(connection.getInputStream(), 1 << 16);
         try {
-            return Decoders.stream(in);
+            in.mark(16);
+            byte[] head = in.readNBytes(16);
+            in.reset();
+            if (isPlaylist(type, head)) {
+                String next = firstAddress(new String(in.readNBytes(1 << 14), StandardCharsets.UTF_8), address);
+                in.close();
+                return open(next, depth + 1);
+            }
+            checkFormat(type, head);
+            // A station can still put its titles between the frames: they are cut out, so the decoder gets audio only.
+            InputStream ready = metaInterval > 0 ? new IcyStream(in, metaInterval) : in;
+            return Decoders.stream(ready);
         } catch (IOException failure) {
-            try { in.close(); } catch (IOException ignored) { }
+            closeQuietly(in);
             throw failure;
         } catch (RuntimeException | LinkageError failure) {
-            try { in.close(); } catch (IOException ignored) { }
+            closeQuietly(in);
             throw new IOException(failure.getMessage() == null ? "поток не читается" : failure.getMessage());
         }
+    }
+
+    /** Opens the address, following redirects by hand so that a move from http to https works as well. */
+    private static HttpURLConnection connect(String address) throws IOException {
+        String url = address;
+        for (int hop = 0; ; hop++) {
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setConnectTimeout(8000);
+            connection.setReadTimeout(20000);
+            connection.setInstanceFollowRedirects(false);
+            connection.setRequestProperty("User-Agent", "LavaVisual (Minecraft mod)");
+            connection.setRequestProperty("Accept", "*/*");
+            // No titles inside the MP3 frames: they would sit right among the audio and trip the decoder. The title is
+            // read by nowPlaying() over a separate connection instead.
+            connection.setRequestProperty("Icy-MetaData", "0");
+            int code = connection.getResponseCode();
+            if (code >= 300 && code < 400 && hop < 5) {
+                String location = connection.getHeaderField("Location");
+                connection.disconnect();
+                if (location == null) throw new IOException("станция перенаправила без адреса");
+                try {
+                    url = URI.create(url).resolve(location.trim()).toString();
+                } catch (IllegalArgumentException bad) {
+                    throw new IOException("неверный адрес станции");
+                }
+                continue;
+            }
+            if (code >= 300) {
+                connection.disconnect();
+                throw new IOException("станция ответила " + code);
+            }
+            if (code >= 400) {
+                connection.disconnect();
+                throw new IOException("станция ответила " + code);
+            }
+            return connection;
+        }
+    }
+
+    private static boolean isPlaylist(String type, byte[] head) {
+        String start = new String(head, StandardCharsets.US_ASCII).toLowerCase(Locale.ROOT);
+        return type.contains("mpegurl") || type.contains("scpls") || start.startsWith("#extm3u") || start.startsWith("[playlist]");
+    }
+
+    /** The first address a playlist names: an .m3u line, or a FileN= line of a .pls, relative ones resolved. */
+    private static String firstAddress(String text, String base) throws IOException {
+        if (text.contains("#EXT-X-")) throw new Unsupported("HLS-поток (m3u8) не поддерживается");
+        boolean pls = text.trim().regionMatches(true, 0, "[playlist]", 0, 10);
+        for (String raw : text.split("\\r?\\n")) {
+            String line = raw.trim();
+            if (pls) {
+                if (!line.regionMatches(true, 0, "file", 0, 4) || line.indexOf('=') < 0) continue;
+                line = line.substring(line.indexOf('=') + 1).trim();
+            } else if (line.isEmpty() || line.startsWith("#")) {
+                continue;
+            }
+            if (line.isEmpty()) continue;
+            try {
+                return URI.create(base).resolve(line).toString();
+            } catch (IllegalArgumentException bad) {
+                throw new IOException("плейлист содержит неверный адрес");
+            }
+        }
+        throw new IOException("плейлист пуст");
+    }
+
+    /** Names the formats the MP3 decoder cannot read, instead of letting it fail with a Java message. */
+    private static void checkFormat(String type, byte[] head) throws Unsupported {
+        String start = new String(head, StandardCharsets.US_ASCII);
+        if (start.startsWith("OggS") || type.contains("ogg") || type.contains("opus")) throw new Unsupported("формат OGG/Opus не поддерживается");
+        if (start.startsWith("fLaC") || type.contains("flac")) throw new Unsupported("формат FLAC не поддерживается");
+        boolean adts = head.length >= 2 && (head[0] & 0xFF) == 0xFF && (head[1] & 0xF6) == 0xF0;
+        if (adts || type.contains("aac") || type.contains("mp4")) throw new Unsupported("формат AAC не поддерживается");
+    }
+
+    private static void closeQuietly(InputStream in) {
+        try { in.close(); } catch (IOException ignored) { }
     }
 
     /** Cuts the ICY titles out of an MP3 stream: after every {@code interval} bytes of audio a title block follows. */

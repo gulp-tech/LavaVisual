@@ -63,6 +63,8 @@ public final class MusicPlayer {
     private static short[] chunk;
     private static ShortBuffer pcm;
     private static volatile String error = "", decodeError = "";
+    /** The station just tuned in to has a format the mod cannot decode: it is not retried. */
+    private static volatile boolean unsupportedStream;
     private static volatile boolean failed;
     private static volatile boolean playing, paused, ended, finished;
     private static Thread streamer;
@@ -310,11 +312,13 @@ public final class MusicPlayer {
      */
     private static long openRadio(int station, int tg) {
         Decoders.Source opened;
+        unsupportedStream = false;
         try {
             opened = Radio.stream(station) ? NetRadio.open(station - Radio.stations().size()) : new Radio.Synth(station);
         } catch (IOException | RuntimeException | LinkageError failure) {
             String why = failure.getMessage() == null ? "станция недоступна" : failure.getMessage();
             LavaVisual.LOGGER.warn("LavaVisual: cannot tune in to station {}", Radio.name(station), failure);
+            unsupportedStream = failure instanceof NetRadio.Unsupported;
             synchronized (LOCK) { if (trackGen == tg) { decodeError = why; failed = true; } }
             return -2;
         }
@@ -417,7 +421,7 @@ public final class MusicPlayer {
             synchronized (LOCK) { close(); }
             // An internet station that cannot be decoded has a broken connection, not a broken file: it is reconnected
             // like a drop-out, and only when it keeps failing is the player told so, in plain words.
-            if (station >= 0 && Radio.stream(station)) {
+            if (station >= 0 && Radio.stream(station) && !unsupportedStream) {
                 if (streamRetries < 3) { streamRetries++; playRadio(station); return; }
                 why = "станция не отвечает, попробуйте другую";
             }
