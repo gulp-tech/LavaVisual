@@ -683,7 +683,7 @@ public final class ClickGuiScreen extends Screen {
             slider(g, "Заливка", c.hitboxFill, 0, 0.5, v -> c.hitboxFill = v, false);
             slider(g, "Дистанция · блоки", c.hitboxRange, 4, 64, v -> c.hitboxRange = v, false);
             toggle(g, "hitbox_self", "Свой бокс", "Рамка вокруг себя · видно от третьего лица", c.hitboxSelf, () -> { c.hitboxSelf = !c.hitboxSelf; changed(); }, null);
-            toggle(g, "hitbox_view", "Луч взгляда", "Короткая линия от глаз — как у сущностей в F3+B", c.hitboxView, () -> { c.hitboxView = !c.hitboxView; changed(); }, null);
+            toggle(g, "hitbox_view", "Луч взгляда", "Короткая красная линия от глаз — как в ванильном F3+B", c.hitboxView, () -> { c.hitboxView = !c.hitboxView; changed(); }, null);
         });
         toggle(g, "reach", "Хит-рейндж", "Число под прицелом: сколько блоков до цели", c.reachEnabled, () -> { c.reachEnabled = !c.reachEnabled; changed(); }, null);
         group(g, "reach", c.reachEnabled, () -> {

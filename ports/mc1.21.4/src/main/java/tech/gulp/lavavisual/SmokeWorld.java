@@ -18,7 +18,7 @@ final class SmokeWorld {
             TRAIL_AT = CRIT_AT + 50, ZOOM_AT = TRAIL_AT + 95, FREE_AT = ZOOM_AT + 40, WINGS_EDIT_AT = FREE_AT + 40,
             MAP_AT = WINGS_EDIT_AT + 45, SOUND_AT = MAP_AT + 110, MUSIC_AT = SOUND_AT + 12, FORMATS_AT = MUSIC_AT + 72, TIME_AT = FORMATS_AT + 104, ITEMS_AT = TIME_AT + 80,
             PROJ_AT = ITEMS_AT + 70, OUTFIT_AT = PROJ_AT + 50, SHOTS_AT = OUTFIT_AT + 94, HOTBAR_AT = SHOTS_AT + 216, RADIO_AT = HOTBAR_AT + 40, NET_AT = RADIO_AT + 76,
-            HITBOX_AT = NET_AT + 140, TAB_AT = HITBOX_AT + 46, END_AT = TAB_AT + 40;
+            HITBOX_AT = NET_AT + 140, TAB_AT = HITBOX_AT + 330, END_AT = TAB_AT + 40;
     private static float walkLift;
     private static double p1, p2, p3, p4;
     private static boolean musicPlaying, musicPaused, musicStable, musicSeek, musicNext, musicPrevious;
@@ -547,12 +547,25 @@ final class SmokeWorld {
                     + ": boxes " + boxes + ", reach " + tech.gulp.lavavisual.effects.WorldCosmetics.reachDrawn);
             LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox");
         }
-        if (ticks == HITBOX_AT + 32) { c.hitboxStyle = 1; c.hitboxFill = 0.16; c.hitboxView = false; }
-        if (ticks == HITBOX_AT + 40) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_fill");
-        if (ticks == HITBOX_AT + 52) c.hitboxStyle = 2;
-        if (ticks == HITBOX_AT + 60) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_corners");
-        if (ticks == HITBOX_AT + 72) { c.hitboxStyle = 0; c.reachLine = true; c.reachMode = 2; c.reachRadius = 4; }
-        if (ticks == HITBOX_AT + 80) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_reach");
+        if (ticks == HITBOX_AT + 80) { c.hitboxStyle = 1; c.hitboxFill = 0.16; c.hitboxView = false; }
+        if (ticks == HITBOX_AT + 88) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_fill");
+        if (ticks == HITBOX_AT + 150) c.hitboxStyle = 2;
+        if (ticks == HITBOX_AT + 158) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_corners");
+        // The reach number needs a hit box under the crosshair: a cow two and a half blocks ahead, the view a little
+        // down, and the radius small enough for the number to be green in reach and red beyond it.
+        if (ticks == HITBOX_AT + 220) {
+            c.hitboxStyle = 0;
+            c.reachLine = true;
+            c.reachMode = 2;
+            c.reachRadius = 4;
+            double yaw = Math.toRadians(player.getYRot());
+            player.setXRot(15);
+            player.connection.sendCommand(String.format(java.util.Locale.ROOT, "summon minecraft:cow %.3f %.3f %.3f",
+                    player.getX() - Math.sin(yaw) * 2.4, player.getY(), player.getZ() + Math.cos(yaw) * 2.4));
+        }
+        if (ticks == HITBOX_AT + 250) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_reach");
+        if (ticks == HITBOX_AT + 272) c.reachRadius = 2;
+        if (ticks == HITBOX_AT + 296) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_far");
         // Player list: a single player world never draws the Tab list, so the row of this very player is pushed through
         // the decoration the overlay applies to every row — the row must come out with the badge, and rows must count.
         if (ticks == TAB_AT) {

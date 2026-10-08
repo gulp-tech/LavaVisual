@@ -57,7 +57,7 @@ public final class WorldCosmetics {
     private record MarkerFrame(Vec3 origin, int shape, float size, float alpha) { }
     /** colors: jump, esp, kill, trail, marker (theme or per-element). */
     private record Frame(List<RingFrame> rings, List<SparkFrame> sparks, List<MarkerFrame> markers, int[] colors, int[] lights, List<HatFrame> hats, float spin, List<TrailPoint> trail, Vec3 esp, float espHeight, float espWidth, int espStyle, List<BeamFrame> beams, List<tech.gulp.lavavisual.map.WaypointOverlay.Beam> waypoints, List<ShotTrail> shots,
-            List<BoxFrame> boxes, ReachFrame reach) { }
+            List<BoxFrame> boxes, ReachFrame reach, Vec3[] view) { }
     private static final RenderStateDataKey<Frame> DATA = RenderStateDataKey.create(() -> "lavavisual:cosmetics");
     private static final ArrayList<Ring> RINGS = new ArrayList<>();
     private static final ArrayList<Mark> MARKS = new ArrayList<>();
@@ -241,7 +241,7 @@ public final class WorldCosmetics {
             // Second tones: the theme gradient (lava orange to amethyst by default) instead of a lighter shade.
             int[] lights = {c.color2("jump") & 0xFFFFFF, c.color2("esp") & 0xFFFFFF, c.color2("kill") & 0xFFFFFF, c.color2("trail") & 0xFFFFFF, c.color2("marker") & 0xFFFFFF};
             context.worldState().setData(DATA, new Frame(List.copyOf(rings), List.copyOf(sparks), List.copyOf(markers), colors, lights, List.copyOf(hats), (float) (now * 0.06),
-                    List.copyOf(trail), esp, espHeight, espWidth, c.espStyle, List.copyOf(beams), waypointBeams, ProjectileTrails.frame(partial), boxes(partial), REACH));
+                    List.copyOf(trail), esp, espHeight, espWidth, c.espStyle, List.copyOf(beams), waypointBeams, ProjectileTrails.frame(partial), boxes(partial), REACH, view(partial)));
         });
         WorldRenderEvents.BEFORE_TRANSLUCENT.register(WorldCosmetics::render);
     }
@@ -358,7 +358,7 @@ public final class WorldCosmetics {
     /** One hit box gathered on the tick: the entity itself, its size and the settings of that moment. */
     private record BoxSource(net.minecraft.world.entity.Entity entity, float width, float height, int color, int style, float line, float fill, boolean aimed) { }
     /** One hit box ready for drawing: interpolated corners, so the box never shakes while the entity moves. */
-    record BoxFrame(Vec3 base, float width, float height, int color, int style, float line, float fill, boolean aimed, Vec3 eye, Vec3 look) { }
+    record BoxFrame(Vec3 base, float width, float height, int color, int style, float line, float fill, boolean aimed) { }
     /** The reach marker: the ring on the ground, the aimed point and the line from the eye to it. */
     record ReachFrame(Vec3 feet, Vec3 eye, Vec3 target, float radius, int color, int light, boolean inReach) { }
     private static final List<BoxSource> BOXES = new ArrayList<>();
@@ -401,6 +401,13 @@ public final class WorldCosmetics {
         }
     }
 
+    /** The eyes and the look of the local player: the ray of the vanilla debug view starts there. */
+    private static Vec3[] view(double partial) {
+        var player = Minecraft.getInstance().player;
+        if (player == null) return null;
+        return new Vec3[] { player.getEyePosition((float) partial), player.getViewVector((float) partial) };
+    }
+
     /**
      * Hit boxes of this frame: every entity is placed by the same partial tick the game uses for its model, so a
      * walking mob keeps its box exactly around itself instead of trailing one tick behind and shaking.
@@ -416,8 +423,7 @@ public final class WorldCosmetics {
             Vec3 shift = lerped.subtract(entity.position());
             var box = entity.getBoundingBox().move(shift.x, shift.y, shift.z);
             out.add(new BoxFrame(new Vec3(box.minX, box.minY, box.minZ), (float) box.getXsize(), (float) box.getYsize(),
-                    source.aimed() ? aim : source.color(), source.style(), source.line(), source.fill(), source.aimed(),
-                    entity.getEyePosition((float) partial), entity.getViewVector((float) partial)));
+                    source.aimed() ? aim : source.color(), source.style(), source.line(), source.fill(), source.aimed()));
         }
         return out;
     }
@@ -427,10 +433,9 @@ public final class WorldCosmetics {
         var c = LavaVisualClient.config();
         boxesDrawn = frame.boxes().size();
         for (BoxFrame box : frame.boxes()) hitbox(pose, out, box, camera, right, up);
-        // The eye ray of the vanilla debug view: a thin red line along the look direction of every shown entity.
-        if (c.hitboxView) for (BoxFrame box : frame.boxes()) {
-            Vec3 eye = box.eye().subtract(camera);
-            Vec3 look = box.look();
+        // The eye ray of the vanilla debug view: the short red line of the local player along the look direction.
+        if (c.hitboxView && frame.view() != null) {
+            Vec3 eye = frame.view()[0].subtract(camera), look = frame.view()[1];
             // The band starts a bit ahead of the eyes: one that begins right at the camera would fill the whole view.
             edge(pose, out, (float) (eye.x + look.x * 1.4), (float) (eye.y + look.y * 1.4), (float) (eye.z + look.z * 1.4),
                     (float) (eye.x + look.x * 3.4), (float) (eye.y + look.y * 3.4), (float) (eye.z + look.z * 3.4), 0.7f, UiDraw.alpha(0xE0453A, 0.85f), right, up);

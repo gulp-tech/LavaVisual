@@ -42,7 +42,7 @@ public final class HudConfig {
     public boolean hitboxEnabled, hitboxSelf;
     public int hitboxTargets, hitboxStyle;
     public double hitboxLine = 1.6, hitboxFill, hitboxRange = 24;
-    /** The short red eye ray of the vanilla debug view, drawn for every shown box. */
+    /** The short red eye ray of the vanilla debug view: from the eyes along the look direction. */
     public boolean hitboxView;
     /** Reach: the distance readout next to the crosshair, the ground ring and the line to the aimed point. */
     public boolean reachEnabled = true, reachReadout = true;
