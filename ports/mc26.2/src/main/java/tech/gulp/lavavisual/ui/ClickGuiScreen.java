@@ -698,6 +698,11 @@ public final class ClickGuiScreen extends Screen {
                 toggle(g, "reach_circle_others", "Круги других игроков", "Игроки в радиусе 48 блоков · зелёный, если они в вашей досягаемости", c.reachCircleOthers, () -> { c.reachCircleOthers = !c.reachCircleOthers; changed(); }, null);
                 caption(g, "Вид круга");
                 chips(g, REACH_CIRCLE_MODES, c.reachCircleMode, i -> { c.reachCircleMode = i; changed(); });
+                slider(g, "Толщина кольца · блоки", c.reachCircleWidth, 0.03, 0.5, v -> c.reachCircleWidth = v, false);
+                slider(g, "Прозрачность", c.reachCircleAlpha, 0.1, 1, v -> c.reachCircleAlpha = v, false);
+                slider(g, "Высота над землёй · блоки", c.reachCircleLift, 0, 0.3, v -> c.reachCircleLift = v, false);
+                colorRow(g, "reach", "Цвет своего круга");
+                colorRow(g, "reach_in", "Цвет круга в досягаемости");
             });
         });
         section(g, "Удары");

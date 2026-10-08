@@ -370,7 +370,6 @@ public final class WorldCosmetics {
     /** Segments of a reach circle, as HitRange draws it. */
     private static final int REACH_SEGMENTS = 60;
     /** Thickness of the thick ring (mode 1), in blocks; the same default as HitRange. */
-    private static final float REACH_THICKNESS = 0.15f;
     /** Hit boxes drawn in the last frame (the CI smoke test reads this). */
     public static int boxesDrawn;
     /** Whether a reach circle was drawn in the last frame (the CI smoke test reads this). */
@@ -463,7 +462,8 @@ public final class WorldCosmetics {
      */
     private static void reachCircle(PoseStack.Pose pose, VertexConsumer out, ReachCircle circle, Vec3 camera, Vector3f right, Vector3f up) {
         Vec3 feet = circle.feet().subtract(camera);
-        double y = feet.y + 0.02;
+        var cfg = LavaVisualClient.config();
+        double y = feet.y + cfg.reachCircleLift;
         double r = circle.radius();
         int n = REACH_SEGMENTS;
         int color = circle.color();
@@ -472,14 +472,15 @@ public final class WorldCosmetics {
                 double a0 = i * Math.PI * 2 / n, a1 = (i + 1) * Math.PI * 2 / n;
                 edge(pose, out, (float) (feet.x + Math.cos(a0) * r), (float) y, (float) (feet.z + Math.sin(a0) * r),
                         (float) (feet.x + Math.cos(a1) * r), (float) y, (float) (feet.z + Math.sin(a1) * r),
-                        1.2f, UiDraw.alpha(color, 0.6), right, up);
+                        1.2f, UiDraw.alpha(color, Math.min(1, cfg.reachCircleAlpha * 1.2)), right, up);
             }
             return;
         }
-        double inner = circle.mode() == 1 ? r - REACH_THICKNESS / 2 : 0;
-        double outer = circle.mode() == 1 ? r + REACH_THICKNESS / 2 : r;
+        double width = cfg.reachCircleWidth;
+        double inner = circle.mode() == 1 ? r - width / 2 : 0;
+        double outer = circle.mode() == 1 ? r + width / 2 : r;
         // HitRange's default is half transparent (0x80): the ring reads as a soft band, not a solid stripe.
-        int fill = UiDraw.alpha(color, circle.mode() == 1 ? 0.5 : 0.3);
+        int fill = UiDraw.alpha(color, circle.mode() == 1 ? cfg.reachCircleAlpha : cfg.reachCircleAlpha * 0.6);
         for (int i = 0; i < n; i++) {
             double a0 = i * Math.PI * 2 / n, a1 = (i + 1) * Math.PI * 2 / n;
             double c0 = Math.cos(a0), s0 = Math.sin(a0), c1 = Math.cos(a1), s1 = Math.sin(a1);

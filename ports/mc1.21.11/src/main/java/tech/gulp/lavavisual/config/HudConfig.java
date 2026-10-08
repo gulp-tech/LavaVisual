@@ -50,6 +50,8 @@ public final class HudConfig {
     public boolean reachCircle = true, reachCircleSelf = true, reachCircleOthers = true;
     /** Circle look: 0 = a line, 1 = a thick ring (as HitRange draws it), 2 = a filled disc. */
     public int reachCircleMode = 1;
+    /** The ring: its width in blocks, its opacity (a line is a bit stronger, a disc a bit softer) and its height above the ground. */
+    public double reachCircleWidth = 0.15, reachCircleAlpha = 0.5, reachCircleLift = 0.02;
     /** Reach radius modes: 0 = attack reach 3, 1 = block reach 4.5, 2 = the slider below. */
     public int reachMode;
     public double reachRadius = 3;
@@ -259,6 +261,9 @@ public final class HudConfig {
         reachMode = Math.floorMod(reachMode, 3);
         reachRadius = bounded(reachRadius, 1, 8, 3);
         reachCircleMode = Math.floorMod(reachCircleMode, 3);
+        reachCircleWidth = bounded(reachCircleWidth, 0.03, 0.5, 0.15);
+        reachCircleAlpha = bounded(reachCircleAlpha, 0.1, 1, 0.5);
+        reachCircleLift = bounded(reachCircleLift, 0, 0.3, 0.02);
         if (radioCity == null) radioCity = "";
         if (radioDetected == null) radioDetected = "";
         if (radioRegion == null) radioRegion = "";
