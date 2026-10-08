@@ -159,7 +159,7 @@ public final class NetRadio {
         connection.setRequestProperty("Icy-MetaData", "0");
         InputStream in = new BufferedInputStream(connection.getInputStream(), 1 << 16);
         try {
-            return Decoders.stream(in, station.name());
+            return Decoders.stream(in);
         } catch (IOException failure) {
             try { in.close(); } catch (IOException ignored) { }
             throw failure;
