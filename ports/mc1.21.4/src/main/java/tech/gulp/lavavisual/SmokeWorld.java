@@ -564,7 +564,7 @@ final class SmokeWorld {
                     player.getX() - Math.sin(yaw) * 2.4, player.getY(), player.getZ() + Math.cos(yaw) * 2.4));
         }
         if (ticks == HITBOX_AT + 250) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_reach");
-        if (ticks == HITBOX_AT + 272) c.reachRadius = 2;
+        if (ticks == HITBOX_AT + 272) c.reachRadius = 1;
         if (ticks == HITBOX_AT + 296) LavaVisual.LOGGER.info("LavaVisual smoke shot world_hitbox_far");
         // Player list: a single player world never draws the Tab list, so the row of this very player is pushed through
         // the decoration the overlay applies to every row — the row must come out with the badge, and rows must count.
