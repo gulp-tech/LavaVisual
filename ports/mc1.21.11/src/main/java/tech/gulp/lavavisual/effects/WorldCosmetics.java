@@ -473,13 +473,14 @@ public final class WorldCosmetics {
                 double a0 = i * Math.PI * 2 / n, a1 = (i + 1) * Math.PI * 2 / n;
                 edge(pose, out, (float) (feet.x + Math.cos(a0) * r), (float) y, (float) (feet.z + Math.sin(a0) * r),
                         (float) (feet.x + Math.cos(a1) * r), (float) y, (float) (feet.z + Math.sin(a1) * r),
-                        1.2f, UiDraw.alpha(color, 0.9), right, up);
+                        1.2f, UiDraw.alpha(color, 0.6), right, up);
             }
             return;
         }
         double inner = circle.mode() == 1 ? r - REACH_THICKNESS / 2 : 0;
         double outer = circle.mode() == 1 ? r + REACH_THICKNESS / 2 : r;
-        int fill = UiDraw.alpha(color, circle.mode() == 1 ? 0.85 : 0.22);
+        // HitRange's default is half transparent (0x80): the ring reads as a soft band, not a solid stripe.
+        int fill = UiDraw.alpha(color, circle.mode() == 1 ? 0.5 : 0.3);
         for (int i = 0; i < n; i++) {
             double a0 = i * Math.PI * 2 / n, a1 = (i + 1) * Math.PI * 2 / n;
             double c0 = Math.cos(a0), s0 = Math.sin(a0), c1 = Math.cos(a1), s1 = Math.sin(a1);

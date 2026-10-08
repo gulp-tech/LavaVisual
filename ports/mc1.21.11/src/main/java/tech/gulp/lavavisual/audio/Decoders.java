@@ -53,6 +53,15 @@ public final class Decoders {
         };
     }
 
+    /** The MP3 decoder can throw on a damaged stream; that is a broken connection, so it is reported as an I/O error. */
+    private static int readMp3(fr.delthas.javamp3.Sound in, byte[] buf, int at) throws IOException {
+        try {
+            return in.read(buf, at, buf.length - at);
+        } catch (RuntimeException | LinkageError damaged) {
+            throw new IOException("поток испорчен", damaged);
+        }
+    }
+
     /** A live MP3 stream (internet radio): the frames are decoded as they arrive, so the sound starts at once. */
     public static Source stream(InputStream in) throws IOException {
         return Memory.startLive(new Mp3Stream(in));
@@ -246,7 +255,7 @@ public final class Decoders {
             int carry = 0, frameBytes = 2 * channels;
             try (fr.delthas.javamp3.Sound in = sound) {
                 while (!out.closed) {
-                    int n = in.read(buf, carry, buf.length - carry);
+                    int n = readMp3(in, buf, carry);
                     if (n < 0) break;
                     n += carry;
                     int frames = n / frameBytes;
@@ -274,7 +283,7 @@ public final class Decoders {
             int carry = 0, frameBytes = 2 * channels;
             try (fr.delthas.javamp3.Sound in = sound) {
                 while (!out.closed) {
-                    int n = in.read(buf, carry, buf.length - carry);
+                    int n = readMp3(in, buf, carry);
                     if (n < 0) break;
                     n += carry;
                     int frames = n / frameBytes;

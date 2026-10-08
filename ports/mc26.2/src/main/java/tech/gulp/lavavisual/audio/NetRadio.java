@@ -125,7 +125,10 @@ public final class NetRadio {
         // No titles inside the MP3 frames: they would sit right among the audio and trip the decoder. The title is
         // read by nowPlaying() over a separate connection instead.
         connection.setRequestProperty("Icy-MetaData", "0");
-        InputStream in = new BufferedInputStream(connection.getInputStream(), 1 << 16);
+        InputStream raw = connection.getInputStream();
+        // A station can still put its titles between the frames: they are cut out, so the decoder gets audio only.
+        int metaInterval = connection.getHeaderFieldInt("icy-metaint", 0);
+        InputStream in = new BufferedInputStream(metaInterval > 0 ? new IcyStream(raw, metaInterval) : raw, 1 << 16);
         try {
             return Decoders.stream(in);
         } catch (IOException failure) {
@@ -135,6 +138,44 @@ public final class NetRadio {
             try { in.close(); } catch (IOException ignored) { }
             throw new IOException(failure.getMessage() == null ? "поток не читается" : failure.getMessage());
         }
+    }
+
+    /** Cuts the ICY titles out of an MP3 stream: after every {@code interval} bytes of audio a title block follows. */
+    private static final class IcyStream extends java.io.FilterInputStream {
+        private final int interval;
+        private int untilTitle;
+        IcyStream(InputStream in, int interval) {
+            super(in);
+            this.interval = interval;
+            this.untilTitle = interval;
+        }
+        @Override public int read() throws IOException {
+            byte[] one = new byte[1];
+            int n = read(one, 0, 1);
+            return n < 0 ? -1 : one[0] & 255;
+        }
+        @Override public int read(byte[] b, int off, int len) throws IOException {
+            if (len == 0) return 0;
+            if (untilTitle == 0) {
+                int blocks = in.read();                 // the title block: its length in 16-byte units
+                if (blocks < 0) return -1;
+                byte[] title = new byte[blocks * 16];
+                for (int at = 0; at < title.length; ) {
+                    int k = in.read(title, at, title.length - at);
+                    if (k < 0) return -1;
+                    at += k;
+                }
+                untilTitle = interval;
+            }
+            int n = in.read(b, off, Math.min(len, untilTitle));
+            if (n > 0) untilTitle -= n;
+            return n;
+        }
+        @Override public long skip(long n) throws IOException {
+            byte[] scratch = new byte[(int) Math.min(Math.max(n, 0), 8192)];
+            return scratch.length == 0 ? 0 : Math.max(0, read(scratch, 0, scratch.length));
+        }
+        @Override public boolean markSupported() { return false; }
     }
 
     // ------------------------------------------------------------------ what is on air right now

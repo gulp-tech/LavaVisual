@@ -413,7 +413,14 @@ public final class MusicPlayer {
             failed = false;
             Track track = current();
             String why = decodeError.isEmpty() ? "файл не декодируется" : decodeError;
+            int station = radioIndex;
             synchronized (LOCK) { close(); }
+            // An internet station that cannot be decoded has a broken connection, not a broken file: it is reconnected
+            // like a drop-out, and only when it keeps failing is the player told so, in plain words.
+            if (station >= 0 && Radio.stream(station)) {
+                if (streamRetries < 3) { streamRetries++; playRadio(station); return; }
+                why = "станция не отвечает, попробуйте другую";
+            }
             if (track != null) fail(track, why);
             return;
         }
