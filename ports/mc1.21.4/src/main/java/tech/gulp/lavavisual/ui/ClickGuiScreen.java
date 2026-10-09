@@ -308,7 +308,7 @@ public final class ClickGuiScreen extends Screen {
         UiDraw.roundV(g, bodyX + 10, y + 12, 24, 24, 7, blend(0x2B2F38, ac & 0xFFFFFF, lit * 0.42), blend(0x22252D, ac2 & 0xFFFFFF, lit * 0.36));
         UiFont.icon(g, font, icon, bodyX + 17, y + 19, 0xFF000000 | UiDraw.mix(0xAEB6C4, UiDraw.mix(ac, 0xFFFFFF, 0.55), lit));
         text(g, title, bodyX + 44, y + 9, 0xFFE5E9F0, bodyW - 44 - (settings == null ? 51 : 73), UiFont.Face.BOLD);
-        text(g, description, bodyX + 44, y + 28, 0xFF838994, bodyW - 44 - 12);
+        text(g, description, bodyX + 44, y + 28, 0xFF9AA1AE, bodyW - 44 - 12);
         double on = motion("toggle:" + key, enabled ? 1 : 0);
         int tx = bodyX + bodyW - (settings == null ? 43 : 65);
         if (on > 0.02) UiDraw.roundH(g, tx - 2, y + 7, 34, 18, 9, UiDraw.alpha(ac, 0.2 * on), UiDraw.alpha(ac2, 0.2 * on));
