@@ -151,8 +151,10 @@ public final class ClickGuiScreen extends Screen {
     /** A soft card with one line about the page, at the top of its body. */
     private void intro(GuiGraphics g, String line) {
         if (collecting) { cursor += 30; return; }
-        UiDraw.round(g, bodyX - 2, cursor, bodyW + 4, 24, 6, UiDraw.alpha(0xFFFFFF, 0.04));
-        text(g, line, bodyX + 8, cursor + 7, 0xFFB8C0CD, bodyW - 16);
+        int ac = accent(), ac2 = accent2();
+        UiDraw.round(g, bodyX - 2, cursor, bodyW + 4, 24, 6, UiDraw.alpha(ac, 0.08));
+        UiDraw.roundV(g, bodyX - 2, cursor + 5, 2, 14, 1, UiDraw.alpha(ac, 0.9), UiDraw.alpha(ac2, 0.9));
+        text(g, line, bodyX + 8, cursor + 7, 0xFFC9CFDA, bodyW - 16);
         cursor += 30;
     }
     private static int slot(int page) { for (int k = 0; k < ORDER.length; k++) if (ORDER[k] == page) return k; return 0; }
@@ -424,7 +426,7 @@ public final class ClickGuiScreen extends Screen {
         for (int k = 0; k < ORDER.length; k++) {
             int i = ORDER[k], next = i, y = top + 72 + tabOffset(k);
             for (int j = 0; j < GROUP_START.length; j++) {
-                if (GROUP_START[j] == k) text(g, GROUP_TITLES[j], left + 16, y - 13, 0xFF7D8696, side - 30, UiFont.Face.SMALL);
+                if (GROUP_START[j] == k) text(g, GROUP_TITLES[j], left + 16, y - 13, 0xFF000000 | UiDraw.mix(ac, 0xFFFFFF, 0.25), side - 30, UiFont.Face.SMALL);
             }
             boolean active = page == i, overTab = hover(left + 8, y, side - 16, tabH);
             if (overTab && !active) {
