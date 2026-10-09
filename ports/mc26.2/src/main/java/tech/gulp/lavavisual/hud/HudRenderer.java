@@ -212,22 +212,46 @@ public final class HudRenderer {
         UiFont.text(g, font, nextName, bw - 20 - nw, ly, 0xFF8C95A4, half - 16, Face.SMALL);
         UiFont.iconSmall(g, font, Icons.SKIP_FORWARD, bw - 16, ly, 0xFF7C8594);
     }
-    /** Vinyl disc drawn from cached circles; the streaks and the label mark show the rotation. */
+    /**
+     * Vinyl record: a soft shadow, a bevelled rim, grooves, a label in the two theme colours, and glints of light that
+     * turn with the record while it plays.
+     */
     public static void disc(GuiGraphicsExtractor g, double cx, double cy, double r, float angle, int accent, int accent2) {
-        UiDraw.circle(g, cx, cy, r, 0xFF0E1015);
-        UiDraw.circle(g, cx, cy, r - 2.5, 0xFF17191F);
-        UiDraw.circle(g, cx, cy, r - 5.5, 0xFF101217);
-        UiDraw.circle(g, cx, cy, r - 8.5, 0xFF181A20);
-        UiDraw.circle(g, cx, cy, r * 0.4, 0xFF000000 | accent);
-        UiDraw.circle(g, cx, cy, r * 0.4 - 2, 0xFF000000 | UiDraw.mix(accent, accent2, 0.6));
-        UiDraw.circle(g, cx, cy, Math.max(1.5, r * 0.07), 0xFF0B0C10);
-        g.pose().pushMatrix();
-        g.pose().translate((float) cx, (float) cy);
-        g.pose().rotate((float) Math.toRadians(angle));
-        g.fill((int) Math.round(r * 0.45), -1, (int) Math.round(r - 3), 0, 0x55FFFFFF);
-        g.fill(-(int) Math.round(r - 3), 0, -(int) Math.round(r * 0.45), 1, 0x30FFFFFF);
-        g.fill(-1, -(int) Math.round(r * 0.36), 0, -(int) Math.round(r * 0.14), 0xCCFFFFFF);
-        g.pose().popMatrix();
+        UiDraw.circle(g, cx, cy + Math.max(0.6, r * 0.06), r + 0.5, 0x66000000);
+        UiDraw.circle(g, cx, cy, r, 0xFF2B2F38);
+        UiDraw.circle(g, cx, cy, r - 0.9, 0xFF07080B);
+        // Grooves: smaller circles that alternate between two shades read as rings.
+        double label = r * 0.36, step = Math.max(1.6, r * 0.07);
+        boolean light = false;
+        for (double rr = r - 1.8; rr > label + step; rr -= step) {
+            UiDraw.circle(g, cx, cy, rr, light ? 0xFF1C1F27 : 0xFF0C0D12);
+            light = !light;
+        }
+        // Label: the two theme colours, blended from the rim to the centre.
+        int steps = 5;
+        for (int k = 0; k < steps; k++) {
+            UiDraw.circle(g, cx, cy, label * (1 - 0.14 * k), 0xFF000000 | UiDraw.mix(accent, accent2, k / (double) (steps - 1)));
+        }
+        // Spindle hole with a light ring around it.
+        UiDraw.circle(g, cx, cy, Math.max(2.0, r * 0.1), 0xFFB8BEC9);
+        UiDraw.circle(g, cx, cy, Math.max(1.2, r * 0.065), 0xFF07080B);
+        // A soft light over the upper left, fixed to the record.
+        UiDraw.glowDisc(g, cx - r * 0.2, cy - r * 0.2, r * 0.7, 0x20FFFFFF);
+        // Two glints turn with the record: a bright one and a faint one on the opposite side.
+        glint(g, cx, cy, r, angle, 0.7);
+        glint(g, cx, cy, r, angle + 180, 0.25);
+    }
+
+    /** A radial glint from the label to the rim, brighter towards the rim; drawn as small dots so it turns with the angle. */
+    private static void glint(GuiGraphicsExtractor g, double cx, double cy, double r, double degrees, double strength) {
+        double a = Math.toRadians(degrees);
+        int n = 9;
+        for (int k = 0; k < n; k++) {
+            double t = (k + 0.5) / n;
+            double d = r * (0.42 + 0.5 * t);
+            double dot = Math.max(0.6, r * 0.035 * (0.6 + 0.8 * t));
+            UiDraw.circle(g, cx + Math.cos(a) * d, cy + Math.sin(a) * d, dot, UiDraw.alpha(0xFFFFFF, strength * t));
+        }
     }
 
     /** HUD panel: soft two-layer shadow, faint top-lit gradient and a hairline in the element's two colours. */
