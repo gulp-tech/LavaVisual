@@ -35,6 +35,23 @@ public final class ClickGuiScreen extends Screen {
     private static final String[] TABS = {"HUD", "Эффекты", "Руки", "Звуки", "Музыка", "Карта", "Бинды", "Цвета", "Мир / FPS", "Интерфейс", "Косметика"};
     /** Sidebar order: the cosmetics tab sits next to the effects; page numbers stay stable for saved configs. */
     private static final int[] ORDER = {PAGE_HUD, PAGE_EFFECTS, PAGE_COSMETICS, PAGE_HANDS, PAGE_SOUNDS, PAGE_MUSIC, PAGE_MAP, PAGE_BINDS, PAGE_COLORS, PAGE_WORLD, PAGE_INTERFACE};
+    /** Sidebar groups for newcomers: the first slot of each group (in ORDER) and its title. */
+    private static final int[] GROUP_START = {0, 3, 8};
+    private static final String[] GROUP_TITLES = {"Главное", "Управление", "Настройки"};
+    private static final int GROUP_GAP = 14;
+    /** One line per page: what it changes, for a player who opens the menu for the first time. */
+    private static final String[] ABOUT = {
+            "Что видно на экране: координаты, FPS, цель. Тумблер включает, стрелка открывает настройки.",
+            "Украшения вокруг игрока: частицы, следы, плащ. Ничего не ломают в игре.",
+            "Вид ваших рук и предметов в них.",
+            "Звуки ударов, смертей и кнопок меню.",
+            "Свои треки из папки music и радио вашего города.",
+            "Миникарта и метки на карте.",
+            "Клавиши мода. Нажмите на клавишу, чтобы выбрать новую.",
+            "Цвета меню и модулей. Выберите тему или свой цвет.",
+            "Что видно в мире: прицел, хитбоксы, досягаемость, время суток.",
+            "Размер и прозрачность меню, анимации, конфиги.",
+            "Шляпы, крылья и аксессуары: видны вам и другим игрокам с модом."};
     private static final String[] STYLES = {"узор", "сплошной", "градиент"};
     private static final String[] TAB_ICONS = {Icons.LAYOUT_DASHBOARD, Icons.SPARKLES, Icons.HAND, Icons.VOLUME_2, Icons.MUSIC, Icons.MAP, Icons.KEYBOARD, Icons.PALETTE, Icons.EARTH, Icons.SETTINGS, Icons.CROWN};
     private static final int[] PRESETS = {0xFF5A36, 0xFF8A3C, 0xFFC233, 0xE8FF5A, 0x85F56A, 0x2CE08A, 0x36C8FF, 0x4C6BFF, 0xB45CFF, 0xFF5C9A, 0xFFFFFF, 0x9AA3B2};
@@ -128,6 +145,16 @@ public final class ClickGuiScreen extends Screen {
         query = ""; resultsFor = null; results = List.of(); searchFocused = false;
     }
     private void select(String id) { selected = id; scroll = 0; }
+    private static int groupsBefore(int k) { int n = 0; for (int s : GROUP_START) if (s <= k) n++; return n; }
+    /** Distance of sidebar slot k from the top of the tab list, with the group gaps. */
+    private int tabOffset(int k) { return k * tabStep + GROUP_GAP * groupsBefore(k); }
+    /** A soft card with one line about the page, at the top of its body. */
+    private void intro(GuiGraphics g, String line) {
+        if (collecting) { cursor += 30; return; }
+        UiDraw.round(g, bodyX - 2, cursor, bodyW + 4, 24, 6, UiDraw.alpha(0xFFFFFF, 0.04));
+        text(g, line, bodyX + 8, cursor + 7, 0xFFB8C0CD, bodyW - 16);
+        cursor += 30;
+    }
     private static int slot(int page) { for (int k = 0; k < ORDER.length; k++) if (ORDER[k] == page) return k; return 0; }
     private static String subTitle(String sub) {
         return switch (sub) { case "crosshair" -> "Прицел"; case "hat" -> "Шляпы"; case "wings" -> "Крылья"; default -> SUBPAGES.getOrDefault(sub, sub); };
@@ -384,10 +411,10 @@ public final class ClickGuiScreen extends Screen {
         Logo.draw(g, false, sideCx - logoW / 2, top + 9, UiDraw.alpha(0xFFFFFF, Math.max(0.05, enter)));
         UiFont.gradientCentered(g, font, "LavaVisual", sideCx, top + 45, UiDraw.mix(ac, 0xFFFFFF, 0.1), UiDraw.mix(ac2, 0xFFFFFF, 0.1), 1, UiFont.Face.BOLD);
         UiDraw.roundH(g, left + 16, top + 67, side - 28, 1, 0, UiDraw.alpha(0xFFFFFF, 0.09 * c.menuOpacity), UiDraw.alpha(0xFFFFFF, 0.005));
-        tabStep = Math.max(20, Math.min(29, (panelH - 72 - 30) / TABS.length));
+        tabStep = Math.max(18, Math.min(29, (panelH - 72 - 30 - GROUP_GAP * GROUP_START.length) / TABS.length));
         int tabH = Math.min(25, tabStep - 2), tabPad = (tabH - 11) / 2;
-        if (indicator < 0) indicator = slot(page) * tabStep;
-        indicator += (slot(page) * tabStep - indicator) * frameFactor;
+        if (indicator < 0) indicator = tabOffset(slot(page));
+        indicator += (tabOffset(slot(page)) - indicator) * frameFactor;
         int indicatorY = top + 72 + (int) indicator;
         UiDraw.glow(g, left + 8, indicatorY, side - 16, tabH, 6, 3, ac, ac2, 0.20);
         UiDraw.roundH(g, left + 8, indicatorY, side - 16, tabH, 6, UiDraw.alpha(ac, 0.30), UiDraw.alpha(ac2, 0.07));
@@ -395,7 +422,10 @@ public final class ClickGuiScreen extends Screen {
         UiDraw.roundV(g, left + 8, indicatorY + tabPad - 1, 2, 13, 1, ac, ac2);
         UiDraw.circle(g, left + side - 17, indicatorY + tabH / 2.0, 2.0, UiDraw.alpha(UiDraw.mix(ac, ac2, 0.45), 0.85));
         for (int k = 0; k < ORDER.length; k++) {
-            int i = ORDER[k], next = i, y = top + 72 + k * tabStep;
+            int i = ORDER[k], next = i, y = top + 72 + tabOffset(k);
+            for (int j = 0; j < GROUP_START.length; j++) {
+                if (GROUP_START[j] == k) text(g, GROUP_TITLES[j], left + 16, y - 13, 0xFF7D8696, side - 30, UiFont.Face.SMALL);
+            }
             boolean active = page == i, overTab = hover(left + 8, y, side - 16, tabH);
             if (overTab && !active) {
                 UiDraw.round(g, left + 8, y, side - 16, tabH, 6, UiDraw.alpha(0xFFFFFF, 0.05 * c.menuOpacity));
@@ -406,7 +436,7 @@ public final class ClickGuiScreen extends Screen {
             text(g, TABS[i], left + 33, y + tabPad + 1, tabColor, side - 40);
             hit(left + 8, y, side - 16, tabH, () -> navigate(next));
         }
-        if (72 + TABS.length * tabStep + 14 < panelH - 21) {
+        if (72 + tabOffset(TABS.length) + 14 < panelH - 21) {
             UiDraw.round(g, left + 11, top + panelH - 25, side - 22, 17, 5, UiDraw.alpha(0xFFFFFF, 0.035 * c.menuOpacity));
             UiDraw.roundH(g, left + 11, top + panelH - 25, side - 22, 1, 0, UiDraw.alpha(ac, 0.28), UiDraw.alpha(ac2, 0.06));
             text(g, "26.2 · " + tech.gulp.lavavisual.Edition.label(), left + 16, top + panelH - 21, 0xFF6F7988, side - 28);
@@ -433,10 +463,13 @@ public final class ClickGuiScreen extends Screen {
         clippingHits = true;
         if (searching) searchResults(g);
         else if (selected != null) settings(g);
-        else switch (page) {
-            case PAGE_HUD -> hud(g); case PAGE_EFFECTS -> effects(g); case PAGE_HANDS -> hands(g); case PAGE_SOUNDS -> audio(g); case PAGE_MUSIC -> music(g);
-            case PAGE_MAP -> map(g); case PAGE_BINDS -> binds(g); case PAGE_COLORS -> colors(g); case PAGE_WORLD -> world(g); case PAGE_COSMETICS -> cosmetics(g);
-            default -> appearance(g);
+        else {
+            intro(g, ABOUT[page]);
+            switch (page) {
+                case PAGE_HUD -> hud(g); case PAGE_EFFECTS -> effects(g); case PAGE_HANDS -> hands(g); case PAGE_SOUNDS -> audio(g); case PAGE_MUSIC -> music(g);
+                case PAGE_MAP -> map(g); case PAGE_BINDS -> binds(g); case PAGE_COLORS -> colors(g); case PAGE_WORLD -> world(g); case PAGE_COSMETICS -> cosmetics(g);
+                default -> appearance(g);
+            }
         }
         clippingHits = false;
         contentHeight = cursor + (int) scroll - clipTop;
