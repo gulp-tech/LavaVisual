@@ -153,8 +153,9 @@ public final class NetRadio {
                 // A live stream joins in the middle of a frame: the bytes before the first real frame header are skipped.
                 return Decoders.stream(alignToFrame(ready));
             } catch (RuntimeException | LinkageError failure) {
-                // Not MP3 from the first bytes: say what came instead, so the cause is visible in the log and the toast.
-                throw new IOException("поток не MP3 (тип: " + (type.isEmpty() ? "не указан" : type) + ", начало: " + preview(head) + ")");
+                // The decoder could not start on this stream: name the exception and what came instead, so the cause is
+                // visible in the log and in the toast.
+                throw new IOException("поток не MP3 (" + failure + ", тип: " + (type.isEmpty() ? "не указан" : type) + ", начало: " + preview(head) + ")");
             }
         } catch (IOException failure) {
             closeQuietly(in);
@@ -243,14 +244,19 @@ public final class NetRadio {
 
     /**
      * Skips the bytes up to the first MP3 frame header. A live stream starts wherever the listener joined, so its first
-     * bytes are the middle of a frame; the decoder needs the stream to start at a frame.
+     * bytes are the middle of a frame. The first real frame is not decodable on its own: its bit reservoir refers to
+     * the bytes of earlier frames, which were never received. So the stream starts with a silent frame (see
+     * silentFrame) that fills the reservoir, and the decoder drops the first frames after it (see Decoders).
      */
     private static InputStream alignToFrame(InputStream in) throws IOException {
         byte[] buf = new byte[1 << 16];
         int count = 0, from = 0;
         while (true) {
             for (int i = from; i + 4 <= count; i++) {
-                if (frameHeader(buf, i)) return new SequenceInputStream(new ByteArrayInputStream(buf, i, count - i), in);
+                if (frameHeader(buf, i, count)) {
+                    return new SequenceInputStream(new ByteArrayInputStream(silentFrame(buf, i)),
+                            new SequenceInputStream(new ByteArrayInputStream(buf, i, count - i), in));
+                }
             }
             if (count == buf.length) throw new IOException("в потоке не нашлось кадров MP3");
             from = Math.max(0, count - 3);
@@ -260,12 +266,46 @@ public final class NetRadio {
         }
     }
 
-    /** A valid MPEG audio Layer III frame header: sync bits, layer 3, a real bitrate and a real sample rate. */
-    private static boolean frameHeader(byte[] b, int i) {
+    /** The sample rates of MPEG-1 by header index. */
+    private static final int[] SAMPLE_RATE = {44100, 48000, 32000};
+    /** The bitrates of MPEG-1 Layer III in kbit/s by header index. */
+    private static final int[] BITRATE = {0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 0};
+
+    /**
+     * A frame header at i that starts a real frame: MPEG-1 Layer III with a real bitrate and sample rate, and, when the
+     * next header is already in the buffer, a valid header right after this frame as well.
+     */
+    private static boolean frameHeader(byte[] b, int i, int count) {
+        if (!header(b, i)) return false;
+        int next = i + frameLength(b, i);
+        return next + 4 > count || header(b, next);
+    }
+
+    private static boolean header(byte[] b, int i) {
         if ((b[i] & 0xFF) != 0xFF || (b[i + 1] & 0xE0) != 0xE0) return false;
-        if (((b[i + 1] >> 1) & 3) != 1) return false;
+        if (((b[i + 1] >> 3) & 3) != 3 || ((b[i + 1] >> 1) & 3) != 1) return false;
         int bitrate = (b[i + 2] >> 4) & 0xF, rate = (b[i + 2] >> 2) & 3;
         return bitrate != 0 && bitrate != 15 && rate != 3;
+    }
+
+    /** The length in bytes of the frame whose header is at i (see header). */
+    private static int frameLength(byte[] b, int i) {
+        int bitrate = (b[i + 2] >> 4) & 0xF, rate = (b[i + 2] >> 2) & 3;
+        return 144 * BITRATE[bitrate] * 1000 / SAMPLE_RATE[rate] + ((b[i + 2] >> 1) & 1);
+    }
+
+    /**
+     * A silent frame at 320 kbit/s, in the sample rate and channel mode of the frame whose header is at i. Its main data
+     * is about a thousand bytes, so it fills the bit reservoir for the first real frame, and it decodes to silence.
+     */
+    private static byte[] silentFrame(byte[] b, int i) {
+        int rate = (b[i + 2] >> 2) & 3;
+        byte[] frame = new byte[144 * 320000 / SAMPLE_RATE[rate]];
+        frame[0] = (byte) 0xFF;
+        frame[1] = (byte) 0xFB;                       // MPEG-1, Layer III, no CRC
+        frame[2] = (byte) ((14 << 4) | (rate << 2));   // 320 kbit/s, no padding
+        frame[3] = (byte) (b[i + 3] & 0xC0);           // the channel mode of the stream
+        return frame;
     }
 
     /** The first bytes as text, for the log: what came instead of audio. */

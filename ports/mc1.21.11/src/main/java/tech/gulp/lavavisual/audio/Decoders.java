@@ -55,8 +55,12 @@ public final class Decoders {
 
     /** The MP3 decoder can throw on a damaged stream; that is a broken connection, so it is reported as an I/O error. */
     private static int readMp3(fr.delthas.javamp3.Sound in, byte[] buf, int at) throws IOException {
+        return readMp3(in, buf, at, buf.length - at);
+    }
+
+    private static int readMp3(fr.delthas.javamp3.Sound in, byte[] buf, int at, int length) throws IOException {
         try {
-            return in.read(buf, at, buf.length - at);
+            return in.read(buf, at, length);
         } catch (RuntimeException | LinkageError damaged) {
             throw new IOException("поток испорчен", damaged);
         }
@@ -271,6 +275,11 @@ public final class Decoders {
 
     /** MP3 of an internet stream: the same decoder as for files, reading straight from the socket. */
     private static final class Mp3Stream extends Producer {
+        /**
+         * The frames decoded first from a stream joined in the middle: the silent frame that opens it, and the three
+         * frames after it whose bit reservoir still lacks the bytes of the stream before the join (see NetRadio).
+         */
+        private static final int LIVE_START_FRAMES = 4;
         private final fr.delthas.javamp3.Sound sound;
         Mp3Stream(InputStream in) throws IOException {
             sound = new fr.delthas.javamp3.Sound(in);
@@ -282,6 +291,12 @@ public final class Decoders {
             short[] pcm = new short[buf.length / 2];
             int carry = 0, frameBytes = 2 * channels;
             try (fr.delthas.javamp3.Sound in = sound) {
+                long dropped = (long) LIVE_START_FRAMES * 1152 * frameBytes;
+                while (dropped > 0 && !out.closed) {
+                    int n = readMp3(in, buf, 0, (int) Math.min(buf.length, dropped));
+                    if (n < 0) return;
+                    dropped -= n;
+                }
                 while (!out.closed) {
                     int n = readMp3(in, buf, carry);
                     if (n < 0) break;
