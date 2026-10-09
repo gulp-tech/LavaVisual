@@ -108,7 +108,8 @@ public final class MusicScreen extends Screen {
             UiDraw.circle(g, barX + filled, barY + 2, 3.5, 0xFFF2F5FA);
         }
         String a = live ? "прямой эфир" : MusicPlayer.time(pos), b = live ? "" : MusicPlayer.time(len);
-        UiFont.text(g, font, a, barX, barY + 9, 0xFFB8C0CD, 50, UiFont.Face.SMALL);
+        if (live) HudRenderer.liveDot(g, barX + 3, barY + 13);
+        UiFont.text(g, font, a, barX + (live ? 9 : 0), barY + 9, 0xFFB8C0CD, live ? 90 : 50, UiFont.Face.SMALL);
         UiFont.text(g, font, b, barX + barW - UiFont.width(g, font, b, UiFont.Face.SMALL), barY + 9, 0xFFB8C0CD, 50, UiFont.Face.SMALL);
 
         // Controls: shuffle, previous, -10 s, play / pause, +10 s, next, repeat.

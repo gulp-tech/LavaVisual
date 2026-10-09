@@ -198,7 +198,8 @@ public final class HudRenderer {
             if (to > from) UiDraw.roundH(g, tx + from, 32, to - from, 3, 1, accent, accent2);
         } else if (filled > 1) UiDraw.roundH(g, tx, 32, filled, 3, 1, accent, accent2);
         String a = live ? "эфир" : tech.gulp.lavavisual.audio.MusicPlayer.time(pos), b = live ? "" : tech.gulp.lavavisual.audio.MusicPlayer.time(len);
-        UiFont.text(g, font, a, tx, 38, 0xFFB8C0CD, 40, Face.SMALL);
+        if (live) liveDot(g, tx + 3, 42);
+        UiFont.text(g, font, a, tx + (live ? 9 : 0), 38, 0xFFB8C0CD, live ? 31 : 40, Face.SMALL);
         UiFont.text(g, font, b, tx + tw - UiFont.width(g, font, b, Face.SMALL), 38, 0xFFB8C0CD, 40, Face.SMALL);
         var prev = tech.gulp.lavavisual.audio.MusicPlayer.neighbour(-1);
         var next = tech.gulp.lavavisual.audio.MusicPlayer.neighbour(1);
@@ -211,6 +212,13 @@ public final class HudRenderer {
         UiFont.text(g, font, nextName, bw - 20 - nw, ly, 0xFF8C95A4, half - 16, Face.SMALL);
         UiFont.iconSmall(g, font, Icons.SKIP_FORWARD, bw - 16, ly, 0xFF7C8594);
     }
+    /** Pulsing red dot for "on air": a halo that breathes around a steady core. */
+    public static void liveDot(GuiGraphics g, double x, double y) {
+        double pulse = 0.5 + 0.5 * Math.sin(System.nanoTime() / 260_000_000.0);
+        UiDraw.circle(g, x, y, 2.6 + 2.2 * pulse, UiDraw.alpha(0xFF4D4D, 0.35 * (1 - pulse)));
+        UiDraw.circle(g, x, y, 2.2, 0xFFFF4D4D);
+    }
+
     /**
      * Vinyl record: a soft shadow, a bevelled rim, grooves, a label in the two theme colours, and glints of light that
      * turn with the record while it plays.
