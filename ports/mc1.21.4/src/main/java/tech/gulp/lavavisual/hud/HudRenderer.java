@@ -267,7 +267,7 @@ public final class HudRenderer {
         if (!c.lyricsOn) return;
         var track = tech.gulp.lavavisual.audio.MusicPlayer.current();
         if (track == null || !tech.gulp.lavavisual.audio.MusicPlayer.active() || tech.gulp.lavavisual.audio.MusicPlayer.radioActive()) return;
-        var lines = tech.gulp.lavavisual.audio.Lyrics.of(track.file());
+        var lines = tech.gulp.lavavisual.audio.Lyrics.of(track);
         if (lines.isEmpty()) return;
         double pos = tech.gulp.lavavisual.audio.MusicPlayer.position();
         int at = tech.gulp.lavavisual.audio.Lyrics.indexAt(lines, pos);

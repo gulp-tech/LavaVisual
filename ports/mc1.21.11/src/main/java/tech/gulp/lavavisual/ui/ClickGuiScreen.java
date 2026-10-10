@@ -1020,7 +1020,7 @@ public final class ClickGuiScreen extends Screen {
         toggle(g, "music_auto", "Скрывать без музыки", "HUD виден, только пока трек играет или на паузе", c.musicHudAuto, () -> { c.musicHudAuto = !c.musicHudAuto; changed(); }, null);
         toggle(g, "lyrics", "Слова песни", "Строки песни на экране. Файл со словами: song.lrc рядом с треком", c.lyricsOn, () -> { c.lyricsOn = !c.lyricsOn; changed(); }, null);
         if (c.lyricsOn) {
-            note(g, "Положите рядом с треком файл с тем же именем и расширением .lrc, строки вида [01:23.45] текст");
+            toggle(g, "lyrics_online", "Искать слова сами", "Если рядом с треком нет .lrc, слова берутся с lrclib.net по названию и исполнителю", c.lyricsOnline, () -> { c.lyricsOnline = !c.lyricsOnline; tech.gulp.lavavisual.audio.Lyrics.forget(); changed(); }, null);
             slider(g, "Размер слов", c.lyricsSize, 0.5, 2, v -> c.lyricsSize = v, false);
             slider(g, "Высота слов на экране", c.lyricsY, 0, 0.9, v -> c.lyricsY = v, false);
             toggle(g, "lyrics_next", "Следующая строка", "Под текущей строкой видно следующую", c.lyricsNext, () -> { c.lyricsNext = !c.lyricsNext; changed(); }, null);
