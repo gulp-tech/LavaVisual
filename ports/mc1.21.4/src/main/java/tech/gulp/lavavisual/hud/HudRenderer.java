@@ -262,10 +262,15 @@ public final class HudRenderer {
         }
     }
 
-    /** Lyrics on screen: every word appears somewhere in the air above the player, shimmers, floats and fades out. */
+    /** Lyrics in the air: each line is split into phrases of 2-3 words; every phrase hangs at a point in the world around the player and is drawn as a volume. */
+    private record View(double x, double y, double z, float yaw, float pitch) { }
+    private record Frame(View view, double tanHalf, double aspect, int sw, int sh, double focal, double size, double sec, boolean animate) { }
+    private record Chunk(String text, int index, double x, double y, double z) { }
+    private static final int[][] GLOW = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
     private static Object lyricsTrack;
-    private static int lyricsAt = -2, lyricsOld = -1;
+    private static int lyricsAt = -2, lyricsOld = -1, lyricsSoonAt = -1;
     private static long lyricsChanged;
+    private static List<Chunk> lyricsNow = List.of(), lyricsPast = List.of(), lyricsSoon = List.of();
     private static double easeOut(double x) {
         double c = Math.clamp(x, 0, 1);
         return 1 - Math.pow(1 - c, 3);
@@ -274,8 +279,90 @@ public final class HudRenderer {
         double c = Math.clamp(x, 0, 1), k = 1.70158;
         return 1 + (k + 1) * Math.pow(c - 1, 3) + k * Math.pow(c - 1, 2);
     }
+    /** Splits a line into phrases of 2-3 words, so the words come in groups rather than one by one. */
+    private static List<String> phrases(String line) {
+        List<String> out = new ArrayList<>();
+        if (line.isBlank()) return out;
+        String[] words = line.strip().split("\\s+");
+        int at = 0, left = words.length;
+        while (left > 0) {
+            int k = Math.min(3, left);
+            if (left - k == 1) k = 2;
+            StringBuilder phrase = new StringBuilder();
+            for (int j = at; j < at + k; j++) {
+                if (j > at) phrase.append(' ');
+                phrase.append(words[j]);
+            }
+            out.add(phrase.toString());
+            at += k;
+            left -= k;
+        }
+        return out;
+    }
+    /** Places the phrases of one line at a random spot in the air around the player (the upcoming line sits lower). */
+    private static List<Chunk> makeChunks(String line, int index, boolean soon, View v, double height) {
+        List<String> phrases = phrases(line);
+        List<Chunk> out = new ArrayList<>();
+        if (phrases.isEmpty()) return out;
+        var rnd = java.util.concurrent.ThreadLocalRandom.current();
+        double base = -(8 + 35 * (height / 0.9)) + (soon ? 12 : 0);
+        double yaw = Math.toRadians(v.yaw() + (soon ? rnd.nextDouble(-45, 45) : rnd.nextDouble(-32, 32)));
+        double pitch = Math.toRadians(v.pitch() + base + rnd.nextDouble(-7, 7));
+        double dist = rnd.nextDouble(5.5, 8.5);
+        double bx = v.x() - Math.sin(yaw) * Math.cos(pitch) * dist;
+        double by = v.y() - Math.sin(pitch) * dist;
+        double bz = v.z() + Math.cos(yaw) * Math.cos(pitch) * dist;
+        double rx = -Math.cos(yaw), rz = -Math.sin(yaw);
+        int n = phrases.size();
+        for (int j = 0; j < n; j++) {
+            double along = (j - (n - 1) / 2.0) * 1.7;
+            double lift = rnd.nextDouble(-0.35, 0.35);
+            out.add(new Chunk(phrases.get(j), index, bx + rx * along, by + lift, bz + rz * along));
+        }
+        return out;
+    }
+    /** Screen position of a world point seen from the player's view: {x, y, depth}, or null when behind. */
+    private static double[] project(double px, double py, double pz, Frame f) {
+        View v = f.view();
+        double yr = Math.toRadians(v.yaw()), pr = Math.toRadians(v.pitch());
+        double dx = px - v.x(), dy = py - v.y(), dz = pz - v.z();
+        double depth = dx * (-Math.sin(yr) * Math.cos(pr)) + dy * (-Math.sin(pr)) + dz * (Math.cos(yr) * Math.cos(pr));
+        if (depth < 0.5) return null;
+        double sx = dx * (-Math.cos(yr)) + dz * (-Math.sin(yr));
+        double sy = dx * (-Math.sin(yr) * Math.sin(pr)) + dy * Math.cos(pr) + dz * (Math.cos(yr) * Math.sin(pr));
+        double nx = sx / depth / f.tanHalf() / f.aspect(), ny = sy / depth / f.tanHalf();
+        return new double[] {(nx + 1) / 2 * f.sw(), (1 - ny) / 2 * f.sh(), depth};
+    }
+    /** One phrase as a volume: a soft halo, stacked darker layers behind the face, and a shimmering face. */
+    private static void phrase(GuiGraphics g, Font font, Chunk ch, double dy, double alpha, double grow, double flash, Frame f, int seed) {
+        if (alpha <= 0.01 || grow <= 0.01) return;
+        double bob = f.animate() ? Math.sin(f.sec() * 2 * Math.PI / (3.2 + seed % 3 * 0.6) + seed) * 0.08 : 0;
+        double[] p = project(ch.x(), ch.y() + dy + bob, ch.z(), f);
+        if (p == null) return;
+        if (p[0] < -300 || p[0] > f.sw() + 300 || p[1] < -300 || p[1] > f.sh() + 300) return;
+        double s = Math.clamp(0.42 * f.size() * f.focal() / (p[2] * 9.0) * grow, 0.05, 8);
+        double phase = f.sec() * 1.6 + seed * 0.9 + ch.index() * 0.7;
+        int base = UiDraw.mix(0xFFD1F5, 0xB9A4FF, (Math.sin(phase) + 1) / 2);
+        base = UiDraw.mix(base, 0xFFFFFF, flash * 0.7);
+        String text = ch.text();
+        int w = Math.max(1, UiFont.width(g, font, text, Face.BOLD));
+        g.pose().pushPose();
+        try {
+            g.pose().translate((float) p[0], (float) p[1], 0f);
+            g.pose().scale((float) s, (float) s, 1f);
+            int x = -w / 2;
+            int halo = UiDraw.alpha(base, alpha * 0.16);
+            for (int[] o : GLOW) UiFont.text(g, font, text, x + o[0], o[1], halo, w + 6, Face.BOLD);
+            for (int k = 4; k >= 1; k--) {
+                int side = UiDraw.mix(base, 0x1B0B33, 0.3 + 0.12 * k);
+                UiFont.text(g, font, text, x + k, k, UiDraw.alpha(side, alpha * (0.5 + 0.1 * (4 - k))), w + 6, Face.BOLD);
+            }
+            UiFont.text(g, font, text, x, 0, UiDraw.alpha(base, alpha), w + 6, Face.BOLD);
+            UiFont.text(g, font, text, x - 1, -1, UiDraw.alpha(0xFFFFFF, alpha * 0.2), w + 6, Face.BOLD);
+        } finally { g.pose().popPose(); }
+    }
     private static void lyrics(GuiGraphics g, Minecraft mc, HudConfig c) {
-        if (!c.lyricsOn) return;
+        if (!c.lyricsOn || mc.player == null) return;
         var track = tech.gulp.lavavisual.audio.MusicPlayer.current();
         if (track == null || !tech.gulp.lavavisual.audio.MusicPlayer.active() || tech.gulp.lavavisual.audio.MusicPlayer.radioActive()) return;
         var lines = tech.gulp.lavavisual.audio.Lyrics.of(track);
@@ -283,80 +370,48 @@ public final class HudRenderer {
         double pos = tech.gulp.lavavisual.audio.MusicPlayer.position();
         int at = tech.gulp.lavavisual.audio.Lyrics.indexAt(lines, pos);
         long now = System.nanoTime();
-        if (!track.file().equals(lyricsTrack)) { lyricsTrack = track.file(); lyricsAt = -2; lyricsOld = -1; }
-        if (at != lyricsAt) { lyricsOld = lyricsAt; lyricsAt = at; lyricsChanged = now; }
+        var eye = mc.player.getEyePosition(partial);
+        View view = new View(eye.x, eye.y, eye.z, mc.player.getYRot(), mc.player.getXRot());
+        double height = c.lyricsY;
+        if (!track.file().equals(lyricsTrack)) {
+            lyricsTrack = track.file();
+            lyricsAt = -2; lyricsOld = -1; lyricsSoonAt = -1;
+            lyricsNow = List.of(); lyricsPast = List.of(); lyricsSoon = List.of();
+        }
+        if (at != lyricsAt) {
+            lyricsPast = lyricsNow;
+            lyricsOld = lyricsAt;
+            lyricsAt = at;
+            lyricsChanged = now;
+            if (lyricsSoonAt == at) lyricsNow = lyricsSoon;
+            else lyricsNow = at >= 0 ? makeChunks(lines.get(at).text(), at, false, view, height) : List.of();
+            lyricsSoon = List.of();
+            lyricsSoonAt = -1;
+        }
+        if (c.lyricsNext && at + 1 < lines.size() && lyricsSoonAt != at + 1) {
+            lyricsSoon = makeChunks(lines.get(at + 1).text(), at + 1, true, view, height);
+            lyricsSoonAt = at + 1;
+        }
         boolean animate = c.animations;
         double t = animate ? (now - lyricsChanged) / 1e9 : 10;
         int sw = mc.getWindow().getGuiScaledWidth(), sh = mc.getWindow().getGuiScaledHeight();
-        int top = (int) Math.round(sh * c.lyricsY);
-        int band = (int) Math.round(sh * 0.34);
-        double size = c.lyricsSize;
-        if (at >= 0 && !lines.get(at).text().isEmpty()) {
-            lyricWords(g, mc.font, lines.get(at).text(), at, t, 0, 1, size, sw, sh, top, band, now, animate);
+        double tanHalf = Math.tan(Math.toRadians(mc.options.fov().get()) / 2);
+        double aspect = (double) mc.getWindow().getWidth() / Math.max(1, mc.getWindow().getHeight());
+        Frame f = new Frame(view, tanHalf, aspect, sw, sh, (sh / 2.0) / tanHalf, c.lyricsSize, now / 1e9, animate);
+        for (Chunk ch : lyricsSoon) phrase(g, mc.font, ch, 0, 0.35, 0.9, 0, f, 0);
+        if (t < 0.7) {
+            double out = easeOut(t / 0.7);
+            for (int i = 0; i < lyricsPast.size(); i++) phrase(g, mc.font, lyricsPast.get(i), out * 0.9, 1 - out, 1, 0, f, i + 7);
         }
-        if (lyricsOld >= 0 && lyricsOld < lines.size() && !lines.get(lyricsOld).text().isEmpty() && t < 0.6) {
-            double out = easeOut(t / 0.6);
-            lyricWords(g, mc.font, lines.get(lyricsOld).text(), lyricsOld, 10, out * 16, 1 - out, size, sw, sh, top, band, now, animate);
-        }
-        if (c.lyricsNext && at + 1 < lines.size() && !lines.get(at + 1).text().isEmpty()) {
-            double e = easeOut((t - 0.15) / 0.6);
-            lyricLine(g, mc.font, lines.get(at + 1).text(), size * 0.7, sw, top + band + 6 + (1 - e) * 8, 0xB8C0CD, 0.85 * e, false);
-        }
-    }
-    private static void lyricWords(GuiGraphics g, Font font, String text, int seed, double t, double lift, double alpha, double size, int sw, int sh, int top, int band, long now, boolean animate) {
-        String[] words = text.split("\\s+");
-        double sec = now / 1e9;
-        for (int i = 0; i < words.length; i++) {
-            double wt = t - i * 0.08;
+        for (int i = 0; i < lyricsNow.size(); i++) {
+            double wt = t - i * 0.14;
             if (wt <= 0) continue;
-            int h = seed * 92821 + i * 68917 + 0x9E3779B9;
-            h ^= h >>> 15; h *= 0x85EBCA6B; h ^= h >>> 13;
-            double cx = sw * (0.12 + 0.76 * ((h & 0xFFFF) / 65535.0));
-            double ay = top + band * (((h >>> 16) & 0xFFFF) / 65535.0);
-            double in = Math.max(0.05, easeBack(wt / 0.5));
-            double fade = Math.clamp(wt / 0.3, 0, 1) * alpha;
-            double bob = animate ? Math.sin(sec * 2 * Math.PI / (3.0 + (i % 3) * 0.7) + i) * 2.5 : 0;
-            double rise = animate ? (1 - easeOut(wt / 0.8)) * 14 : 0;
-            double sparkle = animate ? Math.max(0, 1 - wt / 1.4) : 0;
-            double phase = sec * 1.6 + i * 0.9;
-            int rgb = UiDraw.mix(0xFFD1F5, 0xB9A4FF, (Math.sin(phase) + 1) / 2);
-            rgb = UiDraw.mix(rgb, 0xFFFFFF, sparkle * 0.6 * (Math.sin(phase * 3) + 1) / 2);
-            double scale = size * 1.5 * in;
-            double y = ay + bob - lift - rise;
-            wordDraw(g, font, words[i], cx, y, scale, rgb, fade);
+            double grow = animate ? Math.max(0.05, easeBack(wt / 0.6)) : 1;
+            double alpha = animate ? Math.clamp(wt / 0.3, 0, 1) : 1;
+            double dy = animate ? -(1 - easeOut(wt / 0.9)) * 0.9 : 0;
+            double flash = animate ? Math.max(0, 1 - wt / 1.2) : 0;
+            phrase(g, mc.font, lyricsNow.get(i), dy, alpha, grow, flash, f, i);
         }
-    }
-    private static void wordDraw(GuiGraphics g, Font font, String word, double cx, double y, double scale, int rgb, double alpha) {
-        if (alpha <= 0.01) return;
-        Face face = Face.BOLD;
-        int w = Math.max(1, UiFont.width(g, font, word, face));
-        g.pose().pushPose();
-        try {
-            g.pose().translate((float) cx, (float) y, 0f);
-            g.pose().scale((float) scale, (float) scale, 1f);
-            int x = -w / 2;
-            int glow = UiDraw.alpha(rgb, alpha * 0.14);
-            UiFont.text(g, font, word, x - 1, 0, glow, w + 4, face);
-            UiFont.text(g, font, word, x + 1, 0, glow, w + 4, face);
-            UiFont.text(g, font, word, x, -1, glow, w + 4, face);
-            UiFont.text(g, font, word, x, 1, glow, w + 4, face);
-            UiFont.text(g, font, word, x + 1, 1, UiDraw.alpha(0x000000, 0.55 * alpha), w + 4, face);
-            UiFont.text(g, font, word, x, 0, UiDraw.alpha(rgb, alpha), w + 4, face);
-        } finally { g.pose().popPose(); }
-    }
-    private static void lyricLine(GuiGraphics g, Font font, String text, double size, int screenW, double y, int rgb, double alpha, boolean bold) {
-        if (alpha <= 0.01) return;
-        Face face = bold ? Face.BOLD : Face.REGULAR;
-        int w = Math.max(1, UiFont.width(g, font, text, face));
-        double k = Math.min(size, (screenW - 40.0) / w);
-        g.pose().pushPose();
-        try {
-            g.pose().translate(screenW / 2f, (float) y, 0f);
-            g.pose().scale((float) k, (float) k, 1f);
-            int x = -w / 2;
-            UiFont.text(g, font, text, x + 1, 1, UiDraw.alpha(0x000000, 0.6 * alpha), w + 4, face);
-            UiFont.text(g, font, text, x, 0, UiDraw.alpha(rgb, alpha), w + 4, face);
-        } finally { g.pose().popPose(); }
     }
     /** HUD panel: soft two-layer shadow, faint top-lit gradient and a hairline in the element's two colours. */
     private static void panel(GuiGraphics g, HudConfig c, int x, int y, int w, int h, int radius, double opacity, int accent, int accent2) {
