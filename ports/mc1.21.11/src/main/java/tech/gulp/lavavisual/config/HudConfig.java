@@ -100,7 +100,7 @@ public final class HudConfig {
     public boolean musicShuffle, musicHudAuto = true;
     public int musicRepeat = 1;
     /** Song lyrics on screen from a .lrc file next to the track; size 0.5..2, height 0..0.9 of the screen. */
-    public boolean lyricsOn = false, lyricsNext = true, lyricsOnline = true;
+    public boolean lyricsOn = true, lyricsNext = true, lyricsOnline = true;
     public double lyricsSize = 1, lyricsY = 0.18;
     /** Extra vanilla options stored by FPS Boost (-1 = not stored). */
     public int savedBiomeBlend = -1, savedSimulation = -1, savedInactivity = -1;
