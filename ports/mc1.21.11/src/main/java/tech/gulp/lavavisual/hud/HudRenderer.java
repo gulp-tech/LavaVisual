@@ -331,7 +331,7 @@ public final class HudRenderer {
     }
 
     /** One phrase as a volume: a soft halo, three darker layers behind the face, and a shimmering face. */
-    private static void phrase(GuiGraphicsExtractor g, Font font, String text, int w, double cx, double cy, double k, double alpha, double flash, double sec, int seed) {
+    private static void phrase(GuiGraphics g, Font font, String text, int w, double cx, double cy, double k, double alpha, double flash, double sec, int seed) {
         if (alpha <= 0.01) return;
         int face = UiDraw.mix(0xFF8FD8, 0xC7B2FF, (Math.sin(sec * 1.6 + seed * 0.9) + 1) / 2);
         face = UiDraw.mix(face, 0xFFFFFF, flash);
@@ -353,7 +353,7 @@ public final class HudRenderer {
     }
 
     /** Draws one line as a row of phrases centred on its anchor, phrases 6 px apart, scaled down if the row is too wide. */
-    private static void row(GuiGraphicsExtractor g, Font font, Line line, int mode, double t, double from, Frame f) {
+    private static void row(GuiGraphics g, Font font, Line line, int mode, double t, double from, Frame f) {
         if (mode == LEAVE && t >= 0.6) return;
         double[] p = project(line.anchor()[0], line.anchor()[1], line.anchor()[2], f);
         if (p == null || p[0] < -200 || p[0] > f.sw() + 200 || p[1] < -200 || p[1] > f.sh() + 200) return;
@@ -391,7 +391,7 @@ public final class HudRenderer {
         }
     }
 
-    private static void lyrics(GuiGraphicsExtractor g, Minecraft mc, HudConfig c) {
+    private static void lyrics(GuiGraphics g, Minecraft mc, HudConfig c) {
         if (!c.lyricsOn || mc.player == null) return;
         var track = tech.gulp.lavavisual.audio.MusicPlayer.current();
         if (track == null || !tech.gulp.lavavisual.audio.MusicPlayer.active() || tech.gulp.lavavisual.audio.MusicPlayer.radioActive()) return;
