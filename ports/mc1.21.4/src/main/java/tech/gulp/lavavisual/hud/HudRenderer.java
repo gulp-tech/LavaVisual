@@ -262,7 +262,14 @@ public final class HudRenderer {
         }
     }
 
-    /** Karaoke lines of the playing track, centred near the top; the words come from a .lrc file (audio/Lyrics). */
+    /** Karaoke lines of the playing track: the new line rises in, the old one drifts up and out, the words float gently. */
+    private static Object lyricsTrack;
+    private static int lyricsAt = -2, lyricsOld = -1;
+    private static long lyricsChanged;
+    private static double easeOut(double x) {
+        double c = Math.clamp(x, 0, 1);
+        return 1 - Math.pow(1 - c, 3);
+    }
     private static void lyrics(GuiGraphics g, Minecraft mc, HudConfig c) {
         if (!c.lyricsOn) return;
         var track = tech.gulp.lavavisual.audio.MusicPlayer.current();
@@ -271,23 +278,36 @@ public final class HudRenderer {
         if (lines.isEmpty()) return;
         double pos = tech.gulp.lavavisual.audio.MusicPlayer.position();
         int at = tech.gulp.lavavisual.audio.Lyrics.indexAt(lines, pos);
+        long now = System.nanoTime();
+        if (!track.file().equals(lyricsTrack)) { lyricsTrack = track.file(); lyricsAt = -2; lyricsOld = -1; }
+        if (at != lyricsAt) { lyricsOld = lyricsAt; lyricsAt = at; lyricsChanged = now; }
+        boolean animate = c.animations;
+        double t = animate ? (now - lyricsChanged) / 1e9 : 10;
+        double bob = animate ? Math.sin(now / 1e9 * 2 * Math.PI / 3.4) * 1.2 : 0;
         int sw = mc.getWindow().getGuiScaledWidth(), sh = mc.getWindow().getGuiScaledHeight();
         int y = (int) Math.round(sh * c.lyricsY);
+        double size = c.lyricsSize;
         if (at >= 0 && !lines.get(at).text().isEmpty()) {
-            double fade = Math.clamp((pos - lines.get(at).at()) / 0.35, 0, 1);
-            lyricLine(g, mc.font, lines.get(at).text(), c.lyricsSize, sw, y, 0xFFFFFF, fade, true);
+            double e = easeOut(t / 0.6);
+            lyricLine(g, mc.font, lines.get(at).text(), size * (0.9 + 0.1 * e), sw, y + bob + (1 - e) * 14, 0xFFFFFF, e, true);
+        }
+        if (lyricsOld >= 0 && lyricsOld < lines.size() && !lines.get(lyricsOld).text().isEmpty() && t < 0.5) {
+            double out = easeOut(t / 0.5);
+            lyricLine(g, mc.font, lines.get(lyricsOld).text(), size, sw, y + bob - out * 12, 0xFFFFFF, 1 - out, true);
         }
         if (c.lyricsNext && at + 1 < lines.size() && !lines.get(at + 1).text().isEmpty()) {
-            lyricLine(g, mc.font, lines.get(at + 1).text(), c.lyricsSize * 0.7, sw, y + (int) Math.round(34 * c.lyricsSize), 0xB8C0CD, 0.85, false);
+            double e = easeOut((t - 0.15) / 0.6);
+            lyricLine(g, mc.font, lines.get(at + 1).text(), size * 0.7, sw, y + bob + 34 * size + (1 - e) * 8, 0xB8C0CD, 0.85 * e, false);
         }
     }
-    private static void lyricLine(GuiGraphics g, Font font, String text, double size, int screenW, int y, int rgb, double alpha, boolean bold) {
+    private static void lyricLine(GuiGraphics g, Font font, String text, double size, int screenW, double y, int rgb, double alpha, boolean bold) {
+        if (alpha <= 0.01) return;
         Face face = bold ? Face.BOLD : Face.REGULAR;
         int w = Math.max(1, UiFont.width(g, font, text, face));
         double k = Math.min(size, (screenW - 40.0) / w);
         g.pose().pushPose();
         try {
-            g.pose().translate(screenW / 2f, y, 0f);
+            g.pose().translate(screenW / 2f, (float) y, 0f);
             g.pose().scale((float) k, (float) k, 1f);
             int x = -w / 2;
             UiFont.text(g, font, text, x + 1, 1, UiDraw.alpha(0x000000, 0.6 * alpha), w + 4, face);
