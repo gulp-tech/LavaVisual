@@ -101,6 +101,7 @@ public final class MusicPlayer {
     /** Rescans the music folder (sorted by name); keeps the current track playing when it is still there. Tags are
      *  read once per file version, so later scans only look at file sizes and dates. */
     public static void rescan(Path dir) {
+        Lyrics.forget();
         List<Track> found = new ArrayList<>();
         int bad = 0;
         if (Files.isDirectory(dir)) try (Stream<Path> files = Files.list(dir)) {

@@ -99,6 +99,9 @@ public final class HudConfig {
     public double musicVolume = 0.7;
     public boolean musicShuffle, musicHudAuto = true;
     public int musicRepeat = 1;
+    /** Song lyrics on screen from a .lrc file next to the track; size 0.5..2, height 0..0.9 of the screen. */
+    public boolean lyricsOn = false, lyricsNext = true;
+    public double lyricsSize = 1, lyricsY = 0.18;
     /** Extra vanilla options stored by FPS Boost (-1 = not stored). */
     public int savedBiomeBlend = -1, savedSimulation = -1, savedInactivity = -1;
     /** badgeEnabled: show other LavaVisual players' marks. badgeShare: mark your own skin and share the hat (opt-in, see HatSync). */
@@ -334,6 +337,7 @@ public final class HudConfig {
         mapZoom = Math.floorMod(mapZoom, 3);
         mapShape = Math.floorMod(mapShape, 2); trailStyle = Math.floorMod(trailStyle, 5);
         musicVolume = bounded(musicVolume, 0, 1, 0.7); musicRepeat = Math.floorMod(musicRepeat, 3);
+        lyricsSize = bounded(lyricsSize, 0.5, 2, 1); lyricsY = bounded(lyricsY, 0, 0.9, 0.18);
         zoomLevel = bounded(zoomLevel, 1.5, 15, 4); critMultiplier = Math.max(1, Math.min(6, critMultiplier));
         trailLength = bounded(trailLength, 0.4, 3, 1.1); trailWidth = bounded(trailWidth, 0.4, 2, 1); trailBrightness = bounded(trailBrightness, 0.3, 1, 0.9);
         schemaVersion = SCHEMA;

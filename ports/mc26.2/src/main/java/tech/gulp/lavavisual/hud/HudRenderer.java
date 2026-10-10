@@ -110,6 +110,7 @@ public final class HudRenderer {
             handDurability(g, mc);
             reachReadout(g, mc);
             tech.gulp.lavavisual.map.WaypointOverlay.draw(g, mc);
+            lyrics(g, mc, c);
         }
         for (String id : HudConfig.IDS) {
             HudConfig.Widget w = c.widgets.get(id);
@@ -262,6 +263,38 @@ public final class HudRenderer {
         }
     }
 
+    /** Karaoke lines of the playing track, centred near the top; the words come from a .lrc file (audio/Lyrics). */
+    private static void lyrics(GuiGraphicsExtractor g, Minecraft mc, HudConfig c) {
+        if (!c.lyricsOn) return;
+        var track = tech.gulp.lavavisual.audio.MusicPlayer.current();
+        if (track == null || !tech.gulp.lavavisual.audio.MusicPlayer.active() || tech.gulp.lavavisual.audio.MusicPlayer.radioActive()) return;
+        var lines = tech.gulp.lavavisual.audio.Lyrics.of(track.file());
+        if (lines.isEmpty()) return;
+        double pos = tech.gulp.lavavisual.audio.MusicPlayer.position();
+        int at = tech.gulp.lavavisual.audio.Lyrics.indexAt(lines, pos);
+        int sw = mc.getWindow().getGuiScaledWidth(), sh = mc.getWindow().getGuiScaledHeight();
+        int y = (int) Math.round(sh * c.lyricsY);
+        if (at >= 0 && !lines.get(at).text().isEmpty()) {
+            double fade = Math.clamp((pos - lines.get(at).at()) / 0.35, 0, 1);
+            lyricLine(g, mc.font, lines.get(at).text(), c.lyricsSize, sw, y, 0xFFFFFF, fade, true);
+        }
+        if (c.lyricsNext && at + 1 < lines.size() && !lines.get(at + 1).text().isEmpty()) {
+            lyricLine(g, mc.font, lines.get(at + 1).text(), c.lyricsSize * 0.7, sw, y + (int) Math.round(34 * c.lyricsSize), 0xB8C0CD, 0.85, false);
+        }
+    }
+    private static void lyricLine(GuiGraphicsExtractor g, Font font, String text, double size, int screenW, int y, int rgb, double alpha, boolean bold) {
+        Face face = bold ? Face.BOLD : Face.REGULAR;
+        int w = Math.max(1, UiFont.width(g, font, text, face));
+        double k = Math.min(size, (screenW - 40.0) / w);
+        g.pose().pushMatrix();
+        try {
+            g.pose().translate(screenW / 2f, y);
+            g.pose().scale((float) k);
+            int x = -w / 2;
+            UiFont.text(g, font, text, x + 1, 1, UiDraw.alpha(0x000000, 0.6 * alpha), w + 4, face);
+            UiFont.text(g, font, text, x, 0, UiDraw.alpha(rgb, alpha), w + 4, face);
+        } finally { g.pose().popMatrix(); }
+    }
     /** HUD panel: soft two-layer shadow, faint top-lit gradient and a hairline in the element's two colours. */
     private static void panel(GuiGraphicsExtractor g, HudConfig c, int x, int y, int w, int h, int radius, double opacity, int accent, int accent2) {
         if (c.shadows) {
