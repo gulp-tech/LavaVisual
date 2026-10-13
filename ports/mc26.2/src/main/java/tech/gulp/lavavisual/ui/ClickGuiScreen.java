@@ -170,11 +170,11 @@ public final class ClickGuiScreen extends Screen {
     /** Slow embers rising behind the menu in both theme colours; positions are pure functions of time (no state, no allocation). */
     private void embers(GuiGraphicsExtractor g, int canvasW, int canvasH, long now, int ac, int ac2, double enter) {
         double t = now / 1e9, span = canvasH + 24;
-        for (int i = 0; i < 34; i++) {
+        for (int i = 0; i < 14; i++) {
             double r1 = frac(Math.sin(i * 12.9898) * 43758.5453), r2 = frac(Math.sin(i * 78.233) * 24634.6345), r3 = frac(Math.sin(i * 39.425) * 12345.6789);
             double rise = (t * (5 + 13 * r2) + r3 * span) % span, life = rise / span;
             int x = (int) (r1 * canvasW + Math.sin(t * (0.25 + r3 * 0.5) + i) * 7), y = (int) (canvasH + 12 - rise);
-            double a = Math.sin(Math.PI * life) * (0.22 + 0.4 * r3) * enter;
+            double a = Math.sin(Math.PI * life) * (0.12 + 0.2 * r3) * enter;
             int color = UiDraw.mix(ac, ac2, r1);
             double radius = r2 > 0.72 ? 1.3 : 0.75;
             UiDraw.circle(g, x, y, radius * 2.4, UiDraw.alpha(color, a * 0.2));
@@ -299,13 +299,12 @@ public final class ClickGuiScreen extends Screen {
         g.fill(bodyX + 7, y, bodyX + bodyW - 7, y + 1, UiDraw.alpha(0xFFFFFF, 0.04 + 0.04 * over));
         double lit = motion("lit:" + key, enabled ? 1 : 0);
         if (lit > 0.01) {
-            UiDraw.round(g, bodyX - 1, y - 1, bodyW + 2, 50, 9, UiDraw.alpha(ac, 0.11 * lit));
-            UiDraw.roundH(g, bodyX + 1, y + 1, bodyW - 2, 46, 7, UiDraw.alpha(ac, 0.13 * lit), UiDraw.alpha(ac2, 0.02 * lit));
+                UiDraw.roundH(g, bodyX + 1, y + 1, bodyW - 2, 46, 7, UiDraw.alpha(ac, 0.07 * lit), UiDraw.alpha(ac, 0.02 * lit));
             UiDraw.roundV(g, bodyX + 1, y + 10, 2, 28, 1, UiDraw.alpha(ac, lit), UiDraw.alpha(ac2, lit));
         }
         String icon = CARD_ICONS.getOrDefault(key.startsWith("setting:") ? "setting" : key, Icons.SLIDERS_HORIZONTAL);
         UiDraw.round(g, bodyX + 9, y + 11, 26, 26, 8, UiDraw.alpha(0xFFFFFF, (0.05 + 0.10 * lit) * op));
-        UiDraw.roundV(g, bodyX + 10, y + 12, 24, 24, 7, blend(0x2B2F38, ac & 0xFFFFFF, lit * 0.42), blend(0x22252D, ac2 & 0xFFFFFF, lit * 0.36));
+        UiDraw.round(g, bodyX + 10, y + 12, 24, 24, 7, blend(0x2B2F38, ac & 0xFFFFFF, lit * 0.3));
         UiFont.icon(g, font, icon, bodyX + 17, y + 19, 0xFF000000 | UiDraw.mix(0xAEB6C4, UiDraw.mix(ac, 0xFFFFFF, 0.55), lit));
         text(g, title, bodyX + 44, y + 9, 0xFFE5E9F0, bodyW - 44 - (settings == null ? 51 : 73), UiFont.Face.BOLD);
         text(g, description, bodyX + 44, y + 28, 0xFF9AA1AE, bodyW - 44 - 12);
@@ -389,8 +388,8 @@ public final class ClickGuiScreen extends Screen {
         UiDraw.roundV(g, left, top, panelW, panelH, 10, UiDraw.alpha(UiDraw.mix(menuBg, 0xFFFFFF, 0.035), c.menuOpacity), UiDraw.alpha(UiDraw.mix(menuBg, 0x000000, 0.16), c.menuOpacity));
         // Depth of the plate: a warm glow in the top-left corner, a cool one in the bottom-right, and a rim light
         // along the top edge, so the panel reads as a pane of dark glass instead of a flat rectangle.
-        UiDraw.glowDisc(g, left + 30, top + 4, 130, UiDraw.alpha(ac, 0.11 * c.menuOpacity));
-        UiDraw.glowDisc(g, left + panelW - 24, top + panelH, 160, UiDraw.alpha(ac2, 0.10 * c.menuOpacity));
+        UiDraw.glowDisc(g, left + 30, top + 4, 130, UiDraw.alpha(ac, 0.05 * c.menuOpacity));
+        UiDraw.glowDisc(g, left + panelW - 24, top + panelH, 160, UiDraw.alpha(ac2, 0.04 * c.menuOpacity));
         g.fillGradient(left + 8, top + 1, left + panelW - 8, top + 34, UiDraw.alpha(0xFFFFFF, 0.03 * c.menuOpacity), 0x00000000);
         UiDraw.round(g, left, top, panelW, 1, 0, UiDraw.alpha(UiDraw.mix(ac, 0xFFFFFF, 0.35), 0.9));
         UiDraw.round(g, left, top + panelH - 1, panelW, 1, 0, UiDraw.alpha(UiDraw.mix(ac2, 0x000000, 0.4), 0.55));
@@ -400,12 +399,7 @@ public final class ClickGuiScreen extends Screen {
         g.fillGradient(left + side + 2, top + 1, left + panelW - 10, top + 46, UiDraw.alpha(ac, 0.10), UiDraw.alpha(ac, 0));
         g.fillGradient(left + side + 2, top + panelH - 46, left + panelW - 10, top + panelH - 1, UiDraw.alpha(ac2, 0.05), UiDraw.alpha(ac2, 0));
         // The theme hairline along the top stays, with a short shine running along it instead of the old dashes.
-        double shine = now / 4.2e9 % 1.0;
-        for (int gx = 0; gx < panelW - 24; gx += 2) {
-            double t = gx / (double) (panelW - 24), far = Math.abs(t - shine);
-            double pulse = Math.max(0, 1 - Math.min(far, 1 - far) * 6);
-            g.fill(left + 12 + gx, top, left + 14 + gx, top + 1, UiDraw.alpha(UiDraw.mix(0xFFFFFF, UiDraw.mix(ac, ac2, t), 0.4), 0.85 * pulse * Math.sin(Math.PI * t)));
-        }
+        g.fill(left + 12, top, left + panelW - 12, top + 1, UiDraw.alpha(UiDraw.mix(ac, ac2, 0.5), 0.3));
         g.fillGradient(left + side, top + 15, left + side + 1, top + panelH - 15, UiDraw.alpha(ac, 0.5), UiDraw.alpha(ac2, 0.12));
         // Brand: the LV logo (pixel-exact texture) over a warm glow, and the name in the theme gradient.
         int sideCx = left + 4 + (side - 6) / 2, logoW = Logo.width(false);
